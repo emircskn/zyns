@@ -12,7 +12,7 @@ const NAMED: Record<string, string> = {
   landscape_21_9: "21 / 9",
 };
 
-const RATIO_KEYS = ["aspect_ratio", "aspectRatio", "ratio", "image_size"];
+const RATIO_KEYS = ["aspect_ratio", "aspectRatio", "ratio", "image_size", "size"];
 
 /**
  * Best guess at the shape a run will come back in, so gallery tiles reserve

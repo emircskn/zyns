@@ -24,7 +24,10 @@ export type FieldKind =
   | "media"
   | "shots"
   | "elements"
-  | "clips";
+  | "clips"
+  | "records"
+  | "list"
+  | "json";
 
 /**
  * Where a control lives in the studio chrome:
@@ -71,6 +74,21 @@ export interface Field {
   chip?: (value: unknown, v: Values) => string;
   /** Group heading inside the advanced panel. */
   group?: string;
+  /** For `records`: the simple columns each row has. */
+  itemFields?: ItemField[];
+}
+
+/** One column of a `records` editor (array-of-objects parameters). */
+export interface ItemField {
+  key: string;
+  label: string;
+  kind: "text" | "number" | "select" | "toggle" | "media" | "images";
+  choices?: Choice[];
+  accept?: "image" | "video" | "audio";
+  required?: boolean;
+  min?: number;
+  max?: number;
+  help?: string;
 }
 
 export interface Mode {

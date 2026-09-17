@@ -12,7 +12,8 @@ function ModeStrip() {
   const model = useModel();
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
-  if (!model?.modes?.length) return null;
+  // A single mode is not a choice — the strip only earns its place from two.
+  if (!model?.modes || model.modes.length < 2) return null;
 
   return (
     <div key={model.id} className="anim-swap mb-2 flex flex-wrap items-center gap-1">

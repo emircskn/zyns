@@ -1,22 +1,22 @@
-import { AUDIO_MODELS } from "./audio";
-import { IMAGE_MODELS, IMAGE_TOOLS } from "./image";
-import { VIDEO_MODELS } from "./video";
+import { familyToModel, allSpecs } from "./auto";
+import { FAMILIES } from "./curation";
 import type { Category, Field, ModelDef, Values } from "./types";
 
 export * from "./types";
+export { FAMILIES } from "./curation";
+export { getSpec } from "./auto";
 
-export const MODELS: ModelDef[] = [
-  ...IMAGE_MODELS,
-  ...VIDEO_MODELS,
-  ...AUDIO_MODELS,
-  ...IMAGE_TOOLS,
-];
+/** Every family, rendered into a ModelDef from the documented schemas. */
+export const MODELS: ModelDef[] = FAMILIES.map(familyToModel);
+
+/** Documented endpoints, for reporting what the studio covers. */
+export const SPEC_COUNT = allSpecs().length;
 
 export const CATEGORIES: Array<{ id: Category; label: string; blurb: string }> = [
   { id: "image", label: "Image", blurb: "Generate and edit stills" },
   { id: "video", label: "Video", blurb: "Motion, avatars and editing" },
   { id: "audio", label: "Audio", blurb: "Music, speech and effects" },
-  { id: "tool", label: "Tools", blurb: "Upscale, reframe, cut out" },
+  { id: "tool", label: "Tools", blurb: "Upscale, isolate, cut out" },
 ];
 
 export function getModel(id: string): ModelDef | undefined {

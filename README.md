@@ -18,46 +18,42 @@ olmayan bir seçenek hiç görünmüyor, geçerli olan hiçbir seçenek de eksik
 
 ## Kapsanan modeller
 
-### Görsel (9)
-| Model | Sağlayıcı | Modlar | Öne çıkan ayarlar |
-|---|---|---|---|
-| Nano Banana 2 / Lite | Google | generate, edit | 15 en-boy oranı, 1K/2K/4K, 14 referans, Google Search grounding |
-| Seedream 5 Lite / Pro / V4 | ByteDance | generate, edit | Sürüm başına ayrı ayar seti, kalite basic/high, 6'ya kadar batch |
-| GPT Image 2 | OpenAI | generate, edit | 16 referans görsel, 1K/2K/4K |
-| FLUX Kontext Pro / Max | Black Forest Labs | generate, edit | Prompt upsampling, safety tolerance (edit'te 0–2) |
-| FLUX 2 Pro / Flex | Black Forest Labs | generate, reference | 1–8 referans, 1K/2K |
-| Qwen Image | Alibaba | generate, edit | Steps 2–250, CFG 0–20, acceleration, negatif prompt |
-| Z-Image | Tongyi-MAI | — | Çift dilli metin render |
-| Midjourney | Midjourney | txt2img, img2img, style ref, omni ref, video, video HD | Stylization, weirdness, variety, motion, batch |
-| Grok Imagine | xAI | t2i, i2i, t2v, i2v, upscale | fun/normal/spicy, task ID ile zincirleme |
+Katalog doğrudan **docs.kie.ai**'den üretiliyor: `scripts/kie-catalog/build.py`
+dokümanın sayfa indeksini (`llms.txt`) çekiyor, her model sayfasına gömülü
+OpenAPI şemasını ayrıştırıyor ve `src/lib/registry/generated/catalog.json`
+dosyasını yazıyor. Şu anki katalog **176 üretken endpoint** içeriyor; arayüz
+bunları **69 ürün ailesi** olarak sunuyor (chat/LLM modelleri kapsam dışı).
 
-### Video (12)
-| Model | Sağlayıcı | Modlar | Öne çıkan ayarlar |
-|---|---|---|---|
-| Veo 3.1 | Google DeepMind | t2v, i2v | veo3 / veo3_fast, start+end frame, fallback |
-| Seedance 2.5 | ByteDance | t2v, i2v, reference | Native audio, 3–15 sn, 480p–1080p, görev zinciri |
-| Kling 3.0 | Kuaishou | t2v, i2v, multi-shot | Çok sahneli anlatım, elements ile karakter tutarlılığı, native audio |
-| Hailuo 03 (H3) | MiniMax | t2v, i2v, reference | 9 görsel + 3 video + 3 ses referansı, 768p |
-| Wan 2.7 | Alibaba | t2v, i2v, reference, video edit | Driving audio ile mimik, prompt extend, NSFW filtresi |
-| HappyHorse 1.0 | Alibaba | t2v, i2v, reference, video edit | 9 referansa kadar, 3–15 sn |
-| Gemini Omni | Google | video, karakter, ses | Tekrar kullanılabilir karakter/ses, 4K'ya kadar |
-| Runway Aleph | Runway | — | Video-to-video dönüşüm, stil referansı |
-| Wan Animate | Alibaba | animate, replace | Hareket transferi veya karakter değişimi |
-| OmniHuman 1.5 | ByteDance | — | Portre + ses ile animasyon, maske desteği |
-| Kling Avatar | Kuaishou | — | Standard 720p / Pro 1080p konuşan avatar |
-| InfiniTalk | InfiniTalk | — | Uzun formlu lip sync |
+```bash
+pip install pyyaml
+python3 scripts/kie-catalog/build.py     # kataloğu dokümandan yeniden üret
+```
 
-### Ses (3)
-| Model | Sağlayıcı | Modlar | Öne çıkan ayarlar |
-|---|---|---|---|
-| Suno | Suno | simple, custom | V3.5–V5.5, enstrümantal, vokal cinsiyeti, style/weirdness/audio ağırlıkları |
-| ElevenLabs Speech | ElevenLabs | — | 21 ses, turbo/multilingual, stability / similarity / style / speed |
-| ElevenLabs SFX | ElevenLabs | — | 0.5–22 sn, loop, 19 çıkış formatı |
+### Görsel (28 aile)
+Nano Banana 2 · 2 Lite · Pro · Nano Banana · Imagen 4 (Fast/Standard/Ultra) ·
+Seedream 5 Pro (generate/edit/layer decomposition) · 5 Lite · 4.5 · 4.0 · 3.0 ·
+GPT Image 2 · 2.5 Flare · 2.5 Sunburst · 1.5 · 4o Image · FLUX 2 Pro · FLUX 2 Flex ·
+FLUX Kontext · Grok Imagine Image 2.0 (segment map/edit dahil) · Grok Imagine ·
+Ideogram V3 (generate/edit/remix) · Ideogram Character · Qwen Image · Qwen2 ·
+Qwen3 (standard/pro) · Wan 2.7 Image (standard/pro) · Z-Image
 
-### Araçlar (3)
-Topaz Upscale (1×–8×), Ideogram Reframe, Recraft arka plan kaldırma.
+### Video (31 aile)
+Veo 3.1 (text/frames/reference + extend + 1080p/4K) · Seedance 2.5 · 2.0 · 2.0 Fast ·
+2.0 Mini · 1.5 Pro · 1.0 (Pro/Lite) · Kling 3.0 (multi-shot) · Kling 3.0 Omni
+(8 mod, 4K) · Kling V3 Turbo · 2.6 · 2.5 Turbo · 2.1 · Kling Motion Control (2.6/3.0) ·
+Kling Avatar · Hailuo 03 (H3) · Hailuo 2.3 · Hailuo 02 · Wan 3.0 (Video/Prime) ·
+Wan 2.7 · 2.6 (+Flash) · 2.5 · 2.2 Turbo (speech-to-video dahil) · Wan Animate ·
+HappyHorse 1.1 · 1.0 · PixVerse V6 (template, fusion, transition, extend) ·
+Grok Imagine Video (1.5 preview, upscale, extend) · Gemini Omni (video, karakter, ses) ·
+Runway (generate/extend/Aleph) · OmniHuman 1.5 · InfiniTalk · Volcengine Lip Sync
 
----
+### Ses (7 aile)
+Suno (generate, extend, cover, add vocals/instrumental, mashup, replace section, sounds) ·
+Suno Studio (lyrics, stems, MIDI, WAV, cover art, music video, persona) · Suno Voice ·
+ElevenLabs Speech (67 ses, Turbo/Multilingual) · ElevenLabs Dialogue v3 · Gemini TTS (2.5 Pro / 3.1 Flash)
+
+### Araçlar (3 aile)
+Topaz Upscale (image/video) · Recraft (remove background, crisp upscale) · ElevenLabs Audio Isolation
 
 ## Çalıştırma
 
@@ -94,12 +90,12 @@ dönüşürdü.
 
 ```
 src/
-├─ lib/registry/        # Modellerin tamamı — arayüzün tek doğruluk kaynağı
-│  ├─ types.ts          # Field / Mode / ModelDef sözleşmesi
-│  ├─ common.ts         # Paylaşılan alan üreticileri ve yardımcılar
-│  ├─ image.ts          # 9 görsel modeli + 3 araç
-│  ├─ video.ts          # 12 video modeli
-│  └─ audio.ts          # 3 ses modeli
+├─ lib/registry/
+│  ├─ generated/catalog.json  # docs.kie.ai'den üretilen 176 endpoint şeması
+│  ├─ curation.ts       # 69 ürün ailesi: ad, satıcı, modlar, sunum ayarları
+│  ├─ auto.ts           # şema → alan/kontrol/payload adaptörü (sezgisel kurallar)
+│  └─ types.ts          # Field / Mode / ModelDef sözleşmesi
+├─ scripts/kie-catalog/build.py   # kataloğu dokümandan yeniden üretir
 ├─ lib/kie/client.ts    # KIE REST sarmalayıcısı + sonuç normalizasyonu
 ├─ app/api/kie/*        # create / task / credits / upload proxy route'ları
 ├─ components/          # Rail, prompt barı, model seçici, ayar paneli, galeri
@@ -108,48 +104,46 @@ src/
 
 ### Model nasıl eklenir
 
-`src/lib/registry/*.ts` içine bir `ModelDef` ekle — UI'da hiçbir şeye dokunma:
+Parametreler dokümandan geliyor; senin işin sadece **hangi endpoint'lerin hangi
+kartta hangi mod olarak** görüneceğini söylemek. `src/lib/registry/curation.ts`
+içine bir aile ekle:
 
 ```ts
-const myModel: ModelDef = {
+{
   id: "my-model",
   name: "My Model",
   vendor: "Vendor",
   category: "video",
   output: "video",
   tagline: "Tek cümlelik tanım.",
-  tags: ["text to video"],
-  modes: [{ id: "text-to-video", label: "Text to video" }],
-  defaultMode: "text-to-video",
-  fields: [
-    promptField(),
-    {
-      key: "resolution",
-      label: "Resolution",
-      kind: "segmented",
-      placement: "bar",          // bar | panel | prompt | input
-      default: "720p",
-      choices: choices([["720p", "720p"], ["1080p", "1080p"]]),
-      when: inMode("text-to-video"),   // koşullu görünürlük
-    },
+  modes: [
+    m("text-to-video", "Text to video", "vendor/my-model-t2v"),
+    m("image-to-video", "Image to video", "vendor/my-model-i2v", { require: ["image_url"] }),
+    // aynı şemayı paylaşan modlar: hide / require / fixed ile ayrıştır
+    m("multi-shot", "Multi-shot", "vendor/my-model", { fixed: { multi_shots: true } }),
+    // dokümanın oneOf varyantları: variant başlığıyla seç
+    m("extend", "Extend", "vendor/my-model-extend", { variant: "TaskId" }),
   ],
-  build: (v) => ({
-    endpoint: "/api/v1/jobs/createTask",
-    poll: "jobs",
-    payload: { model: "vendor/my-model", input: compact({ prompt: v.prompt, resolution: v.resolution }) },
-  }),
-};
+  // isteğe bağlı sunum düzeltmeleri
+  fields: { quality: { kind: "segmented", placement: "bar" } },
+}
 ```
 
-`placement` alanın nerede çıkacağını belirler:
+`model` değeri `catalog.json`'da yoksa uygulama açılışta hata verir — eski bir
+kimlik sessizce yayına çıkmaz. Kontrol türü, konumu, sınırları ve varsayılanı
+`auto.ts` dokümandaki şemadan çıkarır; `fields` ile tek tek ezebilirsin.
+
+`placement` alanın nerede çıkacağını belirler (adaptör bunu anahtar adından tahmin eder, `fields` ile değiştirilebilir):
 
 - `prompt` — büyük metin alanı
 - `input` — prompt'un üstündeki referans medya şeridi
 - `bar` — prompt barındaki chip (her üretimde dokunduğun ayarlar)
 - `panel` — sağdaki gelişmiş ayarlar çekmecesi
 
-Yeni bir endpoint kullanıyorsan `src/app/api/kie/create/route.ts` içindeki
-`ALLOWED_ENDPOINTS` listesine de eklemen gerekir.
+Tüm modeller `/api/v1/jobs/createTask` üzerinden gidiyor (Veo, Runway, Suno,
+Flux Kontext dahil — KIE eski ayrı endpoint'leri bu tek endpoint'te birleştirdi).
+Farklı bir endpoint gerekirse `src/app/api/kie/create/route.ts` içindeki
+`ALLOWED_ENDPOINTS` listesine eklenmeli.
 
 ## Tasarım sistemi
 
@@ -203,10 +197,10 @@ marka renginin yavaşça sürüklendiği bir gradyan üzerinde bekliyor.
 
 ## Bilinen sınır
 
-Bu depo geliştirilirken `api.kie.ai`'ye ve `docs.kie.ai`'ye ağ erişimi olmadığı
-için uçtan uca canlı üretim testi yapılamadı. Model ve parametre bilgisi, KIE'nin
-yayınladığı resmi araç tanımlarından (`@felores/kie-ai-core`) birebir çıkarıldı —
-bunlar dokümantasyonun kaynağıyla aynı şemaları taşır. İstek oluşturma, hata yüzeyi, yoklama ve galeri
+Katalog dokümanın kendisinden üretildiği için parametreler ve sınırlar
+dokümanla birebir; ancak bu depo geliştirilirken gerçek bir API anahtarıyla
+uçtan uca canlı üretim testi yapılamadı. Her aile×mod kombinasyonu (201 adet)
+programatik olarak derlenip payload üretimi doğrulandı. İstek oluşturma, hata yüzeyi, yoklama ve galeri
 akışının tamamı gerçek HTTP yoluyla (engellenen upstream'e karşı) doğrulandı;
 her modelin ürettiği payload, KIE'nin resmi araç tanımlarındaki şemalarla
 karşılaştırılarak kontrol edildi. Kendi anahtarınla ilk çalıştırmada bir modeli

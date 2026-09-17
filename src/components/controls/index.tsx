@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import type { Field, Values } from "@/lib/registry";
+import type { Field, ItemField, Values } from "@/lib/registry";
 import { Icon } from "@/components/Icon";
 import { mediaKind, uploadFile } from "@/lib/upload";
 import { useStudio } from "@/store/studio";
@@ -627,6 +627,216 @@ export function ClipsControl({ field, value, onChange }: ControlProps) {
   );
 }
 
+/* ------------------------------------------------------------------ *
+ * Generic editors for documented shapes the bespoke ones do not cover
+ * ------------------------------------------------------------------ */
+
+const SMALL_INPUT =
+  "w-full rounded-chip bg-canvas/50 px-2.5 py-1.5 text-[12.5px] text-t1 outline-none placeholder:text-t4";
+
+function ItemInput({
+  column,
+  value,
+  onChange,
+}: {
+  column: ItemField;
+  value: unknown;
+  onChange: (value: unknown) => void;
+}) {
+  switch (column.kind) {
+    case "select":
+      return (
+        <select
+          value={String(value ?? "")}
+          onChange={(event) => onChange(event.target.value || undefined)}
+          className={SMALL_INPUT}
+        >
+          <option value="">—</option>
+          {(column.choices ?? []).map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      );
+    case "number":
+      return (
+        <input
+          type="number"
+          min={column.min}
+          max={column.max}
+          value={value === undefined || value === null ? "" : String(value)}
+          onChange={(event) => onChange(event.target.value === "" ? undefined : Number(event.target.value))}
+          className={`${SMALL_INPUT} font-mono tabular-nums`}
+        />
+      );
+    case "toggle":
+      return (
+        <ToggleControl
+          field={{ key: column.key, label: column.label, kind: "toggle", placement: "panel" }}
+          values={{}}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    case "media":
+      return (
+        <MediaControl
+          field={{ key: column.key, label: column.label, kind: "media", placement: "panel", accept: column.accept }}
+          values={{}}
+          compact
+          value={value}
+          onChange={onChange}
+        />
+      );
+    case "images":
+      return (
+        <ImagesControl
+          field={{ key: column.key, label: column.label, kind: "images", placement: "panel", accept: column.accept }}
+          values={{}}
+          compact
+          value={value}
+          onChange={onChange}
+        />
+      );
+    default:
+      return (
+        <input
+          type="text"
+          value={(value as string) ?? ""}
+          placeholder={column.help}
+          onChange={(event) => onChange(event.target.value)}
+          className={SMALL_INPUT}
+        />
+      );
+  }
+}
+
+/** Array-of-objects parameter, one card per row, columns from the docs. */
+export function RecordsControl({ field, value, onChange }: ControlProps) {
+  const rows = (Array.isArray(value) ? value : []) as Record<string, unknown>[];
+  const columns = field.itemFields ?? [];
+  const update = (index: number, key: string, next: unknown) =>
+    onChange(rows.map((row, i) => (i === index ? { ...row, [key]: next } : row)));
+  const full = field.maxItems !== undefined && rows.length >= field.maxItems;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {rows.map((row, index) => (
+        <div key={index} className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-t4">
+              {field.label} {index + 1}
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange(rows.filter((_, i) => i !== index))}
+              className="text-t4 transition-colors hover:text-t1"
+              aria-label="Remove row"
+            >
+              <Icon name="close" size={12} />
+            </button>
+          </div>
+          <div className="flex flex-col gap-2">
+            {columns.map((column) => (
+              <div key={column.key}>
+                {column.kind !== "toggle" && column.kind !== "media" && column.kind !== "images" && (
+                  <label className="mb-1 block text-[11px] text-t3">
+                    {column.label}
+                    {column.required && <span className="text-t4"> · required</span>}
+                  </label>
+                )}
+                <ItemInput
+                  column={column}
+                  value={row[column.key]}
+                  onChange={(next) => update(index, column.key, next)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      {!full && <AddRow label={`Add ${field.label.toLowerCase().replace(/s$/, "")}`} onClick={() => onChange([...rows, {}])} />}
+      {field.help && <p className="text-[11px] leading-snug text-t4">{field.help}</p>}
+    </div>
+  );
+}
+
+/** A list of plain strings — IDs, indexes — entered one at a time. */
+export function ListControl({ field, value, onChange }: ControlProps) {
+  const items = (Array.isArray(value) ? value : []) as Array<string | number>;
+  const full = field.maxItems !== undefined && items.length >= field.maxItems;
+  return (
+    <div className="flex flex-col gap-1.5">
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {items.map((item, index) => (
+            <span
+              key={`${item}-${index}`}
+              className="anim-pop flex items-center gap-1 rounded-chip bg-t1/[0.07] px-2 py-1 font-mono text-[11px] text-t1"
+            >
+              {String(item)}
+              <button
+                type="button"
+                onClick={() => onChange(items.filter((_, i) => i !== index))}
+                aria-label="Remove"
+                className="text-t4 hover:text-t1"
+              >
+                <Icon name="close" size={10} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {!full && (
+        <input
+          type="text"
+          placeholder={field.placeholder ?? "Type a value and press Enter"}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            const next = event.currentTarget.value.trim();
+            if (!next) return;
+            onChange([...items, /^-?\d+$/.test(next) ? Number(next) : next]);
+            event.currentTarget.value = "";
+            event.preventDefault();
+          }}
+          className={INPUT_CLASS}
+        />
+      )}
+      {field.help && <p className="text-[11px] leading-snug text-t4">{field.help}</p>}
+    </div>
+  );
+}
+
+/** Raw JSON for the rare nested shapes nothing else fits. */
+export function JsonControl({ field, value, onChange }: ControlProps) {
+  const [error, setError] = useState<string | null>(null);
+  const text = typeof value === "string" ? value : value === undefined ? "" : JSON.stringify(value, null, 2);
+  return (
+    <div>
+      <textarea
+        value={text}
+        rows={4}
+        spellCheck={false}
+        placeholder={field.placeholder ?? "[ ... ]"}
+        onChange={(event) => {
+          const next = event.target.value;
+          onChange(next === "" ? undefined : next);
+          if (!next.trim()) return setError(null);
+          try {
+            JSON.parse(next);
+            setError(null);
+          } catch {
+            setError("Not valid JSON yet.");
+          }
+        }}
+        className="w-full resize-y rounded-chip bg-t1/[0.055] px-3 py-2 font-mono text-[12px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong"
+      />
+      {error && <p className="mt-1 text-[11px] text-[#ff8f8f]">{error}</p>}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 export function Control(props: ControlProps) {
@@ -655,6 +865,12 @@ export function Control(props: ControlProps) {
       return <ElementsControl {...props} />;
     case "clips":
       return <ClipsControl {...props} />;
+    case "records":
+      return <RecordsControl {...props} />;
+    case "list":
+      return <ListControl {...props} />;
+    case "json":
+      return <JsonControl {...props} />;
     default:
       return <TextControl {...props} />;
   }
@@ -664,9 +880,13 @@ export function Control(props: ControlProps) {
 export function chipCaption(field: Field, value: unknown, values: Values): string {
   if (field.chip) return field.chip(value, values);
   if (field.kind === "toggle") return field.label;
+  if (["images", "records", "list", "shots", "elements", "clips"].includes(field.kind)) {
+    const n = Array.isArray(value) ? value.length : 0;
+    return n === 0 ? field.label : `${n} ${field.label.toLowerCase()}`;
+  }
   const empty = value === undefined || value === null || value === "";
-  // A free-text chip with nothing in it should say what it is, not "Auto".
-  if (empty) return field.kind === "text" ? field.label : "Auto";
+  // A chip with nothing chosen should say what it is, not "Auto".
+  if (empty) return field.label;
   const choice = field.choices?.find((c) => c.value === String(value));
   if (choice) return choice.label;
   const text = String(value);
