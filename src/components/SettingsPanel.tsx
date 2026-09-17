@@ -68,14 +68,14 @@ export function SettingsPanel() {
               type="button"
               onClick={resetValues}
               title="Reset to defaults"
-              className="grid h-7 w-7 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
+              className="grid h-8 w-8 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
             >
               <Icon name="refresh" size={14} />
             </button>
             <button
               type="button"
               onClick={() => toggleSettings(false)}
-              className="grid h-7 w-7 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
+              className="grid h-8 w-8 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
               aria-label="Close"
             >
               <Icon name="close" size={15} />

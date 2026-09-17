@@ -18,7 +18,7 @@ function ModeStrip() {
 
   return (
     <div key={model.id} className="anim-swap mb-2 flex justify-start">
-      <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-chip bg-elevated/80 p-0.5 ring-1 ring-inset ring-line backdrop-blur-xl [scrollbar-width:none]">
+      <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-full bg-elevated/80 p-1 ring-1 ring-inset ring-line backdrop-blur-xl [scrollbar-width:none]">
         {model.modes.map((mode) => {
           const active = values.__mode === mode.id;
           return (
@@ -27,8 +27,8 @@ function ModeStrip() {
               type="button"
               title={mode.hint}
               onClick={() => setMode(mode.id)}
-              className={`shrink-0 whitespace-nowrap rounded-chip px-3 py-1.5 text-[12px] transition-all duration-[120ms] ${
-                active ? "cta" : "text-t3 hover:text-t1"
+              className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-medium transition-all duration-[120ms] ${
+                active ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
               }`}
             >
               {mode.label}
@@ -112,8 +112,8 @@ function Chip({
 }) {
   return (
     <span
-      className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-chip px-2.5 text-[12.5px] transition-all duration-[120ms] ${
-        active ? "cta" : "bg-t1/[0.055] text-t2 hover:bg-t1/[0.1] hover:text-t1"
+      className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12.5px] transition-all duration-[120ms] ${
+        active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
       }`}
     >
       {icon}
@@ -259,7 +259,7 @@ export function PromptBar() {
                 type="button"
                 onClick={() => toggleSettings(true)}
                 title="Advanced settings"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-chip bg-t1/[0.055] text-t3 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-all duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
               >
                 <Icon name="sliders" size={14} />
               </button>

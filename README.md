@@ -155,8 +155,10 @@ karanlık ve üzerinde tek bir amber.
 
 **Renkler** — koyu temada tuval `#0a0908`, bant `#050403`, yüzeyler `#151311`
 ve `#1f1c18`; metin rampası krem: `#6f685e → #a39b8f → #d6cfc3 → #f5efe6`.
-Vurgu (CTA, seçili mod, aktif chip, anahtar durumu) tek renk: amber `#f2a33a`
-üzerine koyu mürekkep `#1a1207`. Dört kategori rengi aynı sıcak banttan
+Düğmeler Higgsfield'ın dilinde: seçili hap ve CTA krem `#f5efe6` üzerine
+tuval rengi metin, seçili olmayanlar gri metin, ikon düğmeleri hafif gri
+dolgulu daire. Amber `#f2a33a` yalnızca durum ve vurgu için (anahtar
+noktası, kapak rozetleri, kategori kutuları). Dört kategori rengi aynı sıcak banttan
 türetiliyor: görsel amber `#f2a33a`, video bakır `#d9632c`, ses altın
 `#f0cf6b`, araçlar kül `#a89f92`. Model kapakları da 12°–58° arası sıcak
 hue bandında üretiliyor. Açık tema aynı iskeleti krem üzerine çeviriyor —

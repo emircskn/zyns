@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Gallery } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
-import { CATEGORY_ACCENT, ModelPicker } from "@/components/ModelPicker";
+import { ModelPicker } from "@/components/ModelPicker";
 import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -23,13 +23,11 @@ function RailButton({
   icon,
   label,
   active,
-  accent,
   onClick,
 }: {
   icon: IconName;
   label: string;
   active?: boolean;
-  accent?: string;
   onClick: () => void;
 }) {
   return (
@@ -37,11 +35,11 @@ function RailButton({
       type="button"
       title={label}
       onClick={onClick}
-      className={`group relative grid h-9 w-9 place-items-center rounded-chip transition-all duration-[200ms] ${
-        active ? "bg-t1/[0.1] text-t1" : "text-t4 hover:bg-t1/[0.055] hover:text-t1"
+      className={`group relative grid h-9 w-9 place-items-center rounded-full transition-all duration-[200ms] ${
+        active ? "bg-t1 text-canvas" : "text-t4 hover:bg-t1/[0.07] hover:text-t1"
       }`}
     >
-      <Icon name={icon} size={17} style={active && accent ? { color: accent } : undefined} />
+      <Icon name={icon} size={17} />
       <span
         className="pointer-events-none absolute left-full ml-2.5 hidden whitespace-nowrap rounded-chip border border-line bg-elevated px-2 py-1 text-[11.5px] text-t2 shadow-[var(--shadow-pop)] group-hover:block"
         style={{ animation: "fade-in 120ms var(--ease) both" }}
@@ -65,7 +63,7 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
         type="button"
         onClick={() => togglePicker(true, "all")}
         title="Browse all models"
-        className="cta mb-5 grid h-8 w-8 place-items-center rounded-chip hover:scale-105 active:scale-95"
+        className="cta mb-5 grid h-9 w-9 place-items-center rounded-full hover:scale-105 active:scale-95"
       >
         <Icon name="spark" size={16} strokeWidth={1.8} />
       </button>
@@ -77,7 +75,6 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
             icon={CATEGORY_ICON[category.id]}
             label={`${category.label} — ${category.blurb}`}
             active={model?.category === category.id}
-            accent={CATEGORY_ACCENT[category.id]}
             onClick={() => togglePicker(true, category.id)}
           />
         ))}
@@ -93,7 +90,7 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
           type="button"
           onClick={onKeyClick}
           title={apiKey ? "API key connected" : "Add your API key"}
-          className="group relative grid h-9 w-9 place-items-center rounded-chip text-t4 transition-all duration-[200ms] hover:bg-t1/[0.055]"
+          className="group relative grid h-9 w-9 place-items-center rounded-full text-t4 transition-all duration-[200ms] hover:bg-t1/[0.07]"
         >
           <Icon name="key" size={16} style={{ color: apiKey ? "var(--accent)" : "var(--t4)" }} />
         </button>
@@ -119,7 +116,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         type="button"
         onClick={() => togglePicker(true, "all")}
         title="Browse all models"
-        className="cta grid h-8 w-8 shrink-0 place-items-center rounded-chip md:hidden"
+        className="cta grid h-9 w-9 shrink-0 place-items-center rounded-full md:hidden"
       >
         <Icon name="spark" size={15} strokeWidth={1.8} />
       </button>
@@ -137,7 +134,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
           <button
             type="button"
             onClick={clearRuns}
-            className="hidden rounded-chip px-2.5 py-1.5 text-[12px] text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.055] hover:text-t1 sm:block"
+            className="hidden rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1 sm:block"
           >
             Clear gallery
           </button>
@@ -146,14 +143,14 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
           type="button"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-          className="grid h-8 w-8 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.055] hover:text-t1 md:hidden"
+          className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12] md:hidden"
         >
           <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
         </button>
         <button
           type="button"
           onClick={onKeyClick}
-          className="flex items-center gap-2 rounded-full bg-t1/[0.055] px-3 py-1.5 text-[12px] text-t2 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+          className="flex h-9 items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 text-[12.5px] text-t1 transition-all duration-[120ms] hover:bg-t1/[0.12]"
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
@@ -209,7 +206,7 @@ export function Shell() {
             <span className="min-w-0 flex-1 text-[12.5px] text-t2">
               Add your KIE API key to start generating. It stays in this browser.
             </span>
-            <span className="shrink-0 text-[12px] text-t1">Add key</span>
+            <span className="cta shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium">Add key</span>
           </button>
         )}
         <Gallery />

@@ -31,13 +31,13 @@ export function OptionList({ field, value, onChange }: ControlProps) {
             key={choice.value}
             type="button"
             onClick={() => onChange(choice.value)}
-            className={`flex w-full items-center justify-between gap-3 rounded-chip px-2.5 py-2 text-left text-[13px] transition-colors duration-[120ms] ${
-              active ? "bg-t1/10 text-t1" : "text-t2 hover:bg-t1/[0.055]"
+            className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[13px] transition-colors duration-[120ms] ${
+              active ? "bg-t1 text-canvas" : "text-t2 hover:bg-t1/[0.07]"
             }`}
           >
             <span className="flex min-w-0 flex-col">
               <span className="truncate">{choice.label}</span>
-              {choice.hint && <span className="truncate text-[11px] text-t4">{choice.hint}</span>}
+              {choice.hint && <span className="truncate text-[11px] opacity-60">{choice.hint}</span>}
             </span>
             {active && <Icon name="check" size={14} className="shrink-0" />}
           </button>
@@ -49,7 +49,7 @@ export function OptionList({ field, value, onChange }: ControlProps) {
 
 export function Segmented({ field, value, onChange }: ControlProps) {
   return (
-    <div className="flex flex-wrap gap-1 rounded-chip bg-t1/[0.055] p-1">
+    <div className="flex flex-wrap gap-0.5 rounded-full bg-t1/[0.07] p-1">
       {(field.choices ?? []).map((choice) => {
         const active = String(value ?? "") === choice.value;
         return (
@@ -58,8 +58,8 @@ export function Segmented({ field, value, onChange }: ControlProps) {
             type="button"
             title={choice.hint}
             onClick={() => onChange(choice.value)}
-            className={`flex-1 whitespace-nowrap rounded-chip px-2.5 py-1.5 text-[12px] transition-all duration-[120ms] ${
-              active ? "cta" : "text-t3 hover:text-t1"
+            className={`flex-1 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[120ms] ${
+              active ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
             }`}
           >
             {choice.label}
@@ -84,8 +84,8 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
             key={choice.value}
             type="button"
             onClick={() => onChange(choice.value)}
-            className={`flex flex-col items-center gap-1.5 rounded-chip px-1 py-2 transition-colors duration-[120ms] ${
-              active ? "bg-t1/10 text-t1" : "text-t3 hover:bg-t1/[0.055] hover:text-t1"
+            className={`flex flex-col items-center gap-1.5 rounded-card px-1 py-2 transition-colors duration-[120ms] ${
+              active ? "bg-t1 text-canvas" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
             }`}
           >
             <span className="flex h-6 w-6 items-center justify-center">
@@ -95,7 +95,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
                   style={{
                     width: Math.max(w * scale, 5),
                     height: Math.max(h * scale, 5),
-                    borderColor: active ? "var(--t1)" : "var(--line-strong)",
+                    borderColor: active ? "var(--canvas)" : "var(--line-strong)",
                   }}
                 />
               ) : (

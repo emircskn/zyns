@@ -116,7 +116,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
                   setDraft("");
                   onClose();
                 }}
-                className="rounded-full px-4 py-2 text-[12.5px] text-t4 transition-colors duration-[120ms] hover:text-t1"
+                className="rounded-full bg-t1/[0.07] px-4 py-2 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
               >
                 Remove key
               </button>

@@ -155,8 +155,8 @@ h3 {
 
 /* The one lit action per surface: amber on the black set. */
 @utility cta {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--t1);
+  color: var(--canvas);
   transition:
     transform var(--d-fast) var(--ease),
     opacity var(--d-fast) var(--ease),

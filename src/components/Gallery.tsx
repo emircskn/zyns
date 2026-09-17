@@ -77,7 +77,7 @@ function TileAction({
   href?: string;
   danger?: boolean;
 }) {
-  const className = `grid h-7 w-7 place-items-center rounded-chip bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
   }`;
   if (href) {
@@ -207,7 +207,7 @@ function Lightbox({ url, onClose }: { url: string; onClose: () => void }) {
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-chip bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
+        className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
         aria-label="Close"
       >
         <Icon name="close" size={17} />
