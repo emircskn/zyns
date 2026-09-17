@@ -9,7 +9,6 @@ import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ThemeSync } from "@/components/ThemeSync";
-import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, type Category } from "@/lib/registry";
 import { useModel, useStudio } from "@/store/studio";
 
@@ -111,7 +110,6 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const togglePicker = useStudio((s) => s.togglePicker);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
-  const model = useModel();
 
   const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
 
@@ -125,12 +123,13 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
       >
         <Icon name="spark" size={15} strokeWidth={1.8} />
       </button>
-      {model && <VendorBadge vendor={model.vendor} size={30} />}
-      <div key={model?.id} className="anim-swap min-w-0">
-        <h1 className="truncate text-[14.5px] text-t1">{model?.name ?? "KIE Studio"}</h1>
-        <p className="truncate text-[11.5px] text-t4">
-          {active > 0 ? `${active} run${active > 1 ? "s" : ""} in progress` : model?.tagline}
-        </p>
+      <div className="min-w-0">
+        <h1 className="truncate text-[14.5px] text-t1">KIE Studio</h1>
+        {active > 0 && (
+          <p className="truncate text-[11.5px] text-t4">
+            {active} run{active > 1 ? "s" : ""} in progress
+          </p>
+        )}
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
