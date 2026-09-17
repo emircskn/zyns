@@ -1,27 +1,94 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink-950: #08080a;
-  --color-ink-900: #0d0d10;
-  --color-ink-850: #131318;
-  --color-ink-800: #17171d;
-  --color-ink-700: #202027;
-  --color-ink-600: #2c2c35;
-  --color-ink-500: #3a3a45;
-  --color-ink-400: #6b6b78;
-  --color-ink-300: #9a9aa8;
-  --color-ink-200: #c9c9d2;
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ *
+ * A Swiss-grotesque system in the spirit of Krea: a near-black canvas the
+ * generated work sits on, a neutral text ramp instead of tinted greys, four
+ * radii and nothing between them, and pure white reserved for the one action
+ * that matters on screen. Colour is spent only on the four brand accents.
+ * ------------------------------------------------------------------ */
 
-  --color-accent: #f5f5f7;
-  --color-brand: #7c5cff;
-  --color-brand-soft: #a48bff;
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-canvas-deep: var(--canvas-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-elevated: var(--elevated);
 
-  --radius-chip: 999px;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-t1: var(--t1);
+  --color-t2: var(--t2);
+  --color-t3: var(--t3);
+  --color-t4: var(--t4);
+
+  --color-blue: #62a2ff;
+  --color-lime: #65f223;
+  --color-violet: #762fad;
+  --color-plum: #55227d;
+
+  /* Four radii, no intermediates. */
+  --radius-chip: 8px;
+  --radius-card: 14px;
+  --radius-panel: 24px;
+
+  --font-sans:
+    "Geist", "Suisse Intl", ui-sans-serif, -apple-system, "Segoe UI", Helvetica,
+    Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 :root {
+  --canvas: #0b0f15;
+  --canvas-deep: #000000;
+  --surface: #171717;
+  --surface-2: #262626;
+  --elevated: #1c1c1c;
+
+  --line: rgb(255 255 255 / 0.09);
+  --line-strong: rgb(255 255 255 / 0.18);
+
+  --t1: #ffffff;
+  --t2: #d4d4d5;
+  --t3: #a3a3a3;
+  --t4: #737373;
+
+  --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
+
+  /* Motion: one easing for everything that settles, one that overshoots. */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --d-fast: 120ms;
+  --d-base: 200ms;
+  --d-slow: 320ms;
+
   color-scheme: dark;
+}
+
+[data-theme="light"] {
+  /* The canvas sits a shade off white so elevated surfaces — the prompt bar,
+     gallery tiles, popovers — read as lifted rather than as outlines. */
+  --canvas: #fbfbfc;
+  --canvas-deep: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f1f1f3;
+  --elevated: #ffffff;
+
+  --line: rgb(11 15 21 / 0.1);
+  --line-strong: rgb(11 15 21 / 0.2);
+
+  --t1: #0b0f15;
+  --t2: #404040;
+  --t3: #737373;
+  --t4: #a3a3a3;
+
+  --shadow-pop: 0 24px 60px -16px rgb(11 15 21 / 0.18), 0 2px 8px rgb(11 15 21 / 0.06);
+  --shadow-bar: 0 20px 50px -20px rgb(11 15 21 / 0.22);
+
+  color-scheme: light;
 }
 
 html,
@@ -30,47 +97,71 @@ body {
 }
 
 body {
-  background: var(--color-ink-950);
-  color: var(--color-accent);
+  background: var(--canvas);
+  color: var(--t1);
   font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  transition:
+    background-color var(--d-slow) var(--ease),
+    color var(--d-slow) var(--ease);
 }
 
-/* Scrollbars: present but quiet, like the reference studio chrome. */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-600) transparent;
-}
-*::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-*::-webkit-scrollbar-thumb {
-  background: var(--color-ink-600);
-  border-radius: 999px;
-  border: 3px solid transparent;
-  background-clip: content-box;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--color-ink-500);
-  background-clip: content-box;
+/* Krea's tell: button labels sit at 450, between body 400 and display 500. */
+button,
+[role="button"] {
+  font-weight: 450;
+  letter-spacing: -0.01em;
 }
 
-@utility glass {
-  background: color-mix(in oklab, var(--color-ink-800) 96%, transparent);
-  backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid color-mix(in oklab, white 8%, transparent);
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  letter-spacing: -0.022em;
+}
+
+/* ------------------------------------------------------------------ *
+ * Utilities
+ * ------------------------------------------------------------------ */
+
+@utility surface-pop {
+  background: color-mix(in oklab, var(--elevated) 92%, transparent);
+  backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-pop);
 }
 
 @utility hairline {
-  border: 1px solid color-mix(in oklab, white 8%, transparent);
+  border: 1px solid var(--line);
 }
 
-@keyframes rise {
+@utility focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--line-strong);
+}
+
+/* The one pure-white action per surface. */
+@utility cta {
+  background: var(--t1);
+  color: var(--canvas);
+  transition:
+    transform var(--d-fast) var(--ease),
+    opacity var(--d-fast) var(--ease),
+    background-color var(--d-fast) var(--ease);
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion
+ * ------------------------------------------------------------------ */
+
+@keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.985);
+    transform: translateY(8px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -78,67 +169,179 @@ body {
   }
 }
 
-@keyframes shimmer {
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
   0% {
-    background-position: -200% 0;
+    transform: translate3d(-8%, -6%, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(8%, 6%, 0) scale(1.25);
   }
   100% {
-    background-position: 200% 0;
+    transform: translate3d(-8%, -6%, 0) scale(1.1);
   }
 }
 
-.animate-rise {
-  animation: rise 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+@keyframes sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
-.skeleton {
+.anim-pop {
+  animation: pop-in var(--d-base) var(--ease-spring) both;
+}
+.anim-fade {
+  animation: fade-in var(--d-base) var(--ease) both;
+}
+.anim-tile {
+  animation: tile-in var(--d-slow) var(--ease) both;
+}
+.anim-swap {
+  animation: swap-in var(--d-base) var(--ease) both;
+}
+
+/**
+ * Placeholder for a run that has not returned yet: the four brand accents
+ * drifting behind a slow sweep, so a pending tile reads as work in progress
+ * rather than a broken image.
+ */
+.pending-surface {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+.pending-surface::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(38% 38% at 28% 30%, #62a2ff55, transparent 70%),
+    radial-gradient(34% 34% at 72% 34%, #762fad66, transparent 70%),
+    radial-gradient(40% 40% at 42% 76%, #55227d55, transparent 70%),
+    radial-gradient(26% 26% at 80% 78%, #65f22322, transparent 70%);
+  filter: blur(18px);
+  animation: drift 9s var(--ease) infinite;
+}
+.pending-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
-    100deg,
-    var(--color-ink-800) 20%,
-    var(--color-ink-700) 40%,
-    var(--color-ink-800) 60%
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--t1) 8%, transparent),
+    transparent
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.6s linear infinite;
+  animation: sweep 2.2s var(--ease) infinite;
 }
 
-/* Range inputs get the same treatment everywhere. */
+/* ------------------------------------------------------------------ *
+ * Form elements
+ * ------------------------------------------------------------------ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 22px;
+  height: 20px;
   background: transparent;
   cursor: pointer;
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 3px;
-  border-radius: 999px;
-  background: var(--color-ink-600);
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--line-strong);
 }
 input[type="range"]::-moz-range-track {
-  height: 3px;
-  border-radius: 999px;
-  background: var(--color-ink-600);
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--line-strong);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
-  margin-top: -5.5px;
-  border-radius: 999px;
-  background: white;
-  box-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: var(--t1);
+  transition: transform var(--d-fast) var(--ease-spring);
+}
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.25);
 }
 input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border: none;
-  border-radius: 999px;
-  background: white;
+  border-radius: 9999px;
+  background: var(--t1);
 }
 
 textarea {
   field-sizing: content;
+}
+
+::selection {
+  background: #62a2ff44;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

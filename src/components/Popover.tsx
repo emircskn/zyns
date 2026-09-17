@@ -12,9 +12,11 @@ interface Props {
   title?: string;
 }
 
-export function Popover({ trigger, children, align = "start", width = 260, title }: Props) {
+export function Popover({ trigger, children, align = "start", width = 264, title }: Props) {
   const [open, setOpen] = useState(false);
+  const [shift, setShift] = useState(0);
   const root = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -32,6 +34,20 @@ export function Popover({ trigger, children, align = "start", width = 260, title
     };
   }, [open]);
 
+  // Nudge the panel back inside the viewport when a chip sits near an edge.
+  useEffect(() => {
+    if (!open || !panel.current) {
+      setShift(0);
+      return;
+    }
+    const rect = panel.current.getBoundingClientRect();
+    const margin = 12;
+    if (rect.left < margin) setShift(margin - rect.left);
+    else if (rect.right > window.innerWidth - margin) {
+      setShift(window.innerWidth - margin - rect.right);
+    }
+  }, [open]);
+
   const alignment =
     align === "center" ? "left-1/2 -translate-x-1/2" : align === "end" ? "right-0" : "left-0";
 
@@ -42,15 +58,16 @@ export function Popover({ trigger, children, align = "start", width = 260, title
       </button>
       {open && (
         <div
-          className={`glass animate-rise absolute bottom-[calc(100%+8px)] z-50 rounded-2xl p-1.5 shadow-2xl shadow-black/60 ${alignment}`}
-          style={{ width }}
+          ref={panel}
+          className={`surface-pop anim-pop absolute bottom-[calc(100%+10px)] z-50 rounded-panel p-1.5 ${alignment}`}
+          style={{ width, marginLeft: shift }}
         >
           {title && (
-            <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-wider text-ink-400">
+            <div className="px-2.5 pb-2 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">
               {title}
             </div>
           )}
-          <div className="max-h-[min(60vh,420px)] overflow-y-auto">
+          <div className="max-h-[min(58vh,420px)] overflow-y-auto">
             {typeof children === "function" ? children(() => setOpen(false)) : children}
           </div>
         </div>

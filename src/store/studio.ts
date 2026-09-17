@@ -28,8 +28,11 @@ export interface Run {
   values: Values;
 }
 
+export type Theme = "dark" | "light";
+
 interface StudioState {
   apiKey: string;
+  theme: Theme;
   credits: number | null;
   category: Category;
   modelId: string;
@@ -41,6 +44,7 @@ interface StudioState {
   hydrated: boolean;
 
   setApiKey: (key: string) => void;
+  setTheme: (theme: Theme) => void;
   setCredits: (credits: number | null) => void;
   setCategory: (category: Category) => void;
   selectModel: (id: string) => void;
@@ -68,6 +72,7 @@ export const useStudio = create<StudioState>()(
   persist(
     (set, get) => ({
       apiKey: "",
+      theme: "dark",
       credits: null,
       category: "video",
       modelId: MODELS[0]?.id ?? "",
@@ -79,6 +84,7 @@ export const useStudio = create<StudioState>()(
       hydrated: false,
 
       setApiKey: (apiKey) => set({ apiKey, credits: null }),
+      setTheme: (theme) => set({ theme }),
       setCredits: (credits) => set({ credits }),
       setCategory: (category) => set({ category }),
 
@@ -175,6 +181,7 @@ export const useStudio = create<StudioState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         apiKey: state.apiKey,
+        theme: state.theme,
         category: state.category,
         modelId: state.modelId,
         valuesByModel: state.valuesByModel,

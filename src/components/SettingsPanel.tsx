@@ -48,58 +48,62 @@ export function SettingsPanel() {
           type="button"
           aria-label="Close settings"
           onClick={() => toggleSettings(false)}
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
+          className="anim-fade fixed inset-0 z-40 bg-canvas-deep/55 backdrop-blur-[3px]"
         />
       )}
       <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-[min(400px,92vw)] flex-col border-l border-white/8 bg-ink-900 transition-transform duration-200 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className="fixed right-0 top-0 z-50 flex h-full w-[min(400px,92vw)] flex-col border-l border-line bg-elevated"
+        style={{
+          transform: open ? "translateX(0)" : "translateX(100%)",
+          transition: "transform var(--d-slow) var(--ease)",
+        }}
       >
-        <header className="flex items-center justify-between border-b border-white/8 px-4 py-3.5">
+        <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-4">
           <div className="min-w-0">
-            <h2 className="truncate text-[14px] font-semibold text-white">{model.name}</h2>
-            <p className="truncate text-[11.5px] text-ink-400">Advanced settings</p>
+            <h2 className="truncate text-[14px] text-t1">{model.name}</h2>
+            <p className="truncate text-[11.5px] text-t4">Advanced settings</p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <button
               type="button"
               onClick={resetValues}
               title="Reset to defaults"
-              className="grid h-8 w-8 place-items-center rounded-full text-ink-400 hover:bg-white/8 hover:text-white"
+              className="grid h-7 w-7 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
             >
-              <Icon name="refresh" size={15} />
+              <Icon name="refresh" size={14} />
             </button>
             <button
               type="button"
               onClick={() => toggleSettings(false)}
-              className="grid h-8 w-8 place-items-center rounded-full text-ink-400 hover:bg-white/8 hover:text-white"
+              className="grid h-7 w-7 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
               aria-label="Close"
             >
-              <Icon name="close" size={16} />
+              <Icon name="close" size={15} />
             </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-5">
           {groups.length === 0 && (
-            <p className="text-[12.5px] text-ink-400">
+            <p className="text-[12.5px] leading-relaxed text-t4">
               This model exposes everything it supports in the prompt bar.
             </p>
           )}
 
-          {groups.map(([group, fields]) => (
-            <section key={group} className="mb-6 last:mb-0">
-              <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink-400">
+          {groups.map(([group, fields], groupIndex) => (
+            <section
+              key={group}
+              className="anim-swap mb-7 last:mb-0"
+              style={{ animationDelay: `${groupIndex * 40}ms` }}
+            >
+              <h3 className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-t4">
                 {group}
               </h3>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
                 {fields.map((field) => (
                   <div key={field.key}>
                     {field.kind !== "toggle" && field.kind !== "slider" && (
-                      <label className="mb-1.5 block text-[12.5px] font-medium text-ink-200">
-                        {field.label}
-                      </label>
+                      <label className="mb-2 block text-[12.5px] text-t2">{field.label}</label>
                     )}
                     <Control
                       field={field}
@@ -108,7 +112,7 @@ export function SettingsPanel() {
                       onChange={(value) => setValue(field.key, value)}
                     />
                     {field.help && !SELF_DESCRIBING.has(field.kind) && (
-                      <p className="mt-1.5 text-[11px] leading-snug text-ink-400">{field.help}</p>
+                      <p className="mt-2 text-[11px] leading-snug text-t4">{field.help}</p>
                     )}
                   </div>
                 ))}
@@ -116,21 +120,22 @@ export function SettingsPanel() {
             </section>
           ))}
 
-          <section className="mt-6 border-t border-white/8 pt-4">
+          <section className="mt-7 border-t border-line pt-4">
             <button
               type="button"
               onClick={() => setShowPayload((v) => !v)}
-              className="flex w-full items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-ink-400 hover:text-white"
+              className="flex w-full items-center justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-t4 transition-colors hover:text-t1"
             >
               Request preview
               <Icon
                 name="chevron"
-                size={14}
-                className={`transition-transform ${showPayload ? "rotate-180" : ""}`}
+                size={13}
+                className="transition-transform duration-[200ms]"
+                style={{ transform: showPayload ? "rotate(180deg)" : "none" }}
               />
             </button>
             {showPayload && (
-              <pre className="mt-2.5 max-h-72 overflow-auto rounded-xl bg-black/40 p-3 text-[11px] leading-relaxed text-ink-200 ring-1 ring-inset ring-white/8">
+              <pre className="anim-swap mt-3 max-h-72 overflow-auto rounded-card bg-canvas/60 p-3 font-mono text-[11px] leading-relaxed text-t2 ring-1 ring-inset ring-line">
                 {payload}
               </pre>
             )}
@@ -138,14 +143,14 @@ export function SettingsPanel() {
         </div>
 
         {model.docs && (
-          <footer className="border-t border-white/8 px-4 py-3">
+          <footer className="border-t border-line px-4 py-3">
             <a
               href={model.docs}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1.5 text-[12px] text-ink-400 hover:text-white"
+              className="flex items-center gap-1.5 text-[12px] text-t4 transition-colors hover:text-t1"
             >
-              <Icon name="link" size={14} /> KIE documentation
+              <Icon name="link" size={13} /> KIE documentation
             </a>
           </footer>
         )}

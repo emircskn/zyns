@@ -151,6 +151,38 @@ const myModel: ModelDef = {
 Yeni bir endpoint kullanıyorsan `src/app/api/kie/create/route.ts` içindeki
 `ALLOWED_ENDPOINTS` listesine de eklemen gerekir.
 
+## Tasarım sistemi
+
+Arayüz [krea.ai](https://www.krea.ai/app)'in tasarım dilinden ilham alıyor:
+İsviçre grotesk tipografi, üretilen işin üzerinde durduğu neredeyse siyah bir
+tuval, nötr bir gri rampa ve ekrandaki tek önemli aksiyona ayrılmış saf beyaz.
+
+**Renkler** — koyu temada tuval `#0b0f15`, bant `#000000`, yüzeyler `#171717`
+ve `#262626`; metin rampası `#737373 → #a3a3a3 → #d4d4d5 → #ffffff`. Dört
+marka rengi yalnızca vurgu olarak kullanılıyor ve her biri bir kategoriye
+bağlı: görsel `#62a2ff`, video `#762fad`, ses `#65f223`, araçlar `#55227d`.
+Açık tema aynı iskeleti ters çeviriyor — tuval `#fbfbfc`, kartlar beyaz, CTA
+ise saf beyaz yerine neredeyse siyah oluyor. Tema raydaki güneş/ay düğmesiyle
+değişiyor ve tarayıcıda saklanıyor.
+
+**Tipografi** — Suisse Intl'in yerine, aynı neo-grotesk iskelete sahip ve
+değişken eksenli olan **Geist** kullanılıyor; sayısal değerler, bölüm
+başlıkları ve istek önizlemesi **Geist Mono** ile. Gövde 400, buton etiketleri
+**450**, başlıklar 500 — Krea'nın ara ağırlık detayı birebir korunuyor.
+
+**Geometri** — sadece dört yarıçap var, arası yok: `8px` (chip, giriş, ray
+düğmesi), `14px` (kart), `24px` (panel, modal, prompt barı) ve tam yuvarlak
+(sadece CTA'lar). Boşluk 4px tabanlı.
+
+**Hareket** — iki easing: yerine oturan her şey için
+`cubic-bezier(0.32, 0.72, 0, 1)`, açılan yüzeyler için hafif taşan
+`cubic-bezier(0.34, 1.4, 0.64, 1)`. Üç süre: 120ms mikro etkileşim, 200ms
+standart, 320ms panel. Popover'lar ve modallar yaylanarak açılıyor, model
+kartları ve galeri kutuları kademeli (staggered) giriyor, model değişince
+başlık ve mod şeridi yumuşak geçiş yapıyor, tamamlanmamış çalışmalar dört
+marka renginin yavaşça sürüklendiği bir gradyan üzerinde bekliyor.
+`prefers-reduced-motion` açıksa tüm hareket kapanıyor.
+
 ## Arayüz notları
 
 - **Mod şeridi** — modeli olan her model için t2v / i2v / reference gibi modlar.
@@ -158,18 +190,23 @@ Yeni bir endpoint kullanıyorsan `src/app/api/kie/create/route.ts` içindeki
   first-frame URL'i yanlışlıkla bir text-to-video isteğine binmez.
 - **Chip'ler** — bar'daki her ayar bir chip; tıklayınca kendi kontrolü açılır
   (en-boy oranı orantılı kutucuklarla, süre slider'la, boolean'lar tek tıkla).
+  Popover ekran kenarına yakınsa kendini içeri çeker.
 - **İstek önizlemesi** — ayar panelinin altında, gönderilecek JSON birebir görünür.
 - **Galeri** — her çalışma gerçek en-boy oranında bir kutu ayırır; bitince
   medya yerine oturur. Tile üzerinden indir, URL kopyala, ayarları tekrar kullan.
+- **Kısayollar** — `⌘K` model seçiciyi açar, `⌘↵` üretimi başlatır, `Esc` açık
+  katmanı kapatır.
 - **Yoklama (polling)** — bitmemiş işler 3.5 saniyede bir sorgulanır; `jobs`,
   `veo`, `suno`, `mj`, `flux` ve `aleph` durum formatlarının hepsi tek bir
   normalize ediciden geçer.
-- Çalışmalar ve ayarlar `localStorage`'da tutulur, sekme kapanınca kaybolmaz.
+- Çalışmalar, ayarlar ve tema `localStorage`'da tutulur, sekme kapanınca kaybolmaz.
 
 ## Bilinen sınır
 
-Bu depo geliştirilirken `api.kie.ai`'ye ağ erişimi olmadığı için uçtan uca
-canlı üretim testi yapılamadı. İstek oluşturma, hata yüzeyi, yoklama ve galeri
+Bu depo geliştirilirken `api.kie.ai`'ye ve `docs.kie.ai`'ye ağ erişimi olmadığı
+için uçtan uca canlı üretim testi yapılamadı. Model ve parametre bilgisi, KIE'nin
+yayınladığı resmi araç tanımlarından (`@felores/kie-ai-core`) birebir çıkarıldı —
+bunlar dokümantasyonun kaynağıyla aynı şemaları taşır. İstek oluşturma, hata yüzeyi, yoklama ve galeri
 akışının tamamı gerçek HTTP yoluyla (engellenen upstream'e karşı) doğrulandı;
 her modelin ürettiği payload, KIE'nin resmi araç tanımlarındaki şemalarla
 karşılaştırılarak kontrol edildi. Kendi anahtarınla ilk çalıştırmada bir modeli
