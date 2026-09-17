@@ -14,16 +14,21 @@ export function usePresence(open: boolean, duration = 240) {
     if (open) {
       setMounted(true);
       setExiting(false);
-      return;
+    } else if (mounted) {
+      setExiting(true);
     }
-    if (!mounted) return;
-    setExiting(true);
+  }, [open, mounted]);
+
+  // The clock starts only once the exit class is on screen, so a slow
+  // first frame never cuts the animation short.
+  useEffect(() => {
+    if (!exiting) return;
     const timer = window.setTimeout(() => {
       setMounted(false);
       setExiting(false);
     }, duration);
     return () => window.clearTimeout(timer);
-  }, [open, mounted, duration]);
+  }, [exiting, duration]);
 
   return { mounted, exiting };
 }

@@ -35,7 +35,7 @@ function ModelCard({
     <button
       type="button"
       onClick={onPick}
-      style={{ animationDelay: `${Math.min(index, 14) * 18}ms` }}
+      style={{ animationDelay: `${180 + Math.min(index, 14) * 22}ms` }}
       className={`anim-tile lift group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
         active ? "ring-t1/60" : "ring-transparent hover:ring-line-strong"
       }`}
@@ -77,7 +77,7 @@ export function ModelPicker() {
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [tab, setTab] = useState<Category>(storedTab === "all" ? "image" : storedTab);
-  const { mounted, exiting } = usePresence(open, 240);
+  const { mounted, exiting } = usePresence(open, 300);
 
   // The rail and the prompt bar can open the picker straight onto a
   // category; each opening starts from a clean search so a stale query
@@ -116,7 +116,7 @@ export function ModelPicker() {
       />
       <div
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(820px,90vh)] sm:max-w-5xl sm:rounded-panel sm:border sm:border-line ${
-          exiting ? "anim-sheet-out" : "anim-sheet"
+          exiting ? "anim-sheet-out" : "anim-sheet sheet-stagger"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >

@@ -63,7 +63,11 @@ function RatioGlyph({ value }: { value: unknown }) {
       {valid ? (
         <span
           className="rounded-[2px] border-[1.5px] border-current"
-          style={{ width: Math.max(w * scale, 4), height: Math.max(h * scale, 4) }}
+          style={{
+            width: Math.max(w * scale, 4),
+            height: Math.max(h * scale, 4),
+            transition: "width var(--d-slow) var(--ease-spring), height var(--d-slow) var(--ease-spring)",
+          }}
         />
       ) : (
         <Icon name="grid" size={12} />
