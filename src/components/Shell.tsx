@@ -9,6 +9,7 @@ import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ThemeSync } from "@/components/ThemeSync";
+import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, type Category } from "@/lib/registry";
 import { useModel, useStudio } from "@/store/studio";
 
@@ -124,6 +125,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
       >
         <Icon name="spark" size={15} strokeWidth={1.8} />
       </button>
+      {model && <VendorBadge vendor={model.vendor} size={30} />}
       <div key={model?.id} className="anim-swap min-w-0">
         <h1 className="truncate text-[14.5px] text-t1">{model?.name ?? "KIE Studio"}</h1>
         <p className="truncate text-[11.5px] text-t4">

@@ -5,6 +5,8 @@ import { Control, chipCaption } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
+import { ACCENT } from "@/lib/vendors";
+import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
 
@@ -16,25 +18,25 @@ function ModeStrip() {
   if (!model?.modes || model.modes.length < 2) return null;
 
   return (
-    <div key={model.id} className="anim-swap mb-2 flex flex-wrap items-center gap-1">
-      {model.modes.map((mode) => {
-        const active = values.__mode === mode.id;
-        return (
-          <button
-            key={mode.id}
-            type="button"
-            title={mode.hint}
-            onClick={() => setMode(mode.id)}
-            className={`rounded-chip px-3 py-1.5 text-[12px] transition-all duration-[120ms] ${
-              active
-                ? "cta"
-                : "bg-elevated/70 text-t3 ring-1 ring-inset ring-line backdrop-blur-xl hover:text-t1"
-            }`}
-          >
-            {mode.label}
-          </button>
-        );
-      })}
+    <div key={model.id} className="anim-swap mb-2 flex justify-start">
+      <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-chip bg-elevated/80 p-0.5 ring-1 ring-inset ring-line backdrop-blur-xl [scrollbar-width:none]">
+        {model.modes.map((mode) => {
+          const active = values.__mode === mode.id;
+          return (
+            <button
+              key={mode.id}
+              type="button"
+              title={mode.hint}
+              onClick={() => setMode(mode.id)}
+              className={`shrink-0 whitespace-nowrap rounded-chip px-3 py-1.5 text-[12px] transition-all duration-[120ms] ${
+                active ? "cta" : "text-t3 hover:text-t1"
+              }`}
+            >
+              {mode.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -182,7 +184,9 @@ export function PromptBar() {
 
         <div
           className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
-          style={{ boxShadow: "var(--shadow-bar)" }}
+          style={{
+            boxShadow: `var(--shadow-bar), 0 0 0 1px color-mix(in oklab, ${ACCENT[model.category]} 18%, transparent), 0 -12px 48px -24px ${ACCENT[model.category]}`,
+          }}
         >
           <InputStrip fields={inputFields} />
 
@@ -205,10 +209,7 @@ export function PromptBar() {
 
           <div className="flex flex-wrap items-center gap-1">
             <button type="button" onClick={() => togglePicker(true)} className="shrink-0">
-              <Chip
-                icon={<Icon name="grid" size={13} className="text-t4" />}
-                value={model.name}
-              />
+              <Chip icon={<VendorBadge vendor={model.vendor} size={18} />} value={model.name} />
             </button>
 
             {barFields.map((field) => (

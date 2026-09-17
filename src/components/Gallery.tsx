@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Home } from "@/components/Home";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { getModel } from "@/lib/registry";
@@ -218,33 +219,11 @@ function Lightbox({ url, onClose }: { url: string; onClose: () => void }) {
 export function Gallery() {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
-  const togglePicker = useStudio((s) => s.togglePicker);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   if (!hydrated) return null;
 
-  if (runs.length === 0) {
-    return (
-      <div className="anim-fade flex flex-1 flex-col items-center justify-center px-6 py-6 text-center md:py-10">
-        <span className="pending-surface mb-4 grid h-12 w-12 place-items-center rounded-card md:mb-5 md:h-16 md:w-16 md:rounded-panel">
-          <Icon name="spark" size={20} className="relative z-10 text-white" />
-        </span>
-        <h2 className="mb-1.5 text-[16px] text-t1 md:mb-2 md:text-[18px]">Nothing generated yet</h2>
-        <p className="max-w-sm text-[12.5px] leading-relaxed text-t3 md:mb-5 md:text-[13px]">
-          Pick a model in the bar below, set it up the way you want, and hit generate. Every run
-          lands here at its real aspect ratio.
-        </p>
-        {/* The phone header already carries the model button, so the CTA is desktop-only. */}
-        <button
-          type="button"
-          onClick={() => togglePicker(true, "all")}
-          className="cta hidden rounded-full px-4 py-2 text-[12.5px] hover:scale-[1.03] active:scale-95 md:inline-flex"
-        >
-          Browse models
-        </button>
-      </div>
-    );
-  }
+  if (runs.length === 0) return <Home />;
 
   return (
     <>

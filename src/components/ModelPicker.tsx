@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
+import { CoverArt } from "@/components/CoverArt";
 import { Icon, type IconName } from "@/components/Icon";
+import { VendorBadge } from "@/components/VendorMark";
+import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
+import { ACCENT } from "@/lib/vendors";
 import { useStudio } from "@/store/studio";
 
 const CATEGORY_ICON: Record<Category, IconName> = {
@@ -13,12 +16,7 @@ const CATEGORY_ICON: Record<Category, IconName> = {
 };
 
 /** One accent per category, drawn from the four brand colours. */
-export const CATEGORY_ACCENT: Record<Category, string> = {
-  image: "#62a2ff",
-  video: "#762fad",
-  audio: "#65f223",
-  tool: "#55227d",
-};
+export const CATEGORY_ACCENT: Record<Category, string> = ACCENT as Record<Category, string>;
 
 function ModelCard({
   model,
@@ -31,53 +29,47 @@ function ModelCard({
   index: number;
   onPick: () => void;
 }) {
-  const accent = CATEGORY_ACCENT[model.category];
   return (
     <button
       type="button"
       onClick={onPick}
       style={{ animationDelay: `${Math.min(index, 14) * 18}ms` }}
-      className={`anim-tile group flex h-full flex-col rounded-card p-3.5 text-left ring-1 transition-all duration-[200ms] hover:-translate-y-0.5 ${
-        active
-          ? "bg-t1/[0.08] ring-line-strong"
-          : "bg-t1/[0.028] ring-line hover:bg-t1/[0.06] hover:ring-line-strong"
+      className={`anim-tile lift group flex h-full flex-col overflow-hidden rounded-card text-left ring-1 transition-colors duration-[200ms] ${
+        active ? "bg-t1/[0.08] ring-line-strong" : "bg-t1/[0.028] ring-line hover:ring-line-strong"
       }`}
     >
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-chip transition-colors duration-[200ms]"
-            style={{
-              background: `color-mix(in oklab, ${accent} 18%, transparent)`,
-              color: accent,
-            }}
-          >
-            <Icon name={CATEGORY_ICON[model.category]} size={14} />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-[13.5px] font-medium text-t1">{model.name}</span>
-            <span className="block truncate text-[11px] text-t4">{model.vendor}</span>
-          </span>
+      <div className="relative">
+        <CoverArt id={model.id} category={model.category} className="aspect-[16/7]" />
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-2.5">
+          <VendorBadge vendor={model.vendor} size={24} />
+          {model.badge && (
+            <span className="rounded-chip bg-black/45 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em] text-white backdrop-blur-md">
+              {model.badge}
+            </span>
+          )}
         </div>
-        {model.badge && (
-          <span
-            className="shrink-0 rounded-chip px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em]"
-            style={{
-              background: `color-mix(in oklab, ${accent} 16%, transparent)`,
-              color: accent,
-            }}
-          >
-            {model.badge}
+        {active && (
+          <span className="absolute bottom-2.5 right-2.5 grid h-5 w-5 place-items-center rounded-full bg-white text-black">
+            <Icon name="check" size={11} strokeWidth={2.4} />
           </span>
         )}
       </div>
-      <p className="mb-3 line-clamp-2 text-[11.5px] leading-snug text-t3">{model.tagline}</p>
-      <div className="mt-auto flex flex-wrap gap-1">
-        {model.tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="rounded-chip bg-t1/[0.055] px-1.5 py-0.5 text-[10px] text-t4">
-            {tag}
-          </span>
-        ))}
+      <div className="flex flex-1 flex-col p-3">
+        <span className="block truncate text-[13.5px] font-medium text-t1">{model.name}</span>
+        <span className="block truncate text-[11px] text-t4">{model.vendor}</span>
+        <p className="mb-2.5 mt-1.5 line-clamp-2 text-[11.5px] leading-snug text-t3">{model.tagline}</p>
+        <div className="mt-auto flex flex-wrap gap-1">
+          {(model.modes ?? []).slice(0, 3).map((mode) => (
+            <span key={mode.id} className="rounded-chip bg-t1/[0.055] px-1.5 py-0.5 text-[10px] text-t3">
+              {mode.label}
+            </span>
+          ))}
+          {(model.modes?.length ?? 0) > 3 && (
+            <span className="rounded-chip px-1 py-0.5 font-mono text-[10px] text-t4">
+              +{(model.modes?.length ?? 0) - 3}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );
@@ -114,7 +106,16 @@ export function ModelPicker() {
     return tab === "all" ? base : base.filter((m) => m.category === tab);
   }, [query, tab]);
 
+  // Group by vendor so a long catalogue reads as a shelf, not a list.
+  const groups = useMemo(() => {
+    const map = new Map<string, ModelDef[]>();
+    for (const model of results) map.set(model.vendor, [...(map.get(model.vendor) ?? []), model]);
+    return [...map.entries()];
+  }, [results]);
+
   if (!open) return null;
+
+  let running = 0;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
@@ -184,18 +185,26 @@ export function ModelPicker() {
           {results.length === 0 ? (
             <p className="py-16 text-center text-[13px] text-t4">Nothing matches “{query}”.</p>
           ) : (
-            <div
-              key={`${tab}-${query}`}
-              className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
-            >
-              {results.map((model, index) => (
-                <ModelCard
-                  key={model.id}
-                  model={model}
-                  index={index}
-                  active={model.id === modelId}
-                  onPick={() => selectModel(model.id)}
-                />
+            <div key={`${tab}-${query}`} className="flex flex-col gap-6">
+              {groups.map(([vendor, models]) => (
+                <section key={vendor}>
+                  <div className="mb-2.5 flex items-center gap-2">
+                    <VendorBadge vendor={vendor} size={20} />
+                    <h3 className="text-[12.5px] text-t2">{vendor}</h3>
+                    <span className="font-mono text-[10.5px] text-t4">{models.length}</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {models.map((model) => (
+                      <ModelCard
+                        key={model.id}
+                        model={model}
+                        index={running++}
+                        active={model.id === modelId}
+                        onPick={() => selectModel(model.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           )}

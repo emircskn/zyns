@@ -90,6 +90,10 @@ export interface Family {
   /** Per-key presentation overrides. */
   fields?: Record<string, Partial<Field>>;
   creditHint?: ModelDef["creditHint"];
+  /** Shown on the home showcase. */
+  featured?: boolean;
+  /** One-tap starting prompts for the showcase and the empty bar. */
+  prompts?: string[];
 }
 
 /* ------------------------------------------------------------------ *
@@ -554,6 +558,8 @@ export function familyToModel(family: Family): ModelDef {
     defaultMode: modes[0]?.id,
     fields,
     creditHint: family.creditHint,
+    featured: family.featured,
+    prompts: family.prompts,
     validate(v) {
       const mode = modes.find((m) => m.id === v.__mode) ?? modes[0];
       for (const key of mode.required) {

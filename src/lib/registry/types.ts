@@ -128,6 +128,8 @@ export interface ModelDef {
   validate?: (v: Values) => string | null;
   /** Optional cost hint shown next to the generate button. */
   creditHint?: (v: Values) => string | undefined;
+  featured?: boolean;
+  prompts?: string[];
 }
 
 export const MODE_KEY = "__mode";

@@ -61,6 +61,11 @@ export const FAMILIES: Family[] = [
    * ============================================================== */
   {
     id: "nano-banana-2",
+    featured: true,
+    prompts: [
+      "A product still of a matte ceramic mug on wet slate, soft window light, shallow depth of field",
+      "Editorial portrait, 85mm, golden hour, film grain, muted teal and amber",
+    ],
     name: "Nano Banana 2",
     vendor: "Google",
     category: "image",
@@ -125,6 +130,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "seedream-5-pro",
+    featured: true,
+    prompts: [
+      "Isometric cutaway of a tiny bookshop at night, warm lamps, rain on the glass",
+      "Poster with bold bilingual typography: 'NIGHT MARKET' in neon over a wet street",
+    ],
     name: "Seedream 5 Pro",
     vendor: "ByteDance",
     category: "image",
@@ -185,6 +195,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "gpt-image-2",
+    featured: true,
+    prompts: [
+      "A hand-drawn infographic explaining how coffee is roasted, ink and watercolour",
+      "Minimal app icon: a paper plane folded from a map, flat, two colours",
+    ],
     name: "GPT Image 2",
     vendor: "OpenAI",
     category: "image",
@@ -244,6 +259,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "flux-2-pro",
+    featured: true,
+    prompts: [
+      "Architectural photo of a concrete house in a pine forest, overcast, ultra-detailed",
+      "Close-up of frost forming on a red maple leaf, macro, morning light",
+    ],
     name: "FLUX 2 Pro",
     vendor: "Black Forest Labs",
     category: "image",
@@ -403,6 +423,11 @@ export const FAMILIES: Family[] = [
    * ============================================================== */
   {
     id: "veo-3-1",
+    featured: true,
+    prompts: [
+      "Slow dolly through a Tokyo alley at night, rain, neon reflections, ambient street sound",
+      "A golden retriever shakes off water in slow motion on a beach at sunset",
+    ],
     name: "Veo 3.1",
     vendor: "Google DeepMind",
     category: "video",
@@ -431,6 +456,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "seedance-2-5",
+    featured: true,
+    prompts: [
+      "Handheld tracking shot following a cyclist through a misty forest road at dawn",
+      "A chef flips a pan of vegetables, sparks of flame, close-up, kitchen ambience",
+    ],
     name: "Seedance 2.5",
     vendor: "ByteDance",
     category: "video",
@@ -499,6 +529,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "kling-3",
+    featured: true,
+    prompts: [
+      "Two shots: a lighthouse in a storm, then the keeper lighting a lamp inside",
+      "Drone rises over a terraced tea plantation at sunrise, mist in the valleys",
+    ],
     name: "Kling 3.0",
     vendor: "Kuaishou",
     category: "video",
@@ -527,6 +562,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "kling-3-omni",
+    featured: true,
+    prompts: [
+      "A dancer in red silk moves through an empty marble hall, camera circling",
+      "Time-lapse of a city square from dawn to night, crowds flowing like water",
+    ],
     name: "Kling 3.0 Omni",
     vendor: "Kuaishou",
     category: "video",
@@ -644,6 +684,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "minimax-h3",
+    featured: true,
+    prompts: [
+      "A paper boat drifts down a rain-filled gutter, reflections of shop signs",
+      "Macro of ink dropping into water, blooming into a jellyfish shape",
+    ],
     name: "Hailuo 03 (H3)",
     vendor: "MiniMax",
     category: "video",
@@ -683,6 +728,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "wan-3",
+    featured: true,
+    prompts: [
+      "A tram crosses a snowy bridge at blue hour, headlights cutting the fog",
+      "A potter's hands shape a bowl on a wheel, warm studio light",
+    ],
     name: "Wan 3.0",
     vendor: "Alibaba",
     category: "video",
@@ -790,6 +840,10 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "pixverse-v6",
+    featured: true,
+    prompts: [
+      "A skateboarder lands a trick in an empty parking garage, neon light, slow motion",
+    ],
     name: "PixVerse V6",
     vendor: "PixVerse",
     category: "video",
@@ -847,6 +901,10 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "runway",
+    featured: true,
+    prompts: [
+      "A vintage convertible drives along a coastal cliff road, cinematic wide shot",
+    ],
     name: "Runway",
     vendor: "Runway",
     category: "video",
@@ -896,6 +954,11 @@ export const FAMILIES: Family[] = [
    * ============================================================== */
   {
     id: "suno-music",
+    featured: true,
+    prompts: [
+      "Dreamy synth-pop about driving home at 3am, female vocal, slow build",
+      "Instrumental lo-fi hip hop for a rainy study session, vinyl crackle",
+    ],
     name: "Suno",
     vendor: "Suno",
     category: "audio",
@@ -961,6 +1024,11 @@ export const FAMILIES: Family[] = [
   },
   {
     id: "elevenlabs-speech",
+    featured: true,
+    prompts: [
+      "Welcome aboard. Please stow your bags and take your seat \u2014 we'll be leaving shortly.",
+      "Chapter one. The lighthouse had been dark for eleven years.",
+    ],
     name: "ElevenLabs Speech",
     vendor: "ElevenLabs",
     category: "audio",
