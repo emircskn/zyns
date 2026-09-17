@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { CoverArt } from "@/components/CoverArt";
 import { Icon } from "@/components/Icon";
+import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
+import { usePresence } from "@/lib/usePresence";
 import { ACCENT } from "@/lib/vendors";
 import { useStudio } from "@/store/studio";
 
@@ -75,6 +77,7 @@ export function ModelPicker() {
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [tab, setTab] = useState<Category>(storedTab === "all" ? "image" : storedTab);
+  const { mounted, exiting } = usePresence(open, 240);
 
   // The rail and the prompt bar can open the picker straight onto a
   // category; each opening starts from a clean search so a stale query
@@ -101,7 +104,7 @@ export function ModelPicker() {
     [query, tab],
   );
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-4">
@@ -109,10 +112,12 @@ export function ModelPicker() {
         type="button"
         aria-label="Close model picker"
         onClick={() => togglePicker(false)}
-        className="anim-fade absolute inset-0 bg-canvas-deep/80 backdrop-blur-md"
+        className={`no-press absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
-        className="anim-pop relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(820px,90vh)] sm:max-w-5xl sm:rounded-panel sm:border sm:border-line"
+        className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(820px,90vh)] sm:max-w-5xl sm:rounded-panel sm:border sm:border-line ${
+          exiting ? "anim-sheet-out" : "anim-sheet"
+        }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <header className="flex items-center gap-2 px-4 pb-3 pt-[max(20px,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
@@ -156,22 +161,14 @@ export function ModelPicker() {
         </header>
 
         {!query.trim() && (
-          <div className="flex items-center gap-1 overflow-x-auto px-4 py-2 sm:px-6">
-            {CATEGORIES.map((category) => {
-              const selected = tab === category.id;
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => setTab(category.id)}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-5 py-2.5 text-[17px] font-medium tracking-[-0.01em] transition-all duration-[120ms] ${
-                    selected ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
-                  }`}
-                >
-                  {TAB_LABEL[category.id]}
-                </button>
-              );
-            })}
+          <div className="px-4 py-2 sm:px-6">
+            <PillGroup
+              size="lg"
+              bare
+              value={tab}
+              onChange={setTab}
+              items={CATEGORIES.map((category) => ({ id: category.id, label: TAB_LABEL[category.id] }))}
+            />
           </div>
         )}
 

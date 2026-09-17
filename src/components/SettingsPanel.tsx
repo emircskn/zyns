@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { usePresence } from "@/lib/usePresence";
 import { Control } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { activeFields } from "@/lib/registry";
@@ -17,6 +18,7 @@ export function SettingsPanel() {
   const model = useModel();
   const values = useValues();
   const [showPayload, setShowPayload] = useState(false);
+  const { mounted, exiting } = usePresence(open, 320);
 
   const groups = useMemo(() => {
     if (!model) return [];
@@ -43,19 +45,22 @@ export function SettingsPanel() {
 
   return (
     <>
-      {open && (
+      {mounted && (
         <button
           type="button"
           aria-label="Close settings"
           onClick={() => toggleSettings(false)}
-          className="anim-fade fixed inset-0 z-40 bg-canvas-deep/55 backdrop-blur-[3px]"
+          className={`no-press fixed inset-0 z-40 bg-canvas-deep/55 backdrop-blur-[3px] ${
+            exiting ? "anim-fade-out" : "anim-fade"
+          }`}
         />
       )}
       <aside
         className="fixed right-0 top-0 z-50 flex h-full w-[min(400px,92vw)] flex-col border-l border-line bg-elevated"
         style={{
-          transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform var(--d-slow) var(--ease)",
+          transform: open ? "translateX(0)" : "translateX(104%)",
+          transition: `transform var(--d-slow) ${open ? "var(--ease-spring)" : "var(--ease)"}`,
+          boxShadow: open ? "var(--shadow-pop)" : "none",
         }}
       >
         <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-4">
@@ -92,9 +97,9 @@ export function SettingsPanel() {
 
           {groups.map(([group, fields], groupIndex) => (
             <section
-              key={group}
+              key={`${model.id}-${group}-${open}`}
               className="anim-swap mb-7 last:mb-0"
-              style={{ animationDelay: `${groupIndex * 40}ms` }}
+              style={{ animationDelay: `${120 + groupIndex * 50}ms` }}
             >
               <h3 className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-t4">
                 {group}

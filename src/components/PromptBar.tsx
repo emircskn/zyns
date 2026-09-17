@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Control, chipCaption } from "@/components/controls";
+import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
@@ -18,24 +19,12 @@ function ModeStrip() {
 
   return (
     <div key={model.id} className="anim-swap mb-2 flex justify-start">
-      <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-full bg-elevated/80 p-1 ring-1 ring-inset ring-line backdrop-blur-xl [scrollbar-width:none]">
-        {model.modes.map((mode) => {
-          const active = values.__mode === mode.id;
-          return (
-            <button
-              key={mode.id}
-              type="button"
-              title={mode.hint}
-              onClick={() => setMode(mode.id)}
-              className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-medium transition-all duration-[120ms] ${
-                active ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
-              }`}
-            >
-              {mode.label}
-            </button>
-          );
-        })}
-      </div>
+      <PillGroup
+        className="!bg-elevated/80 ring-1 ring-inset ring-line backdrop-blur-xl"
+        value={String(values.__mode ?? model.modes[0].id)}
+        onChange={setMode}
+        items={model.modes.map((mode) => ({ id: mode.id, label: mode.label, hint: mode.hint }))}
+      />
     </div>
   );
 }

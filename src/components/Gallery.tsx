@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { getModel } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
+import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
 
 const STATE_LABEL: Record<Run["state"], string> = {
@@ -186,7 +187,12 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   );
 }
 
-function Lightbox({ url, onClose }: { url: string; onClose: () => void }) {
+function Lightbox({ url, onClose }: { url: string | null; onClose: () => void }) {
+  const { mounted, exiting } = usePresence(!!url, 220);
+  const [shown, setShown] = useState(url);
+  useEffect(() => {
+    if (url) setShown(url);
+  }, [url]);
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -195,14 +201,20 @@ function Lightbox({ url, onClose }: { url: string; onClose: () => void }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  if (!mounted || !shown) return null;
+
   return (
-    <div className="anim-fade fixed inset-0 z-[110] flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md">
-      <button type="button" className="absolute inset-0" aria-label="Close" onClick={onClose} />
+    <div
+      className={`fixed inset-0 z-[110] flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md ${
+        exiting ? "anim-fade-out" : "anim-fade"
+      }`}
+    >
+      <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url}
+        src={shown}
         alt=""
-        className="anim-pop relative max-h-full max-w-full rounded-card object-contain"
+        className={`relative max-h-full max-w-full rounded-card object-contain ${exiting ? "anim-zoom-out" : "anim-zoom"}`}
       />
       <button
         type="button"
@@ -232,7 +244,7 @@ export function Gallery() {
           <Tile key={run.id} run={run} index={index} onOpen={setLightbox} />
         ))}
       </div>
-      {lightbox && <Lightbox url={lightbox} onClose={() => setLightbox(null)} />}
+      <Lightbox url={lightbox} onClose={() => setLightbox(null)} />
     </>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { refreshCredits } from "@/lib/generate";
 import { getCredits, isDirect } from "@/lib/kie/transport";
+import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
 
 export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -12,6 +13,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
   const [draft, setDraft] = useState(apiKey);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { mounted, exiting } = usePresence(open, 200);
 
   useEffect(() => {
     if (open) {
@@ -29,7 +31,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   async function save() {
     const key = draft.trim();
@@ -59,10 +61,12 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="anim-fade absolute inset-0 bg-canvas-deep/75 backdrop-blur-md"
+        className={`no-press absolute inset-0 bg-canvas-deep/75 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
-        className="anim-pop relative w-full max-w-md overflow-hidden rounded-panel border border-line bg-elevated"
+        className={`relative w-full max-w-md overflow-hidden rounded-panel border border-line bg-elevated ${
+          exiting ? "anim-pop-out" : "anim-pop"
+        }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <div className="pending-surface h-1 w-full" />

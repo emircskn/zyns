@@ -177,11 +177,19 @@ düğmesi), `14px` (kart), `24px` (panel, modal, prompt barı) ve tam yuvarlak
 **Hareket** — iki easing: yerine oturan her şey için
 `cubic-bezier(0.32, 0.72, 0, 1)`, açılan yüzeyler için hafif taşan
 `cubic-bezier(0.34, 1.4, 0.64, 1)`. Üç süre: 120ms mikro etkileşim, 200ms
-standart, 320ms panel. Popover'lar ve modallar yaylanarak açılıyor, model
-kartları ve galeri kutuları kademeli (staggered) giriyor, model değişince
-başlık ve mod şeridi yumuşak geçiş yapıyor, tamamlanmamış çalışmalar dört
-marka renginin yavaşça sürüklendiği bir gradyan üzerinde bekliyor.
-`prefers-reduced-motion` açıksa tüm hareket kapanıyor.
+standart, 320ms panel. Her katmanın girişi kadar çıkışı da var
+(`usePresence` kancası öğeyi çıkış animasyonu bitene kadar ekranda tutuyor):
+model seçici telefonda alttan kayarak açılıp aynı yoldan kapanıyor,
+masaüstünde ölçekten oturuyor; popover'lar açıldıkları chip'ten büyüyüp
+oraya küçülüyor; ayarlar paneli yaylanarak giriyor, içeriği kademeli
+beliriyor; büyük görünüm yakınlaşarak açılıp uzaklaşarak kapanıyor. Mod
+şeridi, segment kontrolleri ve seçici sekmelerinde tek bir krem gösterge
+seçime kayıyor (`PillGroup`), her hap ayrı ayrı boyanmıyor. Her düğme
+basınca hafifçe küçülüyor. Tema değişimi View Transitions API ile tüm
+sayfayı çapraz soldurarak yapılıyor. Model kartları ve galeri kutuları
+kademeli giriyor, tamamlanmamış çalışmalar dört marka renginin yavaşça
+sürüklendiği bir gradyan üzerinde bekliyor. `prefers-reduced-motion`
+açıksa tüm hareket kapanıyor.
 
 ## Arayüz notları
 

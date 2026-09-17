@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { usePresence } from "@/lib/usePresence";
 
 interface Props {
   /** Rendered as the trigger; receives whether the panel is open. */
@@ -14,6 +15,7 @@ interface Props {
 
 export function Popover({ trigger, children, align = "start", width = 264, title }: Props) {
   const [open, setOpen] = useState(false);
+  const { mounted, exiting } = usePresence(open, 140);
   const [shift, setShift] = useState(0);
   const root = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
 
   // Nudge the panel back inside the viewport when a chip sits near an edge.
   useEffect(() => {
-    if (!open || !panel.current) {
+    if (!open || !mounted || !panel.current) {
       setShift(0);
       return;
     }
@@ -46,7 +48,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
     else if (rect.right > window.innerWidth - margin) {
       setShift(window.innerWidth - margin - rect.right);
     }
-  }, [open]);
+  }, [open, mounted]);
 
   const alignment =
     align === "center" ? "left-1/2 -translate-x-1/2" : align === "end" ? "right-0" : "left-0";
@@ -56,10 +58,12 @@ export function Popover({ trigger, children, align = "start", width = 264, title
       <button type="button" onClick={() => setOpen((v) => !v)} className="block">
         {trigger(open)}
       </button>
-      {open && (
+      {mounted && (
         <div
           ref={panel}
-          className={`surface-pop anim-pop absolute bottom-[calc(100%+10px)] z-50 rounded-panel p-1.5 ${alignment}`}
+          className={`surface-pop absolute bottom-[calc(100%+10px)] z-50 rounded-panel p-1.5 ${alignment} ${
+            exiting ? "anim-rise-out pointer-events-none" : "anim-rise"
+          }`}
           style={{ width: `min(${width}px, calc(100vw - 24px))`, marginLeft: shift }}
         >
           {title && (

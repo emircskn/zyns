@@ -14,7 +14,14 @@ export function ThemeSync() {
 
   useEffect(() => {
     if (!hydrated) return;
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    if (root.dataset.theme === theme) return;
+    const apply = () => {
+      root.dataset.theme = theme;
+    };
+    // First paint sets the theme silently; later switches cross-fade.
+    if (!root.dataset.theme || !("startViewTransition" in document)) return apply();
+    (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(apply);
   }, [theme, hydrated]);
 
   return null;

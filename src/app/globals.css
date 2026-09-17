@@ -123,6 +123,9 @@ body {
 button,
 [role="button"] {
   font-weight: 450;
+  transition-property: transform, background-color, color, opacity, box-shadow;
+  transition-duration: var(--d-fast);
+  transition-timing-function: var(--ease-spring);
   letter-spacing: -0.01em;
 }
 
@@ -230,8 +233,115 @@ h3 {
   }
 }
 
+@keyframes pop-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .anim-pop {
   animation: pop-in var(--d-base) var(--ease-spring) both;
+}
+.anim-pop-out {
+  animation: pop-out var(--d-base) var(--ease) both;
+}
+.anim-fade-out {
+  animation: fade-out var(--d-base) var(--ease) both;
+}
+/* Full-screen sheets slide up on phones and settle in from scale on desks. */
+.anim-sheet {
+  animation: sheet-in var(--d-slow) var(--ease) both;
+}
+.anim-sheet-out {
+  animation: sheet-out var(--d-base) var(--ease) both;
+}
+@media (min-width: 640px) {
+  .anim-sheet {
+    animation: pop-in var(--d-slow) var(--ease-spring) both;
+  }
+  .anim-sheet-out {
+    animation: pop-out var(--d-base) var(--ease) both;
+  }
+}
+.anim-zoom {
+  animation: zoom-in var(--d-slow) var(--ease-spring) both;
+}
+.anim-zoom-out {
+  animation: zoom-out var(--d-base) var(--ease) both;
+}
+/* Popovers grow out of the chip that opened them. */
+.anim-rise {
+  transform-origin: bottom center;
+  animation: rise-in var(--d-slow) var(--ease-spring) both;
+}
+.anim-rise-out {
+  transform-origin: bottom center;
+  animation: pop-out var(--d-fast) var(--ease) both;
 }
 .anim-fade {
   animation: fade-in var(--d-base) var(--ease) both;
@@ -339,6 +449,22 @@ input[type="range"]::-moz-range-thumb {
 
 textarea {
   field-sizing: content;
+}
+
+/* Every press gives a little: a tap should feel like it landed. */
+button:not(:disabled):not(.no-press):active {
+  transform: scale(0.96);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Theme switches cross-fade the whole page instead of snapping. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--d-slow);
+  animation-timing-function: var(--ease);
 }
 
 ::selection {

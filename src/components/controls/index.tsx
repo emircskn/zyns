@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import type { Field, ItemField, Values } from "@/lib/registry";
+import { PillGroup } from "@/components/PillGroup";
 import { Icon } from "@/components/Icon";
 import { mediaKind, uploadFile } from "@/lib/upload";
 import { useStudio } from "@/store/studio";
@@ -49,24 +50,16 @@ export function OptionList({ field, value, onChange }: ControlProps) {
 
 export function Segmented({ field, value, onChange }: ControlProps) {
   return (
-    <div className="flex flex-wrap gap-0.5 rounded-full bg-t1/[0.07] p-1">
-      {(field.choices ?? []).map((choice) => {
-        const active = String(value ?? "") === choice.value;
-        return (
-          <button
-            key={choice.value}
-            type="button"
-            title={choice.hint}
-            onClick={() => onChange(choice.value)}
-            className={`flex-1 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[120ms] ${
-              active ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
-            }`}
-          >
-            {choice.label}
-          </button>
-        );
-      })}
-    </div>
+    <PillGroup
+      fill
+      value={String(value ?? "")}
+      onChange={onChange}
+      items={(field.choices ?? []).map((choice) => ({
+        id: choice.value,
+        label: choice.label,
+        hint: choice.hint,
+      }))}
+    />
   );
 }
 
