@@ -1,6 +1,8 @@
 "use client";
 
 import { aspectFromValues } from "@/lib/aspect";
+import { createTask, getCredits, getTask } from "@/lib/kie/transport";
+import type { PollKind } from "@/lib/kie/client";
 import { getModel, validateValues, type Values } from "@/lib/registry";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -43,18 +45,8 @@ export async function submitRun(): Promise<SubmitResult> {
   state.addRun(run);
 
   try {
-    const res = await fetch("/api/kie/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-kie-key": state.apiKey },
-      body: JSON.stringify({ endpoint, payload }),
-    });
-    const body = (await res.json()) as { taskId?: string; error?: string };
-    if (!res.ok || !body.taskId) {
-      const error = body.error ?? `Request failed (HTTP ${res.status}).`;
-      useStudio.getState().patchRun(id, { state: "failed", error });
-      return { ok: false, error };
-    }
-    useStudio.getState().patchRun(id, { taskId: body.taskId, state: "pending" });
+    const { taskId } = await createTask(state.apiKey, endpoint, payload);
+    useStudio.getState().patchRun(id, { taskId, state: "pending" });
     void refreshCredits();
     return { ok: true };
   } catch (error) {
@@ -68,9 +60,8 @@ export async function refreshCredits(): Promise<void> {
   const { apiKey, setCredits } = useStudio.getState();
   if (!apiKey) return;
   try {
-    const res = await fetch("/api/kie/credits", { headers: { "x-kie-key": apiKey } });
-    const body = (await res.json()) as { credits?: number | null };
-    if (res.ok && typeof body.credits === "number") setCredits(body.credits);
+    const credits = await getCredits(apiKey);
+    if (credits !== null) setCredits(credits);
   } catch {
     // A failed balance check should never interrupt generation.
   }
@@ -80,26 +71,18 @@ export async function pollRun(run: Run): Promise<void> {
   const { apiKey, patchRun } = useStudio.getState();
   if (!apiKey || !run.taskId) return;
   try {
-    const res = await fetch(
-      `/api/kie/task?taskId=${encodeURIComponent(run.taskId)}&poll=${run.poll}`,
-      { headers: { "x-kie-key": apiKey } },
-    );
-    const body = (await res.json()) as {
-      state?: Run["state"];
-      urls?: string[];
-      error?: string;
-    };
-    if (!res.ok) {
-      patchRun(run.id, { state: "failed", error: body.error ?? `HTTP ${res.status}` });
-      return;
-    }
+    const task = await getTask(apiKey, run.taskId, run.poll as PollKind);
     patchRun(run.id, {
-      state: body.state ?? run.state,
-      urls: body.urls ?? run.urls,
-      error: body.error,
+      state: task.state,
+      urls: task.urls ?? run.urls,
+      error: task.error,
     });
-    if (body.state === "success" || body.state === "failed") void refreshCredits();
-  } catch {
-    // Transient network errors are retried on the next tick.
+    if (task.state === "success" || task.state === "failed") void refreshCredits();
+  } catch (error) {
+    // A definitive rejection (bad key, unknown task) should surface; a
+    // transient network error is simply retried on the next tick.
+    if (error instanceof Error && /unauthori|not found|invalid/i.test(error.message)) {
+      patchRun(run.id, { state: "failed", error: error.message });
+    }
   }
 }

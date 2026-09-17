@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { refreshCredits } from "@/lib/generate";
+import { getCredits, isDirect } from "@/lib/kie/transport";
 import { useStudio } from "@/store/studio";
 
 export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -40,15 +41,9 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
     setChecking(true);
     setError(null);
     try {
-      const res = await fetch("/api/kie/credits", { headers: { "x-kie-key": key } });
-      const body = (await res.json()) as { credits?: number; error?: string };
-      if (!res.ok) {
-        setError(body.error ?? "That key was rejected by KIE.");
-        setChecking(false);
-        return;
-      }
+      const credits = await getCredits(key);
       setApiKey(key);
-      if (typeof body.credits === "number") useStudio.getState().setCredits(body.credits);
+      if (credits !== null) useStudio.getState().setCredits(credits);
       void refreshCredits();
       onClose();
     } catch (err) {
@@ -77,8 +72,10 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
           </span>
           <h2 className="mb-2 text-[17px] text-t1">Your KIE API key</h2>
           <p className="mb-5 text-[12.5px] leading-relaxed text-t3">
-            The key is kept in this browser and sent with each request through this app&apos;s own
-            proxy route. It is never stored on the server. Get one at{" "}
+            {isDirect()
+              ? "The key is kept in this browser and sent straight to api.kie.ai with each request — there is no server in between."
+              : "The key is kept in this browser and sent with each request through this app's own proxy route. It is never stored on the server."}{" "}
+            Get one at{" "}
             <a
               href="https://kie.ai/api-key"
               target="_blank"
