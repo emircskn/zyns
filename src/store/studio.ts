@@ -1,0 +1,218 @@
+"use client";
+
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import {
+  MODELS,
+  defaultValues,
+  getModel,
+  type Category,
+  type Values,
+} from "@/lib/registry";
+
+export interface Run {
+  id: string;
+  taskId?: string;
+  modelId: string;
+  modelName: string;
+  mode?: string;
+  poll: string;
+  prompt: string;
+  /** Aspect ratio as a CSS value, so tiles reserve the right space while loading. */
+  ratio: string;
+  output: "image" | "video" | "audio";
+  state: "queued" | "pending" | "running" | "success" | "failed";
+  urls: string[];
+  error?: string;
+  createdAt: number;
+  values: Values;
+}
+
+interface StudioState {
+  apiKey: string;
+  credits: number | null;
+  category: Category;
+  modelId: string;
+  valuesByModel: Record<string, Values>;
+  runs: Run[];
+  settingsOpen: boolean;
+  pickerOpen: boolean;
+  pickerTab: Category | "all";
+  hydrated: boolean;
+
+  setApiKey: (key: string) => void;
+  setCredits: (credits: number | null) => void;
+  setCategory: (category: Category) => void;
+  selectModel: (id: string) => void;
+  setValue: (key: string, value: unknown) => void;
+  setValues: (values: Values) => void;
+  resetValues: () => void;
+  setMode: (mode: string) => void;
+  toggleSettings: (open?: boolean) => void;
+  togglePicker: (open?: boolean, tab?: Category | "all") => void;
+
+  addRun: (run: Run) => void;
+  patchRun: (id: string, patch: Partial<Run>) => void;
+  removeRun: (id: string) => void;
+  clearRuns: () => void;
+}
+
+function valuesFor(state: StudioState, id: string): Values {
+  const existing = state.valuesByModel[id];
+  if (existing) return existing;
+  const model = getModel(id);
+  return model ? defaultValues(model) : {};
+}
+
+export const useStudio = create<StudioState>()(
+  persist(
+    (set, get) => ({
+      apiKey: "",
+      credits: null,
+      category: "video",
+      modelId: MODELS[0]?.id ?? "",
+      valuesByModel: {},
+      runs: [],
+      settingsOpen: false,
+      pickerOpen: false,
+      pickerTab: "all",
+      hydrated: false,
+
+      setApiKey: (apiKey) => set({ apiKey, credits: null }),
+      setCredits: (credits) => set({ credits }),
+      setCategory: (category) => set({ category }),
+
+      selectModel: (id) => {
+        const model = getModel(id);
+        if (!model) return;
+        set((state) => ({
+          modelId: id,
+          category: model.category,
+          pickerOpen: false,
+          valuesByModel: {
+            ...state.valuesByModel,
+            [id]: valuesFor(state, id),
+          },
+        }));
+      },
+
+      setValue: (key, value) =>
+        set((state) => {
+          const current = valuesFor(state, state.modelId);
+          return {
+            valuesByModel: {
+              ...state.valuesByModel,
+              [state.modelId]: { ...current, [key]: value },
+            },
+          };
+        }),
+
+      setValues: (values) =>
+        set((state) => ({
+          valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
+        })),
+
+      resetValues: () =>
+        set((state) => {
+          const model = getModel(state.modelId);
+          if (!model) return {};
+          return {
+            valuesByModel: {
+              ...state.valuesByModel,
+              [state.modelId]: defaultValues(model),
+            },
+          };
+        }),
+
+      /**
+       * Switching mode keeps shared values (prompt, ratio…) but drops defaults
+       * belonging to the mode you left, so a stale first-frame URL can never
+       * ride along into a text-to-video run.
+       */
+      setMode: (mode) =>
+        set((state) => {
+          const model = getModel(state.modelId);
+          if (!model) return {};
+          const current = valuesFor(state, state.modelId);
+          const next: Values = { ...current, __mode: mode };
+
+          // A key can be declared by several fields (same option, different
+          // bounds per mode), so decide per key — not per field — whether it
+          // survives the switch, then fill defaults from the active field.
+          const activeFields = model.fields.filter((f) => !f.when || f.when(next));
+          const activeKeys = new Set(activeFields.map((f) => f.key));
+          for (const field of model.fields) {
+            if (!activeKeys.has(field.key)) delete next[field.key];
+          }
+          for (const field of activeFields) {
+            if (next[field.key] === undefined && field.default !== undefined) {
+              next[field.key] = field.default;
+            }
+          }
+          return {
+            valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
+          };
+        }),
+
+      toggleSettings: (open) =>
+        set((state) => ({ settingsOpen: open ?? !state.settingsOpen })),
+      togglePicker: (open, tab) =>
+        set((state) => ({
+          pickerOpen: open ?? !state.pickerOpen,
+          pickerTab: tab ?? state.pickerTab,
+        })),
+
+      addRun: (run) => set((state) => ({ runs: [run, ...state.runs].slice(0, 200) })),
+      patchRun: (id, patch) =>
+        set((state) => ({
+          runs: state.runs.map((run) => (run.id === id ? { ...run, ...patch } : run)),
+        })),
+      removeRun: (id) => set((state) => ({ runs: state.runs.filter((run) => run.id !== id) })),
+      clearRuns: () => set({ runs: [] }),
+    }),
+    {
+      name: "kie-studio",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        apiKey: state.apiKey,
+        category: state.category,
+        modelId: state.modelId,
+        valuesByModel: state.valuesByModel,
+        runs: state.runs,
+      }),
+    },
+  ),
+);
+
+// `persist` only wires itself up where a storage exists, so the server render
+// must not reach for it.
+if (typeof window !== "undefined") {
+  useStudio.persist?.onFinishHydration(() => useStudio.setState({ hydrated: true }));
+  if (useStudio.persist?.hasHydrated()) useStudio.setState({ hydrated: true });
+}
+
+/**
+ * Default value objects are cached by model id: `useValues` runs on every
+ * store read, and handing back a fresh object each time would loop the
+ * `useSyncExternalStore` snapshot check.
+ */
+const defaultsCache = new Map<string, Values>();
+
+function cachedDefaults(id: string): Values {
+  let cached = defaultsCache.get(id);
+  if (!cached) {
+    const model = getModel(id);
+    cached = model ? defaultValues(model) : {};
+    defaultsCache.set(id, cached);
+  }
+  return cached;
+}
+
+/** Current model's values, always defined. */
+export function useValues(): Values {
+  return useStudio((state) => state.valuesByModel[state.modelId] ?? cachedDefaults(state.modelId));
+}
+
+export function useModel() {
+  return useStudio((state) => getModel(state.modelId));
+}

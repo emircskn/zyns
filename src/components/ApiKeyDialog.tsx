@@ -1,0 +1,128 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Icon } from "@/components/Icon";
+import { refreshCredits } from "@/lib/generate";
+import { useStudio } from "@/store/studio";
+
+export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const apiKey = useStudio((s) => s.apiKey);
+  const setApiKey = useStudio((s) => s.setApiKey);
+  const [draft, setDraft] = useState(apiKey);
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setDraft(apiKey);
+      setError(null);
+    }
+  }, [open, apiKey]);
+
+  if (!open) return null;
+
+  async function save() {
+    const key = draft.trim();
+    if (!key) {
+      setApiKey("");
+      onClose();
+      return;
+    }
+    setChecking(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/kie/credits", { headers: { "x-kie-key": key } });
+      const body = (await res.json()) as { credits?: number; error?: string };
+      if (!res.ok) {
+        setError(body.error ?? "That key was rejected by KIE.");
+        setChecking(false);
+        return;
+      }
+      setApiKey(key);
+      if (typeof body.credits === "number") useStudio.getState().setCredits(body.credits);
+      void refreshCredits();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reach KIE.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+      />
+      <div className="glass animate-rise relative w-full max-w-md rounded-3xl p-6 shadow-2xl shadow-black/80">
+        <span className="mb-4 grid h-11 w-11 place-items-center rounded-2xl bg-white/8 text-white">
+          <Icon name="key" size={20} />
+        </span>
+        <h2 className="mb-1.5 text-[17px] font-semibold text-white">Your KIE API key</h2>
+        <p className="mb-5 text-[12.5px] leading-relaxed text-ink-400">
+          The key is kept in this browser and sent with each request through this app&apos;s own
+          proxy route. It is never stored on the server. Get one at{" "}
+          <a
+            href="https://kie.ai/api-key"
+            target="_blank"
+            rel="noreferrer"
+            className="text-white underline underline-offset-2"
+          >
+            kie.ai/api-key
+          </a>
+          .
+        </p>
+
+        <input
+          type="password"
+          value={draft}
+          autoFocus
+          spellCheck={false}
+          placeholder="sk-…"
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") void save();
+          }}
+          className="mb-3 w-full rounded-2xl bg-black/30 px-4 py-3 text-[13.5px] text-white outline-none ring-1 ring-inset ring-white/10 placeholder:text-ink-500 focus:ring-white/30"
+        />
+
+        {error && (
+          <p className="mb-3 flex items-start gap-1.5 text-[12px] text-red-400">
+            <Icon name="alert" size={14} className="mt-px shrink-0" />
+            {error}
+          </p>
+        )}
+
+        <div className="flex items-center justify-end gap-2">
+          {apiKey && (
+            <button
+              type="button"
+              onClick={() => {
+                setApiKey("");
+                setDraft("");
+                onClose();
+              }}
+              className="rounded-full px-4 py-2 text-[12.5px] text-ink-400 hover:text-white"
+            >
+              Remove key
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={save}
+            disabled={checking}
+            className="flex items-center gap-2 rounded-full bg-white px-5 py-2 text-[12.5px] font-semibold text-ink-950 transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {checking && (
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-ink-400 border-t-ink-950" />
+            )}
+            {checking ? "Verifying" : "Save key"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
