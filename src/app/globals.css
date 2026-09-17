@@ -24,10 +24,12 @@
   --color-t3: var(--t3);
   --color-t4: var(--t4);
 
-  --color-blue: #62a2ff;
-  --color-lime: #65f223;
-  --color-violet: #762fad;
-  --color-plum: #55227d;
+  --color-amber: #f2a33a;
+  --color-copper: #d9632c;
+  --color-gold: #f0cf6b;
+  --color-ash: #a89f92;
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
 
   /* Four radii, no intermediates. */
   --radius-chip: 8px;
@@ -41,19 +43,23 @@
 }
 
 :root {
-  --canvas: #0b0f15;
-  --canvas-deep: #000000;
-  --surface: #171717;
-  --surface-2: #262626;
-  --elevated: #1c1c1c;
+  /* Cinema black: a warm near-black, never blue; amber is the only voltage. */
+  --canvas: #0a0908;
+  --canvas-deep: #050403;
+  --surface: #151311;
+  --surface-2: #1f1c18;
+  --elevated: #171412;
 
-  --line: rgb(255 255 255 / 0.09);
-  --line-strong: rgb(255 255 255 / 0.18);
+  --line: rgb(245 239 230 / 0.09);
+  --line-strong: rgb(245 239 230 / 0.18);
 
-  --t1: #ffffff;
-  --t2: #d4d4d5;
-  --t3: #a3a3a3;
-  --t4: #737373;
+  --t1: #f5efe6;
+  --t2: #d6cfc3;
+  --t3: #a39b8f;
+  --t4: #6f685e;
+
+  --accent: #f2a33a;
+  --accent-ink: #1a1207;
 
   --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
   --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
@@ -71,19 +77,22 @@
 [data-theme="light"] {
   /* The canvas sits a shade off white so elevated surfaces — the prompt bar,
      gallery tiles, popovers — read as lifted rather than as outlines. */
-  --canvas: #fbfbfc;
-  --canvas-deep: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f1f1f3;
-  --elevated: #ffffff;
+  --canvas: #f7f3ec;
+  --canvas-deep: #fffdf9;
+  --surface: #fffdf9;
+  --surface-2: #efe9df;
+  --elevated: #fffdf9;
 
-  --line: rgb(11 15 21 / 0.1);
-  --line-strong: rgb(11 15 21 / 0.2);
+  --line: rgb(26 22 19 / 0.1);
+  --line-strong: rgb(26 22 19 / 0.2);
 
-  --t1: #0b0f15;
-  --t2: #404040;
-  --t3: #737373;
-  --t4: #a3a3a3;
+  --t1: #1a1613;
+  --t2: #46403a;
+  --t3: #7a7268;
+  --t4: #a59c90;
+
+  --accent: #c9821f;
+  --accent-ink: #fffdf9;
 
   --shadow-pop: 0 24px 60px -16px rgb(11 15 21 / 0.18), 0 2px 8px rgb(11 15 21 / 0.06);
   --shadow-bar: 0 20px 50px -20px rgb(11 15 21 / 0.22);
@@ -144,10 +153,10 @@ h3 {
   box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--line-strong);
 }
 
-/* The one pure-white action per surface. */
+/* The one lit action per surface: amber on the black set. */
 @utility cta {
-  background: var(--t1);
-  color: var(--canvas);
+  background: var(--accent);
+  color: var(--accent-ink);
   transition:
     transform var(--d-fast) var(--ease),
     opacity var(--d-fast) var(--ease),
@@ -249,10 +258,10 @@ h3 {
   position: absolute;
   inset: -40%;
   background:
-    radial-gradient(38% 38% at 28% 30%, #62a2ff55, transparent 70%),
-    radial-gradient(34% 34% at 72% 34%, #762fad66, transparent 70%),
-    radial-gradient(40% 40% at 42% 76%, #55227d55, transparent 70%),
-    radial-gradient(26% 26% at 80% 78%, #65f22322, transparent 70%);
+    radial-gradient(38% 38% at 28% 30%, #f2a33a66, transparent 70%),
+    radial-gradient(34% 34% at 72% 34%, #d9632c66, transparent 70%),
+    radial-gradient(40% 40% at 42% 76%, #f0cf6b44, transparent 70%),
+    radial-gradient(26% 26% at 80% 78%, #a89f9233, transparent 70%);
   filter: blur(18px);
   animation: drift 9s var(--ease) infinite;
 }
@@ -333,7 +342,7 @@ textarea {
 }
 
 ::selection {
-  background: #62a2ff44;
+  background: #f2a33a55;
 }
 
 /* Touch screens have no hover: anything hover-revealed must simply be there. */
@@ -403,7 +412,7 @@ textarea {
   height: 70vh;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(60% 65% at 50% 0%, color-mix(in oklab, var(--stage, #62a2ff) 34%, transparent), transparent 72%);
+  background: radial-gradient(60% 65% at 50% 0%, color-mix(in oklab, var(--stage, #f2a33a) 30%, transparent), transparent 72%);
   transition: background var(--d-slow) var(--ease);
 }
 

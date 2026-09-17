@@ -24,10 +24,12 @@ export function CoverArt({
   animate?: boolean;
 }) {
   const accent = ACCENT[category];
-  const hue = familyHue(id);
-  const a = `hsl(${hue} 82% 60% / 0.7)`;
-  const b = `hsl(${(hue + 40) % 360} 85% 48% / 0.6)`;
-  const c = `hsl(${(hue + 300) % 360} 70% 55% / 0.35)`;
+  // Every cover lives in the amber-to-copper band, so the shelf reads as one
+  // palette; the family hue only decides where in that band it sits.
+  const hue = 12 + (familyHue(id) % 46);
+  const a = `hsl(${hue} 88% 58% / 0.72)`;
+  const b = `hsl(${hue + 18} 80% 42% / 0.6)`;
+  const c = `hsl(${Math.max(hue - 14, 0)} 60% 30% / 0.5)`;
   return (
     <div
       className={`cover relative overflow-hidden ${className}`}

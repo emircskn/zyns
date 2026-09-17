@@ -149,15 +149,19 @@ Farklı bir endpoint gerekirse `src/app/api/kie/create/route.ts` içindeki
 
 Arayüz [krea.ai](https://www.krea.ai/app)'in tasarım dilinden ilham alıyor:
 İsviçre grotesk tipografi, üretilen işin üzerinde durduğu neredeyse siyah bir
-tuval, nötr bir gri rampa ve ekrandaki tek önemli aksiyona ayrılmış saf beyaz.
+tuval ve ekrandaki tek önemli aksiyona ayrılmış tek bir vurgu rengi. Palet
+"sinema siyahı + amber": soğuk gri yerine sıcak, hafif kahve altı tonlu bir
+karanlık ve üzerinde tek bir amber.
 
-**Renkler** — koyu temada tuval `#0b0f15`, bant `#000000`, yüzeyler `#171717`
-ve `#262626`; metin rampası `#737373 → #a3a3a3 → #d4d4d5 → #ffffff`. Dört
-marka rengi yalnızca vurgu olarak kullanılıyor ve her biri bir kategoriye
-bağlı: görsel `#62a2ff`, video `#762fad`, ses `#65f223`, araçlar `#55227d`.
-Açık tema aynı iskeleti ters çeviriyor — tuval `#fbfbfc`, kartlar beyaz, CTA
-ise saf beyaz yerine neredeyse siyah oluyor. Tema raydaki güneş/ay düğmesiyle
-değişiyor ve tarayıcıda saklanıyor.
+**Renkler** — koyu temada tuval `#0a0908`, bant `#050403`, yüzeyler `#151311`
+ve `#1f1c18`; metin rampası krem: `#6f685e → #a39b8f → #d6cfc3 → #f5efe6`.
+Vurgu (CTA, seçili mod, aktif chip, anahtar durumu) tek renk: amber `#f2a33a`
+üzerine koyu mürekkep `#1a1207`. Dört kategori rengi aynı sıcak banttan
+türetiliyor: görsel amber `#f2a33a`, video bakır `#d9632c`, ses altın
+`#f0cf6b`, araçlar kül `#a89f92`. Model kapakları da 12°–58° arası sıcak
+hue bandında üretiliyor. Açık tema aynı iskeleti krem üzerine çeviriyor —
+tuval `#f7f3ec`, kartlar `#fffdf9`, amber koyulaşıp `#c9821f` oluyor. Tema
+raydaki güneş/ay düğmesiyle değişiyor ve tarayıcıda saklanıyor.
 
 **Tipografi** — Suisse Intl'in yerine, aynı neo-grotesk iskelete sahip ve
 değişken eksenli olan **Geist** kullanılıyor; sayısal değerler, bölüm

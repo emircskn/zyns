@@ -96,7 +96,7 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
           title={apiKey ? "API key connected" : "Add your API key"}
           className="group relative grid h-9 w-9 place-items-center rounded-chip text-t4 transition-all duration-[200ms] hover:bg-t1/[0.055]"
         >
-          <Icon name="key" size={16} style={{ color: apiKey ? "#65f223" : "#62a2ff" }} />
+          <Icon name="key" size={16} style={{ color: apiKey ? "var(--accent)" : "var(--t4)" }} />
         </button>
       </div>
     </nav>
@@ -158,7 +158,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
-            style={{ background: apiKey ? "#65f223" : "#62a2ff" }}
+            style={{ background: apiKey ? "var(--accent)" : "var(--t4)" }}
           />
           {apiKey ? (
             credits !== null ? (
@@ -206,7 +206,7 @@ export function Shell() {
             onClick={() => setKeyOpen(true)}
             className="anim-swap mb-4 flex w-full items-center gap-3 rounded-card border border-line bg-t1/[0.028] px-4 py-3 text-left transition-colors duration-[200ms] hover:bg-t1/[0.055] md:mb-6"
           >
-            <Icon name="key" size={16} className="shrink-0" style={{ color: "#62a2ff" }} />
+            <Icon name="key" size={16} className="shrink-0" style={{ color: "var(--accent)" }} />
             <span className="min-w-0 flex-1 text-[12.5px] text-t2">
               Add your KIE API key to start generating. It stays in this browser.
             </span>

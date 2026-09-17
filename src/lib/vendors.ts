@@ -41,10 +41,10 @@ export function vendorMark(vendor: string): VendorMark {
 
 /** Category accents, shared by the whole studio. */
 export const ACCENT: Record<string, string> = {
-  image: "#62a2ff",
-  video: "#762fad",
-  audio: "#65f223",
-  tool: "#55227d",
+  image: "#f2a33a", // amber
+  video: "#d9632c", // copper
+  audio: "#f0cf6b", // gold
+  tool: "#a89f92", // ash
 };
 
 /** Deterministic hue offset so every family gets its own cover, not the category's. */
