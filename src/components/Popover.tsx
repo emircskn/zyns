@@ -60,7 +60,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
         <div
           ref={panel}
           className={`surface-pop anim-pop absolute bottom-[calc(100%+10px)] z-50 rounded-panel p-1.5 ${alignment}`}
-          style={{ width, marginLeft: shift }}
+          style={{ width: `min(${width}px, calc(100vw - 24px))`, marginLeft: shift }}
         >
           {title && (
             <div className="px-2.5 pb-2 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">

@@ -149,7 +149,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
         </div>
       )}
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
+      <div className="hover-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
         <div className="pointer-events-auto flex items-end justify-between gap-2">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 truncate text-[11.5px] text-white">
@@ -225,19 +225,20 @@ export function Gallery() {
 
   if (runs.length === 0) {
     return (
-      <div className="anim-fade flex min-h-[54vh] flex-col items-center justify-center px-6 text-center">
-        <span className="pending-surface mb-5 grid h-16 w-16 place-items-center rounded-panel">
-          <Icon name="spark" size={22} className="relative z-10 text-white" />
+      <div className="anim-fade flex flex-1 flex-col items-center justify-center px-6 py-6 text-center md:py-10">
+        <span className="pending-surface mb-4 grid h-12 w-12 place-items-center rounded-card md:mb-5 md:h-16 md:w-16 md:rounded-panel">
+          <Icon name="spark" size={20} className="relative z-10 text-white" />
         </span>
-        <h2 className="mb-2 text-[18px] text-t1">Nothing generated yet</h2>
-        <p className="mb-5 max-w-sm text-[13px] leading-relaxed text-t3">
+        <h2 className="mb-1.5 text-[16px] text-t1 md:mb-2 md:text-[18px]">Nothing generated yet</h2>
+        <p className="max-w-sm text-[12.5px] leading-relaxed text-t3 md:mb-5 md:text-[13px]">
           Pick a model in the bar below, set it up the way you want, and hit generate. Every run
           lands here at its real aspect ratio.
         </p>
+        {/* The phone header already carries the model button, so the CTA is desktop-only. */}
         <button
           type="button"
           onClick={() => togglePicker(true, "all")}
-          className="cta rounded-full px-4 py-2 text-[12.5px] hover:scale-[1.03] active:scale-95"
+          className="cta hidden rounded-full px-4 py-2 text-[12.5px] hover:scale-[1.03] active:scale-95 md:inline-flex"
         >
           Browse models
         </button>

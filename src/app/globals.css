@@ -336,6 +336,19 @@ textarea {
   background: #62a2ff44;
 }
 
+/* Touch screens have no hover: anything hover-revealed must simply be there. */
+@media (hover: none) {
+  .hover-reveal {
+    opacity: 1 !important;
+  }
+}
+
+/* Reserve room under the content for the floating prompt bar, whatever height
+   the current model makes it (PromptBar measures itself into --bar-h). */
+.below-bar {
+  padding-bottom: calc(var(--bar-h, 280px) + 28px + env(safe-area-inset-bottom));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

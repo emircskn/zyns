@@ -117,7 +117,7 @@ export function ModelPicker() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
         aria-label="Close model picker"
@@ -125,10 +125,10 @@ export function ModelPicker() {
         className="anim-fade absolute inset-0 bg-canvas-deep/75 backdrop-blur-md"
       />
       <div
-        className="anim-pop relative flex h-[min(760px,86vh)] w-full max-w-5xl flex-col overflow-hidden rounded-panel border border-line bg-elevated"
+        className="anim-pop relative flex h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:h-[min(760px,86vh)] sm:rounded-panel"
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center gap-3 border-b border-line px-5 py-4">
+        <header className="flex items-center gap-3 border-b border-line px-4 py-3.5 sm:px-5 sm:py-4">
           <Icon name="search" size={16} className="shrink-0 text-t4" />
           <input
             autoFocus
@@ -147,11 +147,11 @@ export function ModelPicker() {
           </button>
         </header>
 
-        <div className="flex flex-wrap items-center gap-1 px-5 py-3">
+        <div className="flex items-center gap-1 overflow-x-auto px-4 py-3 sm:flex-wrap sm:px-5">
           <button
             type="button"
             onClick={() => setTab("all")}
-            className={`rounded-chip px-3 py-1.5 text-[12.5px] transition-all duration-[120ms] ${
+            className={`shrink-0 whitespace-nowrap rounded-chip px-3 py-1.5 text-[12.5px] transition-all duration-[120ms] ${
               tab === "all" ? "cta" : "bg-t1/[0.055] text-t3 hover:text-t1"
             }`}
           >
@@ -165,7 +165,7 @@ export function ModelPicker() {
                 key={category.id}
                 type="button"
                 onClick={() => setTab(category.id)}
-                className={`flex items-center gap-1.5 rounded-chip px-3 py-1.5 text-[12.5px] transition-all duration-[120ms] ${
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-chip px-3 py-1.5 text-[12.5px] transition-all duration-[120ms] ${
                   selected ? "cta" : "bg-t1/[0.055] text-t3 hover:text-t1"
                 }`}
               >
@@ -180,7 +180,7 @@ export function ModelPicker() {
           })}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pb-5">
+        <div className="flex-1 overflow-y-auto px-4 pb-[max(20px,env(safe-area-inset-bottom))] sm:px-5 sm:pb-5">
           {results.length === 0 ? (
             <p className="py-16 text-center text-[13px] text-t4">Nothing matches “{query}”.</p>
           ) : (

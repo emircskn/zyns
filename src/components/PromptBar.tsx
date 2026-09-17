@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Control, chipCaption } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
@@ -44,17 +44,18 @@ function InputStrip({ fields }: { fields: Field[] }) {
   if (fields.length === 0) return null;
 
   return (
-    <div className="anim-swap mb-3 max-h-[32vh] overflow-y-auto border-b border-line pb-3">
-      <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="anim-swap mb-3 border-b border-line pb-3 sm:max-h-[32vh] sm:overflow-y-auto">
+      <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:gap-x-4 sm:gap-y-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3">
         {fields.map((field) => (
-          <Control
-            key={field.key}
-            field={field}
-            value={values[field.key]}
-            values={values}
-            compact
-            onChange={(value) => setValue(field.key, value)}
-          />
+          <div key={field.key} className="w-[168px] shrink-0 sm:w-auto">
+            <Control
+              field={field}
+              value={values[field.key]}
+              values={values}
+              compact
+              onChange={(value) => setValue(field.key, value)}
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -129,6 +130,20 @@ export function PromptBar() {
   const apiKey = useStudio((s) => s.apiKey);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const wrapper = useRef<HTMLDivElement>(null);
+
+  // The bar's height depends on the model and mode, so publish it as a CSS
+  // variable and let the page pad itself instead of guessing.
+  useEffect(() => {
+    const node = wrapper.current;
+    if (!node) return;
+    const publish = () =>
+      document.documentElement.style.setProperty("--bar-h", `${node.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   if (!model) return null;
 
@@ -150,8 +165,8 @@ export function PromptBar() {
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-14 right-0 z-40 flex justify-center px-4 pb-5">
-      <div className="pointer-events-auto w-full max-w-[720px]">
+    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:left-14 md:px-4 md:pb-5">
+      <div ref={wrapper} className="pointer-events-auto w-full max-w-[720px]">
         <ModeStrip />
 
         {error && (
@@ -183,7 +198,7 @@ export function PromptBar() {
               }}
               rows={index === 0 ? 2 : 1}
               placeholder={field.placeholder ?? `${field.label}…`}
-              className="mb-2 max-h-44 w-full resize-none bg-transparent px-1 text-[15px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4"
+              className="mb-2 max-h-40 w-full resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
             />
           ))}
 
@@ -231,7 +246,7 @@ export function PromptBar() {
           </div>
         </div>
 
-        <p className="mt-2 px-2 text-center text-[11px] text-t4">
+        <p className="mt-2 hidden px-2 text-center text-[11px] text-t4 md:block">
           {blocker ? blocker : `${model.vendor} · ${model.tagline}`}
         </p>
       </div>

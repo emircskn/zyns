@@ -60,7 +60,7 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
   const apiKey = useStudio((s) => s.apiKey);
 
   return (
-    <nav className="fixed inset-y-0 left-0 z-30 flex w-14 flex-col items-center border-r border-line bg-canvas-deep/60 py-3.5 backdrop-blur-2xl">
+    <nav className="fixed inset-y-0 left-0 z-30 hidden w-14 flex-col items-center border-r border-line bg-canvas-deep/60 py-3.5 backdrop-blur-2xl md:flex">
       <button
         type="button"
         onClick={() => togglePicker(true, "all")}
@@ -107,12 +107,23 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const apiKey = useStudio((s) => s.apiKey);
   const runs = useStudio((s) => s.runs);
   const clearRuns = useStudio((s) => s.clearRuns);
+  const togglePicker = useStudio((s) => s.togglePicker);
+  const theme = useStudio((s) => s.theme);
+  const setTheme = useStudio((s) => s.setTheme);
   const model = useModel();
 
   const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
 
   return (
-    <header className="sticky top-0 z-20 -mx-6 mb-6 flex items-center gap-3 border-b border-line bg-canvas/75 px-6 py-3.5 backdrop-blur-2xl">
+    <header className="sticky top-0 z-20 -mx-4 mb-4 flex items-center gap-2.5 border-b border-line bg-canvas/75 px-4 py-3 backdrop-blur-2xl md:-mx-6 md:mb-6 md:gap-3 md:px-6 md:py-3.5">
+      <button
+        type="button"
+        onClick={() => togglePicker(true, "all")}
+        title="Browse all models"
+        className="cta grid h-8 w-8 shrink-0 place-items-center rounded-chip md:hidden"
+      >
+        <Icon name="spark" size={15} strokeWidth={1.8} />
+      </button>
       <div key={model?.id} className="anim-swap min-w-0">
         <h1 className="truncate text-[14.5px] text-t1">{model?.name ?? "KIE Studio"}</h1>
         <p className="truncate text-[11.5px] text-t4">
@@ -125,11 +136,19 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
           <button
             type="button"
             onClick={clearRuns}
-            className="rounded-chip px-2.5 py-1.5 text-[12px] text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.055] hover:text-t1"
+            className="hidden rounded-chip px-2.5 py-1.5 text-[12px] text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.055] hover:text-t1 sm:block"
           >
             Clear gallery
           </button>
         )}
+        <button
+          type="button"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+          className="grid h-8 w-8 place-items-center rounded-chip text-t4 transition-colors duration-[120ms] hover:bg-t1/[0.055] hover:text-t1 md:hidden"
+        >
+          <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+        </button>
         <button
           type="button"
           onClick={onKeyClick}
@@ -174,16 +193,16 @@ export function Shell() {
   }, []);
 
   return (
-    <div className="min-h-screen pl-14">
+    <div className="min-h-screen md:pl-14">
       <Rail onKeyClick={() => setKeyOpen(true)} />
 
-      <main className="mx-auto max-w-[1600px] px-6 pb-[300px]">
+      <main className="below-bar mx-auto flex min-h-dvh w-full max-w-[1600px] flex-col px-4 md:px-6">
         <TopBar onKeyClick={() => setKeyOpen(true)} />
         {hydrated && !apiKey && (
           <button
             type="button"
             onClick={() => setKeyOpen(true)}
-            className="anim-swap mb-6 flex w-full items-center gap-3 rounded-card border border-line bg-t1/[0.028] px-4 py-3 text-left transition-colors duration-[200ms] hover:bg-t1/[0.055]"
+            className="anim-swap mb-4 flex w-full items-center gap-3 rounded-card border border-line bg-t1/[0.028] px-4 py-3 text-left transition-colors duration-[200ms] hover:bg-t1/[0.055] md:mb-6"
           >
             <Icon name="key" size={16} className="shrink-0" style={{ color: "#62a2ff" }} />
             <span className="min-w-0 flex-1 text-[12.5px] text-t2">

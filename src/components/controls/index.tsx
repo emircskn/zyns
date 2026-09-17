@@ -241,7 +241,7 @@ function MediaThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label="Remove"
-        className="absolute right-1 top-1 grid h-4.5 w-4.5 place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
+        className="hover-reveal absolute right-1 top-1 grid place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
         style={{ height: 18, width: 18 }}
       >
         <Icon name="close" size={10} />
