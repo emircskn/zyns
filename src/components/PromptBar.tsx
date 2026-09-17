@@ -5,7 +5,6 @@ import { Control, chipCaption } from "@/components/controls";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
-import { ACCENT } from "@/lib/vendors";
 import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
@@ -223,9 +222,7 @@ export function PromptBar() {
 
         <div
           className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
-          style={{
-            boxShadow: `var(--shadow-bar), 0 0 0 1px color-mix(in oklab, ${ACCENT[model.category]} 18%, transparent), 0 -12px 48px -24px ${ACCENT[model.category]}`,
-          }}
+          style={{ boxShadow: "var(--shadow-bar)" }}
         >
           <InputStrip fields={inputFields} />
 
