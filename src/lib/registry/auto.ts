@@ -292,6 +292,22 @@ const GROUPS: Array<[RegExp, string]> = [
   [/task_id|taskId|audio_id|_ids$/, "References"],
 ];
 
+function isDurationKey(key: string): boolean {
+  return /^duration(_seconds)?$|extend_times/.test(key);
+}
+
+/** "4-30 seconds", "between 2 and 15", "3 to 15s" → [min, max]. */
+function rangeFromText(desc: string): [number, number] | undefined {
+  const m =
+    desc.match(/(\d+(?:\.\d+)?)\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*(?:s\b|sec|seconds)/i) ??
+    desc.match(/between\s+(\d+(?:\.\d+)?)\s+and\s+(\d+(?:\.\d+)?)/i) ??
+    desc.match(/range(?: is)?:?\s*(\d+(?:\.\d+)?)\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)/i);
+  if (!m) return undefined;
+  const lo = Number(m[1]);
+  const hi = Number(m[2]);
+  return Number.isFinite(lo) && Number.isFinite(hi) && hi > lo ? [lo, hi] : undefined;
+}
+
 function humanize(key: string): string {
   return LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
@@ -406,11 +422,15 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
     }
     placement = BAR_KEYS.has(key) ? "bar" : "panel";
   } else if (prop.type === "integer" || prop.type === "number") {
-    if (prop.minimum !== undefined && prop.maximum !== undefined && !/seed/.test(key)) {
+    // Bounds are often only in prose ("4-30 seconds", "between 2 and 15").
+    const [lo, hi] = [prop.minimum, prop.maximum].every((v) => v !== undefined)
+      ? [prop.minimum!, prop.maximum!]
+      : rangeFromText(prop.desc) ?? (isDurationKey(key) ? [1, 15] : [undefined, undefined]);
+    if (lo !== undefined && hi !== undefined && !/seed/.test(key)) {
       kind = "slider";
-      extra.min = prop.minimum;
-      extra.max = prop.maximum;
-      const span = prop.maximum - prop.minimum;
+      extra.min = lo;
+      extra.max = hi;
+      const span = hi - lo;
       extra.step = prop.type === "integer" ? 1 : span <= 2 ? 0.01 : span <= 30 ? 0.1 : 1;
     } else {
       kind = "number";
@@ -427,6 +447,13 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
     if (PROMPT_KEYS.has(key)) {
       kind = "textarea";
       placement = "prompt";
+    } else if (isDurationKey(key)) {
+      const [lo, hi] = rangeFromText(prop.desc) ?? [1, 15];
+      kind = "slider";
+      placement = "bar";
+      extra.min = lo;
+      extra.max = hi;
+      extra.step = 1;
     } else if (prop.format === "uri" || (isMediaKey(key) && !/name|description|_id/.test(key))) {
       kind = "media";
       placement = "input";

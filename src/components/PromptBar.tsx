@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Control, chipCaption } from "@/components/controls";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
 import { ACCENT } from "@/lib/vendors";
@@ -65,6 +65,43 @@ function InputStrip({ fields }: { fields: Field[] }) {
   );
 }
 
+/** A tiny frame drawn in the selected aspect ratio — the chip shows its shape. */
+function RatioGlyph({ value }: { value: unknown }) {
+  const [w, h] = String(value ?? "").split(":").map(Number);
+  const valid = Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0;
+  const scale = valid ? 12 / Math.max(w, h) : 0;
+  return (
+    <span className="grid h-3.5 w-3.5 place-items-center">
+      {valid ? (
+        <span
+          className="rounded-[2px] border-[1.5px] border-current"
+          style={{ width: Math.max(w * scale, 4), height: Math.max(h * scale, 4) }}
+        />
+      ) : (
+        <Icon name="grid" size={12} />
+      )}
+    </span>
+  );
+}
+
+const CHIP_ICON: Array<[RegExp, IconName]> = [
+  [/^duration|_seconds$|extend_times|continue_at/, "clock"],
+  [/resolution|^quality$|upscale_factor/, "monitor"],
+  [/audio|sound|instrumental|loop/, "audio"],
+  [/^model$|^version$|^generation_type$|^mode$|persona_model/, "layers"],
+  [/voice|vocal_gender|speaker/, "mic"],
+  [/style|rendering_speed|template/, "wand"],
+  [/num_images|max_images|^n$|index/, "hash"],
+];
+
+function chipIcon(field: Field, value: unknown): ReactNode {
+  if (field.kind === "ratio" || /aspect_ratio|^ratio$|image_size|^size$/.test(field.key)) {
+    return <RatioGlyph value={value} />;
+  }
+  const hit = CHIP_ICON.find(([re]) => re.test(field.key));
+  return hit ? <Icon name={hit[1]} size={13} className="opacity-70" /> : null;
+}
+
 function Chip({
   icon,
   value,
@@ -95,7 +132,7 @@ function FieldChip({ field }: { field: Field }) {
   if (field.kind === "toggle") {
     return (
       <button type="button" onClick={() => setValue(field.key, value !== true)} title={field.help}>
-        <Chip value={field.label} active={value === true} />
+        <Chip icon={chipIcon(field, value)} value={field.label} active={value === true} />
       </button>
     );
   }
@@ -106,7 +143,9 @@ function FieldChip({ field }: { field: Field }) {
     <Popover
       width={width}
       title={field.label}
-      trigger={(open) => <Chip value={chipCaption(field, value, values)} active={open} />}
+      trigger={(open) => (
+        <Chip icon={chipIcon(field, value)} value={chipCaption(field, value, values)} active={open} />
+      )}
     >
       <div className="p-1">
         <Control
