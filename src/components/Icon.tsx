@@ -32,7 +32,8 @@ export type IconName =
   | "layers"
   | "mic"
   | "wand"
-  | "hash";
+  | "hash"
+  | "at";
 
 const PATHS: Record<IconName, ReactElement> = {
   image: (
@@ -167,6 +168,12 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
+  at: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 18, ...rest }: Props) {

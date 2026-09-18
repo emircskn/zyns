@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Control, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
+import { insertMention, mentionAtCaret, mentionNames, mentionSources, usedMentions } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
@@ -155,6 +156,186 @@ function FieldChip({ field }: { field: Field }) {
   );
 }
 
+/**
+ * The prompt textarea with `@name` completion: typing `@` lists the
+ * elements defined for this model, and a pick drops the token at the caret.
+ */
+function PromptField({
+  field,
+  index,
+  names,
+  onSubmit,
+  trailing,
+  inputRef,
+}: {
+  field: Field;
+  index: number;
+  names: string[];
+  onSubmit: () => void;
+  trailing?: ReactNode;
+  inputRef?: (node: HTMLTextAreaElement | null) => void;
+}) {
+  const values = useValues();
+  const setValue = useStudio((s) => s.setValue);
+  const text = (values[field.key] as string) ?? "";
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const [caret, setCaret] = useState<number | null>(null);
+  const [cursor, setCursor] = useState(0);
+  const [dismissed, setDismissed] = useState<number | null>(null);
+
+  const token = caret === null || names.length === 0 ? null : mentionAtCaret(text, caret);
+  const matches = token
+    ? names.filter((name) => name.toLowerCase().startsWith(token.query.toLowerCase()))
+    : [];
+  const open = !!token && matches.length > 0 && dismissed !== token.start;
+
+  useEffect(() => setCursor(0), [token?.query]);
+
+  function syncCaret() {
+    const node = ref.current;
+    if (node) setCaret(node.selectionStart);
+  }
+
+  function pick(name: string) {
+    if (!token) return;
+    const next = insertMention(text, token.start, caret ?? text.length, name);
+    setValue(field.key, next.text);
+    setDismissed(null);
+    requestAnimationFrame(() => {
+      const node = ref.current;
+      if (!node) return;
+      node.focus();
+      node.setSelectionRange(next.caret, next.caret);
+      setCaret(next.caret);
+    });
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (open) {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setCursor((c) => (c + (event.key === "ArrowDown" ? 1 : matches.length - 1)) % matches.length);
+        return;
+      }
+      if (event.key === "Enter" || event.key === "Tab") {
+        event.preventDefault();
+        pick(matches[cursor] ?? matches[0]);
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setDismissed(token?.start ?? null);
+        return;
+      }
+    }
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      onSubmit();
+    }
+  }
+
+  return (
+    <div className="relative mb-2 flex items-start gap-2">
+      <textarea
+        ref={(node) => {
+          ref.current = node;
+          inputRef?.(node);
+        }}
+        value={text}
+        onChange={(event) => {
+          setValue(field.key, event.target.value);
+          setCaret(event.target.selectionStart);
+        }}
+        onKeyDown={onKeyDown}
+        onKeyUp={syncCaret}
+        onClick={syncCaret}
+        onSelect={syncCaret}
+        onBlur={() => window.setTimeout(() => setCaret(null), 120)}
+        rows={index === 0 ? 2 : 1}
+        placeholder={field.placeholder ?? `${field.label}…`}
+        className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
+      />
+      {trailing}
+      {open && (
+        <div
+          className="surface-pop anim-rise absolute bottom-[calc(100%+6px)] left-0 z-50 w-[min(260px,calc(100vw-40px))] rounded-panel p-1.5"
+          role="listbox"
+        >
+          <div className="px-2.5 pb-1.5 pt-1 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">
+            Elements
+          </div>
+          {matches.map((name, i) => (
+            <button
+              key={name}
+              type="button"
+              role="option"
+              aria-selected={i === cursor}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => pick(name)}
+              onMouseEnter={() => setCursor(i)}
+              className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-[13px] transition-colors duration-[120ms] ${
+                i === cursor ? "bg-t1 text-canvas" : "text-t2"
+              }`}
+            >
+              <Icon name="at" size={13} className="shrink-0 opacity-70" />
+              <span className="truncate">{name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The names a prompt may point at, as tap-to-insert tokens, plus a way to
+ * define more. Only shown for models whose API understands `@name`.
+ */
+function MentionStrip({
+  names,
+  text,
+  onInsert,
+  onDefine,
+}: {
+  names: string[];
+  text: string;
+  onInsert: (name: string) => void;
+  onDefine: () => void;
+}) {
+  const used = usedMentions(text, names);
+  return (
+    <div className="anim-swap mb-2 flex flex-wrap items-center gap-1 px-0.5">
+      <span className="mr-0.5 grid h-6 w-6 place-items-center text-t4" title="Reference an element with @name">
+        <Icon name="at" size={13} />
+      </span>
+      {names.map((name) => {
+        const active = used.has(name);
+        return (
+          <button
+            key={name}
+            type="button"
+            onClick={() => onInsert(name)}
+            title={active ? `@${name} is in the prompt` : `Insert @${name}`}
+            className={`h-6 rounded-full px-2.5 font-mono text-[11.5px] transition-colors duration-[120ms] ${
+              active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+            }`}
+          >
+            @{name}
+          </button>
+        );
+      })}
+      <button
+        type="button"
+        onClick={onDefine}
+        className="flex h-6 items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 text-[11.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+      >
+        <Icon name="plus" size={11} />
+        {names.length === 0 ? "Add an element to reference it with @" : "Element"}
+      </button>
+    </div>
+  );
+}
+
 export function PromptBar() {
   const model = useModel();
   const values = useValues();
@@ -165,6 +346,7 @@ export function PromptBar() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
+  const promptRef = useRef<HTMLTextAreaElement | null>(null);
 
   // The bar's height depends on the model and mode, so publish it as a CSS
   // variable and let the page pad itself instead of guessing.
@@ -189,6 +371,26 @@ export function PromptBar() {
 
   const blocker = validateValues(model, values);
   const hint = model.creditHint?.(values);
+  const mentionable = mentionSources(model, values).length > 0;
+  const names = mentionable ? mentionNames(model, values) : [];
+  const firstPrompt = promptFields[0];
+
+  // Tapping a token drops `@name` where the caret last was in the prompt.
+  function insertToken(name: string) {
+    if (!firstPrompt) return;
+    const node = promptRef.current;
+    const text = (values[firstPrompt.key] as string) ?? "";
+    const caret = node?.selectionStart ?? text.length;
+    const lead = caret > 0 && !/\s$/.test(text.slice(0, caret)) ? " " : "";
+    const next = text.slice(0, caret) + lead + `@${name} ` + text.slice(caret);
+    setValue(firstPrompt.key, next);
+    requestAnimationFrame(() => {
+      if (!node) return;
+      const position = caret + lead.length + name.length + 2;
+      node.focus();
+      node.setSelectionRange(position, position);
+    });
+  }
 
   async function run() {
     setBusy(true);
@@ -236,25 +438,27 @@ export function PromptBar() {
           <InputStrip fields={inputFields} />
 
           {promptFields.map((field, index) => (
-            <div key={field.key} className="mb-2 flex items-start gap-2">
-              <textarea
-                value={(values[field.key] as string) ?? ""}
-                onChange={(event) => setValue(field.key, event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !blocker && !busy) {
-                    event.preventDefault();
-                    void run();
-                  }
-                }}
-                rows={index === 0 ? 2 : 1}
-                placeholder={field.placeholder ?? `${field.label}…`}
-                className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
-              />
-              {/* The send button sits on the first prompt line, so the chip
-                  row below keeps the full width. */}
-              {index === 0 && send}
-            </div>
+            <PromptField
+              key={field.key}
+              field={field}
+              index={index}
+              names={names}
+              onSubmit={() => {
+                if (!blocker && !busy) void run();
+              }}
+              trailing={index === 0 ? send : undefined}
+              inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
+            />
           ))}
+
+          {mentionable && firstPrompt && (
+            <MentionStrip
+              names={names}
+              text={(values[firstPrompt.key] as string) ?? ""}
+              onInsert={insertToken}
+              onDefine={() => toggleSettings(true)}
+            />
+          )}
 
           <div className="flex flex-wrap items-center gap-1">
             <button type="button" onClick={() => togglePicker(true, model.category)} className="shrink-0">

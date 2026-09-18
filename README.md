@@ -145,6 +145,19 @@ Flux Kontext dahil — KIE eski ayrı endpoint'leri bu tek endpoint'te birleşti
 Farklı bir endpoint gerekirse `src/app/api/kie/create/route.ts` içindeki
 `ALLOWED_ENDPOINTS` listesine eklenmeli.
 
+## @element referansları
+
+Kling 3.0, Kling 3.0 Omni ve PixVerse Fusion, prompt içinde adlandırılmış bir
+varlığa `@ad` ile işaret etmeye izin veriyor. Stüdyo bunu üç yerden
+destekliyor: prompt alanına `@` yazınca tanımlı öğe adları açılır listede
+öneriliyor (ok tuşları, Enter/Tab, Esc); metin alanının altındaki `@ad`
+jetonlarına dokununca ad imlecin olduğu yere ekleniyor ve prompt'ta geçen
+adlar krem renkle işaretleniyor; "+ Element" ise öğeyi tanımlamak için
+ayarlar panelini açıyor. Hangi alanın ad taşıdığı şemadan çıkarılıyor
+(`elements` türü alanlarda `name`, kayıt listelerinde `name` ya da
+`ref_name`), yani yeni bir model aynı deseni kullanırsa kendiliğinden
+kazanıyor. Bkz. `src/lib/mentions.ts`.
+
 ## Tasarım sistemi
 
 Arayüz [krea.ai](https://www.krea.ai/app)'in tasarım dilinden ilham alıyor:
