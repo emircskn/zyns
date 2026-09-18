@@ -83,7 +83,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
           }}
         />
       )}
-      {(field.choices ?? []).map((choice) => {
+      {(field.choices ?? []).map((choice, index) => {
         const active = current === choice.value;
         const [w, h] = choice.value.split(":").map(Number);
         const valid = Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0;
@@ -94,18 +94,21 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
             type="button"
             data-pill={choice.value}
             onClick={() => onChange(choice.value)}
-            className={`relative z-10 flex flex-col items-center gap-1.5 rounded-card px-1 py-2 transition-colors duration-[200ms] ${
+            style={{ animationDelay: `${40 + index * 14}ms` }}
+            className={`anim-swap relative z-10 flex flex-col items-center gap-1.5 rounded-card px-1 py-2 transition-colors duration-[200ms] ${
               active ? "text-canvas" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
             }`}
           >
             <span className="flex h-6 w-6 items-center justify-center">
               {valid ? (
                 <span
-                  className="rounded-[2px] border transition-colors duration-[200ms]"
+                  className="rounded-[2px] border transition-all duration-[320ms]"
                   style={{
                     width: Math.max(w * scale, 5),
                     height: Math.max(h * scale, 5),
                     borderColor: active ? "var(--canvas)" : "var(--line-strong)",
+                    transform: active ? "scale(1.12)" : "scale(1)",
+                    transitionTimingFunction: "var(--ease-spring)",
                   }}
                 />
               ) : (
