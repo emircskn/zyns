@@ -122,7 +122,11 @@ export function ModelPicker() {
       >
         <header className="flex items-center gap-2 px-4 pb-3 pt-[max(20px,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
           {searching ? (
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.07] px-4 py-2.5">
+            <div
+              key="search"
+              className="anim-pop flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.07] px-4"
+              style={{ transformOrigin: "right center" }}
+            >
               <Icon name="search" size={16} className="shrink-0 text-t4" />
               <input
                 autoFocus
@@ -133,8 +137,11 @@ export function ModelPicker() {
               />
             </div>
           ) : (
-            <h2 className="flex-1 text-[30px] font-semibold leading-none tracking-[-0.03em] text-t1 sm:text-[34px]">
-              Create
+            <h2
+              key="title"
+              className="anim-swap flex-1 text-[26px] font-semibold leading-none tracking-[-0.03em] text-t1 sm:text-[30px]"
+            >
+              Generate
             </h2>
           )}
           <button
@@ -144,24 +151,24 @@ export function ModelPicker() {
               setQuery("");
             }}
             aria-label={searching ? "Stop searching" : "Search models"}
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-[120ms] ${
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors duration-[120ms] ${
               searching ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
             }`}
           >
-            <Icon name="search" size={17} />
+            <Icon name="search" size={16} />
           </button>
           <button
             type="button"
             onClick={() => togglePicker(false)}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
             aria-label="Close"
           >
-            <Icon name="close" size={17} />
+            <Icon name="close" size={16} />
           </button>
         </header>
 
         {!query.trim() && (
-          <div className="px-4 py-2 sm:px-6">
+          <div className="px-4 pb-2 pt-1 sm:px-6">
             <PillGroup
               size="lg"
               bare
