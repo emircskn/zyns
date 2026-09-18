@@ -198,6 +198,22 @@ export function PromptBar() {
     setBusy(false);
   }
 
+  const send = (
+    <button
+      type="button"
+      onClick={run}
+      disabled={busy || !!blocker || !apiKey}
+      title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
+      className="cta grid h-9 w-9 shrink-0 place-items-center rounded-full hover:scale-[1.06] active:scale-95 disabled:cursor-not-allowed disabled:bg-t1/15 disabled:text-t4 disabled:hover:scale-100"
+    >
+      {busy ? (
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+      ) : (
+        <Icon name="arrow-up" size={16} strokeWidth={2} />
+      )}
+    </button>
+  );
+
   return (
     <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:left-14 md:px-4 md:pb-5">
       <div ref={wrapper} className="pointer-events-auto w-full max-w-[720px]">
@@ -220,20 +236,24 @@ export function PromptBar() {
           <InputStrip fields={inputFields} />
 
           {promptFields.map((field, index) => (
-            <textarea
-              key={field.key}
-              value={(values[field.key] as string) ?? ""}
-              onChange={(event) => setValue(field.key, event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !blocker && !busy) {
-                  event.preventDefault();
-                  void run();
-                }
-              }}
-              rows={index === 0 ? 2 : 1}
-              placeholder={field.placeholder ?? `${field.label}…`}
-              className="mb-2 max-h-40 w-full resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
-            />
+            <div key={field.key} className="mb-2 flex items-start gap-2">
+              <textarea
+                value={(values[field.key] as string) ?? ""}
+                onChange={(event) => setValue(field.key, event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !blocker && !busy) {
+                    event.preventDefault();
+                    void run();
+                  }
+                }}
+                rows={index === 0 ? 2 : 1}
+                placeholder={field.placeholder ?? `${field.label}…`}
+                className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
+              />
+              {/* The send button sits on the first prompt line, so the chip
+                  row below keeps the full width. */}
+              {index === 0 && send}
+            </div>
           ))}
 
           <div className="flex flex-wrap items-center gap-1">
@@ -260,19 +280,8 @@ export function PromptBar() {
 
             <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
               {hint && <span className="font-mono text-[11px] tabular-nums text-t4">{hint}</span>}
-              <button
-                type="button"
-                onClick={run}
-                disabled={busy || !!blocker || !apiKey}
-                title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-                className="cta grid h-9 w-9 place-items-center rounded-full hover:scale-[1.06] active:scale-95 disabled:cursor-not-allowed disabled:bg-t1/15 disabled:text-t4 disabled:hover:scale-100"
-              >
-                {busy ? (
-                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
-                ) : (
-                  <Icon name="arrow-up" size={16} strokeWidth={2} />
-                )}
-              </button>
+              {/* Models without a prompt still need somewhere to send from. */}
+              {promptFields.length === 0 && send}
             </div>
           </div>
         </div>
