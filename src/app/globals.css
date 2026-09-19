@@ -477,6 +477,24 @@ textarea {
   field-sizing: content;
 }
 
+@layer base {
+  /* Tailwind v4's preflight leaves buttons on the default arrow. Anything
+     clickable should say so under the pointer; a utility class (cursor-zoom-in
+     on a gallery tile, say) still wins because this sits in the base layer. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 /* Every press gives a little: a tap should feel like it landed. */
 button:not(:disabled):not(.no-press):active {
   transform: scale(0.96);

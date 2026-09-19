@@ -19,6 +19,18 @@ const CATEGORY_ICON: Record<Category, IconName> = {
   tool: "tool",
 };
 
+/** The rail draws its own label, so no button there carries a `title` too. */
+function RailTip({ label }: { label: string }) {
+  return (
+    <span
+      className="pointer-events-none absolute left-full top-1/2 z-10 ml-2.5 hidden -translate-y-1/2 whitespace-nowrap rounded-chip border border-line bg-elevated px-2 py-1 text-[11.5px] text-t2 shadow-[var(--shadow-pop)] group-hover:block"
+      style={{ animation: "fade-in 120ms var(--ease) both" }}
+    >
+      {label}
+    </span>
+  );
+}
+
 function RailButton({
   icon,
   label,
@@ -33,19 +45,14 @@ function RailButton({
   return (
     <button
       type="button"
-      title={label}
+      aria-label={label}
       onClick={onClick}
       className={`group relative grid h-9 w-9 place-items-center rounded-full transition-all duration-[200ms] ${
         active ? "bg-t1 text-canvas" : "text-t4 hover:bg-t1/[0.07] hover:text-t1"
       }`}
     >
       <Icon name={icon} size={17} />
-      <span
-        className="pointer-events-none absolute left-full ml-2.5 hidden whitespace-nowrap rounded-chip border border-line bg-elevated px-2 py-1 text-[11.5px] text-t2 shadow-[var(--shadow-pop)] group-hover:block"
-        style={{ animation: "fade-in 120ms var(--ease) both" }}
-      >
-        {label}
-      </span>
+      <RailTip label={label} />
     </button>
   );
 }
@@ -59,16 +66,19 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <nav className="fixed inset-y-0 left-0 z-30 hidden w-14 flex-col items-center border-r border-line bg-canvas-deep/60 py-3.5 backdrop-blur-2xl md:flex">
-      <button
-        type="button"
-        onClick={() => togglePicker(true, "all")}
-        title="Browse all models"
-        className="cta mb-5 grid h-9 w-9 place-items-center rounded-full hover:scale-105 active:scale-95"
-      >
-        <Icon name="spark" size={16} strokeWidth={1.8} />
-      </button>
+      <span className="group relative mb-5 flex">
+        <button
+          type="button"
+          onClick={() => togglePicker(true, "all")}
+          aria-label="Browse all models"
+          className="cta grid h-9 w-9 place-items-center rounded-full hover:scale-105 active:scale-95"
+        >
+          <Icon name="spark" size={16} strokeWidth={1.8} />
+        </button>
+        <RailTip label="Browse all models" />
+      </span>
 
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-1.5">
         {CATEGORIES.map((category) => (
           <RailButton
             key={category.id}
@@ -80,7 +90,7 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
         ))}
       </div>
 
-      <div className="mt-auto flex flex-col gap-0.5">
+      <div className="mt-auto flex flex-col gap-1.5">
         <RailButton
           icon={theme === "dark" ? "sun" : "moon"}
           label={theme === "dark" ? "Switch to light" : "Switch to dark"}
@@ -89,10 +99,11 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
         <button
           type="button"
           onClick={onKeyClick}
-          title={apiKey ? "API key connected" : "Add your API key"}
+          aria-label={apiKey ? "API key connected" : "Add your API key"}
           className="group relative grid h-9 w-9 place-items-center rounded-full text-t4 transition-all duration-[200ms] hover:bg-t1/[0.07]"
         >
           <Icon name="key" size={16} style={{ color: apiKey ? "var(--accent)" : "var(--t4)" }} />
+          <RailTip label={apiKey ? "API key connected" : "Add your API key"} />
         </button>
       </div>
     </nav>
