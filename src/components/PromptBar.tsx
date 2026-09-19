@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Control, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
@@ -26,6 +33,55 @@ function ModeStrip() {
         onChange={setMode}
         items={model.modes.map((mode) => ({ id: mode.id, label: mode.label, hint: mode.hint }))}
       />
+    </div>
+  );
+}
+
+/**
+ * Height-animating wrapper. A mode that brings its own reference inputs used
+ * to snap the bar to its new size; now the bar grows and shrinks into it.
+ * The box is clipped only while it moves, so a popover inside can still
+ * escape it at rest.
+ */
+function Reveal({ children }: { children: ReactNode }) {
+  const inner = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | null>(null);
+  const [moving, setMoving] = useState(false);
+  const known = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    const node = inner.current;
+    if (!node) return;
+    const measure = () => {
+      const next = node.offsetHeight;
+      if (next === known.current) return;
+      // The first measurement runs from `auto`, which cannot animate, so it
+      // lands silently; every later one is a real change worth showing.
+      if (known.current !== null) setMoving(true);
+      known.current = next;
+      setHeight(next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!moving) return;
+    const timer = window.setTimeout(() => setMoving(false), 380);
+    return () => window.clearTimeout(timer);
+  }, [moving, height]);
+
+  return (
+    <div
+      style={{
+        height: height ?? undefined,
+        overflow: moving ? "hidden" : undefined,
+        transition: "height var(--d-slow) var(--ease)",
+      }}
+    >
+      <div ref={inner}>{children}</div>
     </div>
   );
 }
@@ -435,7 +491,9 @@ export function PromptBar() {
           className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
           style={{ boxShadow: "var(--shadow-bar)" }}
         >
-          <InputStrip fields={inputFields} />
+          <Reveal>
+            <InputStrip fields={inputFields} />
+          </Reveal>
 
           {promptFields.map((field, index) => (
             <PromptField
@@ -451,14 +509,16 @@ export function PromptBar() {
             />
           ))}
 
-          {mentionable && firstPrompt && (
-            <MentionStrip
-              names={names}
-              text={(values[firstPrompt.key] as string) ?? ""}
-              onInsert={insertToken}
-              onDefine={() => toggleSettings(true)}
-            />
-          )}
+          <Reveal>
+            {mentionable && firstPrompt ? (
+              <MentionStrip
+                names={names}
+                text={(values[firstPrompt.key] as string) ?? ""}
+                onInsert={insertToken}
+                onDefine={() => toggleSettings(true)}
+              />
+            ) : null}
+          </Reveal>
 
           <div className="flex flex-wrap items-center gap-1">
             <button type="button" onClick={() => togglePicker(true, model.category)} className="shrink-0">

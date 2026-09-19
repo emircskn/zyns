@@ -62,6 +62,9 @@
   --accent-ink: #1a1207;
 
   --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
+  --shadow-lift:
+    0 30px 60px -22px rgb(0 0 0 / 0.9), 0 12px 28px -18px rgb(0 0 0 / 0.7),
+    0 22px 48px -28px color-mix(in oklab, var(--accent) 55%, transparent);
   --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
 
   /* Motion: one easing for everything that settles, one that overshoots. */
@@ -95,6 +98,9 @@
   --accent-ink: #fffdf9;
 
   --shadow-pop: 0 24px 60px -16px rgb(11 15 21 / 0.18), 0 2px 8px rgb(11 15 21 / 0.06);
+  --shadow-lift:
+    0 30px 60px -24px rgb(26 22 19 / 0.3), 0 12px 28px -20px rgb(26 22 19 / 0.18),
+    0 22px 48px -30px color-mix(in oklab, var(--accent) 45%, transparent);
   --shadow-bar: 0 20px 50px -20px rgb(11 15 21 / 0.22);
 
   color-scheme: light;
@@ -603,12 +609,31 @@ html {
   scroll-snap-align: start;
 }
 
+/* A card under the pointer rises on a spring, throws a deeper shadow tinted
+   with its category accent, lights its edge, and the art behind it pushes in
+   slowly. Touch screens have no hover, so none of it sticks there. */
 .lift {
   transition:
-    transform var(--d-base) var(--ease),
+    transform var(--d-base) var(--ease-spring),
     box-shadow var(--d-base) var(--ease);
 }
-.lift:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.7);
+.lift .cover {
+  transition:
+    transform var(--d-slow) var(--ease),
+    filter var(--d-slow) var(--ease);
+}
+
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-lift), inset 0 0 0 1px var(--line-strong);
+    z-index: 2;
+  }
+  .lift:hover .cover {
+    transform: translateZ(0) scale(1.08);
+    filter: brightness(1.12) saturate(1.08);
+  }
+  .lift:active {
+    transform: translateY(-2px) scale(1.005);
+  }
 }
