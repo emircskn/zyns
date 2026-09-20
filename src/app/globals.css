@@ -523,6 +523,7 @@ html {
 .no-bar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
 }
 .no-bar::-webkit-scrollbar {
   display: none;

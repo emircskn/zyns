@@ -35,24 +35,31 @@ export function PillGroup<T extends string>({
   className?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
+  const itemsKey = items.map((item) => item.id).join("|");
   const previous = useRef(value);
+  const previousItems = useRef(itemsKey);
   const [jump, setJump] = useState(false);
 
-  // A pill outside the scrolled window would make the indicator glide across
-  // ground nobody can see, so it is placed there outright and the strip
-  // scrolls it into view instead. Declared before useGlide so it decides
-  // before the indicator is measured.
+  // The indicator is placed outright rather than glided in two cases: the
+  // pill is outside the scrolled window, where the glide would cross ground
+  // nobody can see, and the whole set of pills has changed, where the old
+  // position means nothing and the marker would drift across empty track.
+  // Declared before useGlide so it decides before the indicator is measured.
   useLayoutEffect(() => {
     const node = root.current;
-    if (!node || fill || previous.current === value) return;
+    if (!node || fill) return;
+    const swapped = previousItems.current !== itemsKey;
+    if (!swapped && previous.current === value) return;
     previous.current = value;
+    previousItems.current = itemsKey;
+    if (swapped) return setJump(true);
     const target = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
     if (!target) return;
     const visible =
       target.offsetLeft >= node.scrollLeft &&
       target.offsetLeft + target.offsetWidth <= node.scrollLeft + node.clientWidth;
     if (!visible) setJump(true);
-  }, [value, fill]);
+  }, [value, fill, itemsKey]);
 
   useEffect(() => {
     if (!jump) return;
@@ -60,7 +67,7 @@ export function PillGroup<T extends string>({
     return () => window.clearTimeout(timer);
   }, [jump]);
 
-  const { box, settled } = useGlide(root, value, [items.length]);
+  const { box, settled } = useGlide(root, value, [itemsKey]);
   const [edges, setEdges] = useState({ left: false, right: false, over: false });
 
   // Which edges have more pills behind them, so only those get an arrow.
@@ -84,7 +91,7 @@ export function PillGroup<T extends string>({
       node.removeEventListener("scroll", update);
       observer.disconnect();
     };
-  }, [fill, items.length]);
+  }, [fill, itemsKey]);
 
   // A selection made with the keyboard, or one that starts off-screen, pulls
   // itself into view rather than sitting under an arrow.
@@ -104,17 +111,30 @@ export function PillGroup<T extends string>({
     }
   }, [value, fill]);
 
-  // One step lands the next pills in view without jumping past them.
+  // A step lands on a pill edge rather than an arbitrary offset, so the
+  // strip never comes to rest with a pill half shown or a gap at its end.
   function step(direction: 1 | -1) {
     const node = root.current;
     if (!node) return;
-    node.scrollBy({ left: direction * Math.max(140, node.clientWidth * 0.7), behavior: "smooth" });
+    const pills = [...node.querySelectorAll<HTMLElement>("[data-pill]")];
+    const pad = 4;
+    if (direction === 1) {
+      const edge = node.scrollLeft + node.clientWidth;
+      const next = pills.find((el) => el.offsetLeft + el.offsetWidth > edge + 1);
+      node.scrollTo({ left: next ? next.offsetLeft - pad : node.scrollWidth, behavior: "smooth" });
+    } else {
+      const previous = [...pills].reverse().find((el) => el.offsetLeft < node.scrollLeft - 1);
+      const left = previous
+        ? previous.offsetLeft + previous.offsetWidth + pad - node.clientWidth
+        : 0;
+      node.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+    }
   }
 
   const pad =
     size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[12.5px] font-medium";
 
-  const arrow = `grid shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-25 disabled:hover:bg-t1/[0.07] disabled:hover:text-t2 ${
+  const arrow = `grid shrink-0 place-items-center rounded-full bg-elevated/90 text-t2 ring-1 ring-inset ring-line backdrop-blur-xl transition-colors duration-[120ms] hover:text-t1 disabled:opacity-40 disabled:hover:text-t2 ${
     size === "lg" ? "h-8 w-8" : "h-7 w-7"
   }`;
 
