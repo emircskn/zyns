@@ -38,6 +38,7 @@ export type IconName =
   | "heart"
   | "home"
   | "square"
+  | "more"
   | "at";
 
 const PATHS: Record<IconName, ReactElement> = {
@@ -180,6 +181,13 @@ const PATHS: Record<IconName, ReactElement> = {
   expand: <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />,
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
   square: <rect x="4" y="4" width="16" height="16" rx="3" />,
+  more: (
+    <>
+      <circle cx="5" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.1" fill="currentColor" stroke="none" />
+    </>
+  ),
   home: (
     <>
       <path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z" />

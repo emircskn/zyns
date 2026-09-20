@@ -145,7 +145,6 @@ function Action({
   primary,
   danger,
   filled,
-  glyph,
 }: {
   icon: IconName;
   label: string;
@@ -155,25 +154,18 @@ function Action({
   danger?: boolean;
   /** A heart already given reads as solid. */
   filled?: boolean;
-  /** Icon alone, with the name left to the tooltip. */
-  glyph?: boolean;
 }) {
-  // A tile with the icon over its name where there is width to spare, and the
-  // same thing as a pill in the narrow panel beside a desktop stage. The
-  // everyday three — keep, copy, delete — are the glyph alone.
-  const shape = glyph
-    ? "flex w-full items-center justify-center rounded-card py-2.5 transition-colors duration-[120ms] md:rounded-full"
-    : "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-2 py-3 text-[11.5px] transition-colors duration-[120ms] md:flex-row md:gap-1.5 md:rounded-full md:px-2.5 md:py-2 md:text-[12px]";
+  // One tile shape for all six: the icon over its name, so the grid reads as
+  // a set of equal choices rather than one shout and five whispers.
+  const shape =
+    "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[11.5px] transition-colors duration-[120ms]";
   const className = primary
     ? `cta ${shape} font-medium`
     : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
   const tint = danger ? { color: "var(--danger)" } : undefined;
-  const inner = glyph ? (
-    <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
-  ) : (
+  const inner = (
     <>
-      <Icon name={icon} size={16} className="md:hidden" fill={filled ? "currentColor" : "none"} />
-      <Icon name={icon} size={15} className="hidden md:block" fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={18} fill={filled ? "currentColor" : "none"} />
       <span className="max-w-full truncate">{label}</span>
     </>
   );
@@ -263,6 +255,7 @@ export function MediaViewer({
   const [shown, setShown] = useState(url);
   const [copied, setCopied] = useState<"url" | "prompt" | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [more, setMore] = useState(false);
   const [full, setFull] = useState(false);
 
   const removeRun = useStudio((s) => s.removeRun);
@@ -279,6 +272,7 @@ export function MediaViewer({
   useEffect(() => {
     if (!url) return;
     setConfirming(false);
+    setMore(false);
     setFull(false);
   }, [url]);
 
@@ -438,59 +432,73 @@ export function MediaViewer({
         {/* Actions lead on a phone, where they are what the tap was for, and
             sit under the panel on a desktop, where the hover already had them. */}
         <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
-          {/* What this picture can become leads on its own line; what you do
-              with the file follows, and the three everyday ones are glyphs. */}
-          {videoModel && <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />}
+          {/* Six tiles the same size, in the order you reach for them; what is
+              left over lives behind More rather than stretching the grid. */}
           <div className="grid grid-cols-3 gap-2">
+            {videoModel && <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />}
             {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
             {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
-            <Action icon="download" label="Download" href={shown} />
-          </div>
-          <div className="grid grid-cols-3 gap-2">
             <Action
               icon="heart"
-              glyph
               filled={kept}
-              label={kept ? "Remove from favorites" : "Favorite"}
+              label={kept ? "Kept" : "Favorite"}
               onClick={() => shown && toggleFavorite(shown)}
             />
+            <Action icon="download" label="Download" href={shown} />
             <Action
-              icon={copied === "url" ? "check" : "copy"}
-              glyph
-              label={copied === "url" ? "Copied" : "Copy URL"}
-              onClick={() => copy(shown, "url")}
+              icon="more"
+              label="More"
+              onClick={() => {
+                setMore((was) => !was);
+                setConfirming(false);
+              }}
             />
-            {(run || upload) && (
-              <Action
-                icon="trash"
-                glyph
-                label="Delete"
-                danger
-                onClick={() => setConfirming(true)}
-              />
-            )}
           </div>
-          {confirming && (
-            // Asked before it happens: a gallery is the only copy of what it
-            // holds, and a tap on a phone is easy to make by accident.
-            <div className="flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
-              <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
-                Delete this?
-              </p>
+
+          {more && (
+            <div className="anim-pop flex flex-col gap-1 rounded-card bg-t1/[0.05] p-1.5">
               <button
                 type="button"
-                onClick={() => setConfirming(false)}
-                className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                onClick={() => copy(shown, "url")}
+                className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
               >
-                No
+                <Icon name={copied === "url" ? "check" : "copy"} size={15} />
+                {copied === "url" ? "Copied" : "Copy URL"}
               </button>
-              <button
-                type="button"
-                onClick={remove}
-                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-              >
-                Yes, delete
-              </button>
+              {(run || upload) &&
+                (confirming ? (
+                  // Asked before it happens: a gallery is the only copy of
+                  // what it holds, and a tap is easy to make by accident.
+                  <div className="flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-1.5 pl-3">
+                    <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
+                      Delete this?
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setConfirming(false)}
+                      className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                    >
+                      No
+                    </button>
+                    <button
+                      type="button"
+                      onClick={remove}
+                      className="rounded-full bg-[#ff6b6b]/85 px-3 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                    >
+                      Yes
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirming(true)}
+                    style={{ color: "var(--danger)" }}
+                    className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
+                  >
+                    <Icon name="trash" size={15} />
+                    Delete
+                  </button>
+                ))}
             </div>
           )}
         </div>
