@@ -515,6 +515,20 @@ html {
   background: #f2a33a55;
 }
 
+/* A strip that scrolls sideways — mode pills, reference thumbnails — carries
+   no bar under it. The global scrollbar rule above is unlayered, so this has
+   to be unlayered too to win. The edges fade instead, which says "there is
+   more" without a chunky track across the layout. */
+.no-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-bar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* Touch screens have no hover: anything hover-revealed must simply be there. */
 @media (hover: none) {
   .hover-reveal {

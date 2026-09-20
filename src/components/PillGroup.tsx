@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
 export interface PillItem<T extends string> {
@@ -35,6 +35,50 @@ export function PillGroup<T extends string>({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const { box, settled } = useGlide(root, value, [items.length]);
+  const [edges, setEdges] = useState({ left: false, right: false });
+
+  // Which edges have more pills behind them, so only those are faded.
+  useEffect(() => {
+    const node = root.current;
+    if (!node || fill) return;
+    const update = () => {
+      const slack = node.scrollWidth - node.clientWidth;
+      setEdges({ left: node.scrollLeft > 2, right: node.scrollLeft < slack - 2 });
+    };
+    update();
+    node.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => {
+      node.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [fill, items.length]);
+
+  // A selection made with the keyboard, or one that starts off-screen, pulls
+  // itself into view rather than sitting under a faded edge.
+  useEffect(() => {
+    const node = root.current;
+    if (!node || fill) return;
+    const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
+    if (!active) return;
+    const margin = 16;
+    if (active.offsetLeft < node.scrollLeft + margin) {
+      node.scrollTo({ left: Math.max(0, active.offsetLeft - margin), behavior: "smooth" });
+    } else if (active.offsetLeft + active.offsetWidth > node.scrollLeft + node.clientWidth - margin) {
+      node.scrollTo({
+        left: active.offsetLeft + active.offsetWidth - node.clientWidth + margin,
+        behavior: "smooth",
+      });
+    }
+  }, [value, fill]);
+
+  const fade =
+    edges.left || edges.right
+      ? `linear-gradient(90deg, transparent 0, #000 ${edges.left ? 26 : 0}px, #000 calc(100% - ${
+          edges.right ? 26 : 0
+        }px), transparent 100%)`
+      : undefined;
 
   const pad =
     size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[12.5px] font-medium";
@@ -42,7 +86,8 @@ export function PillGroup<T extends string>({
   return (
     <div
       ref={root}
-      className={`relative flex ${fill ? "" : "max-w-full overflow-x-auto [scrollbar-width:none]"} ${
+      style={fade ? { maskImage: fade, WebkitMaskImage: fade } : undefined}
+      className={`relative flex ${fill ? "" : "no-bar max-w-full overflow-x-auto"} ${
         bare ? "gap-1" : "gap-0.5 rounded-full bg-t1/[0.07] p-1"
       } ${className}`}
     >

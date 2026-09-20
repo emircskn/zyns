@@ -137,7 +137,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
       </div>
 
       {run.urls.length > 1 && (
-        <div className="flex gap-1.5 overflow-x-auto p-2">
+        <div className="no-bar flex gap-1.5 overflow-x-auto p-2">
           {run.urls.slice(1).map((extra) => (
             <button
               key={extra}

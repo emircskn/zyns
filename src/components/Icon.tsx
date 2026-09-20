@@ -164,7 +164,9 @@ const PATHS: Record<IconName, ReactElement> = {
   ),
   wand: (
     <>
-      <path d="M4 20l10-10M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 12l.7 1.3L21 14l-1.3.7L19 16l-.7-1.3L17 14l1.3-.7z" />
+      <path d="M4.5 19.5L13.5 10.5" />
+      <path d="M16.5 3.5v5M14 6h5" />
+      <path d="M19.5 12v3M18 13.5h3" />
     </>
   ),
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
@@ -191,7 +193,7 @@ const NUDGE: Partial<Record<IconName, [number, number]>> = {
   play: [-1.5, 0],
   key: [-0.5, 0],
   copy: [-0.5, 0],
-  wand: [-0.5, 0],
+  wand: [-0.75, 0.5],
   download: [0, 0.5],
 };
 

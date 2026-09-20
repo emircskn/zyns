@@ -97,7 +97,7 @@ function InputStrip({ fields }: { fields: Field[] }) {
 
   return (
     <div className="anim-swap mb-4 border-b border-line pb-3 sm:max-h-[32vh] sm:overflow-y-auto">
-      <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:gap-x-4 sm:gap-y-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="no-bar -mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:gap-x-4 sm:gap-y-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3">
         {fields.map((field) => (
           <div key={field.key} className="w-[168px] shrink-0 sm:w-auto">
             <Control
@@ -313,7 +313,7 @@ function PromptField({
         onBlur={() => window.setTimeout(() => setCaret(null), 120)}
         rows={index === 0 ? 2 : 1}
         placeholder={field.placeholder ?? `${field.label}…`}
-        className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:text-[15px]"
+        className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
       />
       {trailing}
       {open && (
