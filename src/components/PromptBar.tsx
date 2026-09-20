@@ -30,7 +30,7 @@ function ModeStrip() {
   return (
     <div key={model.id} className="anim-swap mb-2 flex justify-start">
       <PillGroup
-        className="!bg-elevated/80 ring-1 ring-inset ring-line backdrop-blur-xl"
+        className="!bg-elevated ring-1 ring-inset ring-line"
         value={String(values.__mode ?? model.modes[0].id)}
         onChange={setMode}
         items={model.modes.map((mode) => ({ id: mode.id, label: mode.label, hint: mode.hint }))}
@@ -133,7 +133,7 @@ function RatioGlyph({ value }: { value: unknown }) {
           }}
         />
       ) : (
-        <Icon name="grid" size={12} />
+        <Icon name="grid" size={14} />
       )}
     </span>
   );
@@ -154,7 +154,7 @@ function chipIcon(field: Field, value: unknown): ReactNode {
     return <RatioGlyph value={value} />;
   }
   const hit = CHIP_ICON.find(([re]) => re.test(field.key));
-  return hit ? <Icon name={hit[1]} size={13} className="opacity-70" /> : null;
+  return hit ? <Icon name={hit[1]} size={15} className="opacity-70" /> : null;
 }
 
 function Chip({
@@ -372,7 +372,7 @@ function PromptField({
                 i === cursor ? "bg-t1 text-canvas" : "text-t2"
               }`}
             >
-              <Icon name="at" size={13} className="shrink-0 opacity-70" />
+              <Icon name="at" size={15} className="shrink-0 opacity-70" />
               <span className="truncate">{name}</span>
             </button>
           ))}
@@ -402,7 +402,7 @@ function MentionStrip({
   return (
     <div className="anim-swap mb-2 flex flex-wrap items-center gap-1 px-0.5">
       <span className="mr-0.5 grid h-6 w-6 place-items-center text-t4" title="Reference an element with @name">
-        <Icon name="at" size={13} />
+        <Icon name="at" size={15} />
       </span>
       {names.map((name) => {
         const active = used.has(name);
@@ -425,7 +425,7 @@ function MentionStrip({
         onClick={onDefine}
         className="flex h-6 items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 text-[11.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
       >
-        <Icon name="plus" size={11} />
+        <Icon name="plus" size={13} />
         {names.length === 0 ? "Add an element to reference it with @" : "Element"}
       </button>
     </div>
@@ -446,9 +446,14 @@ export function PromptBar() {
   const promptRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Decided after mount so the server-rendered markup and the client agree.
+  // A phone is left out of it: the beam is a rotating gradient over the whole
+  // bar, and on a touch device it was spending the frame budget the mode
+  // strip needs to glide — a decoration nobody is hovering anyway.
   const [motion, setMotion] = useState(false);
   useEffect(() => {
-    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const phone = window.matchMedia("(hover: none)").matches;
+    setMotion(!still && !phone);
   }, []);
 
   // The bar's height depends on the model and mode, so publish it as a CSS
@@ -531,16 +536,16 @@ export function PromptBar() {
   );
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:px-4 md:pb-5">
+    <div className="pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:px-4 md:pb-5">
       <div ref={wrapper} className="pointer-events-auto w-full max-w-[720px]">
         <ModeStrip />
 
         {error && (
           <div className="anim-pop mb-2 flex items-start gap-2 rounded-card bg-[#ff6b6b]/10 px-3.5 py-2.5 text-[12.5px] text-[#ff8f8f] ring-1 ring-inset ring-[#ff6b6b]/25">
-            <Icon name="alert" size={14} className="mt-px shrink-0" />
+            <Icon name="alert" size={16} className="mt-px shrink-0" />
             <span className="min-w-0 flex-1">{error}</span>
             <button type="button" onClick={() => setError(null)} aria-label="Dismiss">
-              <Icon name="close" size={13} />
+              <Icon name="close" size={15} />
             </button>
           </div>
         )}
@@ -560,7 +565,7 @@ export function PromptBar() {
           style={{ display: "block", width: "100%", overflow: "visible" }}
         >
         <div
-          className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
+          className="rounded-panel border border-line bg-elevated p-3"
           style={{ boxShadow: "var(--shadow-bar)" }}
         >
           <Reveal>
@@ -610,7 +615,7 @@ export function PromptBar() {
                 title="Advanced settings"
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-all duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
               >
-                <Icon name="sliders" size={14} />
+                <Icon name="sliders" size={16} />
               </button>
             )}
 

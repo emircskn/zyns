@@ -24,10 +24,10 @@ function TileButton({
   danger?: boolean;
   filled?: boolean;
 }) {
-  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/85"
   }`;
-  const glyph = <Icon name={icon} size={12} fill={filled ? "currentColor" : "none"} />;
+  const glyph = <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />;
   return href ? (
     <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
       {glyph}
@@ -116,9 +116,9 @@ function AssetTile({
                   type="button"
                   onClick={onRemove}
                   aria-label="Confirm delete"
-                  className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                  className="grid h-8 w-8 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
                 >
-                  <Icon name="check" size={12} strokeWidth={2.2} />
+                  <Icon name="check" size={14} strokeWidth={2.2} />
                 </button>
               </>
             ) : (

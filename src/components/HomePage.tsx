@@ -2,7 +2,7 @@
 
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsWordmark } from "@/components/Logo";
-import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
+import { CATEGORIES, type Category } from "@/lib/registry";
 import { useStudio, type Page } from "@/store/studio";
 
 const LINES: Record<Category, string[]> = {
@@ -41,14 +41,14 @@ function Card({
       <ul className="mt-3 flex flex-col gap-1.5">
         {lines.map((line) => (
           <li key={line} className="flex gap-2 text-[12.5px] leading-snug text-t3">
-            <Icon name="check" size={12} className="mt-[3px] shrink-0 opacity-70" />
+            <Icon name="check" size={14} className="mt-[3px] shrink-0 opacity-70" />
             {line}
           </li>
         ))}
       </ul>
       <span className="mt-auto flex items-center gap-1.5 pt-5 text-[12.5px] text-t2 transition-colors duration-[200ms] group-hover:text-t1">
         {action}
-        <Icon name="chevron" size={12} className="-rotate-90" />
+        <Icon name="chevron" size={14} className="-rotate-90" />
       </span>
     </button>
   );
@@ -61,7 +61,6 @@ function Card({
  */
 export function HomePage() {
   const setPage = useStudio((s) => s.setPage);
-  const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
 
@@ -86,16 +85,9 @@ export function HomePage() {
                 className="cta group flex items-center gap-2 rounded-full py-2 pl-4 pr-2 text-[13px] font-medium"
               >
                 Start creating
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-canvas/15 transition-transform duration-[200ms] group-hover:translate-x-0.5">
-                  <Icon name="chevron" size={13} className="-rotate-90" />
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas/15 transition-transform duration-[200ms] group-hover:translate-x-0.5">
+                  <Icon name="chevron" size={15} className="-rotate-90" />
                 </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => togglePicker(true, "all")}
-                className="rounded-full border border-line px-4 py-2 text-[13px] text-t2 transition-colors duration-[200ms] hover:border-line-strong hover:text-t1"
-              >
-                Browse {MODELS.length} models
               </button>
               {runs.length === 0 && (
                 <button
@@ -139,7 +131,7 @@ export function HomePage() {
             {runs.length} {runs.length === 1 ? "run" : "runs"} so far — everything generated and
             uploaded lives in Assets.
           </span>
-          <Icon name="chevron" size={13} className="-rotate-90 shrink-0 text-t4" />
+          <Icon name="chevron" size={15} className="-rotate-90 shrink-0 text-t4" />
         </button>
       )}
     </div>

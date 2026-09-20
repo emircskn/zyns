@@ -75,7 +75,7 @@ export function SettingsPanel() {
               title="Reset to defaults"
               className="grid h-8 w-8 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
             >
-              <Icon name="refresh" size={14} />
+              <Icon name="refresh" size={16} />
             </button>
             <button
               type="button"
@@ -83,7 +83,7 @@ export function SettingsPanel() {
               className="grid h-8 w-8 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
               aria-label="Close"
             >
-              <Icon name="close" size={15} />
+              <Icon name="close" size={17} />
             </button>
           </div>
         </header>
@@ -134,7 +134,7 @@ export function SettingsPanel() {
               Request preview
               <Icon
                 name="chevron"
-                size={13}
+                size={15}
                 className="transition-transform duration-[200ms]"
                 style={{ transform: showPayload ? "rotate(180deg)" : "none" }}
               />
@@ -155,7 +155,7 @@ export function SettingsPanel() {
               rel="noreferrer"
               className="flex items-center gap-1.5 text-[12px] text-t4 transition-colors hover:text-t1"
             >
-              <Icon name="link" size={13} /> KIE documentation
+              <Icon name="link" size={15} /> KIE documentation
             </a>
           </footer>
         )}

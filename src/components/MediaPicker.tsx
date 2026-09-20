@@ -32,9 +32,9 @@ function TileAction({
         event.stopPropagation();
         onClick();
       }}
-      className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
+      className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
     >
-      <Icon name={icon} size={13} />
+      <Icon name={icon} size={15} />
     </button>
   );
 }
@@ -81,7 +81,7 @@ function Thumb({
       </button>
       {picked && (
         <span className="pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
-          <Icon name="check" size={11} strokeWidth={2.4} />
+          <Icon name="check" size={13} strokeWidth={2.4} />
         </span>
       )}
       {(onPreview || onRemove) && (
@@ -208,7 +208,7 @@ export function MediaPicker({
             aria-label="Close"
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
           >
-            <Icon name="close" size={15} />
+            <Icon name="close" size={17} />
           </button>
         </header>
 

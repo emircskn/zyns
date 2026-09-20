@@ -59,12 +59,12 @@ export function CategoryPage({ category }: { category: Category }) {
           ) : (
             <>
               <span className="grid h-[22px] w-[22px] place-items-center rounded-chip bg-t1/[0.1]">
-                <Icon name="spark" size={12} />
+                <Icon name="spark" size={14} />
               </span>
               <span>Choose a model</span>
             </>
           )}
-          <Icon name="chevron" size={13} className="-rotate-90 opacity-60" />
+          <Icon name="chevron" size={15} className="-rotate-90 opacity-60" />
         </button>
         </div>
       </div>

@@ -43,7 +43,7 @@ export function OptionList({ field, value, onChange }: ControlProps) {
               <span className="truncate">{choice.label}</span>
               {choice.hint && <span className="truncate text-[11px] opacity-60">{choice.hint}</span>}
             </span>
-            {active && <Icon name="check" size={14} className="shrink-0" />}
+            {active && <Icon name="check" size={16} className="shrink-0" />}
           </button>
         );
       })}
@@ -292,7 +292,7 @@ function UrlField({
           open ? "bg-t1/15 text-t1" : "text-t4 hover:text-t1"
         }`}
       >
-        <Icon name="link" size={11} />
+        <Icon name="link" size={13} />
       </button>
       {open && (
         <input
@@ -447,7 +447,7 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove shot"
             >
-              <Icon name="close" size={12} />
+              <Icon name="close" size={14} />
             </button>
           </div>
           <textarea
@@ -487,7 +487,7 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
       onClick={onClick}
       className="flex items-center justify-center gap-1.5 rounded-chip border border-dashed border-line-strong py-2 text-[12px] text-t3 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1"
     >
-      <Icon name="plus" size={13} /> {label}
+      <Icon name="plus" size={15} /> {label}
     </button>
   );
 }
@@ -525,7 +525,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove element"
             >
-              <Icon name="close" size={12} />
+              <Icon name="close" size={14} />
             </button>
           </div>
           <textarea
@@ -709,7 +709,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove row"
             >
-              <Icon name="close" size={12} />
+              <Icon name="close" size={14} />
             </button>
           </div>
           <div className="flex flex-col gap-2">

@@ -36,6 +36,7 @@ export type IconName =
   | "expand"
   | "hash"
   | "heart"
+  | "home"
   | "at";
 
 const PATHS: Record<IconName, ReactElement> = {
@@ -177,6 +178,11 @@ const PATHS: Record<IconName, ReactElement> = {
   ),
   expand: <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />,
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
+  home: (
+    <>
+      <path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z" />
+    </>
+  ),
   // Drawn closed, so the same path reads as an outline or, filled, as kept.
   heart: (
     <path d="M12 20.3l-1.3-1.2C6.1 15 3 12.2 3 8.8 3 6.1 5.1 4 7.8 4c1.5 0 3 .7 4.2 2 1.2-1.3 2.7-2 4.2-2C18.9 4 21 6.1 21 8.8c0 3.4-3.1 6.2-7.7 10.4L12 20.3z" />

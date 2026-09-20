@@ -27,9 +27,9 @@ export function DensityControl() {
         disabled={density <= STEPS[0]}
         aria-label="Bigger tiles"
         title="Bigger tiles"
-        className="grid h-7 w-7 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
+        className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
       >
-        <Icon name="expand" size={13} />
+        <Icon name="expand" size={15} />
       </button>
       <span className="w-5 text-center font-mono text-[11px] tabular-nums text-t3">{density}</span>
       <button
@@ -38,9 +38,9 @@ export function DensityControl() {
         disabled={density >= STEPS[STEPS.length - 1]}
         aria-label="Smaller tiles"
         title="Smaller tiles"
-        className="grid h-7 w-7 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
+        className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
       >
-        <Icon name="grid" size={13} />
+        <Icon name="grid" size={15} />
       </button>
     </div>
   );

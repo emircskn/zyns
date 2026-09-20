@@ -57,7 +57,7 @@ function ModelRow({
         <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
       </span>
       {active && (
-        <Icon name="check" size={15} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
+        <Icon name="check" size={17} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
       )}
     </button>
   );
@@ -128,7 +128,7 @@ export function ModelPicker() {
       >
         <header className="flex items-center gap-2 border-b border-line px-3 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:py-3">
           <div className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.05] px-3.5">
-            <Icon name="search" size={15} className="shrink-0 text-t4" />
+            <Icon name="search" size={17} className="shrink-0 text-t4" />
             <input
               autoFocus
               value={query}
@@ -143,7 +143,7 @@ export function ModelPicker() {
                 aria-label="Clear search"
                 className="shrink-0 text-t4 transition-colors duration-[120ms] hover:text-t1"
               >
-                <Icon name="close" size={13} />
+                <Icon name="close" size={15} />
               </button>
             )}
           </div>
@@ -153,7 +153,7 @@ export function ModelPicker() {
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-t1/[0.05] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
             aria-label="Close"
           >
-            <Icon name="close" size={15} />
+            <Icon name="close" size={17} />
           </button>
         </header>
 

@@ -59,14 +59,14 @@ export function SelectionBar({
         // Clear of the prompt bar rather than resting on it: --bar-h covers
         // the bar and its mode strip, and the rest is breathing room.
         bottom: composing
-          ? "calc(var(--bar-h, 280px) + 56px + env(safe-area-inset-bottom))"
-          : "max(20px, env(safe-area-inset-bottom))",
+          ? "calc(var(--bar-h, 280px) + var(--nav-h) + 56px)"
+          : "calc(var(--nav-h) + max(20px, env(safe-area-inset-bottom)))",
       }}
     >
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">
           <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
-            <Icon name="check" size={13} strokeWidth={2.2} />
+            <Icon name="check" size={15} strokeWidth={2.2} />
           </span>
           {count} selected
         </span>
@@ -89,7 +89,7 @@ export function SelectionBar({
         ) : (
           <>
             <button type="button" onClick={onDownload} aria-label="Download" className={button}>
-              <Icon name="download" size={14} />
+              <Icon name="download" size={16} />
               <span className="hidden sm:inline">Download</span>
             </button>
             <button
@@ -98,7 +98,7 @@ export function SelectionBar({
               aria-label={favorited ? "Unfavorite" : "Favorite"}
               className={button}
             >
-              <Icon name="heart" size={14} fill={favorited ? "currentColor" : "none"} />
+              <Icon name="heart" size={16} fill={favorited ? "currentColor" : "none"} />
               <span className="hidden sm:inline">{favorited ? "Unfavorite" : "Favorite"}</span>
             </button>
             <button
@@ -108,7 +108,7 @@ export function SelectionBar({
               className={button}
               style={{ color: "var(--danger)" }}
             >
-              <Icon name="trash" size={14} />
+              <Icon name="trash" size={16} />
               <span className="hidden sm:inline">Delete</span>
             </button>
           </>
@@ -119,7 +119,7 @@ export function SelectionBar({
           aria-label="Clear selection"
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
         >
-          <Icon name="close" size={15} />
+          <Icon name="close" size={17} />
         </button>
       </div>
     </div>,
@@ -135,7 +135,7 @@ export function SelectMark({ on }: { on: boolean }) {
         on ? "border-transparent bg-t1 text-canvas" : "border-white/70 bg-black/35 text-transparent backdrop-blur-sm"
       }`}
     >
-      <Icon name="check" size={13} strokeWidth={2.4} />
+      <Icon name="check" size={15} strokeWidth={2.4} />
     </span>
   );
 }

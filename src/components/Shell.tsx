@@ -7,7 +7,9 @@ import { ZynsWordmark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { FavoritesPage } from "@/components/FavoritesPage";
 import { CategoryPage } from "@/components/CategoryPage";
+import { CreateSheet } from "@/components/CreateSheet";
 import { HomePage } from "@/components/HomePage";
+import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PillGroup } from "@/components/PillGroup";
 import { PromptBar } from "@/components/PromptBar";
@@ -88,7 +90,7 @@ function NavTabs() {
           >
             <Icon
               name={item.icon}
-              size={14}
+              size={16}
               className="transition-colors duration-[200ms]"
               style={on ? { color: "var(--accent)" } : undefined}
               fill={on && item.icon === "heart" ? "currentColor" : "none"}
@@ -142,7 +144,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
               className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1 sm:flex"
             >
               Sample media
-              <Icon name="close" size={11} />
+              <Icon name="close" size={13} />
             </button>
           )}
           {!demo && runs.length > 0 && page !== "home" && (
@@ -171,7 +173,8 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
           <button
             type="button"
             onClick={onKeyClick}
-            className="flex items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.12] hover:text-t1"
+            // The phone reaches the key from its bottom row instead.
+            className="hidden items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
           >
             <span
               className="h-1.5 w-1.5 shrink-0 rounded-full"
@@ -202,13 +205,18 @@ function PageTabs() {
   if (page === "home") return null;
   return (
     <div className="mb-4 md:hidden">
-      <PillGroup value={page} onChange={(next) => setPage(next as Page)} items={NAV} />
+      <PillGroup
+        value={page}
+        onChange={(next) => setPage(next as Page)}
+        items={NAV.filter((item) => item.id !== "assets" && item.id !== "favorites")}
+      />
     </div>
   );
 }
 
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const apiKey = useStudio((s) => s.apiKey);
   const hydrated = useStudio((s) => s.hydrated);
   const page = useStudio((s) => s.page);
@@ -234,7 +242,7 @@ export function Shell() {
       <TopBar onKeyClick={() => setKeyOpen(true)} />
       <main
         className={`mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 ${
-          composing ? "below-bar" : "pb-10"
+          composing ? "below-bar" : "below-nav"
         }`}
       >
         {hydrated && !apiKey && page !== "home" && (
@@ -263,6 +271,8 @@ export function Shell() {
       </main>
 
       {composing && <PromptBar />}
+      <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
+      <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />
       <ModelPicker />
       <RunPoller />

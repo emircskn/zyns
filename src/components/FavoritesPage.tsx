@@ -32,7 +32,7 @@ export function FavoritesPage() {
               Nothing kept yet.
             </p>
             <p className="mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
-              Hover a tile — or open it — and press the heart. What you keep stays here, out of the
+              Press the heart on a tile, or in the enlarged view, and it stays here — out of the
               way of everything else you make.
             </p>
             <button

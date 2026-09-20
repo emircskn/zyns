@@ -71,6 +71,10 @@
   /* Motion: one easing for everything that settles, one that overshoots. */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  /* The phone's bottom row, which the prompt bar and every page sit above.
+     Zero on a desktop, where the row is not there at all. */
+  --nav-h: 0px;
+
   --d-fast: 120ms;
   --d-base: 200ms;
   --d-slow: 320ms;
@@ -578,10 +582,22 @@ html {
   }
 }
 
+@media (max-width: 767px) {
+  :root {
+    --nav-h: calc(62px + env(safe-area-inset-bottom));
+  }
+}
+
 /* Reserve room under the content for the floating prompt bar, whatever height
-   the current model makes it (PromptBar measures itself into --bar-h). */
+   the current model makes it (PromptBar measures itself into --bar-h), and for
+   the phone's bottom row under that. */
 .below-bar {
-  padding-bottom: calc(var(--bar-h, 280px) + 28px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--bar-h, 280px) + var(--nav-h) + 28px + env(safe-area-inset-bottom));
+}
+
+/* Pages with no prompt bar still clear the bottom row. */
+.below-nav {
+  padding-bottom: calc(var(--nav-h) + 40px);
 }
 
 @media (prefers-reduced-motion: reduce) {

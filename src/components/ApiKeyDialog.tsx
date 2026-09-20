@@ -106,7 +106,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
 
           {error && (
             <p className="anim-swap mb-3 flex items-start gap-1.5 text-[12px] text-[#ff8f8f]">
-              <Icon name="alert" size={13} className="mt-px shrink-0" />
+              <Icon name="alert" size={15} className="mt-px shrink-0" />
               {error}
             </p>
           )}

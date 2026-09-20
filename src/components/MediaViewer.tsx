@@ -173,7 +173,7 @@ function Action({
   ) : (
     <>
       <Icon name={icon} size={16} className="md:hidden" fill={filled ? "currentColor" : "none"} />
-      <Icon name={icon} size={13} className="hidden md:block" fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={15} className="hidden md:block" fill={filled ? "currentColor" : "none"} />
       <span className="max-w-full truncate">{label}</span>
     </>
   );
@@ -226,7 +226,7 @@ function Section({
             {title}
             <Icon
               name="chevron"
-              size={12}
+              size={14}
               className="transition-transform duration-[200ms]"
               style={{ transform: open ? "rotate(180deg)" : "none" }}
             />
@@ -391,7 +391,7 @@ export function MediaViewer({
                     <img src={one} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <span className="grid h-full w-full place-items-center bg-surface-2">
-                      <Icon name={mediaKind(one) === "video" ? "video" : "audio"} size={13} className="text-t3" />
+                      <Icon name={mediaKind(one) === "video" ? "video" : "audio"} size={15} className="text-t3" />
                     </span>
                   )}
                 </button>
@@ -418,7 +418,7 @@ export function MediaViewer({
             <VendorBadge vendor={model.vendor} size={30} />
           ) : (
             <span className="grid h-[30px] w-[30px] place-items-center rounded-chip bg-t1/[0.07]">
-              <Icon name="upload" size={13} className="text-t3" />
+              <Icon name="upload" size={15} className="text-t3" />
             </span>
           )}
           <div className="min-w-0 flex-1">
@@ -506,7 +506,7 @@ export function MediaViewer({
                     onClick={() => copy(run.prompt, "prompt")}
                     className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[11px] text-t3 transition-colors duration-[120ms] hover:text-t1"
                   >
-                    <Icon name={copied === "prompt" ? "check" : "copy"} size={11} />
+                    <Icon name={copied === "prompt" ? "check" : "copy"} size={13} />
                     Copy
                   </button>
                 ) : undefined
@@ -528,7 +528,7 @@ export function MediaViewer({
                         <img src={ref} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <span className="grid h-full w-full place-items-center bg-surface-2">
-                          <Icon name={mediaKind(ref) === "video" ? "video" : "audio"} size={14} className="text-t3" />
+                          <Icon name={mediaKind(ref) === "video" ? "video" : "audio"} size={16} className="text-t3" />
                         </span>
                       )}
                     </a>
@@ -549,7 +549,7 @@ export function MediaViewer({
                       {full ? "Show less" : "See all"}
                       <Icon
                         name="chevron"
-                        size={12}
+                        size={14}
                         className="transition-transform duration-[200ms]"
                         style={{ transform: full ? "rotate(180deg)" : "none" }}
                       />
