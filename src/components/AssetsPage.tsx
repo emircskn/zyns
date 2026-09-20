@@ -100,12 +100,42 @@ function AssetTile({
   );
 }
 
+function LightboxAction({
+  icon,
+  label,
+  onClick,
+  href,
+  danger,
+}: {
+  icon: Parameters<typeof Icon>[0]["name"];
+  label: string;
+  onClick?: () => void;
+  href?: string;
+  danger?: boolean;
+}) {
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+    danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
+  }`;
+  return href ? (
+    <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
+      <Icon name={icon} size={12} />
+    </a>
+  ) : (
+    <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
+      <Icon name={icon} size={12} />
+    </button>
+  );
+}
+
 /** Everything in one place: what the studio made, and what was uploaded. */
 export function AssetsPage() {
   const assets = useAssets();
   const removeUpload = useStudio((s) => s.removeUpload);
   const [filter, setFilter] = useState<Filter>("all");
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  // The asset behind the open preview, so its actions know what they act on.
+  const open = lightbox ? assets.find((a) => a.url === lightbox) : undefined;
 
   const shown = useMemo(() => assets.filter((a) => matches(a, filter)), [assets, filter]);
   const counts = useMemo(
@@ -161,7 +191,37 @@ export function AssetsPage() {
           ))}
         </div>
       )}
-      <Lightbox url={lightbox} onClose={() => setLightbox(null)} />
+      <Lightbox
+        url={lightbox}
+        onClose={() => setLightbox(null)}
+        actions={
+          open && (
+            <>
+              <LightboxAction
+                icon={copied ? "check" : "copy"}
+                label="Copy URL"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(open.url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1400);
+                }}
+              />
+              <LightboxAction icon="download" label="Open / download" href={open.url} />
+              {open.source === "upload" && (
+                <LightboxAction
+                  icon="trash"
+                  label="Remove"
+                  danger
+                  onClick={() => {
+                    removeUpload(open.id);
+                    setLightbox(null);
+                  }}
+                />
+              )}
+            </>
+          )
+        }
+      />
     </div>
   );
 }

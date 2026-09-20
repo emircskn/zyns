@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { Icon } from "@/components/Icon";
@@ -84,13 +84,13 @@ function TileAction({
   }`;
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" download title={label} className={className}>
+      <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
         <Icon name={icon} size={12} />
       </a>
     );
   }
   return (
-    <button type="button" onClick={onClick} title={label} className={className}>
+    <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
       <Icon name={icon} size={12} />
     </button>
   );
@@ -216,11 +216,14 @@ export function Lightbox({
   url,
   onClose,
   z = 110,
+  actions,
 }: {
   url: string | null;
   onClose: () => void;
   /** Raised when the preview opens from something already on a layer. */
   z?: number;
+  /** What can be done with what is on screen, laid out under it. */
+  actions?: ReactNode;
 }) {
   const { mounted, exiting } = usePresence(!!url, 220);
   const [shown, setShown] = useState(url);
@@ -251,15 +254,24 @@ export function Lightbox({
       <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
       {/* Held well inside the viewport: filling it edge to edge makes a small
           picture look enormous and leaves nowhere to click out. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={shown}
-        alt=""
-        className={`relative max-h-[78vh] max-w-[min(92vw,1100px)] rounded-card object-contain ${
+      <div
+        className={`relative flex min-h-0 flex-col items-center gap-3 ${
           exiting ? "anim-zoom-out" : "anim-zoom"
         }`}
-        style={{ boxShadow: "var(--shadow-pop)" }}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={shown}
+          alt=""
+          className="max-h-[72vh] max-w-[min(92vw,1100px)] rounded-card object-contain"
+          style={{ boxShadow: "var(--shadow-pop)" }}
+        />
+        {actions && (
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/55 p-1.5 backdrop-blur-md">
+            {actions}
+          </div>
+        )}
+      </div>
       <button
         type="button"
         onClick={onClose}
@@ -290,22 +302,72 @@ export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const density = useStudio((s) => s.density);
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ url: string; runId: string } | null>(null);
+  const removeRun = useStudio((s) => s.removeRun);
+  const selectModel = useStudio((s) => s.selectModel);
+  const setValues = useStudio((s) => s.setValues);
+  const [copied, setCopied] = useState(false);
 
   if (!hydrated) return null;
 
   const shown = category
     ? runs.filter((run) => getModel(run.modelId)?.category === category)
     : runs;
+  // The run behind the open preview, so its actions know what they act on.
+  const open = lightbox ? runs.find((run) => run.id === lightbox.runId) : undefined;
 
   return (
     <>
       <div className={`gap-2.5 ${COLUMNS[density] ?? COLUMNS[4]}`}>
         {shown.map((run, index) => (
-          <Tile key={run.id} run={run} index={index} onOpen={setLightbox} />
+          <Tile
+            key={run.id}
+            run={run}
+            index={index}
+            onOpen={(url) => setLightbox({ url, runId: run.id })}
+          />
         ))}
       </div>
-      <Lightbox url={lightbox} onClose={() => setLightbox(null)} />
+      <Lightbox
+        url={lightbox?.url ?? null}
+        onClose={() => setLightbox(null)}
+        actions={
+          open && (
+            <>
+              <TileAction
+                icon="refresh"
+                label="Reuse these settings"
+                onClick={() => {
+                  selectModel(open.modelId);
+                  // selectModel switches the model first, so the values land on it.
+                  setTimeout(() => setValues({ ...open.values }), 0);
+                  setLightbox(null);
+                }}
+              />
+              <TileAction
+                icon={copied ? "check" : "copy"}
+                label="Copy URL"
+                onClick={async () => {
+                  if (!lightbox) return;
+                  await navigator.clipboard.writeText(lightbox.url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1400);
+                }}
+              />
+              <TileAction icon="download" label="Open / download" href={lightbox?.url} />
+              <TileAction
+                icon="trash"
+                label="Remove"
+                danger
+                onClick={() => {
+                  removeRun(open.id);
+                  setLightbox(null);
+                }}
+              />
+            </>
+          )
+        }
+      />
     </>
   );
 }
