@@ -617,18 +617,16 @@ html {
   scroll-snap-align: start;
 }
 
-/* A card under the pointer rises on a spring, throws a deeper shadow tinted
-   with its category accent, lights its edge, and the art behind it pushes in
-   slowly. Touch screens have no hover, so none of it sticks there. */
+/* A card under the pointer lights its edge and the art behind it warms under
+   a drifting sweep. It does not grow or move: the cover sits directly above
+   the title, so a scale would ride over it, and the entrance animation pins
+   the card's transform anyway. Touch screens have no hover, so none of this
+   sticks there. */
 .lift {
-  transition:
-    transform var(--d-base) var(--ease-spring),
-    box-shadow var(--d-base) var(--ease);
+  transition: box-shadow var(--d-base) var(--ease);
 }
 .lift .cover {
-  transition:
-    transform var(--d-slow) var(--ease),
-    filter var(--d-slow) var(--ease);
+  transition: filter var(--d-slow) var(--ease);
 }
 
 /* The strip that pulses at the top of the API key dialog, reused as a card's
@@ -658,12 +656,10 @@ html {
 
 @media (hover: hover) {
   .lift:hover {
-    transform: translateY(-6px) scale(1.02);
     box-shadow: inset 0 0 0 1px var(--line-strong);
     z-index: 2;
   }
   .lift:hover .cover {
-    transform: translateZ(0) scale(1.08);
     filter: brightness(1.06) saturate(1.08);
   }
   .lift:hover .cover::before {
@@ -673,8 +669,5 @@ html {
   .lift:hover .cover::after {
     opacity: 1;
     animation: sweep 2.2s var(--ease) infinite;
-  }
-  .lift:active {
-    transform: translateY(-2px) scale(1.005);
   }
 }

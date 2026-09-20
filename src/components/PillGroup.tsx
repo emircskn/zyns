@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Icon } from "@/components/Icon";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
 export interface PillItem<T extends string> {
@@ -34,10 +35,35 @@ export function PillGroup<T extends string>({
   className?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
+  const previous = useRef(value);
+  const [jump, setJump] = useState(false);
+
+  // A pill outside the scrolled window would make the indicator glide across
+  // ground nobody can see, so it is placed there outright and the strip
+  // scrolls it into view instead. Declared before useGlide so it decides
+  // before the indicator is measured.
+  useLayoutEffect(() => {
+    const node = root.current;
+    if (!node || fill || previous.current === value) return;
+    previous.current = value;
+    const target = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
+    if (!target) return;
+    const visible =
+      target.offsetLeft >= node.scrollLeft &&
+      target.offsetLeft + target.offsetWidth <= node.scrollLeft + node.clientWidth;
+    if (!visible) setJump(true);
+  }, [value, fill]);
+
+  useEffect(() => {
+    if (!jump) return;
+    const timer = window.setTimeout(() => setJump(false), 60);
+    return () => window.clearTimeout(timer);
+  }, [jump]);
+
   const { box, settled } = useGlide(root, value, [items.length]);
   const [edges, setEdges] = useState({ left: false, right: false });
 
-  // Which edges have more pills behind them, so only those are faded.
+  // Which edges have more pills behind them, so only those get an arrow.
   useEffect(() => {
     const node = root.current;
     if (!node || fill) return;
@@ -56,13 +82,13 @@ export function PillGroup<T extends string>({
   }, [fill, items.length]);
 
   // A selection made with the keyboard, or one that starts off-screen, pulls
-  // itself into view rather than sitting under a faded edge.
+  // itself into view rather than sitting under an arrow.
   useEffect(() => {
     const node = root.current;
     if (!node || fill) return;
     const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
     if (!active) return;
-    const margin = 16;
+    const margin = 34;
     if (active.offsetLeft < node.scrollLeft + margin) {
       node.scrollTo({ left: Math.max(0, active.offsetLeft - margin), behavior: "smooth" });
     } else if (active.offsetLeft + active.offsetWidth > node.scrollLeft + node.clientWidth - margin) {
@@ -73,20 +99,23 @@ export function PillGroup<T extends string>({
     }
   }, [value, fill]);
 
-  const fade =
-    edges.left || edges.right
-      ? `linear-gradient(90deg, transparent 0, #000 ${edges.left ? 26 : 0}px, #000 calc(100% - ${
-          edges.right ? 26 : 0
-        }px), transparent 100%)`
-      : undefined;
+  // One step lands the next pills in view without jumping past them.
+  function step(direction: 1 | -1) {
+    const node = root.current;
+    if (!node) return;
+    node.scrollBy({ left: direction * Math.max(140, node.clientWidth * 0.7), behavior: "smooth" });
+  }
 
   const pad =
     size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[12.5px] font-medium";
 
-  return (
+  const arrow = `absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-elevated text-t2 shadow-[0_2px_10px_rgb(0_0_0/0.35)] ring-1 ring-line transition-colors duration-[120ms] hover:text-t1 ${
+    size === "lg" ? "h-7 w-7" : "h-6 w-6"
+  }`;
+
+  const strip = (
     <div
       ref={root}
-      style={fade ? { maskImage: fade, WebkitMaskImage: fade } : undefined}
       className={`relative flex ${fill ? "" : "no-bar max-w-full overflow-x-auto"} ${
         bare ? "gap-1" : "gap-0.5 rounded-full bg-t1/[0.07] p-1"
       } ${className}`}
@@ -99,7 +128,7 @@ export function PillGroup<T extends string>({
             width: box.w,
             height: box.h,
             transform: `translate(${box.x}px, ${box.y}px)`,
-            transition: settled ? GLIDE_TRANSITION : "none",
+            transition: settled && !jump ? GLIDE_TRANSITION : "none",
           }}
         />
       )}
@@ -120,6 +149,36 @@ export function PillGroup<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+
+  if (fill) return strip;
+
+  // The strip scrolls; the arrows sit outside it so they stay put, and each
+  // one appears only while there are more pills on that side.
+  return (
+    <div className="relative min-w-0 max-w-full">
+      {strip}
+      {edges.left && (
+        <button
+          type="button"
+          aria-label="Earlier options"
+          onClick={() => step(-1)}
+          className={`${arrow} left-1`}
+        >
+          <Icon name="chevron" size={size === "lg" ? 14 : 12} className="rotate-90" />
+        </button>
+      )}
+      {edges.right && (
+        <button
+          type="button"
+          aria-label="More options"
+          onClick={() => step(1)}
+          className={`${arrow} right-1`}
+        >
+          <Icon name="chevron" size={size === "lg" ? 14 : 12} className="-rotate-90" />
+        </button>
+      )}
     </div>
   );
 }

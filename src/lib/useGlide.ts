@@ -37,5 +37,9 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
   return { box, settled };
 }
 
+/**
+ * No spring here on purpose: an overshoot past the first or last pill lands
+ * outside the strip, which clips it.
+ */
 export const GLIDE_TRANSITION =
-  "transform var(--d-slow) var(--ease-spring), width var(--d-slow) var(--ease-spring), height var(--d-slow) var(--ease-spring)";
+  "transform var(--d-slow) var(--ease), width var(--d-slow) var(--ease), height var(--d-slow) var(--ease)";
