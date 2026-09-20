@@ -61,7 +61,7 @@ export function PillGroup<T extends string>({
   }, [jump]);
 
   const { box, settled } = useGlide(root, value, [items.length]);
-  const [edges, setEdges] = useState({ left: false, right: false });
+  const [edges, setEdges] = useState({ left: false, right: false, over: false });
 
   // Which edges have more pills behind them, so only those get an arrow.
   useEffect(() => {
@@ -69,7 +69,12 @@ export function PillGroup<T extends string>({
     if (!node || fill) return;
     const update = () => {
       const slack = node.scrollWidth - node.clientWidth;
-      setEdges({ left: node.scrollLeft > 2, right: node.scrollLeft < slack - 2 });
+      const next = { left: node.scrollLeft > 2, right: node.scrollLeft < slack - 2, over: slack > 2 };
+      // Same numbers, same object: a fresh one every scroll event would
+      // re-render the strip for nothing.
+      setEdges((prev) =>
+        prev.left === next.left && prev.right === next.right && prev.over === next.over ? prev : next,
+      );
     };
     update();
     node.addEventListener("scroll", update, { passive: true });
@@ -109,31 +114,33 @@ export function PillGroup<T extends string>({
   const pad =
     size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[12.5px] font-medium";
 
-  const arrow = `absolute top-1/2 z-20 grid -translate-y-1/2 place-items-center rounded-full bg-elevated text-t2 shadow-[0_2px_10px_rgb(0_0_0/0.35)] ring-1 ring-line transition-colors duration-[120ms] hover:text-t1 ${
-    size === "lg" ? "h-7 w-7" : "h-6 w-6"
+  const arrow = `grid shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-25 disabled:hover:bg-t1/[0.07] disabled:hover:text-t2 ${
+    size === "lg" ? "h-8 w-8" : "h-7 w-7"
   }`;
 
-  // The pills would otherwise read through from under the arrow, so the strip
-  // fades into its own background beneath it: the track's colour where the
-  // strip has one, the page's where it does not.
-  const scrim = bare ? "var(--canvas)" : "var(--elevated)";
-  const scrimWidth = size === "lg" ? "w-14" : "w-12";
-  const veil = (side: "left" | "right") => (
-    <span
-      aria-hidden
-      className={`pointer-events-none absolute inset-y-0 z-10 ${scrimWidth} ${
-        side === "left" ? "left-0 rounded-l-full" : "right-0 rounded-r-full"
-      }`}
-      style={{
-        background: `linear-gradient(to ${side === "left" ? "right" : "left"}, ${scrim}, ${scrim} 58%, transparent)`,
-      }}
-    />
+  // A plain function, not a component: a component declared in here would be
+  // a new type on every render, and React would tear the buttons down and
+  // rebuild them each time the strip scrolls.
+  const stepButton = (side: "left" | "right") => (
+    <button
+      type="button"
+      disabled={side === "left" ? !edges.left : !edges.right}
+      aria-label={side === "left" ? "Earlier options" : "More options"}
+      onClick={() => step(side === "left" ? -1 : 1)}
+      className={arrow}
+    >
+      <Icon
+        name="chevron"
+        size={size === "lg" ? 15 : 13}
+        className={side === "left" ? "rotate-90" : "-rotate-90"}
+      />
+    </button>
   );
 
   const strip = (
     <div
       ref={root}
-      className={`relative flex ${fill ? "" : "no-bar max-w-full overflow-x-auto"} ${
+      className={`relative flex ${fill ? "" : "no-bar min-w-0 max-w-full overflow-x-auto"} ${
         bare ? "gap-1" : "gap-0.5 rounded-full bg-t1/[0.07] p-1"
       } ${className}`}
     >
@@ -171,37 +178,15 @@ export function PillGroup<T extends string>({
 
   if (fill) return strip;
 
-  // The strip scrolls; the arrows sit outside it so they stay put, and each
-  // one appears only while there are more pills on that side.
+  // The row is always this shape, arrows or not: swapping the tree around
+  // the strip would tear it down mid-scroll and lose its observers. Both
+  // arrows stay while it overflows, and the one with nothing behind it
+  // greys out rather than vanishing, so the row never jumps.
   return (
-    <div className="relative min-w-0 max-w-full">
+    <div className="flex min-w-0 max-w-full items-center gap-1.5">
+      {edges.over && stepButton("left")}
       {strip}
-      {edges.left && (
-        <>
-          {veil("left")}
-          <button
-            type="button"
-            aria-label="Earlier options"
-            onClick={() => step(-1)}
-            className={`${arrow} left-1`}
-          >
-            <Icon name="chevron" size={size === "lg" ? 14 : 12} className="rotate-90" />
-          </button>
-        </>
-      )}
-      {edges.right && (
-        <>
-          {veil("right")}
-          <button
-            type="button"
-            aria-label="More options"
-            onClick={() => step(1)}
-            className={`${arrow} right-1`}
-          >
-            <Icon name="chevron" size={size === "lg" ? 14 : 12} className="-rotate-90" />
-          </button>
-        </>
-      )}
+      {edges.over && stepButton("right")}
     </div>
   );
 }

@@ -37,7 +37,7 @@ function ModelCard({
       onClick={onPick}
       style={{ animationDelay: `${180 + Math.min(index, 14) * 22}ms` }}
       className={`anim-tile lift group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
-        active ? "ring-t1/60" : "ring-transparent hover:ring-line-strong"
+        active ? "ring-t1/60" : "ring-transparent"
       }`}
     >
       <div className="relative">

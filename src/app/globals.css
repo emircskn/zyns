@@ -623,11 +623,11 @@ html {
    the card's transform anyway. Touch screens have no hover, so none of this
    sticks there. */
 .lift {
-  /* An outline, not an inset shadow: a shadow paints under the card's own
-     children, so the cover art hid every edge but the one beside the title.
-     An outline paints over them and wraps the whole block. */
+  /* An outline, not a shadow: a shadow paints under the card's own children,
+     so the cover art hid every edge but the one beside the title. This sits
+     just outside the card, one even line the whole way round. */
   outline: 1px solid transparent;
-  outline-offset: -1px;
+  outline-offset: 0;
   transition: outline-color var(--d-base) var(--ease);
 }
 .lift .cover {
@@ -661,7 +661,7 @@ html {
 
 @media (hover: hover) {
   .lift:hover {
-    outline-color: var(--line-strong);
+    outline-color: color-mix(in oklab, var(--t1) 42%, transparent);
     z-index: 2;
   }
   .lift:hover .cover {
