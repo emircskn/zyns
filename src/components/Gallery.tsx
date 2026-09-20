@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
+import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
@@ -172,7 +173,13 @@ function Tile({
       }`}
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
-      <div style={square ? undefined : { aspectRatio: run.ratio }} className={`relative w-full ${square ? "aspect-square" : ""}`}>
+      {/* While the run is still queued the box is a slim placeholder; it
+          grows into the shape of the media as the model starts on it, and
+          the same transition carries the tile between grid sizes. */}
+      <div
+        style={square ? undefined : { aspectRatio: run.state === "queued" ? "5 / 2" : run.ratio }}
+        className={`t-resize relative w-full ${square ? "aspect-square" : ""}`}
+      >
         {url ? (
           <button
             type="button"
@@ -237,11 +244,12 @@ function Tile({
           }`}
         >
           {url && (
-            <TileAction
-              icon="heart"
-              filled={kept}
-              label={kept ? "Remove from favorites" : "Add to favorites"}
-              onClick={() => toggleFavorite(url)}
+            <LikeHeart
+              liked={kept}
+              size={14}
+              title={kept ? "Remove from favorites" : "Add to favorites"}
+              onToggle={() => toggleFavorite(url)}
+              className="grid h-8 w-8 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
           <TileAction icon="refresh" label="Reuse these settings" onClick={reuse} />

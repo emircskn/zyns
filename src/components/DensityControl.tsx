@@ -15,12 +15,6 @@ export function DensityControl() {
   const setDensity = useStudio((s) => s.setDensity);
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
-  const at = STEPS.indexOf(density);
-  const step = (direction: -1 | 1) => {
-    const next = STEPS[Math.min(STEPS.length - 1, Math.max(0, (at === -1 ? 2 : at) + direction))];
-    if (next) setDensity(next);
-  };
-
   const shape = (on: boolean) =>
     `grid h-8 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
       on ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
@@ -51,29 +45,25 @@ export function DensityControl() {
         </button>
       </div>
 
-    <div className="hidden items-center gap-0.5 rounded-full bg-t1/[0.07] p-1 md:flex">
-      <button
-        type="button"
-        onClick={() => step(-1)}
-        disabled={density <= STEPS[0]}
-        aria-label="Bigger tiles"
-        title="Bigger tiles"
-        className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
-      >
-        <Icon name="expand" size={15} />
-      </button>
-      <span className="w-5 text-center font-mono text-[11px] tabular-nums text-t3">{density}</span>
-      <button
-        type="button"
-        onClick={() => step(1)}
-        disabled={density >= STEPS[STEPS.length - 1]}
-        aria-label="Smaller tiles"
-        title="Smaller tiles"
-        className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:opacity-35 disabled:hover:text-t3"
-      >
-        <Icon name="grid" size={15} />
-      </button>
-    </div>
+    {/* A slider rather than a stepper: the tiles resize under the thumb as
+        it moves, so the size is chosen by looking rather than by counting. */}
+    <label className="hidden items-center gap-2.5 rounded-full bg-t1/[0.07] py-1.5 pl-3 pr-3.5 md:flex">
+      <Icon name="expand" size={14} className="shrink-0 text-t4" />
+      <input
+        type="range"
+        min={STEPS[0]}
+        max={STEPS[STEPS.length - 1]}
+        step={1}
+        value={density}
+        aria-label="Tile size"
+        title={`${density} across`}
+        // Bigger tiles to the left, more of them to the right, which is the
+        // way the two icons either side of it read.
+        onChange={(event) => setDensity(Number(event.target.value))}
+        className="density-range h-1 w-[96px] cursor-ew-resize appearance-none rounded-full bg-t1/[0.18]"
+      />
+      <Icon name="grid" size={14} className="shrink-0 text-t4" />
+    </label>
     </>
   );
 }

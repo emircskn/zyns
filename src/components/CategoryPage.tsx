@@ -3,6 +3,7 @@
 import { Gallery } from "@/components/Gallery";
 import { DensityControl } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
+import { Stagger } from "@/components/Stagger";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
 import { useModel, useStudio } from "@/store/studio";
@@ -73,24 +74,26 @@ export function CategoryPage({ category }: { category: Category }) {
 
       {mine.length === 0 ? (
         <div className="grid flex-1 place-items-center py-8 text-center md:py-16">
-          <div className="anim-rise max-w-[560px]">
+          <Stagger className="max-w-[560px]">
             {/* Said large, because an empty page should read as a state and
                 not as a page that failed to load. */}
-            <p className="text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
+            <p className="t-stagger-line text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
               No {NOUN[category]} yet.
             </p>
-            <p className="mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
+            <p className="t-stagger-line t-stagger-line--2 mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
               Describe what you want in the bar below. Everything this page makes stays on this
               page, and shows up in Assets too.
             </p>
-            <button
-              type="button"
-              onClick={() => togglePicker(true, category, true)}
-              className="cta mt-6 rounded-full px-4 py-2 text-[12.5px] font-medium"
-            >
-              Browse {meta?.label.toLowerCase() ?? category} models
-            </button>
-          </div>
+            <span className="t-stagger-line t-stagger-line--3 mt-6">
+              <button
+                type="button"
+                onClick={() => togglePicker(true, category, true)}
+                className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"
+              >
+                Browse {meta?.label.toLowerCase() ?? category} models
+              </button>
+            </span>
+          </Stagger>
         </div>
       ) : (
         <Gallery category={category} />

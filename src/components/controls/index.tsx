@@ -19,6 +19,8 @@ interface ControlProps {
   dense?: boolean;
   /** Reference strip in the prompt bar: tighter, label above the tiles. */
   compact?: boolean;
+  /** The only reference slot there is, so its thumbs keep to one line. */
+  lane?: boolean;
 }
 
 /* ------------------------------------------------------------------ *
@@ -370,7 +372,7 @@ export function MediaControl({ field, value, onChange, compact }: ControlProps) 
   );
 }
 
-export function ImagesControl({ field, value, onChange, compact }: ControlProps) {
+export function ImagesControl({ field, value, onChange, compact, lane }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
@@ -390,7 +392,16 @@ export function ImagesControl({ field, value, onChange, compact }: ControlProps)
           }}
         />
       </SlotHeader>
-      <div className="flex flex-wrap gap-1.5">
+      {/* A model with several reference slots gives each one a narrow column,
+          so its thumbs wrap after three. A model with a single slot has the
+          whole bar: there they stay on one line and scroll. */}
+      <div
+        className={
+          lane
+            ? "no-bar flex gap-1.5 overflow-x-auto pb-0.5"
+            : "flex flex-wrap gap-1.5 [&>*]:w-14"
+        }
+      >
         {urls.map((url, index) => (
           <MediaThumb
             key={`${url}-${index}`}

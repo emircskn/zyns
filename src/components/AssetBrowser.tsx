@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { downloadAll } from "@/lib/download";
@@ -122,11 +123,12 @@ function AssetTile({
         // A phone never shows these: they cover the picture, and the enlarged
         // view carries the same actions with room to name them.
         <div className="hover-reveal tap-reveal pointer-events-none absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[150ms] group-hover:pointer-events-auto group-hover:opacity-100">
-          <TileButton
-            icon="heart"
-            filled={kept}
-            label={kept ? "Remove from favorites" : "Add to favorites"}
-            onClick={() => toggleFavorite(asset.url)}
+          <LikeHeart
+            liked={kept}
+            size={14}
+            title={kept ? "Remove from favorites" : "Add to favorites"}
+            onToggle={() => toggleFavorite(asset.url)}
+            className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
           />
           <TileButton icon="download" label="Open / download" href={asset.url} />
           {onRemove &&

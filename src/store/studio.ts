@@ -114,7 +114,7 @@ export const useStudio = create<StudioState>()(
       credits: null,
       category: "image",
       page: "home",
-      density: 4,
+      density: 6,
       phoneGrid: true,
       modelId: MODELS.find((m) => m.category === "image")?.id ?? MODELS[0]?.id ?? "",
       modelByCategory: {},

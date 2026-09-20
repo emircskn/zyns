@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
+import { Stagger } from "@/components/Stagger";
 import { DensityControl } from "@/components/DensityControl";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
@@ -66,12 +67,12 @@ export function AssetsPage() {
 
       {shown.length === 0 ? (
         <div className="grid flex-1 place-items-center py-16 text-center">
-          <div>
-            <p className="text-[14px] text-t2">Nothing here yet</p>
-            <p className="mt-1 text-[12.5px] text-t4">
+          <Stagger>
+            <p className="t-stagger-line text-[14px] text-t2">Nothing here yet</p>
+            <p className="t-stagger-line t-stagger-line--2 mt-1 text-[12.5px] text-t4">
               Outputs land here as runs finish, and uploads the moment you add them.
             </p>
-          </div>
+          </Stagger>
         </div>
       ) : (
         <AssetBrowser assets={shown} />

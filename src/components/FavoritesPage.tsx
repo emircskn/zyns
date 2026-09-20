@@ -1,6 +1,7 @@
 "use client";
 
 import { AssetBrowser } from "@/components/AssetBrowser";
+import { Stagger } from "@/components/Stagger";
 import { DensityControl } from "@/components/DensityControl";
 import { useAssets } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
@@ -31,22 +32,24 @@ export function FavoritesPage() {
 
       {shown.length === 0 ? (
         <div className="grid flex-1 place-items-center py-20 text-center">
-          <div className="anim-rise max-w-[560px]">
-            <p className="text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
+          <Stagger className="max-w-[560px]">
+            <p className="t-stagger-line text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
               Nothing kept yet.
             </p>
-            <p className="mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
+            <p className="t-stagger-line t-stagger-line--2 mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
               Press the heart on a tile, or in the enlarged view, and it stays here — out of the
               way of everything else you make.
             </p>
-            <button
-              type="button"
-              onClick={() => setPage("image")}
-              className="cta mt-6 rounded-full px-4 py-2 text-[12.5px] font-medium"
-            >
-              Back to image
-            </button>
-          </div>
+            <span className="t-stagger-line t-stagger-line--3 mt-6">
+              <button
+                type="button"
+                onClick={() => setPage("image")}
+                className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"
+              >
+                Back to image
+              </button>
+            </span>
+          </Stagger>
         </div>
       ) : (
         <AssetBrowser assets={shown} />

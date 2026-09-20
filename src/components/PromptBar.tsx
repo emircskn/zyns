@@ -94,16 +94,25 @@ function InputStrip({ fields }: { fields: Field[] }) {
   const setValue = useStudio((s) => s.setValue);
   if (fields.length === 0) return null;
 
+  // One slot takes the whole bar and keeps its thumbs on a single line;
+  // several share it in columns, where each one's thumbs wrap after three.
+  const lane = fields.length === 1;
+
   return (
     <div className="anim-swap mb-2 border-b border-line pb-3 sm:max-h-[32vh] sm:overflow-y-auto">
-      <div className="no-bar -mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:gap-x-4 sm:gap-y-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className={`no-bar -mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0 ${
+          lane ? "" : "sm:grid sm:gap-x-4 sm:gap-y-3 sm:grid-cols-2 lg:grid-cols-3"
+        }`}
+      >
         {fields.map((field) => (
-          <div key={field.key} className="w-[168px] shrink-0 sm:w-auto">
+          <div key={field.key} className={`shrink-0 sm:w-auto ${lane ? "w-full min-w-0" : "w-[168px]"}`}>
             <Control
               field={field}
               value={values[field.key]}
               values={values}
               compact
+              lane={lane}
               onChange={(value) => setValue(field.key, value)}
             />
           </div>

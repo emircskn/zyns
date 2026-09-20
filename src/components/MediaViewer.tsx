@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
+import { LikeHeart } from "@/components/LikeHeart";
 import { VendorBadge } from "@/components/VendorMark";
 import { MODELS, getModel, type Field, type ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
@@ -137,6 +138,13 @@ function Stage({ url }: { url: string }) {
   return <img src={url} alt="" className={fit} />;
 }
 
+/**
+ * One tile shape for all six actions: the icon over its name, so the grid
+ * reads as a set of equal choices rather than one shout and five whispers.
+ */
+const TILE_SHAPE =
+  "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[11.5px] transition-colors duration-[120ms]";
+
 function Action({
   icon,
   label,
@@ -155,10 +163,7 @@ function Action({
   /** A heart already given reads as solid. */
   filled?: boolean;
 }) {
-  // One tile shape for all six: the icon over its name, so the grid reads as
-  // a set of equal choices rather than one shout and five whispers.
-  const shape =
-    "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[11.5px] transition-colors duration-[120ms]";
+  const shape = TILE_SHAPE;
   const className = primary
     ? `cta ${shape} font-medium`
     : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
@@ -345,13 +350,15 @@ export function MediaViewer({
     videoModel && <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} />,
     run && <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} />,
     slot && isImage && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
-    <Action
+    <LikeHeart
       key="favorite"
-      icon="heart"
-      filled={kept}
-      label={kept ? "Kept" : "Favorite"}
-      onClick={() => shown && toggleFavorite(shown)}
-    />,
+      liked={kept}
+      title={kept ? "Remove from favorites" : "Add to favorites"}
+      onToggle={() => shown && toggleFavorite(shown)}
+      className={`${TILE_SHAPE} bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1`}
+    >
+      <span className="max-w-full truncate">{kept ? "Kept" : "Favorite"}</span>
+    </LikeHeart>,
     <Action key="download" icon="download" label="Download" href={shown} />,
     <Action
       key="copy"
