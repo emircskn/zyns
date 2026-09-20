@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
@@ -234,21 +235,30 @@ export function Lightbox({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  if (!mounted || !shown) return null;
+  if (!mounted || !shown || typeof document === "undefined") return null;
 
-  return (
+  // Portalled to the body: a gallery page animates its own opacity, which
+  // leaves a stacking context behind for good under `fill-mode: both`, and a
+  // fixed overlay inside it cannot rise above the prompt bar however high its
+  // z-index goes.
+  return createPortal(
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md ${
+      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md md:p-10 ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
       style={{ zIndex: z }}
     >
       <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
+      {/* Held well inside the viewport: filling it edge to edge makes a small
+          picture look enormous and leaves nowhere to click out. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={shown}
         alt=""
-        className={`relative max-h-full max-w-full rounded-card object-contain ${exiting ? "anim-zoom-out" : "anim-zoom"}`}
+        className={`relative max-h-[78vh] max-w-[min(92vw,1100px)] rounded-card object-contain ${
+          exiting ? "anim-zoom-out" : "anim-zoom"
+        }`}
+        style={{ boxShadow: "var(--shadow-pop)" }}
       />
       <button
         type="button"
@@ -258,7 +268,8 @@ export function Lightbox({
       >
         <Icon name="close" size={17} />
       </button>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

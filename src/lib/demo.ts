@@ -20,11 +20,13 @@ const PALETTES = [
 
 function still(seed: number, ratio: string): string {
   const [a, b, c] = PALETTES[seed % PALETTES.length];
-  const [w, h] = ratio.split("/").map((n) => Number(n.trim()) * 160);
+  const [w, h] = ratio.split("/").map((n) => Math.round(Number(n.trim()) * 420));
   const angle = (seed * 47) % 360;
   const cx = 20 + ((seed * 29) % 60);
   const cy = 20 + ((seed * 53) % 60);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">
+  // Intrinsic size as well as a viewBox: without it the browser has to guess
+  // how big the still is, and the lightbox sizes itself off that guess.
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
   <defs>
     <linearGradient id="g" gradientTransform="rotate(${angle} 0.5 0.5)">
       <stop offset="0" stop-color="${c}"/><stop offset="0.55" stop-color="${a}"/><stop offset="1" stop-color="${b}"/>
