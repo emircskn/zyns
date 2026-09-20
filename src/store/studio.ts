@@ -31,7 +31,7 @@ export interface Run {
 export type Theme = "dark" | "light";
 
 /** Which page the rail is showing. Categories have one each, plus Assets. */
-export type Page = Category | "assets";
+export type Page = Category | "assets" | "home";
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
 export interface Upload {
@@ -66,6 +66,9 @@ interface StudioState {
   setCredits: (credits: number | null) => void;
   setCategory: (category: Category) => void;
   setPage: (page: Page) => void;
+  /** How many columns the galleries pack at the widest breakpoint. */
+  density: number;
+  setDensity: (density: number) => void;
   selectModel: (id: string) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
@@ -97,7 +100,8 @@ export const useStudio = create<StudioState>()(
       theme: "dark",
       credits: null,
       category: "image",
-      page: "image",
+      page: "home",
+      density: 4,
       modelId: MODELS.find((m) => m.category === "image")?.id ?? MODELS[0]?.id ?? "",
       modelByCategory: {},
       valuesByModel: {},
@@ -118,9 +122,10 @@ export const useStudio = create<StudioState>()(
        * A page carries its own model: stepping onto Videos brings back the
        * video model you last used there rather than whatever ran last.
        */
+      setDensity: (density) => set({ density }),
       setPage: (page) =>
         set((state) => {
-          if (page === "assets") return { page };
+          if (page === "assets" || page === "home") return { page };
           const id =
             state.modelByCategory[page] ?? MODELS.find((m) => m.category === page)?.id ?? state.modelId;
           return {
@@ -239,6 +244,7 @@ export const useStudio = create<StudioState>()(
         theme: state.theme,
         category: state.category,
         page: state.page,
+        density: state.density,
         modelId: state.modelId,
         modelByCategory: state.modelByCategory,
         valuesByModel: state.valuesByModel,
@@ -252,8 +258,18 @@ export const useStudio = create<StudioState>()(
 // `persist` only wires itself up where a storage exists, so the server render
 // must not reach for it.
 if (typeof window !== "undefined") {
-  useStudio.persist?.onFinishHydration(() => useStudio.setState({ hydrated: true }));
-  if (useStudio.persist?.hasHydrated()) useStudio.setState({ hydrated: true });
+  // A restored page and a restored model are two separate stored values, so
+  // they can disagree — reopening on Video with an image model selected would
+  // leave the prompt bar offering the wrong thing. setPage reconciles them.
+  const settle = () => {
+    const state = useStudio.getState();
+    useStudio.setState({ hydrated: true });
+    const page = state.page;
+    if (page === "assets" || page === "home") return;
+    if (getModel(state.modelId)?.category !== page) state.setPage(page);
+  };
+  useStudio.persist?.onFinishHydration(settle);
+  if (useStudio.persist?.hasHydrated()) settle();
 }
 
 /**

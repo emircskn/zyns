@@ -262,10 +262,23 @@ export function Lightbox({
   );
 }
 
+/**
+ * The packed columns at the widest breakpoint, per density step. Written out
+ * rather than interpolated so Tailwind sees every class it has to generate.
+ */
+const COLUMNS: Record<number, string> = {
+  2: "columns-1 sm:columns-2",
+  3: "columns-1 sm:columns-2 lg:columns-3",
+  4: "columns-1 sm:columns-2 lg:columns-3 xl:columns-4",
+  5: "columns-2 sm:columns-3 lg:columns-4 xl:columns-5",
+  6: "columns-2 sm:columns-3 lg:columns-5 xl:columns-6",
+};
+
 /** The runs of one category, newest first. */
 export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
+  const density = useStudio((s) => s.density);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   if (!hydrated) return null;
@@ -276,7 +289,7 @@ export function Gallery({ category }: { category?: Category }) {
 
   return (
     <>
-      <div className="columns-1 gap-2.5 sm:columns-2 lg:columns-3 xl:columns-4">
+      <div className={`gap-2.5 ${COLUMNS[density] ?? COLUMNS[4]}`}>
         {shown.map((run, index) => (
           <Tile key={run.id} run={run} index={index} onOpen={setLightbox} />
         ))}

@@ -243,6 +243,17 @@ duruyor.
 
 ## Arayüz notları
 
+- **Ana sayfa** — uygulama artık bir karşılama ekranıyla açılıyor: içeriden
+  aydınlatılmış bir sahne, olabildiğince büyük set edilmiş wordmark, kısa bir
+  tanım ve iki giriş yolu. Altında dört kategori kartı. Burada prompt barı yok.
+- **Header** — solda yalnızca wordmark (ana sayfaya döner), yanında Image ·
+  Video · Audio · Tools · Assets. Sol dikey rail kaldırıldı; telefonda bu
+  sekmeler başlığın altındaki şeride iniyor.
+- **Izgara yoğunluğu** — her kategori sayfasında küçük bir kontrol, kutucukları
+  2 ile 6 sütun arasında sıkıştırıyor. Seçim kaydediliyor.
+- **Boş durum** — bir kategoride hiç üretim yoksa ekranın ortasında büyük
+  puntoyla "No videos yet." gibi tek bir cümle duruyor.
+
 - **Mod şeridi** — modeli olan her model için t2v / i2v / reference gibi modlar.
   Mod değiştirince o moda ait olmayan değerler temizlenir, böylece eski bir
   first-frame URL'i yanlışlıkla bir text-to-video isteğine binmez.

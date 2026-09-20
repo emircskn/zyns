@@ -1,10 +1,18 @@
 "use client";
 
 import { Gallery } from "@/components/Gallery";
+import { DensityControl } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
 import { useModel, useStudio } from "@/store/studio";
+
+const NOUN: Record<Category, string> = {
+  image: "images",
+  video: "videos",
+  audio: "audio",
+  tool: "results",
+};
 
 const BLURB: Record<Category, string> = {
   image: "Stills you generate and edit",
@@ -36,6 +44,8 @@ export function CategoryPage({ category }: { category: Category }) {
             {BLURB[category]} · {count} models
           </p>
         </div>
+        <div className="flex items-center gap-2">
+        {mine.length > 0 && <DensityControl />}
         <button
           type="button"
           onClick={() => togglePicker(true, category, true)}
@@ -56,20 +66,25 @@ export function CategoryPage({ category }: { category: Category }) {
           )}
           <Icon name="chevron" size={13} className="-rotate-90 opacity-60" />
         </button>
+        </div>
       </div>
 
       {mine.length === 0 ? (
-        <div className="grid flex-1 place-items-center py-16 text-center">
-          <div>
-            <p className="text-[14px] text-t2">Nothing here yet</p>
-            <p className="mt-1 max-w-[320px] text-[12.5px] text-t4">
+        <div className="grid flex-1 place-items-center py-20 text-center">
+          <div className="anim-rise max-w-[560px]">
+            {/* Said large, because an empty page should read as a state and
+                not as a page that failed to load. */}
+            <p className="text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
+              No {NOUN[category]} yet.
+            </p>
+            <p className="mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
               Describe what you want in the bar below. Everything this page makes stays on this
               page, and shows up in Assets too.
             </p>
             <button
               type="button"
               onClick={() => togglePicker(true, category, true)}
-              className="cta mt-4 rounded-full px-4 py-2 text-[12.5px] font-medium"
+              className="cta mt-6 rounded-full px-4 py-2 text-[12.5px] font-medium"
             >
               Browse {meta?.label.toLowerCase() ?? category} models
             </button>

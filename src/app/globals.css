@@ -754,3 +754,42 @@ html {
     --fade-l var(--d-base) var(--ease),
     --fade-r var(--d-base) var(--ease);
 }
+
+/* ------------------------------------------------------------------ *
+ * The home hero: an inset canvas lit from within
+ * ------------------------------------------------------------------ */
+.stage {
+  background:
+    radial-gradient(90% 70% at 18% 8%, color-mix(in oklab, var(--accent) 13%, transparent), transparent 62%),
+    radial-gradient(70% 60% at 88% 92%, color-mix(in oklab, var(--accent) 9%, transparent), transparent 60%),
+    var(--elevated);
+  isolation: isolate;
+}
+
+/* A slow drift keeps the light from reading as a flat gradient. */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: -1;
+  background: radial-gradient(
+    38% 38% at 32% 36%,
+    color-mix(in oklab, var(--accent) 16%, transparent),
+    transparent 70%
+  );
+  animation: drift 18s var(--ease) infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage::before {
+    animation: none;
+  }
+}
+
+/* Phones pay for that extra painted layer without seeing much of it. */
+@media (max-width: 767px) {
+  .stage::before {
+    display: none;
+  }
+}
