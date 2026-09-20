@@ -224,8 +224,13 @@ seçime kayıyor (`PillGroup`), her hap ayrı ayrı boyanmıyor. Her düğme
 basınca hafifçe küçülüyor. Tema değişimi View Transitions API ile tüm
 sayfayı çapraz soldurarak yapılıyor. Model kartları ve galeri kutuları
 kademeli giriyor, tamamlanmamış çalışmalar dört marka renginin yavaşça
-sürüklendiği bir gradyan üzerinde bekliyor. `prefers-reduced-motion`
-açıksa tüm hareket kapanıyor.
+sürüklendiği bir gradyan üzerinde bekliyor. Prompt kutusunun kenarında
+sürekli dönen bir ışık huzmesi var (`.beam`): kayıtlı bir `--beam-angle`
+özelliğiyle döndürülen konik gradyan, kenarlığa maskelenmiş ince bir çizgi
+ve onun hemen içinde yumuşak bir hale olarak çiziliyor; kutuya
+odaklanıldığında biraz daha parlıyor. Telefonda hale katmanı kapanıp
+yalnızca çizgi kalıyor. `prefers-reduced-motion` açıksa tüm hareket
+kapanıyor (huzme dahil).
 
 ## Arayüz notları
 

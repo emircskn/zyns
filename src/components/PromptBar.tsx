@@ -503,7 +503,7 @@ export function PromptBar() {
         )}
 
         <div
-          className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
+          className="beam rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
           style={{ boxShadow: "var(--shadow-bar)" }}
         >
           <Reveal>
