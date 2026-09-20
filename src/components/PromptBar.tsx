@@ -536,7 +536,7 @@ export function PromptBar() {
           </Reveal>
 
           <div className="flex flex-wrap items-center gap-1">
-            <button type="button" onClick={() => togglePicker(true, model.category)} className="shrink-0">
+            <button type="button" onClick={() => togglePicker(true, model.category, true)} className="shrink-0">
               <Chip icon={<VendorBadge vendor={model.vendor} size={18} />} value={model.name} />
             </button>
 

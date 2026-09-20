@@ -5,7 +5,9 @@ import type { Field, ItemField, Values } from "@/lib/registry";
 import { PillGroup } from "@/components/PillGroup";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import { Icon } from "@/components/Icon";
-import { mediaKind, uploadFile } from "@/lib/upload";
+import { MediaPicker } from "@/components/MediaPicker";
+import { mediaKind } from "@/lib/upload";
+import { useUploader } from "@/lib/useUploader";
 import { useStudio } from "@/store/studio";
 
 interface ControlProps {
@@ -221,12 +223,6 @@ export function ToggleControl({ field, value, onChange }: ControlProps) {
  * Media inputs
  * ------------------------------------------------------------------ */
 
-const ACCEPT: Record<string, string> = {
-  image: "image/*",
-  video: "video/*",
-  audio: "audio/*",
-};
-
 function Spinner({ size = 12 }: { size?: number }) {
   return (
     <span
@@ -274,32 +270,6 @@ function AddTile({ busy, onClick }: { busy: boolean; onClick: () => void }) {
       {busy ? <Spinner /> : <Icon name="plus" size={16} />}
     </button>
   );
-}
-
-function useUploader(accept: Field["accept"]) {
-  const apiKey = useStudio((s) => s.apiKey);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const input = useRef<HTMLInputElement>(null);
-
-  async function send(files: FileList | File[], onDone: (urls: string[]) => void) {
-    if (!apiKey) {
-      setError("Add your API key first — uploads go through your KIE account.");
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    try {
-      const urls = await Promise.all(Array.from(files).map((file) => uploadFile(file, apiKey)));
-      onDone(urls);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return { busy, error, input, send, accept: ACCEPT[accept ?? "image"] };
 }
 
 function UrlField({
@@ -371,7 +341,7 @@ function SlotHeader({
 }
 
 export function MediaControl({ field, value, onChange, compact }: ControlProps) {
-  const { busy, error, input, send, accept } = useUploader(field.accept);
+  const [picking, setPicking] = useState(false);
   const url = (value as string) ?? "";
 
   return (
@@ -383,30 +353,25 @@ export function MediaControl({ field, value, onChange, compact }: ControlProps) 
         {url ? (
           <MediaThumb url={url} onRemove={() => onChange(undefined)} />
         ) : (
-          <AddTile busy={busy} onClick={() => input.current?.click()} />
+          <AddTile busy={false} onClick={() => setPicking(true)} />
         )}
         {!compact && field.help && (
           <p className="min-w-0 flex-1 text-[11px] leading-snug text-t4">{field.help}</p>
         )}
       </div>
-      <input
-        ref={input}
-        type="file"
-        accept={accept}
-        hidden
-        onChange={(event) => {
-          const files = event.target.files;
-          if (files?.length) void send(files, (urls) => onChange(urls[0]));
-          event.target.value = "";
-        }}
+      <MediaPicker
+        open={picking}
+        accept={field.accept ?? "image"}
+        taken={url ? [url] : []}
+        onPick={(picked) => onChange(picked[0])}
+        onClose={() => setPicking(false)}
       />
-      {error && <p className="mt-1 text-[11px] text-[#ff6b6b]">{error}</p>}
     </div>
   );
 }
 
 export function ImagesControl({ field, value, onChange, compact }: ControlProps) {
-  const { busy, error, input, send, accept } = useUploader(field.accept);
+  const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
 
@@ -433,33 +398,26 @@ export function ImagesControl({ field, value, onChange, compact }: ControlProps)
             onRemove={() => onChange(urls.filter((_, i) => i !== index))}
           />
         ))}
-        {!full && <AddTile busy={busy} onClick={() => input.current?.click()} />}
+        {!full && <AddTile busy={false} onClick={() => setPicking(true)} />}
       </div>
       {!compact && field.help && <p className="mt-1.5 text-[11px] leading-snug text-t4">{field.help}</p>}
-      <input
-        ref={input}
-        type="file"
-        accept={accept}
+      <MediaPicker
+        open={picking}
+        accept={field.accept ?? "image"}
         multiple
-        hidden
-        onChange={(event) => {
-          const files = event.target.files;
-          if (files?.length) {
-            const room = field.maxItems ? field.maxItems - urls.length : files.length;
-            void send(Array.from(files).slice(0, Math.max(room, 0)), (added) =>
-              onChange([...urls, ...added]),
-            );
-          }
-          event.target.value = "";
+        taken={urls}
+        onPick={(picked) => {
+          const room = field.maxItems ? field.maxItems - urls.length : picked.length;
+          onChange([...urls, ...picked.slice(0, Math.max(room, 0))]);
         }}
+        onClose={() => setPicking(false)}
       />
-      {error && <p className="mt-1 text-[11px] text-[#ff6b6b]">{error}</p>}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ *
- * Composite editors
+ * Repeating groups
  * ------------------------------------------------------------------ */
 
 interface Shot {

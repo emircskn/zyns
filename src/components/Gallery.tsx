@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Home } from "@/components/Home";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
-import { getModel } from "@/lib/registry";
+import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
@@ -187,7 +186,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   );
 }
 
-function Lightbox({ url, onClose }: { url: string | null; onClose: () => void }) {
+export function Lightbox({ url, onClose }: { url: string | null; onClose: () => void }) {
   const { mounted, exiting } = usePresence(!!url, 220);
   const [shown, setShown] = useState(url);
   useEffect(() => {
@@ -228,19 +227,22 @@ function Lightbox({ url, onClose }: { url: string | null; onClose: () => void })
   );
 }
 
-export function Gallery() {
+/** The runs of one category, newest first. */
+export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   if (!hydrated) return null;
 
-  if (runs.length === 0) return <Home />;
+  const shown = category
+    ? runs.filter((run) => getModel(run.modelId)?.category === category)
+    : runs;
 
   return (
     <>
       <div className="columns-1 gap-2.5 sm:columns-2 lg:columns-3 xl:columns-4">
-        {runs.map((run, index) => (
+        {shown.map((run, index) => (
           <Tile key={run.id} run={run} index={index} onOpen={setLightbox} />
         ))}
       </div>

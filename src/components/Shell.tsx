@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { Gallery } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
+import { AssetsPage } from "@/components/AssetsPage";
+import { CategoryPage } from "@/components/CategoryPage";
 import { ModelPicker } from "@/components/ModelPicker";
+import { PillGroup } from "@/components/PillGroup";
 import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ThemeSync } from "@/components/ThemeSync";
 import { CATEGORIES, type Category } from "@/lib/registry";
-import { useModel, useStudio } from "@/store/studio";
+import { useModel, useStudio, type Page } from "@/store/studio";
 
 const CATEGORY_ICON: Record<Category, IconName> = {
   image: "image",
@@ -61,7 +63,8 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
   const togglePicker = useStudio((s) => s.togglePicker);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
-  const model = useModel();
+  const page = useStudio((s) => s.page);
+  const setPage = useStudio((s) => s.setPage);
   const apiKey = useStudio((s) => s.apiKey);
 
   return (
@@ -84,10 +87,16 @@ function Rail({ onKeyClick }: { onKeyClick: () => void }) {
             key={category.id}
             icon={CATEGORY_ICON[category.id]}
             label={`${category.label} — ${category.blurb}`}
-            active={model?.category === category.id}
-            onClick={() => togglePicker(true, category.id)}
+            active={page === category.id}
+            onClick={() => setPage(category.id)}
           />
         ))}
+        <RailButton
+          icon="grid"
+          label="Assets — everything generated and uploaded"
+          active={page === "assets"}
+          onClick={() => setPage("assets")}
+        />
       </div>
 
       <div className="mt-auto flex flex-col gap-1.5">
@@ -184,10 +193,29 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   );
 }
 
+/** The rail's pages, for a phone that has no rail. */
+function PageTabs() {
+  const page = useStudio((s) => s.page);
+  const setPage = useStudio((s) => s.setPage);
+  return (
+    <div className="mb-4 md:hidden">
+      <PillGroup
+        value={page}
+        onChange={(next) => setPage(next as Page)}
+        items={[
+          ...CATEGORIES.map((category) => ({ id: category.id as Page, label: category.label })),
+          { id: "assets" as Page, label: "Assets" },
+        ]}
+      />
+    </div>
+  );
+}
+
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
   const apiKey = useStudio((s) => s.apiKey);
   const hydrated = useStudio((s) => s.hydrated);
+  const page = useStudio((s) => s.page);
 
   // ⌘K is the shortcut people already reach for in this kind of studio.
   useEffect(() => {
@@ -205,7 +233,13 @@ export function Shell() {
     <div className="min-h-screen md:pl-14">
       <Rail onKeyClick={() => setKeyOpen(true)} />
 
-      <main className="below-bar mx-auto flex min-h-dvh w-full max-w-[1600px] flex-col px-4 md:px-6">
+      {/* Assets is for browsing, so the prompt bar steps aside and the page
+          keeps its own bottom margin instead of reserving room for it. */}
+      <main
+        className={`mx-auto flex min-h-dvh w-full max-w-[1600px] flex-col px-4 md:px-6 ${
+          page === "assets" ? "pb-10" : "below-bar"
+        }`}
+      >
         <TopBar onKeyClick={() => setKeyOpen(true)} />
         {hydrated && !apiKey && (
           <button
@@ -220,10 +254,11 @@ export function Shell() {
             <span className="cta shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium">Add key</span>
           </button>
         )}
-        <Gallery />
+        <PageTabs />
+        {page === "assets" ? <AssetsPage /> : <CategoryPage category={page} />}
       </main>
 
-      <PromptBar />
+      {page !== "assets" && <PromptBar />}
       <SettingsPanel />
       <ModelPicker />
       <RunPoller />

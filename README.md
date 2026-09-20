@@ -145,6 +145,29 @@ Flux Kontext dahil — KIE eski ayrı endpoint'leri bu tek endpoint'te birleşti
 Farklı bir endpoint gerekirse `src/app/api/kie/create/route.ts` içindeki
 `ALLOWED_ENDPOINTS` listesine eklenmeli.
 
+## Sayfalar ve varlıklar
+
+Sol raydaki her düğme kendi sayfasını açıyor, model seçme ekranını değil.
+**Image**, **Video**, **Audio** ve **Tools** sayfalarında yalnızca o türün
+modelleri seçilebiliyor ve yalnızca o türde üretilenler listeleniyor: görseller
+Image sayfasında, videolar Video sayfasında, sesler Audio sayfasında kalıyor.
+Sayfa değiştirince prompt barı da o sayfada en son kullandığın modele dönüyor,
+model chip'i ise seçiciyi o kategoriye kilitli açıyor.
+
+**Assets** hepsini bir arada gösteriyor: üretilen görsel, video ve ses
+dosyaları ile yüklediğin her şey. Üstteki filtrelerle tür (Images, Videos,
+Audio), kategori (Tools) ya da kaynak (Uploads) bazında daraltılıyor. Her
+karonun üzerinde bağlantıyı kopyalama, indirme ve yüklemeler için kaldırma
+düğmeleri var. Bu sayfada prompt barı görünmüyor, sayfa sadece gözden geçirme
+içindir.
+
+Referans medyası eklerken açılan pencerede üç sekme var: **Generated** (daha
+önce ürettiklerin), **Uploads** (daha önce yüklediklerin) ve **Upload new**
+(cihazdan dosya seçme ya da URL yapıştırma). Liste, alanın kabul ettiği türe
+göre süzülüyor; çoklu alanlarda birden fazla seçip tek seferde ekleyebilirsin.
+Her yükleme kaydediliyor, böylece aynı dosyayı ikinci kez yüklemek gerekmiyor.
+Bkz. `src/lib/assets.ts`, `src/components/MediaPicker.tsx`.
+
 ## @element referansları
 
 Kling 3.0, Kling 3.0 Omni ve PixVerse Fusion, prompt içinde adlandırılmış bir

@@ -30,30 +30,52 @@ export interface Run {
 
 export type Theme = "dark" | "light";
 
+/** Which page the rail is showing. Categories have one each, plus Assets. */
+export type Page = Category | "assets";
+
+/** A file the studio uploaded to KIE, kept so it can be reused as reference. */
+export interface Upload {
+  id: string;
+  url: string;
+  kind: "image" | "video" | "audio";
+  name?: string;
+  createdAt: number;
+}
+
 interface StudioState {
   apiKey: string;
   theme: Theme;
   credits: number | null;
   category: Category;
+  page: Page;
   modelId: string;
+  /** The model each category was last used with, so pages remember. */
+  modelByCategory: Partial<Record<Category, string>>;
   valuesByModel: Record<string, Values>;
   runs: Run[];
+  uploads: Upload[];
   settingsOpen: boolean;
   pickerOpen: boolean;
   pickerTab: Category | "all";
+  /** Opened from a category page: that page's models and nothing else. */
+  pickerLocked: boolean;
   hydrated: boolean;
 
   setApiKey: (key: string) => void;
   setTheme: (theme: Theme) => void;
   setCredits: (credits: number | null) => void;
   setCategory: (category: Category) => void;
+  setPage: (page: Page) => void;
   selectModel: (id: string) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
   resetValues: () => void;
   setMode: (mode: string) => void;
   toggleSettings: (open?: boolean) => void;
-  togglePicker: (open?: boolean, tab?: Category | "all") => void;
+  togglePicker: (open?: boolean, tab?: Category | "all", locked?: boolean) => void;
+
+  addUpload: (upload: Upload) => void;
+  removeUpload: (id: string) => void;
 
   addRun: (run: Run) => void;
   patchRun: (id: string, patch: Partial<Run>) => void;
@@ -74,13 +96,17 @@ export const useStudio = create<StudioState>()(
       apiKey: "",
       theme: "dark",
       credits: null,
-      category: "video",
-      modelId: MODELS[0]?.id ?? "",
+      category: "image",
+      page: "image",
+      modelId: MODELS.find((m) => m.category === "image")?.id ?? MODELS[0]?.id ?? "",
+      modelByCategory: {},
       valuesByModel: {},
       runs: [],
+      uploads: [],
       settingsOpen: false,
       pickerOpen: false,
       pickerTab: "all",
+      pickerLocked: false,
       hydrated: false,
 
       setApiKey: (apiKey) => set({ apiKey, credits: null }),
@@ -88,12 +114,31 @@ export const useStudio = create<StudioState>()(
       setCredits: (credits) => set({ credits }),
       setCategory: (category) => set({ category }),
 
+      /**
+       * A page carries its own model: stepping onto Videos brings back the
+       * video model you last used there rather than whatever ran last.
+       */
+      setPage: (page) =>
+        set((state) => {
+          if (page === "assets") return { page };
+          const id =
+            state.modelByCategory[page] ?? MODELS.find((m) => m.category === page)?.id ?? state.modelId;
+          return {
+            page,
+            category: page,
+            modelId: id,
+            valuesByModel: { ...state.valuesByModel, [id]: valuesFor(state, id) },
+          };
+        }),
+
       selectModel: (id) => {
         const model = getModel(id);
         if (!model) return;
         set((state) => ({
           modelId: id,
           category: model.category,
+          page: model.category,
+          modelByCategory: { ...state.modelByCategory, [model.category]: id },
           pickerOpen: false,
           valuesByModel: {
             ...state.valuesByModel,
@@ -162,11 +207,19 @@ export const useStudio = create<StudioState>()(
 
       toggleSettings: (open) =>
         set((state) => ({ settingsOpen: open ?? !state.settingsOpen })),
-      togglePicker: (open, tab) =>
+      togglePicker: (open, tab, locked) =>
         set((state) => ({
           pickerOpen: open ?? !state.pickerOpen,
           pickerTab: tab ?? state.pickerTab,
+          pickerLocked: locked ?? false,
         })),
+
+      addUpload: (upload) =>
+        set((state) => ({
+          uploads: [upload, ...state.uploads.filter((u) => u.url !== upload.url)].slice(0, 200),
+        })),
+      removeUpload: (id) =>
+        set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
 
       addRun: (run) => set((state) => ({ runs: [run, ...state.runs].slice(0, 200) })),
       patchRun: (id, patch) =>
@@ -183,9 +236,12 @@ export const useStudio = create<StudioState>()(
         apiKey: state.apiKey,
         theme: state.theme,
         category: state.category,
+        page: state.page,
         modelId: state.modelId,
+        modelByCategory: state.modelByCategory,
         valuesByModel: state.valuesByModel,
         runs: state.runs,
+        uploads: state.uploads,
       }),
     },
   ),

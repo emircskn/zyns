@@ -74,6 +74,7 @@ export function ModelPicker() {
   const selectModel = useStudio((s) => s.selectModel);
   const modelId = useStudio((s) => s.modelId);
   const storedTab = useStudio((s) => s.pickerTab);
+  const locked = useStudio((s) => s.pickerLocked);
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [tab, setTab] = useState<Category>(storedTab === "all" ? "image" : storedTab);
@@ -99,10 +100,10 @@ export function ModelPicker() {
   }, [open, togglePicker]);
 
   // A search spans every category so "kling" is found from the Images tab.
-  const results = useMemo(
-    () => (query.trim() ? searchModels(query) : MODELS.filter((m) => m.category === tab)),
-    [query, tab],
-  );
+  const results = useMemo(() => {
+    const found = query.trim() ? searchModels(query) : MODELS;
+    return query.trim() && !locked ? found : found.filter((m) => m.category === tab);
+  }, [query, tab, locked]);
 
   if (!mounted) return null;
 
@@ -141,7 +142,7 @@ export function ModelPicker() {
               key="title"
               className="anim-swap flex-1 text-[26px] font-semibold leading-none tracking-[-0.03em] text-t1 sm:text-[30px]"
             >
-              Generate
+              {locked ? `${TAB_LABEL[tab]} models` : "Generate"}
             </h2>
           )}
           <button
@@ -167,7 +168,7 @@ export function ModelPicker() {
           </button>
         </header>
 
-        {!query.trim() && (
+        {!query.trim() && !locked && (
           <div className="px-4 pb-2 pt-1 sm:px-6">
             <PillGroup
               size="lg"
