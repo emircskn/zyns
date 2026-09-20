@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
-import { Lightbox } from "@/components/Gallery";
+import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
@@ -328,7 +328,7 @@ export function MediaPicker({
           }}
         />
       </div>
-      <Lightbox url={preview} onClose={() => setPreview(null)} z={130} />
+      <MediaPreview url={preview} onClose={() => setPreview(null)} z={130} />
     </div>,
     document.body,
   );

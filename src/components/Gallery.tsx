@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
+import { MediaViewer } from "@/components/MediaViewer";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
-import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
 
 const STATE_LABEL: Record<Run["state"], string> = {
@@ -45,14 +44,9 @@ function Media({ url }: { url: string }) {
   const kind = mediaKind(url);
   if (kind === "video") {
     return (
-      <video
-        src={url}
-        className="h-full w-full object-cover"
-        controls
-        loop
-        playsInline
-        preload="metadata"
-      />
+      // No controls on a tile: the tap belongs to the tile, and the enlarged
+      // view is where the clip actually plays.
+      <video src={url} className="h-full w-full object-cover" muted loop playsInline preload="metadata" />
     );
   }
   if (kind === "audio") {
@@ -108,22 +102,11 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   const settled = useRef(false);
   const finish = useCallback(() => setLoading(false), []);
 
-  // On a phone the bar cannot wait for a hover, and leaving it up covers the
-  // picture it describes. So there it opens on a tap and the next tap on the
-  // media enlarges, which is where the same actions live anyway.
+  // A phone has no hover, and this bar is too big to leave sitting on the
+  // picture. So there it stays away entirely: a tap opens the media, and the
+  // enlarged view carries the same actions with room to label them.
   const coarse = useCoarsePointer();
-  const [tapped, setTapped] = useState(false);
-  const tile = useRef<HTMLDivElement>(null);
-  const barLive = !coarse || tapped;
-
-  useEffect(() => {
-    if (!tapped) return;
-    function onDown(event: PointerEvent) {
-      if (!tile.current?.contains(event.target as Node)) setTapped(false);
-    }
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
-  }, [tapped]);
+  const [confirming, setConfirming] = useState(false);
 
   // Only a run still in flight when the tile mounts gets the shader — work
   // restored from an earlier session should not replay it, and anyone who
@@ -152,23 +135,13 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
 
   return (
     <div
-      ref={tile}
-      onClick={() => coarse && setTapped(true)}
+      onMouseLeave={() => setConfirming(false)}
       className="anim-tile group @container relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-all duration-[200ms] hover:ring-line-strong"
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
       <div style={{ aspectRatio: run.ratio }} className="relative w-full">
         {url ? (
-          <button
-            type="button"
-            // The first tap on a phone belongs to the bar; enlarging is the
-            // one after it, once the tile has shown what it can do.
-            onClick={() => {
-              if (coarse && !tapped) return;
-              if (mediaKind(url) === "image") onOpen(url);
-            }}
-            className="block h-full w-full cursor-zoom-in"
-          >
+          <button type="button" onClick={() => onOpen(url)} className="block h-full w-full cursor-zoom-in">
             <Media url={url} />
           </button>
         ) : (
@@ -202,9 +175,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
       )}
 
       <div
-        className={`hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100 ${
-          tapped ? "is-open" : ""
-        }`}
+        className="hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100"
       >
         {/* Nothing to press while the bar is down: at opacity 0 the actions
             would still take the tap meant for the picture under them. */}
@@ -212,7 +183,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
             name sits on its own line instead of being squeezed to one letter. */}
         <div
           className={`flex flex-col items-start gap-1.5 @[248px]:flex-row @[248px]:items-end @[248px]:justify-between @[248px]:gap-2 ${
-            barLive ? "pointer-events-auto" : "pointer-events-none"
+            coarse ? "pointer-events-none" : "pointer-events-auto"
           }`}
         >
           <div className="w-full min-w-0 @[248px]:w-auto">
@@ -236,94 +207,29 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
                 <TileAction icon="download" label="Open / download" href={url} />
               </>
             )}
-            <TileAction
-              icon="trash"
-              label="Remove from gallery"
-              danger
-              onClick={() => removeRun(run.id)}
-            />
+            {confirming ? (
+              <>
+                <TileAction icon="close" label="Keep it" onClick={() => setConfirming(false)} />
+                <button
+                  type="button"
+                  onClick={() => removeRun(run.id)}
+                  className="rounded-full bg-[#ff6b6b]/85 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                >
+                  Delete?
+                </button>
+              </>
+            ) : (
+              <TileAction
+                icon="trash"
+                label="Remove from gallery"
+                danger
+                onClick={() => setConfirming(true)}
+              />
+            )}
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-export function Lightbox({
-  url,
-  onClose,
-  z = 110,
-  actions,
-}: {
-  url: string | null;
-  onClose: () => void;
-  /** Raised when the preview opens from something already on a layer. */
-  z?: number;
-  /** What can be done with what is on screen, laid out under it. */
-  actions?: ReactNode;
-}) {
-  const { mounted, exiting } = usePresence(!!url, 220);
-  const [shown, setShown] = useState(url);
-  useEffect(() => {
-    if (url) setShown(url);
-  }, [url]);
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  if (!mounted || !shown || typeof document === "undefined") return null;
-
-  // Portalled to the body: a gallery page animates its own opacity, which
-  // leaves a stacking context behind for good under `fill-mode: both`, and a
-  // fixed overlay inside it cannot rise above the prompt bar however high its
-  // z-index goes.
-  return createPortal(
-    <div
-      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md md:p-10 ${
-        exiting ? "anim-fade-out" : "anim-fade"
-      }`}
-      style={{ zIndex: z }}
-    >
-      <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
-      {/* Held well inside the viewport: filling it edge to edge makes a small
-          picture look enormous and leaves nowhere to click out. */}
-      <div
-        className={`relative flex min-h-0 flex-col items-center gap-3 ${
-          exiting ? "anim-zoom-out" : "anim-zoom"
-        }`}
-      >
-        {/* A box the picture is fitted into rather than a ceiling it might
-            never reach: a max-height alone leaves anything smaller than the
-            cap at its own size, which is most of what a thumbnail links to. */}
-        <div className="flex h-[74vh] w-[min(92vw,1180px)] items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={shown}
-            alt=""
-            className="h-full w-full rounded-card object-contain"
-            style={{ boxShadow: "var(--shadow-pop)" }}
-          />
-        </div>
-        {actions && (
-          <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/55 p-1.5 backdrop-blur-md">
-            {actions}
-          </div>
-        )}
-      </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
-        aria-label="Close"
-      >
-        <Icon name="close" size={17} />
-      </button>
-    </div>,
-    document.body,
   );
 }
 
@@ -344,19 +250,16 @@ export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const density = useStudio((s) => s.density);
-  const [lightbox, setLightbox] = useState<{ url: string; runId: string } | null>(null);
-  const removeRun = useStudio((s) => s.removeRun);
-  const selectModel = useStudio((s) => s.selectModel);
-  const setValues = useStudio((s) => s.setValues);
-  const [copied, setCopied] = useState(false);
+  const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
 
   if (!hydrated) return null;
 
   const shown = category
     ? runs.filter((run) => getModel(run.modelId)?.category === category)
     : runs;
-  // The run behind the open preview, so its actions know what they act on.
-  const open = lightbox ? runs.find((run) => run.id === lightbox.runId) : undefined;
+  // The run behind the open preview, so the panel beside it knows what it is
+  // looking at and what its buttons act on.
+  const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
 
   return (
     <>
@@ -366,49 +269,14 @@ export function Gallery({ category }: { category?: Category }) {
             key={run.id}
             run={run}
             index={index}
-            onOpen={(url) => setLightbox({ url, runId: run.id })}
+            onOpen={(url) => setViewer({ url, runId: run.id })}
           />
         ))}
       </div>
-      <Lightbox
-        url={lightbox?.url ?? null}
-        onClose={() => setLightbox(null)}
-        actions={
-          open && (
-            <>
-              <TileAction
-                icon="refresh"
-                label="Reuse these settings"
-                onClick={() => {
-                  selectModel(open.modelId);
-                  // selectModel switches the model first, so the values land on it.
-                  setTimeout(() => setValues({ ...open.values }), 0);
-                  setLightbox(null);
-                }}
-              />
-              <TileAction
-                icon={copied ? "check" : "copy"}
-                label="Copy URL"
-                onClick={async () => {
-                  if (!lightbox) return;
-                  await navigator.clipboard.writeText(lightbox.url);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1400);
-                }}
-              />
-              <TileAction icon="download" label="Open / download" href={lightbox?.url} />
-              <TileAction
-                icon="trash"
-                label="Remove"
-                danger
-                onClick={() => {
-                  removeRun(open.id);
-                  setLightbox(null);
-                }}
-              />
-            </>
-          )
-        }
+      <MediaViewer
+        url={open ? viewer?.url ?? null : null}
+        run={open}
+        onClose={() => setViewer(null)}
       />
     </>
   );

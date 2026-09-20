@@ -61,6 +61,10 @@
   --accent: #f2a33a;
   --accent-ink: #1a1207;
 
+  /* Deleting is the one destructive thing in here, and it reads in both
+     themes: a pale red vanishes on the light canvas. */
+  --danger: #ff8f8f;
+
   --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
   --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
 
@@ -93,6 +97,8 @@
 
   --accent: #c9821f;
   --accent-ink: #fffdf9;
+
+  --danger: #c0352c;
 
   --shadow-pop: 0 24px 60px -16px rgb(11 15 21 / 0.18), 0 2px 8px rgb(11 15 21 / 0.06);
   --shadow-bar: 0 20px 50px -20px rgb(11 15 21 / 0.22);
