@@ -176,7 +176,27 @@ const PATHS: Record<IconName, ReactElement> = {
   ),
 };
 
+/**
+ * Some glyphs are drawn off-centre inside the 24x24 box: the wrench sits
+ * low and left, the star high, the stack high, the play triangle right.
+ * These offsets put each one's ink back on the centre of the box, measured
+ * from its rendered bounding box, so an icon looks centred in a round
+ * button instead of leaning. The play triangle keeps a small rightward
+ * bias, which is how a triangle reads as centred.
+ */
+const NUDGE: Partial<Record<IconName, [number, number]>> = {
+  tool: [1.42, -1.42],
+  layers: [0, 1.5],
+  spark: [0, 1],
+  play: [-1.5, 0],
+  key: [-0.5, 0],
+  copy: [-0.5, 0],
+  wand: [-0.5, 0],
+  download: [0, 0.5],
+};
+
 export function Icon({ name, size = 18, ...rest }: Props) {
+  const nudge = NUDGE[name];
   return (
     <svg
       width={size}
@@ -190,7 +210,7 @@ export function Icon({ name, size = 18, ...rest }: Props) {
       aria-hidden="true"
       {...rest}
     >
-      {PATHS[name]}
+      {nudge ? <g transform={`translate(${nudge[0]} ${nudge[1]})`}>{PATHS[name]}</g> : PATHS[name]}
     </svg>
   );
 }

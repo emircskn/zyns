@@ -356,12 +356,16 @@ function SlotHeader({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative mb-1.5 flex items-center gap-1.5">
-      <span className="truncate text-[11.5px] text-t2" title={help}>
+    // The paste-a-URL button belongs to the label, so it sits beside it
+    // rather than drifting to the far edge of a wide column.
+    <div className="relative mb-1.5 flex items-center gap-1">
+      <span className="min-w-0 truncate text-[11.5px] text-t2" title={help}>
         {label}
       </span>
-      {count && <span className="font-mono text-[10px] tabular-nums text-t4">{count}</span>}
-      <span className="ml-auto flex items-center">{children}</span>
+      {count && (
+        <span className="shrink-0 font-mono text-[10px] tabular-nums text-t4">{count}</span>
+      )}
+      {children && <span className="flex shrink-0 items-center">{children}</span>}
     </div>
   );
 }

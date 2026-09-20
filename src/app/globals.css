@@ -623,6 +623,31 @@ html {
     filter var(--d-slow) var(--ease);
 }
 
+/* The strip that pulses at the top of the API key dialog, reused as a card's
+   hover state: the four accents drifting behind a slow light sweep. It only
+   runs while the pointer is on the card. */
+.lift .cover::before,
+.lift .cover::after {
+  content: "";
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--d-base) var(--ease);
+}
+.lift .cover::before {
+  inset: -40%;
+  background:
+    radial-gradient(38% 38% at 28% 30%, #f2a33a66, transparent 70%),
+    radial-gradient(34% 34% at 72% 34%, #d9632c66, transparent 70%),
+    radial-gradient(40% 40% at 42% 76%, #f0cf6b44, transparent 70%),
+    radial-gradient(26% 26% at 80% 78%, #a89f9233, transparent 70%);
+  filter: blur(18px);
+}
+.lift .cover::after {
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.16), transparent);
+}
+
 @media (hover: hover) {
   .lift:hover {
     transform: translateY(-6px) scale(1.02);
@@ -631,7 +656,15 @@ html {
   }
   .lift:hover .cover {
     transform: translateZ(0) scale(1.08);
-    filter: brightness(1.12) saturate(1.08);
+    filter: brightness(1.06) saturate(1.08);
+  }
+  .lift:hover .cover::before {
+    opacity: 1;
+    animation: drift 9s var(--ease) infinite;
+  }
+  .lift:hover .cover::after {
+    opacity: 1;
+    animation: sweep 2.2s var(--ease) infinite;
   }
   .lift:active {
     transform: translateY(-2px) scale(1.005);

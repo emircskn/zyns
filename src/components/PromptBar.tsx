@@ -92,7 +92,7 @@ function InputStrip({ fields }: { fields: Field[] }) {
   if (fields.length === 0) return null;
 
   return (
-    <div className="anim-swap mb-3 border-b border-line pb-3 sm:max-h-[32vh] sm:overflow-y-auto">
+    <div className="anim-swap mb-4 border-b border-line pb-4 sm:max-h-[32vh] sm:overflow-y-auto">
       <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:gap-x-4 sm:gap-y-3 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3">
         {fields.map((field) => (
           <div key={field.key} className="w-[168px] shrink-0 sm:w-auto">
@@ -291,7 +291,7 @@ function PromptField({
   }
 
   return (
-    <div className="relative mb-2 flex items-start gap-2">
+    <div className="relative mb-3 flex items-start gap-2">
       <textarea
         ref={(node) => {
           ref.current = node;
