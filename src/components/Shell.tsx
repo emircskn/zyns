@@ -32,12 +32,15 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const credits = useStudio((s) => s.credits);
   const apiKey = useStudio((s) => s.apiKey);
   const runs = useStudio((s) => s.runs);
+  const clearRuns = useStudio((s) => s.clearRuns);
+  const clearDemo = useStudio((s) => s.clearDemo);
   const page = useStudio((s) => s.page);
   const setPage = useStudio((s) => s.setPage);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
 
   const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
+  const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
     <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-4 border-b border-line bg-canvas/80 px-4 py-3 backdrop-blur-2xl md:-mx-6 md:mb-6 md:gap-7 md:px-6">
@@ -67,6 +70,25 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
       </nav>
 
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
+        {demo && (
+          <button
+            type="button"
+            onClick={clearDemo}
+            className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1 sm:flex"
+          >
+            Sample media
+            <Icon name="close" size={11} />
+          </button>
+        )}
+        {!demo && runs.length > 0 && page !== "home" && (
+          <button
+            type="button"
+            onClick={clearRuns}
+            className="hidden rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1 sm:block"
+          >
+            Clear gallery
+          </button>
+        )}
         {active > 0 && (
           <span className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 sm:flex">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "var(--accent)" }} />

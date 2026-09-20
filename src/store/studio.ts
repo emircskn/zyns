@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import {
   MODELS,
   defaultValues,
@@ -84,6 +85,9 @@ interface StudioState {
   patchRun: (id: string, patch: Partial<Run>) => void;
   removeRun: (id: string) => void;
   clearRuns: () => void;
+  /** Fill the studio with sample media, and take it back out again. */
+  loadDemo: () => void;
+  clearDemo: () => void;
 }
 
 function valuesFor(state: StudioState, id: string): Values {
@@ -233,6 +237,16 @@ export const useStudio = create<StudioState>()(
         })),
       removeRun: (id) => set((state) => ({ runs: state.runs.filter((run) => run.id !== id) })),
       clearRuns: () => set({ runs: [] }),
+      loadDemo: () =>
+        set((state) => ({
+          runs: [...demoRuns(), ...state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX))],
+          uploads: [...demoUploads(), ...state.uploads.filter((u) => !u.id.startsWith(DEMO_PREFIX))],
+        })),
+      clearDemo: () =>
+        set((state) => ({
+          runs: state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX)),
+          uploads: state.uploads.filter((u) => !u.id.startsWith(DEMO_PREFIX)),
+        })),
     }),
     {
       // Deliberately not renamed with the brand: this is the localStorage key,

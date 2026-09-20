@@ -63,6 +63,7 @@ export function HomePage() {
   const setPage = useStudio((s) => s.setPage);
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
+  const loadDemo = useStudio((s) => s.loadDemo);
 
   return (
     <div className="anim-fade flex flex-1 flex-col gap-4 pb-10 md:gap-6">
@@ -96,6 +97,18 @@ export function HomePage() {
               >
                 Browse {MODELS.length} models
               </button>
+              {runs.length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    loadDemo();
+                    setPage("image");
+                  }}
+                  className="rounded-full px-3 py-2 text-[13px] text-t3 transition-colors duration-[200ms] hover:text-t1"
+                >
+                  See it with sample media
+                </button>
+              )}
             </div>
           </div>
         </div>

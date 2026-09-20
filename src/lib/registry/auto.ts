@@ -335,10 +335,36 @@ function sentence(desc: string): string | undefined {
   return cut.length > 150 ? `${cut.slice(0, 149)}…` : cut;
 }
 
+/** Tokens that look wrong title-cased: these stay as the industry writes them. */
+const ENUM_CAPS = new Set(["hd", "sd", "uhd", "hq", "4k", "2k", "8k", "ai", "3d", "hdr", "mp3", "wav"]);
+
+/**
+ * An enum value as a person would read it. Only identifiers get rewritten —
+ * anything already carrying punctuation (`16:9`, `v2.1`, `1080p`) is left
+ * exactly as the API writes it, since that is the name people look for.
+ *
+ * A trailing pair of numbers is a ratio spelled without its colon, so
+ * `portrait_4_3` comes back as "Portrait 4:3" rather than "Portrait 4 3".
+ */
+function enumLabel(value: string): string {
+  if (!/^[a-z0-9]+(?:[_-][a-z0-9]+)*$/.test(value)) return value;
+  const parts = value.split(/[_-]/);
+  const ratio: string[] = [];
+  while (parts.length > 1 && /^\d+$/.test(parts[parts.length - 1])) {
+    ratio.unshift(parts.pop()!);
+  }
+  const words = parts.map((word) =>
+    ENUM_CAPS.has(word) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1),
+  );
+  if (ratio.length > 1) words.push(ratio.join(":"));
+  else if (ratio.length === 1) words.push(ratio[0]);
+  return words.join(" ");
+}
+
 function enumChoices(prop: SpecProp): Choice[] {
   return (prop.enum ?? []).map((value) => ({
     value: String(value),
-    label: prop.enumLabels?.[String(value)]?.split(" - ")[0] ?? String(value),
+    label: prop.enumLabels?.[String(value)]?.split(" - ")[0] ?? enumLabel(String(value)),
     hint: prop.enumLabels?.[String(value)]?.split(" - ").slice(1).join(" · ") || undefined,
   }));
 }
@@ -418,7 +444,12 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
     } else if ((key === "aspect_ratio" || key === "ratio" || key === "image_size" || key === "size") && isRatioEnum(enumValues)) {
       kind = "ratio";
     } else {
-      kind = enumValues.length <= 6 ? "segmented" : "select";
+      // A segmented row divides one line between its options, so it only
+      // works while the labels are short. Six of them reading "landscape_16_9"
+      // squeeze to nothing and spill out of the popover — those want the list.
+      const labels = enumValues.map((v) => enumLabel(String(v)));
+      const room = labels.reduce((sum, l) => sum + l.length, 0) <= 34 && labels.every((l) => l.length <= 12);
+      kind = enumValues.length <= 6 && room ? "segmented" : "select";
     }
     placement = BAR_KEYS.has(key) ? "bar" : "panel";
   } else if (prop.type === "integer" || prop.type === "number") {
