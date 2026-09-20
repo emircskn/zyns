@@ -10,6 +10,7 @@ import { downloadAll } from "@/lib/download";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
+import { usePhone } from "@/lib/usePhone";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -101,6 +102,7 @@ function Tile({
   run,
   index,
   onOpen,
+  square,
   picked,
   picking,
   onPick,
@@ -108,6 +110,8 @@ function Tile({
   run: Run;
   index: number;
   onOpen: (url: string) => void;
+  /** Square and cropped in a phone's grid; its own shape everywhere else. */
+  square: boolean;
   picked: boolean;
   /** Something is already picked, so a tap picks rather than opens. */
   picking: boolean;
@@ -161,12 +165,14 @@ function Tile({
     <div
       {...press}
       onMouseLeave={() => setConfirming(false)}
-      className={`anim-tile group relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
+      className={`anim-tile group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
+        square ? "" : "mb-2.5 break-inside-avoid"
+      } ${
         picked ? "ring-2 ring-t1/70" : "ring-line hover:ring-line-strong"
       }`}
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
-      <div style={{ aspectRatio: run.ratio }} className="relative w-full">
+      <div style={square ? undefined : { aspectRatio: run.ratio }} className={`relative w-full ${square ? "aspect-square" : ""}`}>
         {url ? (
           <button
             type="button"
@@ -210,8 +216,12 @@ function Tile({
           type="button"
           onClick={onPick}
           aria-label={picked ? "Deselect" : "Select"}
-          className={`absolute left-2 top-2 transition-opacity duration-[150ms] ${
-            picking ? "opacity-100" : "hover-reveal tap-reveal opacity-0 group-hover:opacity-100"
+          // Invisible is not absent: at opacity 0 this still took the tap
+          // meant for the picture under it.
+          className={`absolute left-2 top-2 z-10 transition-opacity duration-[150ms] ${
+            picking
+              ? "opacity-100"
+              : "hover-reveal tap-reveal pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           }`}
         >
           <SelectMark on={picked} />
@@ -269,14 +279,15 @@ function Tile({
 
 /**
  * The packed columns at the widest breakpoint, per density step. Written out
- * rather than interpolated so Tailwind sees every class it has to generate.
+ * rather than interpolated so Tailwind sees every class it has to generate,
+ * and from `md` up only: a phone lays the gallery out its own way.
  */
 const COLUMNS: Record<number, string> = {
-  2: "columns-1 sm:columns-2",
-  3: "columns-1 sm:columns-2 lg:columns-3",
-  4: "columns-1 sm:columns-2 lg:columns-3 xl:columns-4",
-  5: "columns-2 sm:columns-3 lg:columns-4 xl:columns-5",
-  6: "columns-2 sm:columns-3 lg:columns-5 xl:columns-6",
+  2: "md:columns-2",
+  3: "md:columns-2 lg:columns-3",
+  4: "md:columns-2 lg:columns-3 xl:columns-4",
+  5: "md:columns-3 lg:columns-4 xl:columns-5",
+  6: "md:columns-3 lg:columns-5 xl:columns-6",
 };
 
 /** The runs of one category, newest first. */
@@ -284,6 +295,8 @@ export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const density = useStudio((s) => s.density);
+  const phoneGrid = useStudio((s) => s.phoneGrid);
+  const phone = usePhone();
   const favorites = useStudio((s) => s.favorites);
   const setFavorites = useStudio((s) => s.setFavorites);
   const removeRun = useStudio((s) => s.removeRun);
@@ -310,12 +323,19 @@ export function Gallery({ category }: { category?: Category }) {
 
   return (
     <>
-      <div className={`gap-2.5 ${COLUMNS[density] ?? COLUMNS[4]}`}>
+      {/* Phone: everything the same size in a grid of three, or one piece of
+          media at a time. Desktop: the packed columns, at the chosen step. */}
+      <div
+        className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:block md:gap-2.5 ${
+          COLUMNS[density] ?? COLUMNS[4]
+        }`}
+      >
         {shown.map((run, index) => (
           <Tile
             key={run.id}
             run={run}
             index={index}
+            square={phone && phoneGrid}
             onOpen={(url) => setViewer({ url, runId: run.id })}
             picked={picked.includes(run.id)}
             picking={picked.length > 0}

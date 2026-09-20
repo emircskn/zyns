@@ -72,6 +72,9 @@ interface StudioState {
   /** How many columns the galleries pack at the widest breakpoint. */
   density: number;
   setDensity: (density: number) => void;
+  /** A phone has two: a grid of squares, or one piece of media at a time. */
+  phoneGrid: boolean;
+  setPhoneGrid: (grid: boolean) => void;
   selectModel: (id: string) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
@@ -112,6 +115,7 @@ export const useStudio = create<StudioState>()(
       category: "image",
       page: "home",
       density: 4,
+      phoneGrid: true,
       modelId: MODELS.find((m) => m.category === "image")?.id ?? MODELS[0]?.id ?? "",
       modelByCategory: {},
       valuesByModel: {},
@@ -134,6 +138,7 @@ export const useStudio = create<StudioState>()(
        * video model you last used there rather than whatever ran last.
        */
       setDensity: (density) => set({ density }),
+      setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
           if (page === "assets" || page === "favorites" || page === "home") return { page };
@@ -278,6 +283,7 @@ export const useStudio = create<StudioState>()(
         category: state.category,
         page: state.page,
         density: state.density,
+        phoneGrid: state.phoneGrid,
         modelId: state.modelId,
         modelByCategory: state.modelByCategory,
         valuesByModel: state.valuesByModel,

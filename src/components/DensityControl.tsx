@@ -13,14 +13,45 @@ const STEPS = [2, 3, 4, 5, 6];
 export function DensityControl() {
   const density = useStudio((s) => s.density);
   const setDensity = useStudio((s) => s.setDensity);
+  const phoneGrid = useStudio((s) => s.phoneGrid);
+  const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   const at = STEPS.indexOf(density);
   const step = (direction: -1 | 1) => {
     const next = STEPS[Math.min(STEPS.length - 1, Math.max(0, (at === -1 ? 2 : at) + direction))];
     if (next) setDensity(next);
   };
 
+  const shape = (on: boolean) =>
+    `grid h-8 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
+      on ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
+    }`;
+
   return (
-    <div className="flex items-center gap-0.5 rounded-full bg-t1/[0.07] p-1">
+    <>
+      {/* A phone has room for two answers, not five: everything at once, or
+          one piece of media at its own size. */}
+      <div className="flex items-center gap-0.5 rounded-full bg-t1/[0.07] p-1 md:hidden">
+        <button
+          type="button"
+          onClick={() => setPhoneGrid(true)}
+          aria-label="Grid"
+          aria-pressed={phoneGrid}
+          className={shape(phoneGrid)}
+        >
+          <Icon name="grid" size={15} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setPhoneGrid(false)}
+          aria-label="One at a time"
+          aria-pressed={!phoneGrid}
+          className={shape(!phoneGrid)}
+        >
+          <Icon name="square" size={15} />
+        </button>
+      </div>
+
+    <div className="hidden items-center gap-0.5 rounded-full bg-t1/[0.07] p-1 md:flex">
       <button
         type="button"
         onClick={() => step(-1)}
@@ -43,5 +74,6 @@ export function DensityControl() {
         <Icon name="grid" size={15} />
       </button>
     </div>
+    </>
   );
 }

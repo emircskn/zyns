@@ -19,15 +19,12 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
       onClick={() => setPage(id)}
       aria-current={on ? "page" : undefined}
       className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
-        on ? "text-t1" : "text-t4"
+        on ? "font-medium text-t1" : "text-t4"
       }`}
     >
-      <Icon
-        name={icon}
-        size={21}
-        fill={on && icon === "heart" ? "currentColor" : "none"}
-        style={on ? { color: "var(--accent)" } : undefined}
-      />
+      {/* The page you are on is simply brighter — the accent belongs to the
+          one button that starts something. */}
+      <Icon name={icon} size={21} fill={on && icon === "heart" ? "currentColor" : "none"} />
       {label}
     </button>
   );
