@@ -145,6 +145,7 @@ function Action({
   primary,
   danger,
   filled,
+  glyph,
 }: {
   icon: IconName;
   label: string;
@@ -154,16 +155,22 @@ function Action({
   danger?: boolean;
   /** A heart already given reads as solid. */
   filled?: boolean;
+  /** Icon alone, with the name left to the tooltip. */
+  glyph?: boolean;
 }) {
   // A tile with the icon over its name where there is width to spare, and the
-  // same thing as a pill in the narrow panel beside a desktop stage.
-  const shape =
-    "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-2 py-3 text-[11.5px] transition-colors duration-[120ms] md:flex-row md:gap-1.5 md:rounded-full md:px-2.5 md:py-2 md:text-[12px]";
+  // same thing as a pill in the narrow panel beside a desktop stage. The
+  // everyday three — keep, copy, delete — are the glyph alone.
+  const shape = glyph
+    ? "flex w-full items-center justify-center rounded-card py-2.5 transition-colors duration-[120ms] md:rounded-full"
+    : "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-2 py-3 text-[11.5px] transition-colors duration-[120ms] md:flex-row md:gap-1.5 md:rounded-full md:px-2.5 md:py-2 md:text-[12px]";
   const className = primary
     ? `cta ${shape} font-medium`
     : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
   const tint = danger ? { color: "var(--danger)" } : undefined;
-  const inner = (
+  const inner = glyph ? (
+    <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
+  ) : (
     <>
       <Icon name={icon} size={16} className="md:hidden" fill={filled ? "currentColor" : "none"} />
       <Icon name={icon} size={13} className="hidden md:block" fill={filled ? "currentColor" : "none"} />
@@ -172,13 +179,22 @@ function Action({
   );
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" download style={tint} className={className}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        download
+        title={label}
+        aria-label={label}
+        style={tint}
+        className={className}
+      >
         {inner}
       </a>
     );
   }
   return (
-    <button type="button" onClick={onClick} style={tint} className={className}>
+    <button type="button" onClick={onClick} title={label} aria-label={label} style={tint} className={className}>
       {inner}
     </button>
   );
@@ -422,28 +438,36 @@ export function MediaViewer({
         {/* Actions lead on a phone, where they are what the tap was for, and
             sit under the panel on a desktop, where the hover already had them. */}
         <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
-          {/* Three to a row, and an odd one left over stretches rather than
-              sitting alone in a row of its own. */}
-          <div className="grid grid-cols-3 gap-2 [&>*:last-child:nth-child(3n+1)]:col-span-3">
-            {videoModel && (
-              <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />
-            )}
+          {/* What this picture can become leads on its own line; what you do
+              with the file follows, and the three everyday ones are glyphs. */}
+          {videoModel && <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />}
+          <div className="grid grid-cols-3 gap-2">
             {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
             {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
+            <Action icon="download" label="Download" href={shown} />
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             <Action
               icon="heart"
+              glyph
               filled={kept}
-              label={kept ? "Kept" : "Favorite"}
+              label={kept ? "Remove from favorites" : "Favorite"}
               onClick={() => shown && toggleFavorite(shown)}
             />
-            <Action icon="download" label="Download" href={shown} />
             <Action
               icon={copied === "url" ? "check" : "copy"}
+              glyph
               label={copied === "url" ? "Copied" : "Copy URL"}
               onClick={() => copy(shown, "url")}
             />
-            {(run || upload) && !confirming && (
-              <Action icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
+            {(run || upload) && (
+              <Action
+                icon="trash"
+                glyph
+                label="Delete"
+                danger
+                onClick={() => setConfirming(true)}
+              />
             )}
           </div>
           {confirming && (

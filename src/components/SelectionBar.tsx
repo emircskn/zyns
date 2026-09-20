@@ -56,8 +56,10 @@ export function SelectionBar({
       data-select-bar=""
       className="anim-pop pointer-events-none fixed inset-x-0 z-50 flex justify-center px-3"
       style={{
+        // Clear of the prompt bar rather than resting on it: --bar-h covers
+        // the bar and its mode strip, and the rest is breathing room.
         bottom: composing
-          ? "calc(var(--bar-h, 280px) + 16px + env(safe-area-inset-bottom))"
+          ? "calc(var(--bar-h, 280px) + 56px + env(safe-area-inset-bottom))"
           : "max(20px, env(safe-area-inset-bottom))",
       }}
     >

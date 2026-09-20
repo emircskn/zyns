@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CoverArt } from "@/components/CoverArt";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
-import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
@@ -13,61 +11,63 @@ import { useStudio } from "@/store/studio";
 /** One accent per category, drawn from the four brand colours. */
 export const CATEGORY_ACCENT: Record<Category, string> = ACCENT as Record<Category, string>;
 
-const TAB_LABEL: Record<Category, string> = {
-  image: "Images",
-  video: "Videos",
-  audio: "Audio",
+const GROUP_LABEL: Record<Category, string> = {
+  image: "Image models",
+  video: "Video models",
+  audio: "Audio models",
   tool: "Tools",
 };
 
-function ModelCard({
+function ModelRow({
   model,
   active,
-  index,
   onPick,
 }: {
   model: ModelDef;
   active: boolean;
-  index: number;
   onPick: () => void;
 }) {
+  const row = useRef<HTMLButtonElement>(null);
+
+  // The one you are on should be in front of you when the list opens.
+  useEffect(() => {
+    if (active) row.current?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+
   return (
     <button
+      ref={row}
       type="button"
       onClick={onPick}
-      style={{ animationDelay: `${180 + Math.min(index, 14) * 22}ms` }}
-      className={`anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
-        active ? "ring-t1/60" : "ring-transparent"
+      aria-current={active ? "true" : undefined}
+      className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors duration-[120ms] ${
+        active ? "bg-t1/[0.06] ring-1 ring-inset ring-line-strong" : "hover:bg-t1/[0.045]"
       }`}
     >
-      <div className="relative">
-        <CoverArt id={model.id} category={model.category} className="aspect-[7/4]" />
-        <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2.5">
-          {model.badge ? (
-            <span className="rounded-chip bg-accent px-2 py-0.5 text-[10.5px] font-semibold uppercase italic tracking-[0.04em] text-accent-ink">
+      <VendorBadge vendor={model.vendor} size={34} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate text-[13.5px] font-medium text-t1">{model.name}</span>
+          {model.badge && (
+            <span className="shrink-0 rounded-[2px] bg-accent px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-ink">
               {model.badge}
             </span>
-          ) : (
-            <span />
           )}
-          <VendorBadge vendor={model.vendor} size={22} />
-        </div>
-        {active && (
-          <span className="absolute bottom-2.5 right-2.5 grid h-6 w-6 place-items-center rounded-full bg-t1 text-canvas">
-            <Icon name="check" size={12} strokeWidth={2.4} />
-          </span>
-        )}
-      </div>
-      <div className="flex flex-col gap-1 px-3.5 pb-3.5 pt-3">
-        <span className="block truncate text-[15px] font-semibold uppercase leading-tight tracking-[-0.01em] text-t1">
-          {model.name}
         </span>
-        <span className="block truncate text-[12.5px] leading-snug text-t3">{model.tagline}</span>
-      </div>
+        <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
+      </span>
+      {active && (
+        <Icon name="check" size={15} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
+      )}
     </button>
   );
 }
 
+/**
+ * The catalogue as a list you read down rather than a wall of cards: search
+ * at the top, models grouped by what they make, and the one you are using
+ * ticked where it sits.
+ */
 export function ModelPicker() {
   const open = useStudio((s) => s.pickerOpen);
   const togglePicker = useStudio((s) => s.togglePicker);
@@ -76,19 +76,14 @@ export function ModelPicker() {
   const storedTab = useStudio((s) => s.pickerTab);
   const locked = useStudio((s) => s.pickerLocked);
   const [query, setQuery] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [tab, setTab] = useState<Category>(storedTab === "all" ? "image" : storedTab);
   const { mounted, exiting } = usePresence(open, 300);
+  const scope: Category = storedTab === "all" ? "image" : storedTab;
 
-  // The rail and the prompt bar can open the picker straight onto a
-  // category; each opening starts from a clean search so a stale query
-  // never hides the catalogue.
+  // Every opening starts from a clean search, so a stale query never hides
+  // the catalogue.
   useEffect(() => {
-    if (!open) return;
-    setTab(storedTab === "all" ? "image" : storedTab);
-    setQuery("");
-    setSearching(false);
-  }, [open, storedTab]);
+    if (open) setQuery("");
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -99,13 +94,21 @@ export function ModelPicker() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open, togglePicker]);
 
-  // A search spans every category so "kling" is found from the Images tab.
-  const results = useMemo(() => {
-    const found = query.trim() ? searchModels(query) : MODELS;
-    return query.trim() && !locked ? found : found.filter((m) => m.category === tab);
-  }, [query, tab, locked]);
+  // A page's picker lists that page's models, but a search reaches the whole
+  // catalogue — asking for "kling" from Images should find it, not nothing.
+  const groups = useMemo(() => {
+    const searching = query.trim().length > 0;
+    const found = searching ? searchModels(query) : MODELS;
+    const scoped = locked && !searching ? found.filter((m) => m.category === scope) : found;
+    return CATEGORIES.map((category) => ({
+      id: category.id,
+      models: scoped.filter((m) => m.category === category.id),
+    })).filter((group) => group.models.length > 0);
+  }, [query, locked, scope]);
 
   if (!mounted) return null;
+
+  const count = groups.reduce((sum, group) => sum + group.models.length, 0);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-4">
@@ -113,88 +116,68 @@ export function ModelPicker() {
         type="button"
         aria-label="Close model picker"
         onClick={() => togglePicker(false)}
-        className={`no-press absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
+        className={`no-press absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
+          exiting ? "anim-fade-out" : "anim-fade"
+        }`}
       />
       <div
-        className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(820px,90vh)] sm:max-w-5xl sm:rounded-panel sm:border sm:border-line ${
-          exiting ? "anim-sheet-out" : "anim-sheet sheet-stagger"
+        className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(620px,84vh)] sm:max-w-[560px] sm:rounded-panel sm:border sm:border-line ${
+          exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center gap-2 px-4 pb-3 pt-[max(20px,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
-          {searching ? (
-            <div
-              key="search"
-              className="anim-pop flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.07] px-4"
-              style={{ transformOrigin: "right center" }}
-            >
-              <Icon name="search" size={16} className="shrink-0 text-t4" />
-              <input
-                autoFocus
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search models…"
-                className="min-w-0 flex-1 bg-transparent text-[16px] text-t1 outline-none placeholder:text-t4 sm:text-[14px]"
-              />
-            </div>
-          ) : (
-            <h2
-              key="title"
-              className="anim-swap flex-1 text-[26px] font-semibold leading-none tracking-[-0.03em] text-t1 sm:text-[30px]"
-            >
-              {locked ? `${TAB_LABEL[tab]} models` : "Generate"}
-            </h2>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              setSearching((value) => !value);
-              setQuery("");
-            }}
-            aria-label={searching ? "Stop searching" : "Search models"}
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors duration-[120ms] ${
-              searching ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
-            }`}
-          >
-            <Icon name="search" size={16} />
-          </button>
+        <header className="flex items-center gap-2 border-b border-line px-3 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:py-3">
+          <div className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.05] px-3.5">
+            <Icon name="search" size={15} className="shrink-0 text-t4" />
+            <input
+              autoFocus
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search models"
+              className="min-w-0 flex-1 bg-transparent text-[16px] text-t1 outline-none placeholder:text-t4 sm:text-[13.5px]"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="shrink-0 text-t4 transition-colors duration-[120ms] hover:text-t1"
+              >
+                <Icon name="close" size={13} />
+              </button>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => togglePicker(false)}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-t1/[0.05] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
             aria-label="Close"
           >
-            <Icon name="close" size={16} />
+            <Icon name="close" size={15} />
           </button>
         </header>
 
-        {!query.trim() && !locked && (
-          <div className="px-4 pb-2 pt-1 sm:px-6">
-            <PillGroup
-              size="lg"
-              bare
-              value={tab}
-              onChange={setTab}
-              items={CATEGORIES.map((category) => ({ id: category.id, label: TAB_LABEL[category.id] }))}
-            />
-          </div>
-        )}
-
-        <div className="flex-1 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] pt-2 sm:px-6 sm:pb-6">
-          {results.length === 0 ? (
+        <div className="flex-1 overflow-y-auto px-2 pb-[max(16px,env(safe-area-inset-bottom))] pt-1 sm:pb-3">
+          {count === 0 ? (
             <p className="py-16 text-center text-[13px] text-t4">Nothing matches “{query}”.</p>
           ) : (
-            <div key={`${tab}-${query}`} className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              {results.map((model, index) => (
-                <ModelCard
-                  key={model.id}
-                  model={model}
-                  index={index}
-                  active={model.id === modelId}
-                  onPick={() => selectModel(model.id)}
-                />
-              ))}
-            </div>
+            groups.map((group) => (
+              <section key={group.id} className="pb-1.5">
+                <h3 className="px-3 pb-1 pt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-t4">
+                  {GROUP_LABEL[group.id]}
+                </h3>
+                <div className="flex flex-col gap-0.5">
+                  {group.models.map((model) => (
+                    <ModelRow
+                      key={model.id}
+                      model={model}
+                      active={model.id === modelId}
+                      onPick={() => selectModel(model.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))
           )}
         </div>
       </div>
