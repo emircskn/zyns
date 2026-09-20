@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/Icon";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
@@ -157,12 +157,28 @@ export function PillGroup<T extends string>({
     </button>
   );
 
+  // In fill mode the row is not a scroller, so it still wears the track
+  // itself. Everywhere else the track moves to a wrapper, leaving the
+  // scroller free to fade its own contents out without taking the
+  // background and the ring with them.
+  const scroller = fill
+    ? `relative flex gap-0.5 ${bare ? "" : "rounded-full bg-t1/[0.07] p-1"} ${className}`
+    : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
+        bare ? "gap-1" : "gap-0.5 p-1"
+      }`;
+
   const strip = (
     <div
       ref={root}
-      className={`relative flex ${fill ? "" : "no-bar min-w-0 max-w-full overflow-x-auto"} ${
-        bare ? "gap-1" : "gap-0.5 rounded-full bg-t1/[0.07] p-1"
-      } ${className}`}
+      className={scroller}
+      style={
+        fill
+          ? undefined
+          : ({
+              "--fade-l": edges.left ? "26px" : "0px",
+              "--fade-r": edges.right ? "26px" : "0px",
+            } as CSSProperties)
+      }
     >
       {box && (
         <span
@@ -198,6 +214,14 @@ export function PillGroup<T extends string>({
 
   if (fill) return strip;
 
+  const tracked = (
+    <div
+      className={`relative min-w-0 max-w-full ${bare ? "" : "rounded-full bg-t1/[0.07]"} ${className}`}
+    >
+      {strip}
+    </div>
+  );
+
   // The row is always this shape, arrows or not: swapping the tree around
   // the strip would tear it down mid-scroll and lose its observers. Both
   // arrows stay while it overflows, and the one with nothing behind it
@@ -205,7 +229,7 @@ export function PillGroup<T extends string>({
   return (
     <div className="flex min-w-0 max-w-full items-center gap-1.5">
       {edges.over && stepButton("left")}
-      {strip}
+      {tracked}
       {edges.over && stepButton("right")}
     </div>
   );
