@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Bundles the studio into dist/kie-studio.html — one self-contained file with
+ * Bundles the studio into dist/zyns.html — one self-contained file with
  * the catalogue, the UI and the styles inlined. Open it anywhere; enter a key.
  *
  *   npm run build:standalone
@@ -44,7 +44,8 @@ const html = `<!doctype html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0908" />
-<title>KIE Studio</title>
+<title>ZYNS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23f2a33a'/%3E%3Cpath d='M10.5 10.5h11L10.5 21.5h11' fill='none' stroke='%230a0908' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet" />
@@ -58,6 +59,6 @@ const html = `<!doctype html>
 `;
 
 await mkdir(path.join(root, "dist"), { recursive: true });
-const out = path.join(root, "dist/kie-studio.html");
+const out = path.join(root, "dist/zyns.html");
 await writeFile(out, html);
 console.log(`wrote ${out} (${(html.length / 1024).toFixed(0)} KB)`);

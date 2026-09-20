@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- App icon: the bare mark would disappear against a light tab strip, so
+       the tile carries the amber and the Z is cut from it in canvas black. -->
+  <rect width="32" height="32" rx="9" fill="#f2a33a"/>
+  <path d="M10.5 10.5h11L10.5 21.5h11" fill="none" stroke="#0a0908" stroke-width="2.6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

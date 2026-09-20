@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KIE Studio",
+  title: "ZYNS",
   description:
-    "A studio interface for every model on the KIE AI API — one prompt bar, each model's own settings, and every run in one gallery.",
+    "ZYNS — a studio for every model on the KIE AI API: one prompt bar, each model's own settings, and every run in one gallery.",
 };
 
 export const viewport: Viewport = {

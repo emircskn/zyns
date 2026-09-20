@@ -230,6 +230,8 @@ export const useStudio = create<StudioState>()(
       clearRuns: () => set({ runs: [] }),
     }),
     {
+      // Deliberately not renamed with the brand: this is the localStorage key,
+      // and changing it would throw away everyone's saved key and gallery.
       name: "kie-studio",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({

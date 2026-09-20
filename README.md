@@ -1,4 +1,4 @@
-# KIE Studio
+# ZYNS
 
 KIE AI API'sindeki **27 modelin tamamı** için Higgsfield tarzı tek bir stüdyo arayüzü.
 Tek prompt barı, her modelin kendi ayarları, tüm çıktılar tek galeride.
@@ -230,7 +230,7 @@ hücre hücre titreşen bir gradyan taraması. İş bittiğinde görsel bu taram
 içinden hücre hücre beliriyor, sonra shader silinip gerçek medya kalıyor;
 video ve seste çözülecek bir kare olmadığı için tarama yalnızca sönüyor.
 WebGL yoksa altındaki marka gradyanı yerinde duruyor. Tek dosyalık
-`dist/kie-studio.html` derlemesi bu yükleyiciyi taşımıyor: o sayfa API'ye
+`dist/zyns.html` derlemesi bu yükleyiciyi taşımıyor: o sayfa API'ye
 ulaşamadığı için shader zaten hiç görünmüyor, sadece `three` yükü olurdu
 (645 KB yerine 1234 KB). Derleme onu `src/standalone/GenerationLoader.tsx`
 ile değiştiriyor, kutucuk gradyanda kalıyor. Prompt kutusunun kenarında

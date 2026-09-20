@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Icon, type IconName } from "@/components/Icon";
+import { ZynsLogo } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { ModelPicker } from "@/components/ModelPicker";
@@ -141,7 +142,9 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         <Icon name="spark" size={15} strokeWidth={1.8} />
       </button>
       <div className="min-w-0">
-        <h1 className="truncate text-[14.5px] text-t1">KIE Studio</h1>
+        <h1 className="truncate">
+          <ZynsLogo />
+        </h1>
         {active > 0 && (
           <p className="truncate text-[11.5px] text-t4">
             {active} run{active > 1 ? "s" : ""} in progress
