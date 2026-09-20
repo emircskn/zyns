@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { MediaViewer } from "@/components/MediaViewer";
+import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
+import { downloadAll } from "@/lib/download";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
+import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
 const STATE_LABEL: Record<Run["state"], string> = {
@@ -67,12 +70,15 @@ function TileAction({
   onClick,
   href,
   danger,
+  filled,
 }: {
   icon: Parameters<typeof Icon>[0]["name"];
   label: string;
   onClick?: () => void;
   href?: string;
   danger?: boolean;
+  /** A heart that is already given reads as solid. */
+  filled?: boolean;
 }) {
   const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
@@ -80,24 +86,41 @@ function TileAction({
   if (href) {
     return (
       <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
-        <Icon name={icon} size={12} />
+        <Icon name={icon} size={12} fill={filled ? "currentColor" : "none"} />
       </a>
     );
   }
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
-      <Icon name={icon} size={12} />
+      <Icon name={icon} size={12} fill={filled ? "currentColor" : "none"} />
     </button>
   );
 }
 
-function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: string) => void }) {
+function Tile({
+  run,
+  index,
+  onOpen,
+  picked,
+  picking,
+  onPick,
+}: {
+  run: Run;
+  index: number;
+  onOpen: (url: string) => void;
+  picked: boolean;
+  /** Something is already picked, so a tap picks rather than opens. */
+  picking: boolean;
+  onPick: () => void;
+}) {
   const removeRun = useStudio((s) => s.removeRun);
   const selectModel = useStudio((s) => s.selectModel);
   const setValues = useStudio((s) => s.setValues);
+  const favorites = useStudio((s) => s.favorites);
+  const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const [copied, setCopied] = useState(false);
   const url = run.urls[0];
-  const accent = CATEGORY_ACCENT[getModel(run.modelId)?.category ?? "image"];
+  const kept = !!url && favorites.includes(url);
   const [loading, setLoading] = useState(false);
   const settled = useRef(false);
   const finish = useCallback(() => setLoading(false), []);
@@ -107,6 +130,7 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   // enlarged view carries the same actions with room to label them.
   const coarse = useCoarsePointer();
   const [confirming, setConfirming] = useState(false);
+  const press = useLongPress(onPick);
 
   // Only a run still in flight when the tile mounts gets the shader — work
   // restored from an earlier session should not replay it, and anyone who
@@ -135,13 +159,20 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
 
   return (
     <div
+      {...press}
       onMouseLeave={() => setConfirming(false)}
-      className="anim-tile group @container relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-all duration-[200ms] hover:ring-line-strong"
+      className={`anim-tile group relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
+        picked ? "ring-2 ring-t1/70" : "ring-line hover:ring-line-strong"
+      }`}
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
       <div style={{ aspectRatio: run.ratio }} className="relative w-full">
         {url ? (
-          <button type="button" onClick={() => onOpen(url)} className="block h-full w-full cursor-zoom-in">
+          <button
+            type="button"
+            onClick={() => (picking ? onPick() : onOpen(url))}
+            className="block h-full w-full cursor-zoom-in"
+          >
             <Media url={url} />
           </button>
         ) : (
@@ -174,59 +205,62 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
         </div>
       )}
 
-      <div
-        className="hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100"
-      >
-        {/* Nothing to press while the bar is down: at opacity 0 the actions
-            would still take the tap meant for the picture under them. */}
-        {/* Four actions and a prompt do not share a 200px tile: below that the
-            name sits on its own line instead of being squeezed to one letter. */}
-        <div
-          className={`flex flex-col items-start gap-1.5 @[248px]:flex-row @[248px]:items-end @[248px]:justify-between @[248px]:gap-2 ${
-            coarse ? "pointer-events-none" : "pointer-events-auto"
+      {url && (
+        <button
+          type="button"
+          onClick={onPick}
+          aria-label={picked ? "Deselect" : "Select"}
+          className={`absolute left-2 top-2 transition-opacity duration-[150ms] ${
+            picking ? "opacity-100" : "hover-reveal tap-reveal opacity-0 group-hover:opacity-100"
           }`}
         >
-          <div className="w-full min-w-0 @[248px]:w-auto">
-            <p className="flex items-center gap-1.5 truncate text-[11.5px] text-white">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: accent }} />
-              {run.modelName}
-            </p>
-            {run.prompt && (
-              <p className="line-clamp-2 text-[11px] leading-snug text-white/65">{run.prompt}</p>
-            )}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <TileAction icon="refresh" label="Reuse these settings" onClick={reuse} />
-            {url && (
-              <>
-                <TileAction
-                  icon={copied ? "check" : "copy"}
-                  label="Copy URL"
-                  onClick={copy}
-                />
-                <TileAction icon="download" label="Open / download" href={url} />
-              </>
-            )}
-            {confirming ? (
-              <>
-                <TileAction icon="close" label="Keep it" onClick={() => setConfirming(false)} />
-                <button
-                  type="button"
-                  onClick={() => removeRun(run.id)}
-                  className="rounded-full bg-[#ff6b6b]/85 px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-                >
-                  Delete?
-                </button>
-              </>
-            ) : (
-              <TileAction
-                icon="trash"
-                label="Remove from gallery"
-                danger
-                onClick={() => setConfirming(true)}
-              />
-            )}
-          </div>
+          <SelectMark on={picked} />
+        </button>
+      )}
+
+      {/* Actions alone: the model and the prompt are a keystroke away in the
+          enlarged view, and on a tile they only cover the picture. */}
+      <div className="hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-2.5 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
+        <div
+          className={`flex items-center justify-end gap-1 ${
+            coarse || picking ? "pointer-events-none" : "pointer-events-auto"
+          }`}
+        >
+          {url && (
+            <TileAction
+              icon="heart"
+              filled={kept}
+              label={kept ? "Remove from favorites" : "Add to favorites"}
+              onClick={() => toggleFavorite(url)}
+            />
+          )}
+          <TileAction icon="refresh" label="Reuse these settings" onClick={reuse} />
+          {url && (
+            <>
+              <TileAction icon={copied ? "check" : "copy"} label="Copy URL" onClick={copy} />
+              <TileAction icon="download" label="Open / download" href={url} />
+            </>
+          )}
+          {confirming ? (
+            <>
+              <TileAction icon="close" label="Keep it" onClick={() => setConfirming(false)} />
+              <button
+                type="button"
+                onClick={() => removeRun(run.id)}
+                aria-label="Confirm delete"
+                className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
+              >
+                <Icon name="check" size={12} strokeWidth={2.2} />
+              </button>
+            </>
+          ) : (
+            <TileAction
+              icon="trash"
+              label="Remove from gallery"
+              danger
+              onClick={() => setConfirming(true)}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -250,7 +284,19 @@ export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const density = useStudio((s) => s.density);
+  const favorites = useStudio((s) => s.favorites);
+  const setFavorites = useStudio((s) => s.setFavorites);
+  const removeRun = useStudio((s) => s.removeRun);
   const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
+  const [picked, setPicked] = useState<string[]>([]);
+
+  // A run can finish, or be deleted, while its tile is picked.
+  useEffect(() => {
+    setPicked((current) => {
+      const live = current.filter((id) => runs.some((run) => run.id === id));
+      return live.length === current.length ? current : live;
+    });
+  }, [runs]);
 
   if (!hydrated) return null;
 
@@ -260,6 +306,7 @@ export function Gallery({ category }: { category?: Category }) {
   // The run behind the open preview, so the panel beside it knows what it is
   // looking at and what its buttons act on.
   const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
+  const pickedUrls = picked.flatMap((id) => runs.find((run) => run.id === id)?.urls ?? []);
 
   return (
     <>
@@ -270,9 +317,33 @@ export function Gallery({ category }: { category?: Category }) {
             run={run}
             index={index}
             onOpen={(url) => setViewer({ url, runId: run.id })}
+            picked={picked.includes(run.id)}
+            picking={picked.length > 0}
+            onPick={() =>
+              setPicked((current) =>
+                current.includes(run.id)
+                  ? current.filter((id) => id !== run.id)
+                  : [...current, run.id],
+              )
+            }
           />
         ))}
       </div>
+
+      <SelectionBar
+        count={picked.length}
+        favorited={pickedUrls.length > 0 && pickedUrls.every((url) => favorites.includes(url))}
+        onFavorite={() =>
+          setFavorites(pickedUrls, !pickedUrls.every((url) => favorites.includes(url)))
+        }
+        onDownload={() => downloadAll(pickedUrls)}
+        onDelete={() => {
+          picked.forEach(removeRun);
+          setPicked([]);
+        }}
+        onClose={() => setPicked([])}
+      />
+
       <MediaViewer
         url={open ? viewer?.url ?? null : null}
         run={open}

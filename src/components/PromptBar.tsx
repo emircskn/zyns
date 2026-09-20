@@ -531,7 +531,7 @@ export function PromptBar() {
   );
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:left-14 md:px-4 md:pb-5">
+    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] md:px-4 md:pb-5">
       <div ref={wrapper} className="pointer-events-auto w-full max-w-[720px]">
         <ModeStrip />
 

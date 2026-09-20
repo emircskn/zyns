@@ -9,14 +9,44 @@ import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
 
-/** The first input a model takes a picture through, if it takes one at all. */
-function imageInput(model: ModelDef): Field | undefined {
-  return model.fields.find(
+/** Every input a model takes a picture through, whatever mode turns it on. */
+function imageInputs(model: ModelDef): Field[] {
+  return model.fields.filter(
     (f) =>
       f.placement === "input" &&
       f.accept === "image" &&
       (f.kind === "images" || f.kind === "media"),
   );
+}
+
+function imageInput(model: ModelDef): Field | undefined {
+  return imageInputs(model)[0];
+}
+
+/**
+ * Put the picture in the model's reference strip, switching mode when that is
+ * where the strip lives — Nano Banana takes a reference in Edit and not in
+ * Generate, so handing it one has to mean switching. Returns false only when
+ * the model takes no picture at all.
+ */
+function attachReference(model: ModelDef, url: string): boolean {
+  const store = useStudio.getState();
+  const values = store.valuesByModel[model.id] ?? {};
+  const fields = imageInputs(model);
+  let field = fields.find((f) => !f.when || f.when(values));
+
+  if (!field) {
+    for (const candidate of fields) {
+      const mode = model.modes?.find((m) => candidate.when?.({ ...values, __mode: m.id }));
+      if (!mode) continue;
+      store.setMode(mode.id);
+      field = candidate;
+      break;
+    }
+  }
+  if (!field) return false;
+  attach(model, field, url);
+  return true;
 }
 
 /** Put `url` into that field, adding to a list or replacing a single slot. */
@@ -109,6 +139,7 @@ function Action({
   href,
   primary,
   danger,
+  filled,
 }: {
   icon: IconName;
   label: string;
@@ -116,24 +147,26 @@ function Action({
   href?: string;
   primary?: boolean;
   danger?: boolean;
+  /** A heart already given reads as solid. */
+  filled?: boolean;
 }) {
   const className = primary
     ? "cta flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[12.5px] font-medium"
-    : `flex w-full items-center justify-center gap-2 rounded-full bg-t1/[0.07] px-3 py-2 text-[12px] transition-colors duration-[120ms] ${
+    : `flex w-full min-w-0 items-center justify-center gap-1.5 truncate rounded-full bg-t1/[0.07] px-2.5 py-2 text-[12px] transition-colors duration-[120ms] ${
         danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"
       }`;
   const tint = danger ? { color: "var(--danger)" } : undefined;
   if (href) {
     return (
       <a href={href} target="_blank" rel="noreferrer" download style={tint} className={className}>
-        <Icon name={icon} size={13} />
+        <Icon name={icon} size={13} fill={filled ? "currentColor" : "none"} />
         {label}
       </a>
     );
   }
   return (
     <button type="button" onClick={onClick} style={tint} className={className}>
-      <Icon name={icon} size={13} />
+      <Icon name={icon} size={13} fill={filled ? "currentColor" : "none"} />
       {label}
     </button>
   );
@@ -176,6 +209,8 @@ export function MediaViewer({
 
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
+  const favorites = useStudio((s) => s.favorites);
+  const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const modelId = useStudio((s) => s.modelId);
 
   useEffect(() => {
@@ -201,6 +236,7 @@ export function MediaViewer({
   const active = getModel(modelId);
   const slot = active ? imageInput(active) : undefined;
   const isImage = shown ? mediaKind(shown) === "image" : false;
+  const kept = !!shown && favorites.includes(shown);
 
   // The video model this picture can be handed to: the one the video page was
   // last on when it takes a first frame, or the first one that does.
@@ -222,10 +258,10 @@ export function MediaViewer({
 
   function turnToVideo() {
     if (!videoModel || !shown) return;
-    const field = imageInput(videoModel);
-    if (!field) return;
+    // The model comes first: mode and values both belong to whichever model
+    // is active, and the picture rides in as that model's reference.
     useStudio.getState().selectModel(videoModel.id);
-    attach(videoModel, field, shown);
+    attachReference(videoModel, shown);
     onClose();
   }
 
@@ -238,8 +274,8 @@ export function MediaViewer({
   }
 
   function reference() {
-    if (!active || !slot || !shown) return;
-    attach(active, slot, shown);
+    if (!active || !shown) return;
+    attachReference(active, shown);
     onClose();
   }
 
@@ -388,11 +424,17 @@ export function MediaViewer({
 
         <div className="flex shrink-0 flex-col gap-2 border-t border-line p-4">
           {videoModel && (
-            <Action icon="video" label={`Turn to video · ${videoModel.name}`} primary onClick={turnToVideo} />
+            <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />
           )}
           <div className="flex gap-2">
             {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
             {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
+            <Action
+              icon="heart"
+              filled={kept}
+              label={kept ? "Kept" : "Favorite"}
+              onClick={() => shown && toggleFavorite(shown)}
+            />
           </div>
           {confirming ? (
             // Asked before it happens: a gallery is the only copy of what it

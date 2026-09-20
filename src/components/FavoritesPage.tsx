@@ -1,0 +1,52 @@
+"use client";
+
+import { AssetBrowser } from "@/components/AssetBrowser";
+import { useAssets } from "@/lib/assets";
+import { useStudio } from "@/store/studio";
+
+/** The media you kept, whatever made it and whichever page it came from. */
+export function FavoritesPage() {
+  const assets = useAssets();
+  const favorites = useStudio((s) => s.favorites);
+  const setPage = useStudio((s) => s.setPage);
+  // Kept in the order they were favourited, newest first.
+  const shown = favorites
+    .map((url) => assets.find((asset) => asset.url === url))
+    .filter((asset): asset is NonNullable<typeof asset> => !!asset);
+
+  return (
+    <div className="anim-fade flex flex-1 flex-col">
+      <div className="mb-4">
+        <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Favorites</h2>
+        <p className="text-[13px] text-t3">
+          {shown.length === 0
+            ? "The heart on any piece of media keeps it here."
+            : `${shown.length} kept · generated and uploaded`}
+        </p>
+      </div>
+
+      {shown.length === 0 ? (
+        <div className="grid flex-1 place-items-center py-20 text-center">
+          <div className="anim-rise max-w-[560px]">
+            <p className="text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
+              Nothing kept yet.
+            </p>
+            <p className="mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
+              Hover a tile — or open it — and press the heart. What you keep stays here, out of the
+              way of everything else you make.
+            </p>
+            <button
+              type="button"
+              onClick={() => setPage("image")}
+              className="cta mt-6 rounded-full px-4 py-2 text-[12.5px] font-medium"
+            >
+              Back to image
+            </button>
+          </div>
+        </div>
+      ) : (
+        <AssetBrowser assets={shown} />
+      )}
+    </div>
+  );
+}

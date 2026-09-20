@@ -31,8 +31,8 @@ export interface Run {
 
 export type Theme = "dark" | "light";
 
-/** Which page the rail is showing. Categories have one each, plus Assets. */
-export type Page = Category | "assets" | "home";
+/** Which page is showing: one per category, plus the browsing pages. */
+export type Page = Category | "assets" | "favorites" | "home";
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
 export interface Upload {
@@ -55,6 +55,8 @@ interface StudioState {
   valuesByModel: Record<string, Values>;
   runs: Run[];
   uploads: Upload[];
+  /** Media kept by its URL, which is the one thing an output and an upload share. */
+  favorites: string[];
   settingsOpen: boolean;
   pickerOpen: boolean;
   pickerTab: Category | "all";
@@ -80,6 +82,10 @@ interface StudioState {
 
   addUpload: (upload: Upload) => void;
   removeUpload: (id: string) => void;
+
+  toggleFavorite: (url: string) => void;
+  /** Favourite or un-favourite several at once, as a selection does. */
+  setFavorites: (urls: string[], on: boolean) => void;
 
   addRun: (run: Run) => void;
   patchRun: (id: string, patch: Partial<Run>) => void;
@@ -111,6 +117,7 @@ export const useStudio = create<StudioState>()(
       valuesByModel: {},
       runs: [],
       uploads: [],
+      favorites: [],
       settingsOpen: false,
       pickerOpen: false,
       pickerTab: "all",
@@ -129,7 +136,7 @@ export const useStudio = create<StudioState>()(
       setDensity: (density) => set({ density }),
       setPage: (page) =>
         set((state) => {
-          if (page === "assets" || page === "home") return { page };
+          if (page === "assets" || page === "favorites" || page === "home") return { page };
           const id =
             state.modelByCategory[page] ?? MODELS.find((m) => m.category === page)?.id ?? state.modelId;
           return {
@@ -230,6 +237,18 @@ export const useStudio = create<StudioState>()(
       removeUpload: (id) =>
         set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
 
+      toggleFavorite: (url) =>
+        set((state) => ({
+          favorites: state.favorites.includes(url)
+            ? state.favorites.filter((u) => u !== url)
+            : [url, ...state.favorites],
+        })),
+      setFavorites: (urls, on) =>
+        set((state) => {
+          const rest = state.favorites.filter((u) => !urls.includes(u));
+          return { favorites: on ? [...urls, ...rest] : rest };
+        }),
+
       addRun: (run) => set((state) => ({ runs: [run, ...state.runs].slice(0, 200) })),
       patchRun: (id, patch) =>
         set((state) => ({
@@ -264,6 +283,7 @@ export const useStudio = create<StudioState>()(
         valuesByModel: state.valuesByModel,
         runs: state.runs,
         uploads: state.uploads,
+        favorites: state.favorites,
       }),
     },
   ),
@@ -279,7 +299,7 @@ if (typeof window !== "undefined") {
     const state = useStudio.getState();
     useStudio.setState({ hydrated: true });
     const page = state.page;
-    if (page === "assets" || page === "home") return;
+    if (page === "assets" || page === "favorites" || page === "home") return;
     if (getModel(state.modelId)?.category !== page) state.setPage(page);
   };
   useStudio.persist?.onFinishHydration(settle);

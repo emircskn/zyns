@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsWordmark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
+import { FavoritesPage } from "@/components/FavoritesPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { HomePage } from "@/components/HomePage";
 import { ModelPicker } from "@/components/ModelPicker";
@@ -23,10 +24,82 @@ const CATEGORY_ICON: Record<Category, IconName> = {
   tool: "tool",
 };
 
-const NAV: { id: Page; label: string }[] = [
-  ...CATEGORIES.map((c) => ({ id: c.id as Page, label: c.label })),
-  { id: "assets" as Page, label: "Assets" },
+const NAV: { id: Page; label: string; icon: IconName }[] = [
+  ...CATEGORIES.map((c) => ({ id: c.id as Page, label: c.label, icon: CATEGORY_ICON[c.id] })),
+  { id: "assets" as Page, label: "Assets", icon: "layers" },
+  { id: "favorites" as Page, label: "Favorites", icon: "heart" },
 ];
+
+/**
+ * The bar's own tabs, with the selected one carried between them rather than
+ * redrawn: a pill that slides makes it plain which page you are on and which
+ * way you just moved.
+ */
+function NavTabs() {
+  const page = useStudio((s) => s.page);
+  const setPage = useStudio((s) => s.setPage);
+  const track = useRef<HTMLDivElement>(null);
+  const items = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+
+  const measure = useCallback(() => {
+    const node = items.current[page];
+    const box = track.current;
+    if (!node || !box) {
+      setPill(null);
+      return;
+    }
+    setPill({ left: node.offsetLeft, width: node.offsetWidth });
+  }, [page]);
+
+  useLayoutEffect(measure, [measure]);
+
+  // Fonts land after the first paint and change every tab's width with them.
+  useEffect(() => {
+    const observer = new ResizeObserver(measure);
+    if (track.current) observer.observe(track.current);
+    document.fonts?.ready.then(measure).catch(() => {});
+    return () => observer.disconnect();
+  }, [measure]);
+
+  return (
+    <div ref={track} className="relative hidden items-center gap-0.5 md:flex">
+      {pill && (
+        <span
+          aria-hidden
+          className="absolute inset-y-0 rounded-full bg-t1/[0.09] transition-[left,width] duration-[380ms]"
+          style={{ left: pill.left, width: pill.width, transitionTimingFunction: "var(--ease-spring)" }}
+        />
+      )}
+      {NAV.map((item) => {
+        const on = page === item.id;
+        return (
+          <button
+            key={item.id}
+            ref={(node) => {
+              items.current[item.id] = node;
+            }}
+            type="button"
+            onClick={() => setPage(item.id)}
+            aria-current={on ? "page" : undefined}
+            className={`relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[200ms] ${
+              on ? "text-t1" : "text-t3 hover:text-t1"
+            }`}
+          >
+            <Icon
+              name={item.icon}
+              size={14}
+              className="transition-colors duration-[200ms]"
+              style={on ? { color: "var(--accent)" } : undefined}
+              fill={on && item.icon === "heart" ? "currentColor" : "none"}
+            />
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const credits = useStudio((s) => s.credits);
@@ -59,20 +132,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
           <ZynsWordmark height={19} className="relative top-[3px]" />
         </button>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPage(item.id)}
-              className={`rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[150ms] ${
-                page === item.id ? "text-t1" : "text-t3 hover:text-t1"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
+        <NavTabs />
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           {demo && (
@@ -167,7 +227,7 @@ export function Shell() {
 
   // Assets and home are for browsing, so the prompt bar steps aside and the
   // page keeps its own bottom margin instead of reserving room for it.
-  const composing = page !== "assets" && page !== "home";
+  const composing = page !== "assets" && page !== "favorites" && page !== "home";
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -195,6 +255,8 @@ export function Shell() {
           <HomePage />
         ) : page === "assets" ? (
           <AssetsPage />
+        ) : page === "favorites" ? (
+          <FavoritesPage />
         ) : (
           <CategoryPage category={page} />
         )}
