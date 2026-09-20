@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { GenerationLoader } from "@/components/GenerationLoader";
 import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { getModel, type Category } from "@/lib/registry";
@@ -19,7 +20,7 @@ const STATE_LABEL: Record<Run["state"], string> = {
 function StatusOverlay({ run }: { run: Run }) {
   if (run.state === "failed") {
     return (
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#ff6b6b]/10 p-4 text-center backdrop-blur-sm">
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[#ff6b6b]/10 p-4 text-center backdrop-blur-sm">
         <Icon name="alert" size={18} className="text-[#ff8f8f]" />
         <p className="line-clamp-4 text-[11.5px] leading-snug text-[#ff8f8f]">
           {run.error ?? "Generation failed."}
@@ -29,7 +30,7 @@ function StatusOverlay({ run }: { run: Run }) {
   }
   if (run.state === "success") return null;
   return (
-    <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 p-3">
+    <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-2 p-3">
       <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-white/40 border-t-white" />
       <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/80">
         {STATE_LABEL[run.state]}
@@ -101,6 +102,21 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   const [copied, setCopied] = useState(false);
   const url = run.urls[0];
   const accent = CATEGORY_ACCENT[getModel(run.modelId)?.category ?? "image"];
+  const [loading, setLoading] = useState(false);
+  const settled = useRef(false);
+  const finish = useCallback(() => setLoading(false), []);
+
+  // Only a run still in flight when the tile mounts gets the shader — work
+  // restored from an earlier session should not replay it, and anyone who
+  // asked for less motion keeps the plain gradient. Decided once, after
+  // mount, so the server-rendered markup and the client agree.
+  useEffect(() => {
+    if (settled.current) return;
+    settled.current = true;
+    if (run.urls.length || run.state === "failed") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setLoading(true);
+  }, [run.urls.length, run.state]);
 
   function reuse() {
     selectModel(run.modelId);
@@ -130,7 +146,16 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
             <Media url={url} />
           </button>
         ) : (
+          // Stays underneath the shader as the fallback when WebGL is missing.
           <div className="pending-surface h-full w-full" />
+        )}
+        {loading && (
+          <GenerationLoader
+            url={url}
+            reveal={!!url && run.output === "image" && mediaKind(url) === "image"}
+            failed={run.state === "failed"}
+            onFinished={finish}
+          />
         )}
         <StatusOverlay run={run} />
       </div>

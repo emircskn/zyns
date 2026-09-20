@@ -223,8 +223,12 @@ beliriyor; büyük görünüm yakınlaşarak açılıp uzaklaşarak kapanıyor. 
 seçime kayıyor (`PillGroup`), her hap ayrı ayrı boyanmıyor. Her düğme
 basınca hafifçe küçülüyor. Tema değişimi View Transitions API ile tüm
 sayfayı çapraz soldurarak yapılıyor. Model kartları ve galeri kutuları
-kademeli giriyor, tamamlanmamış çalışmalar dört marka renginin yavaşça
-sürüklendiği bir gradyan üzerinde bekliyor. Prompt kutusunun kenarında
+kademeli giriyor. Üretim sürerken kutucukta WebGL tabanlı bir yükleyici
+dönüyor (`img-fx`, `sweep-gradient` ön ayarı): sol üstten sağ alta ilerleyen,
+hücre hücre titreşen bir gradyan taraması. İş bittiğinde görsel bu taramanın
+içinden hücre hücre beliriyor, sonra shader silinip gerçek medya kalıyor;
+video ve seste çözülecek bir kare olmadığı için tarama yalnızca sönüyor.
+WebGL yoksa altındaki marka gradyanı yerinde duruyor. Prompt kutusunun kenarında
 sürekli dönen bir ışık huzmesi var (`.beam`): kayıtlı bir `--beam-angle`
 özelliğiyle döndürülen konik gradyan, kenarlığa maskelenmiş ince bir çizgi
 ve onun hemen içinde yumuşak bir hale olarak çiziliyor; kutuya
