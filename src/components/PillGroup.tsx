@@ -4,6 +4,9 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { Icon } from "@/components/Icon";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
+/** Width of the strip's edge fade, in step with --fade-l / --fade-r. */
+const FADE = 26;
+
 export interface PillItem<T extends string> {
   id: T;
   label: string;
@@ -111,6 +114,55 @@ export function PillGroup<T extends string>({
     }
   }, [value, fill]);
 
+  // The fade is kind to a half-shown label and unkind to the cream pill: a
+  // solid shape dissolving into the track reads as a smudge, not a hint that
+  // there is more behind it. So once scrolling settles the selected pill is
+  // never left straddling an edge — it comes all the way in if most of it is
+  // already showing, and otherwise goes all the way out.
+  useEffect(() => {
+    const node = root.current;
+    if (!node || fill) return;
+    let timer = 0;
+    const settle = () => {
+      const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
+      if (!active) return;
+      const start = active.offsetLeft;
+      const end = start + active.offsetWidth;
+      const viewStart = node.scrollLeft;
+      const viewEnd = viewStart + node.clientWidth;
+      // Off-screen entirely, or wider than the window: nothing worth nudging.
+      if (end <= viewStart || start >= viewEnd) return;
+      if (active.offsetWidth > node.clientWidth) return;
+      const slack = node.scrollWidth - node.clientWidth;
+      const fadeLeft = viewStart > 2 ? FADE : 0;
+      const fadeRight = viewStart < slack - 2 ? FADE : 0;
+      if (start >= viewStart + fadeLeft && end <= viewEnd - fadeRight) return;
+      const shown = Math.min(end, viewEnd) - Math.max(start, viewStart);
+      let left: number;
+      if (shown >= active.offsetWidth / 2) {
+        left =
+          start < viewStart + fadeLeft
+            ? start - fadeLeft
+            : end + fadeRight - node.clientWidth;
+      } else {
+        // Barely showing: the scroll was heading past it, so let it go.
+        left = start < viewStart + node.clientWidth / 2 ? end : start - node.clientWidth;
+      }
+      left = Math.max(0, Math.min(slack, left));
+      if (Math.abs(left - viewStart) < 1) return;
+      node.scrollTo({ left, behavior: "smooth" });
+    };
+    const onScroll = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(settle, 140);
+    };
+    node.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      node.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
+    };
+  }, [value, fill, itemsKey]);
+
   // A step lands on a pill edge rather than an arbitrary offset, so the
   // strip never comes to rest with a pill half shown or a gap at its end.
   function step(direction: 1 | -1) {
@@ -175,8 +227,8 @@ export function PillGroup<T extends string>({
         fill
           ? undefined
           : ({
-              "--fade-l": edges.left ? "26px" : "0px",
-              "--fade-r": edges.right ? "26px" : "0px",
+              "--fade-l": edges.left ? `${FADE}px` : "0px",
+              "--fade-r": edges.right ? `${FADE}px` : "0px",
             } as CSSProperties)
       }
     >
