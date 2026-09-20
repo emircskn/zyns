@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { downloadAll } from "@/lib/download";
+import { usePhone } from "@/lib/usePhone";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
@@ -44,6 +45,7 @@ function AssetTile({
   index,
   picked,
   picking,
+  square,
   onPick,
   onOpen,
   onRemove,
@@ -52,6 +54,8 @@ function AssetTile({
   index: number;
   picked: boolean;
   picking: boolean;
+  /** Square and cropped in a grid; its own shape one at a time. */
+  square: boolean;
   onPick: () => void;
   onOpen: () => void;
   onRemove?: () => void;
@@ -74,15 +78,26 @@ function AssetTile({
       <button
         type="button"
         onClick={picking ? onPick : onOpen}
-        className="block aspect-square w-full cursor-zoom-in"
+        className={`block w-full cursor-zoom-in ${square ? "aspect-square" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={asset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <img
+            src={asset.url}
+            alt=""
+            loading="lazy"
+            className={`w-full ${square ? "h-full object-cover" : "h-auto"}`}
+          />
         ) : asset.kind === "video" ? (
-          <video src={asset.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+          <video
+            src={asset.url}
+            muted
+            playsInline
+            preload="metadata"
+            className={`w-full ${square ? "h-full object-cover" : "h-auto"}`}
+          />
         ) : (
-          <span className="pending-surface grid h-full w-full place-items-center">
+          <span className={`pending-surface grid w-full place-items-center ${square ? "h-full" : "aspect-square"}`}>
             <Icon name="audio" size={22} className="relative z-10 text-white/80" />
           </span>
         )}
@@ -104,7 +119,9 @@ function AssetTile({
       </button>
 
       {!picking && (
-        <div className="hover-reveal absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+        // A phone never shows these: they cover the picture, and the enlarged
+        // view carries the same actions with room to name them.
+        <div className="hover-reveal tap-reveal pointer-events-none absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[150ms] group-hover:pointer-events-auto group-hover:opacity-100">
           <TileButton
             icon="heart"
             filled={kept}
@@ -138,8 +155,23 @@ function AssetTile({
  * A grid of finished media with everything you can do to it: one at a time
  * through the enlarged view, or several at once by picking them.
  */
+/**
+ * How the columns pack from `md` up, per density step — written out so
+ * Tailwind sees every class it has to generate.
+ */
+const COLUMNS: Record<number, string> = {
+  2: "md:grid-cols-2",
+  3: "md:grid-cols-2 lg:grid-cols-3",
+  4: "md:grid-cols-3 lg:grid-cols-4",
+  5: "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  6: "md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
+};
+
 export function AssetBrowser({ assets }: { assets: Asset[] }) {
   const runs = useStudio((s) => s.runs);
+  const density = useStudio((s) => s.density);
+  const phoneGrid = useStudio((s) => s.phoneGrid);
+  const phone = usePhone();
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
   const favorites = useStudio((s) => s.favorites);
@@ -171,12 +203,17 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div
+        className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
+          COLUMNS[density] ?? COLUMNS[4]
+        }`}
+      >
         {assets.map((asset, index) => (
           <AssetTile
             key={asset.id}
             asset={asset}
             index={index}
+            square={!phone || phoneGrid}
             picked={picked.includes(asset.url)}
             picking={picked.length > 0}
             onPick={() =>

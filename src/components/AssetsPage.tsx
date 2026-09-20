@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
+import { DensityControl } from "@/components/DensityControl";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
 
@@ -40,13 +41,16 @@ export function AssetsPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="mb-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Assets</h2>
         <p className="text-[13px] text-t3">
           {assets.length === 0
             ? "Everything you generate or upload collects here."
             : `${assets.length} item${assets.length === 1 ? "" : "s"} · generated and uploaded`}
         </p>
+        </div>
+        {assets.length > 0 && <DensityControl />}
       </div>
 
       <div className="mb-4">

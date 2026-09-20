@@ -1,6 +1,7 @@
 "use client";
 
 import { AssetBrowser } from "@/components/AssetBrowser";
+import { DensityControl } from "@/components/DensityControl";
 import { useAssets } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
 
@@ -16,13 +17,16 @@ export function FavoritesPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="mb-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Favorites</h2>
         <p className="text-[13px] text-t3">
           {shown.length === 0
             ? "The heart on any piece of media keeps it here."
             : `${shown.length} kept · generated and uploaded`}
         </p>
+        </div>
+        {shown.length > 0 && <DensityControl />}
       </div>
 
       {shown.length === 0 ? (

@@ -339,6 +339,33 @@ export function MediaViewer({
     onClose();
   }
 
+  // Everything this media can do, in reaching order. Six fit in the grid;
+  // past that the tail steps behind More, so the rows stay square.
+  const actions = [
+    videoModel && <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} />,
+    run && <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} />,
+    slot && isImage && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
+    <Action
+      key="favorite"
+      icon="heart"
+      filled={kept}
+      label={kept ? "Kept" : "Favorite"}
+      onClick={() => shown && toggleFavorite(shown)}
+    />,
+    <Action key="download" icon="download" label="Download" href={shown} />,
+    <Action
+      key="copy"
+      icon={copied === "url" ? "check" : "copy"}
+      label={copied === "url" ? "Copied" : "Copy URL"}
+      onClick={() => copy(shown, "url")}
+    />,
+    (run || upload) && (
+      <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
+    ),
+  ].filter(Boolean);
+  const overflowed = actions.length > 6;
+  const tiles = overflowed ? actions.slice(0, 5) : actions;
+
   const title = run?.modelName ?? upload?.label ?? "Media";
   const subtitle = run
     ? `${model?.category ?? "run"} · ${run.urls.length > 1 ? `${run.urls.length} outputs` : "1 output"}`
@@ -432,30 +459,24 @@ export function MediaViewer({
         {/* Actions lead on a phone, where they are what the tap was for, and
             sit under the panel on a desktop, where the hover already had them. */}
         <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
-          {/* Six tiles the same size, in the order you reach for them; what is
-              left over lives behind More rather than stretching the grid. */}
+          {/* Six tiles the same size, in the order you reach for them. What
+              does not fit goes behind More — and when everything fits, as it
+              does for an upload, More is not there at all. */}
           <div className="grid grid-cols-3 gap-2">
-            {videoModel && <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />}
-            {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
-            {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
-            <Action
-              icon="heart"
-              filled={kept}
-              label={kept ? "Kept" : "Favorite"}
-              onClick={() => shown && toggleFavorite(shown)}
-            />
-            <Action icon="download" label="Download" href={shown} />
-            <Action
-              icon="more"
-              label="More"
-              onClick={() => {
-                setMore((was) => !was);
-                setConfirming(false);
-              }}
-            />
+            {tiles}
+            {overflowed && (
+              <Action
+                icon="more"
+                label="More"
+                onClick={() => {
+                  setMore((was) => !was);
+                  setConfirming(false);
+                }}
+              />
+            )}
           </div>
 
-          {more && (
+          {overflowed && more && (
             <div className="anim-pop flex flex-col gap-1 rounded-card bg-t1/[0.05] p-1.5">
               <button
                 type="button"
@@ -465,40 +486,41 @@ export function MediaViewer({
                 <Icon name={copied === "url" ? "check" : "copy"} size={15} />
                 {copied === "url" ? "Copied" : "Copy URL"}
               </button>
-              {(run || upload) &&
-                (confirming ? (
-                  // Asked before it happens: a gallery is the only copy of
-                  // what it holds, and a tap is easy to make by accident.
-                  <div className="flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-1.5 pl-3">
-                    <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
-                      Delete this?
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(false)}
-                      className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
-                    >
-                      No
-                    </button>
-                    <button
-                      type="button"
-                      onClick={remove}
-                      className="rounded-full bg-[#ff6b6b]/85 px-3 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-                    >
-                      Yes
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setConfirming(true)}
-                    style={{ color: "var(--danger)" }}
-                    className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
-                  >
-                    <Icon name="trash" size={15} />
-                    Delete
-                  </button>
-                ))}
+              {(run || upload) && !confirming && (
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  style={{ color: "var(--danger)" }}
+                  className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
+                >
+                  <Icon name="trash" size={15} />
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
+
+          {confirming && (
+            // Asked before it happens: a gallery is the only copy of what it
+            // holds, and a tap is easy to make by accident.
+            <div className="anim-pop flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
+              <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
+                Delete this?
+              </p>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={remove}
+                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+              >
+                Yes, delete
+              </button>
             </div>
           )}
         </div>
