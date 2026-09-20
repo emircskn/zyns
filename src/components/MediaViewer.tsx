@@ -113,23 +113,28 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
   return rows;
 }
 
+/**
+ * The media itself. On a phone it takes the width it is given and keeps its
+ * own height, so the page under it scrolls; on a desktop it fills the stage
+ * beside the panel. Bare either way — a frame on a picture this size reads
+ * as a border the picture does not have.
+ */
 function Stage({ url }: { url: string }) {
+  const fit = "max-h-[52vh] w-auto max-w-full object-contain md:h-full md:max-h-none md:w-full";
   const kind = mediaKind(url);
   if (kind === "video") {
-    return <video src={url} controls autoPlay loop playsInline className="h-full w-full object-contain" />;
+    return <video src={url} controls autoPlay loop playsInline className={fit} />;
   }
   if (kind === "audio") {
     return (
-      <div className="flex w-full max-w-[520px] flex-col items-center gap-5">
+      <div className="flex w-full max-w-[520px] flex-col items-center gap-5 py-8">
         <Icon name="audio" size={34} className="text-t3" />
         <audio src={url} controls autoPlay className="w-full" />
       </div>
     );
   }
-  // Bare, with no card around it: a frame on a picture this size reads as a
-  // border the picture does not have.
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt="" className="h-full w-full object-contain" />;
+  return <img src={url} alt="" className={fit} />;
 }
 
 function Action({
@@ -150,36 +155,72 @@ function Action({
   /** A heart already given reads as solid. */
   filled?: boolean;
 }) {
+  // A tile with the icon over its name where there is width to spare, and the
+  // same thing as a pill in the narrow panel beside a desktop stage.
+  const shape =
+    "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-2 py-3 text-[11.5px] transition-colors duration-[120ms] md:flex-row md:gap-1.5 md:rounded-full md:px-2.5 md:py-2 md:text-[12px]";
   const className = primary
-    ? "cta flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[12.5px] font-medium"
-    : `flex w-full min-w-0 items-center justify-center gap-1.5 truncate rounded-full bg-t1/[0.07] px-2.5 py-2 text-[12px] transition-colors duration-[120ms] ${
-        danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"
-      }`;
+    ? `cta ${shape} font-medium`
+    : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
   const tint = danger ? { color: "var(--danger)" } : undefined;
+  const inner = (
+    <>
+      <Icon name={icon} size={16} className="md:hidden" fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={13} className="hidden md:block" fill={filled ? "currentColor" : "none"} />
+      <span className="max-w-full truncate">{label}</span>
+    </>
+  );
   if (href) {
     return (
       <a href={href} target="_blank" rel="noreferrer" download style={tint} className={className}>
-        <Icon name={icon} size={13} fill={filled ? "currentColor" : "none"} />
-        {label}
+        {inner}
       </a>
     );
   }
   return (
     <button type="button" onClick={onClick} style={tint} className={className}>
-      <Icon name={icon} size={13} fill={filled ? "currentColor" : "none"} />
-      {label}
+      {inner}
     </button>
   );
 }
 
-function Section({ title, right, children }: { title: string; right?: ReactNode; children: ReactNode }) {
+/** A titled card: the prompt, the details. Collapsible where it says so. */
+function Section({
+  title,
+  right,
+  children,
+  collapsible,
+}: {
+  title: string;
+  right?: ReactNode;
+  children: ReactNode;
+  collapsible?: boolean;
+}) {
+  const [open, setOpen] = useState(true);
   return (
-    <section className="border-b border-line px-4 py-3.5 last:border-b-0">
-      <div className="mb-2.5 flex items-center justify-between gap-2">
-        <h3 className="font-mono text-[10px] uppercase tracking-[0.1em] text-t4">{title}</h3>
+    <section className="px-4 pb-1 pt-3.5">
+      <div className="mb-2 flex items-center justify-between gap-2 px-0.5">
+        {collapsible ? (
+          <button
+            type="button"
+            onClick={() => setOpen((was) => !was)}
+            aria-expanded={open}
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-t4 transition-colors duration-[120ms] hover:text-t2"
+          >
+            {title}
+            <Icon
+              name="chevron"
+              size={12}
+              className="transition-transform duration-[200ms]"
+              style={{ transform: open ? "rotate(180deg)" : "none" }}
+            />
+          </button>
+        ) : (
+          <h3 className="font-mono text-[10px] uppercase tracking-[0.1em] text-t4">{title}</h3>
+        )}
         {right}
       </div>
-      {children}
+      {open && <div className="rounded-card bg-t1/[0.035] p-3">{children}</div>}
     </section>
   );
 }
@@ -206,6 +247,7 @@ export function MediaViewer({
   const [shown, setShown] = useState(url);
   const [copied, setCopied] = useState<"url" | "prompt" | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [full, setFull] = useState(false);
 
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
@@ -217,9 +259,11 @@ export function MediaViewer({
     if (url) setShown(url);
   }, [url]);
 
-  // A fresh preview never opens mid-confirmation.
+  // A fresh preview never opens mid-confirmation, or half-read.
   useEffect(() => {
-    if (url) setConfirming(false);
+    if (!url) return;
+    setConfirming(false);
+    setFull(false);
   }, [url]);
 
   useEffect(() => {
@@ -291,21 +335,28 @@ export function MediaViewer({
     : "Uploaded";
 
   return createPortal(
+    // A phone scrolls the whole thing — picture, then what to do with it,
+    // then what it is. A desktop keeps the picture still on a stage with the
+    // panel beside it, which is what `md:` switches back on throughout.
     <div
       data-viewer="media"
-      className={`fixed inset-0 z-[110] flex flex-col bg-canvas-deep md:flex-row ${
+      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep md:flex-row md:overflow-hidden ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
     >
-      <div className="relative flex min-h-0 flex-1 items-center justify-center p-3 md:p-8">
+      <div className="relative flex shrink-0 items-center justify-center p-3 md:min-h-0 md:flex-1 md:p-8">
         <button
           type="button"
           className="no-press absolute inset-0 hidden md:block"
           aria-label="Close"
           onClick={onClose}
         />
-        <div className={`relative flex h-full w-full flex-col items-center justify-center gap-3 ${exiting ? "" : "anim-zoom"}`}>
-          <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+        <div
+          className={`relative flex w-full flex-col items-center justify-center gap-3 md:h-full ${
+            exiting ? "" : "anim-zoom"
+          }`}
+        >
+          <div className="flex w-full min-h-0 items-center justify-center md:flex-1">
             <Stage url={shown} />
           </div>
           {run && run.urls.length > 1 && (
@@ -332,12 +383,21 @@ export function MediaViewer({
             </div>
           )}
         </div>
+
+        {/* On a phone the close button floats over the picture, since the
+            panel's own header is for the desktop layout. */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-t1/[0.1] text-t1 backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.18] md:hidden"
+        >
+          <Icon name="close" size={18} />
+        </button>
       </div>
 
-      {/* The actions never scroll away: on a phone the panel is a third of the
-          screen, and Download and Delete are what it is open for. */}
-      <aside className="flex h-[46vh] w-full shrink-0 flex-col border-t border-line bg-canvas md:h-auto md:w-[348px] md:border-l md:border-t-0">
-        <header className="flex items-center gap-3 border-b border-line px-4 py-3">
+      <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
+        <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
           {model ? (
             <VendorBadge vendor={model.vendor} size={30} />
           ) : (
@@ -359,24 +419,75 @@ export function MediaViewer({
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-        {run && (run.prompt || refs.length > 0) && (
-          <Section
-            title="Prompt"
-            right={
-              run.prompt ? (
-                <button
-                  type="button"
-                  onClick={() => copy(run.prompt, "prompt")}
-                  className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[11px] text-t3 transition-colors duration-[120ms] hover:text-t1"
-                >
-                  <Icon name={copied === "prompt" ? "check" : "copy"} size={11} />
-                  Copy
-                </button>
-              ) : undefined
-            }
-          >
-            <div className="rounded-card bg-t1/[0.028] p-3">
+        {/* Actions lead on a phone, where they are what the tap was for, and
+            sit under the panel on a desktop, where the hover already had them. */}
+        <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
+          {/* Three to a row, and an odd one left over stretches rather than
+              sitting alone in a row of its own. */}
+          <div className="grid grid-cols-3 gap-2 [&>*:last-child:nth-child(3n+1)]:col-span-3">
+            {videoModel && (
+              <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />
+            )}
+            {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
+            {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
+            <Action
+              icon="heart"
+              filled={kept}
+              label={kept ? "Kept" : "Favorite"}
+              onClick={() => shown && toggleFavorite(shown)}
+            />
+            <Action icon="download" label="Download" href={shown} />
+            <Action
+              icon={copied === "url" ? "check" : "copy"}
+              label={copied === "url" ? "Copied" : "Copy URL"}
+              onClick={() => copy(shown, "url")}
+            />
+            {(run || upload) && !confirming && (
+              <Action icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
+            )}
+          </div>
+          {confirming && (
+            // Asked before it happens: a gallery is the only copy of what it
+            // holds, and a tap on a phone is easy to make by accident.
+            <div className="flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
+              <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
+                Delete this?
+              </p>
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={remove}
+                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+              >
+                Yes, delete
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="pb-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:pb-0">
+          {run && (run.prompt || refs.length > 0) && (
+            <Section
+              title="Prompt"
+              right={
+                run.prompt ? (
+                  <button
+                    type="button"
+                    onClick={() => copy(run.prompt, "prompt")}
+                    className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[11px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                  >
+                    <Icon name={copied === "prompt" ? "check" : "copy"} size={11} />
+                    Copy
+                  </button>
+                ) : undefined
+              }
+            >
               {refs.length > 0 && (
                 <div className="no-bar mb-2.5 flex gap-1.5 overflow-x-auto">
                   {refs.map((ref) => (
@@ -400,74 +511,46 @@ export function MediaViewer({
                   ))}
                 </div>
               )}
-              <p className="text-[12.5px] leading-relaxed text-t2">
-                {run.prompt || <span className="text-t4">No prompt — this run worked from its inputs.</span>}
-              </p>
-            </div>
-          </Section>
-        )}
-
-        {details.length > 0 && (
-          <Section title="Details">
-            <dl className="flex flex-col gap-1.5">
-              {details.map((row) => (
-                <div key={row.label} className="flex items-baseline justify-between gap-3">
-                  <dt className="shrink-0 text-[12px] text-t4">{row.label}</dt>
-                  <dd className="truncate text-right text-[12px] text-t2">{row.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Section>
-        )}
-
-        </div>
-
-        <div className="flex shrink-0 flex-col gap-2 border-t border-line p-4">
-          {videoModel && (
-            <Action icon="video" label="Turn to video" primary onClick={turnToVideo} />
-          )}
-          <div className="flex gap-2">
-            {run && <Action icon="refresh" label="Recreate" onClick={recreate} />}
-            {slot && isImage && <Action icon="layers" label="Reference" onClick={reference} />}
-            <Action
-              icon="heart"
-              filled={kept}
-              label={kept ? "Kept" : "Favorite"}
-              onClick={() => shown && toggleFavorite(shown)}
-            />
-          </div>
-          {confirming ? (
-            // Asked before it happens: a gallery is the only copy of what it
-            // holds, and a tap on a phone is easy to make by accident.
-            <div className="flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
-              <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>Delete this?</p>
-              <button
-                type="button"
-                onClick={() => setConfirming(false)}
-                className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
-              >
-                No
-              </button>
-              <button
-                type="button"
-                onClick={remove}
-                className="rounded-full bg-[#ff6b6b]/80 px-3.5 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-              >
-                Yes, delete
-              </button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <Action icon="download" label="Download" href={shown} />
-              <Action
-                icon={copied === "url" ? "check" : "copy"}
-                label={copied === "url" ? "Copied" : "Copy URL"}
-                onClick={() => copy(shown, "url")}
-              />
-              {(run || upload) && (
-                <Action icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
+              {run.prompt ? (
+                <>
+                  <p className={`text-[12.5px] leading-relaxed text-t2 ${full ? "" : "line-clamp-5"}`}>
+                    {run.prompt}
+                  </p>
+                  {run.prompt.length > 220 && (
+                    <button
+                      type="button"
+                      onClick={() => setFull((was) => !was)}
+                      className="mt-1.5 flex items-center gap-1 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                    >
+                      {full ? "Show less" : "See all"}
+                      <Icon
+                        name="chevron"
+                        size={12}
+                        className="transition-transform duration-[200ms]"
+                        style={{ transform: full ? "rotate(180deg)" : "none" }}
+                      />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="text-[12.5px] leading-relaxed text-t4">
+                  No prompt — this run worked from its inputs.
+                </p>
               )}
-            </div>
+            </Section>
+          )}
+
+          {details.length > 0 && (
+            <Section title="Details" collapsible>
+              <dl className="flex flex-col gap-1.5">
+                {details.map((row) => (
+                  <div key={row.label} className="flex items-baseline justify-between gap-3">
+                    <dt className="shrink-0 text-[12px] text-t4">{row.label}</dt>
+                    <dd className="truncate text-right text-[12px] capitalize text-t2">{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Section>
           )}
         </div>
       </aside>
