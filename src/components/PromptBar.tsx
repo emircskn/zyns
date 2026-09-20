@@ -519,8 +519,10 @@ export function PromptBar() {
           theme={theme}
           active={motion}
           // The library's root is a block it sizes itself; the bar has to keep
-          // filling the column it sits in.
-          style={{ display: "block", width: "100%" }}
+          // filling the column it sits in. It also clips to itself, which
+          // swallowed the popovers that open above the bar — its glow layers
+          // carry their own clip-path, so letting the box overflow is free.
+          style={{ display: "block", width: "100%", overflow: "visible" }}
         >
         <div
           className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
