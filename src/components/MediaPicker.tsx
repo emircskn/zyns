@@ -165,16 +165,27 @@ export function MediaPicker({
           </button>
         </header>
 
-        <div className="px-4 py-3 sm:px-5">
+        {/* Browsing what exists and adding something new are two different
+            errands, so the upload button stands apart from the two lists. */}
+        <div className="flex items-center gap-2.5 px-4 py-3 sm:px-5">
           <PillGroup
             value={tab}
             onChange={(next) => setTab(next as Tab)}
             items={[
               { id: "generated", label: `Generated ${made.length ? `· ${made.length}` : ""}`.trim() },
               { id: "uploads", label: `Uploads ${uploaded.length ? `· ${uploaded.length}` : ""}`.trim() },
-              { id: "new", label: "Upload new" },
             ]}
           />
+          <button
+            type="button"
+            onClick={() => setTab("new")}
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2.5 text-[12.5px] font-medium transition-colors duration-[150ms] ${
+              tab === "new" ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t3 hover:text-t1"
+            }`}
+          >
+            <Icon name="upload" size={14} />
+            Upload new
+          </button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">

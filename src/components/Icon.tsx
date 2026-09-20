@@ -16,6 +16,7 @@ export type IconName =
   | "spark"
   | "arrow-up"
   | "download"
+  | "upload"
   | "copy"
   | "trash"
   | "check"
@@ -85,6 +86,7 @@ const PATHS: Record<IconName, ReactElement> = {
   spark: <path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z" />,
   "arrow-up": <path d="M12 19V5M5 12l7-7 7 7" />,
   download: <path d="M12 4v11m0 0l-4-4m4 4l4-4M4 19h16" />,
+  upload: <path d="M12 15V4m0 0l-4 4m4-4l4 4M4 19h16" />,
   copy: (
     <>
       <rect x="9" y="9" width="11" height="11" rx="2" />
@@ -195,6 +197,7 @@ const NUDGE: Partial<Record<IconName, [number, number]>> = {
   copy: [-0.5, 0],
   wand: [-0.75, 0.5],
   download: [0, 0.5],
+  upload: [0, 0.5],
 };
 
 export function Icon({ name, size = 18, ...rest }: Props) {
