@@ -161,10 +161,11 @@ karonun üzerinde bağlantıyı kopyalama, indirme ve yüklemeler için kaldırm
 düğmeleri var. Bu sayfada prompt barı görünmüyor, sayfa sadece gözden geçirme
 içindir.
 
-Referans medyası eklerken açılan pencerede üç sekme var: **Generated** (daha
-önce ürettiklerin), **Uploads** (daha önce yüklediklerin) ve **Upload new**
-(cihazdan dosya seçme ya da URL yapıştırma). Liste, alanın kabul ettiği türe
-göre süzülüyor; çoklu alanlarda birden fazla seçip tek seferde ekleyebilirsin.
+Referans medyası eklerken açılan pencerede iki sekme var: **Generated** (daha
+önce ürettiklerin) ve **Uploads** (daha önce yüklediklerin). Yükleme ayrı bir
+buton değil, Uploads ızgarasının ilk karesi: **Upload media** cihazdan dosya
+seçtiriyor, altındaki alan da URL yapıştırmaya yarıyor. Liste, alanın kabul
+ettiği türe göre süzülüyor; çoklu alanlarda birden fazla seçip tek seferde ekleyebilirsin.
 Her yükleme kaydediliyor, böylece aynı dosyayı ikinci kez yüklemek gerekmiyor.
 Bkz. `src/lib/assets.ts`, `src/components/MediaPicker.tsx`.
 

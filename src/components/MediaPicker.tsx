@@ -9,7 +9,7 @@ import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
 
 type Kind = "image" | "video" | "audio";
-type Tab = "generated" | "uploads" | "new";
+type Tab = "generated" | "uploads";
 
 function Thumb({
   asset,
@@ -92,7 +92,7 @@ export function MediaPicker({
     if (!open) return;
     setChosen([]);
     setUrl("");
-    setTab(made.length > 0 ? "generated" : uploaded.length > 0 ? "uploads" : "new");
+    setTab(made.length > 0 ? "generated" : "uploads");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -108,7 +108,7 @@ export function MediaPicker({
 
   if (!mounted || typeof document === "undefined") return null;
 
-  const list = tab === "generated" ? made : tab === "uploads" ? uploaded : [];
+  const list = tab === "generated" ? made : uploaded;
   const noun = accept === "video" ? "clips" : accept === "audio" ? "audio" : "images";
 
   function choose(asset: Asset) {
@@ -165,9 +165,7 @@ export function MediaPicker({
           </button>
         </header>
 
-        {/* Browsing what exists and adding something new are two different
-            errands, so the upload button stands apart from the two lists. */}
-        <div className="flex items-center gap-2.5 px-4 py-3 sm:px-5">
+        <div className="flex items-center px-4 py-3 sm:px-5">
           <PillGroup
             value={tab}
             onChange={(next) => setTab(next as Tab)}
@@ -176,31 +174,46 @@ export function MediaPicker({
               { id: "uploads", label: `Uploads ${uploaded.length ? `· ${uploaded.length}` : ""}`.trim() },
             ]}
           />
-          <button
-            type="button"
-            onClick={() => setTab("new")}
-            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2.5 text-[12.5px] font-medium transition-colors duration-[150ms] ${
-              tab === "new" ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t3 hover:text-t1"
-            }`}
-          >
-            <Icon name="upload" size={14} />
-            Upload new
-          </button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
-          {tab === "new" ? (
-            <div className="flex flex-col gap-3 py-2">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => input.current?.click()}
-                className="flex flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong py-10 text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1 disabled:opacity-50"
-              >
-                <Icon name="plus" size={20} />
-                <span className="text-[13px]">{busy ? "Uploading…" : `Choose ${noun} from this device`}</span>
-              </button>
-              <div className="flex items-center gap-2">
+          {tab === "generated" && list.length === 0 ? (
+            <p className="py-14 text-center text-[13px] text-t4">
+              Nothing generated yet. Runs that produce {noun} show up here.
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {/* Uploading is one of the tiles rather than a separate errand:
+                  the chooser sits where the uploads themselves are. */}
+              {tab === "uploads" && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => input.current?.click()}
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1 disabled:opacity-50"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
+                    <Icon name="upload" size={17} />
+                  </span>
+                  <span className="px-2 text-center text-[12.5px] font-medium">
+                    {busy ? "Uploading…" : "Upload media"}
+                  </span>
+                </button>
+              )}
+              {list.map((asset) => (
+                <Thumb
+                  key={asset.id}
+                  asset={asset}
+                  picked={chosen.includes(asset.url) || taken.includes(asset.url)}
+                  onClick={() => choose(asset)}
+                />
+              ))}
+            </div>
+          )}
+
+          {tab === "uploads" && (
+            <>
+              <div className="mt-3 flex items-center gap-2">
                 <input
                   ref={urlField}
                   value={url}
@@ -223,25 +236,8 @@ export function MediaPicker({
                   Add
                 </button>
               </div>
-              {error && <p className="text-[11.5px] text-[#ff8f8f]">{error}</p>}
-            </div>
-          ) : list.length === 0 ? (
-            <p className="py-14 text-center text-[13px] text-t4">
-              {tab === "generated"
-                ? `Nothing generated yet. Runs that produce ${noun} show up here.`
-                : `No uploads yet. Anything you upload is kept here for next time.`}
-            </p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-              {list.map((asset) => (
-                <Thumb
-                  key={asset.id}
-                  asset={asset}
-                  picked={chosen.includes(asset.url) || taken.includes(asset.url)}
-                  onClick={() => choose(asset)}
-                />
-              ))}
-            </div>
+              {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
+            </>
           )}
         </div>
 
