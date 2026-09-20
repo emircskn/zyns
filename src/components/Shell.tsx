@@ -198,22 +198,6 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   );
 }
 
-/** The header's nav, for a phone that has no room for it in the bar. */
-function PageTabs() {
-  const page = useStudio((s) => s.page);
-  const setPage = useStudio((s) => s.setPage);
-  if (page === "home") return null;
-  return (
-    <div className="mb-4 md:hidden">
-      <PillGroup
-        value={page}
-        onChange={(next) => setPage(next as Page)}
-        items={NAV.filter((item) => item.id !== "assets" && item.id !== "favorites")}
-      />
-    </div>
-  );
-}
-
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -258,7 +242,6 @@ export function Shell() {
             <span className="cta shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium">Add key</span>
           </button>
         )}
-        <PageTabs />
         {page === "home" ? (
           <HomePage />
         ) : page === "assets" ? (

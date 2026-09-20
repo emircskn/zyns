@@ -49,7 +49,9 @@ export function CategoryPage({ category }: { category: Category }) {
         <button
           type="button"
           onClick={() => togglePicker(true, category, true)}
-          className="flex items-center gap-2 rounded-full bg-t1/[0.07] py-1.5 pl-1.5 pr-3.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+          // A phone picks its model from the bar at the bottom, where it is
+          // already named; up here it was the same word twice.
+          className="hidden items-center gap-2 rounded-full bg-t1/[0.07] py-1.5 pl-1.5 pr-3.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
         >
           {model && model.category === category ? (
             <>
@@ -70,7 +72,7 @@ export function CategoryPage({ category }: { category: Category }) {
       </div>
 
       {mine.length === 0 ? (
-        <div className="grid flex-1 place-items-center py-20 text-center">
+        <div className="grid flex-1 place-items-center py-8 text-center md:py-16">
           <div className="anim-rise max-w-[560px]">
             {/* Said large, because an empty page should read as a state and
                 not as a page that failed to load. */}

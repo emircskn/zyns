@@ -77,11 +77,8 @@ function Reveal({ children }: { children: ReactNode }) {
 
   return (
     <div
-      style={{
-        height: height ?? undefined,
-        overflow: moving ? "hidden" : undefined,
-        transition: "height var(--d-slow) var(--ease)",
-      }}
+      className="reveal"
+      style={{ height: height ?? undefined, overflow: moving ? "hidden" : undefined }}
     >
       {/* flow-root keeps a child's bottom margin inside the measured box,
           so spacing under the reference strip survives. */}
@@ -446,14 +443,9 @@ export function PromptBar() {
   const promptRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Decided after mount so the server-rendered markup and the client agree.
-  // A phone is left out of it: the beam is a rotating gradient over the whole
-  // bar, and on a touch device it was spending the frame budget the mode
-  // strip needs to glide — a decoration nobody is hovering anyway.
   const [motion, setMotion] = useState(false);
   useEffect(() => {
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const phone = window.matchMedia("(hover: none)").matches;
-    setMotion(!still && !phone);
+    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
   // The bar's height depends on the model and mode, so publish it as a CSS

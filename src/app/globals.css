@@ -766,6 +766,11 @@ html {
   inherits: false;
 }
 
+/* The bar grows into a mode that brings its own reference inputs. */
+.reveal {
+  transition: height var(--d-slow) var(--ease);
+}
+
 /* Registered lengths, so the fade grows and shrinks with the scroll state
  * rather than snapping on the frame an edge gains something behind it. */
 .pill-fade {
