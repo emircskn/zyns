@@ -113,6 +113,23 @@ export function PillGroup<T extends string>({
     size === "lg" ? "h-7 w-7" : "h-6 w-6"
   }`;
 
+  // The pills would otherwise read through from under the arrow, so the strip
+  // fades into its own background beneath it: the track's colour where the
+  // strip has one, the page's where it does not.
+  const scrim = bare ? "var(--canvas)" : "var(--elevated)";
+  const scrimWidth = size === "lg" ? "w-14" : "w-12";
+  const veil = (side: "left" | "right") => (
+    <span
+      aria-hidden
+      className={`pointer-events-none absolute inset-y-0 z-10 ${scrimWidth} ${
+        side === "left" ? "left-0 rounded-l-full" : "right-0 rounded-r-full"
+      }`}
+      style={{
+        background: `linear-gradient(to ${side === "left" ? "right" : "left"}, ${scrim}, ${scrim} 58%, transparent)`,
+      }}
+    />
+  );
+
   const strip = (
     <div
       ref={root}
@@ -160,24 +177,30 @@ export function PillGroup<T extends string>({
     <div className="relative min-w-0 max-w-full">
       {strip}
       {edges.left && (
-        <button
-          type="button"
-          aria-label="Earlier options"
-          onClick={() => step(-1)}
-          className={`${arrow} left-1`}
-        >
-          <Icon name="chevron" size={size === "lg" ? 14 : 12} className="rotate-90" />
-        </button>
+        <>
+          {veil("left")}
+          <button
+            type="button"
+            aria-label="Earlier options"
+            onClick={() => step(-1)}
+            className={`${arrow} left-1`}
+          >
+            <Icon name="chevron" size={size === "lg" ? 14 : 12} className="rotate-90" />
+          </button>
+        </>
       )}
       {edges.right && (
-        <button
-          type="button"
-          aria-label="More options"
-          onClick={() => step(1)}
-          className={`${arrow} right-1`}
-        >
-          <Icon name="chevron" size={size === "lg" ? 14 : 12} className="-rotate-90" />
-        </button>
+        <>
+          {veil("right")}
+          <button
+            type="button"
+            aria-label="More options"
+            onClick={() => step(1)}
+            className={`${arrow} right-1`}
+          >
+            <Icon name="chevron" size={size === "lg" ? 14 : 12} className="-rotate-90" />
+          </button>
+        </>
       )}
     </div>
   );
