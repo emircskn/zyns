@@ -228,7 +228,11 @@ dönüyor (`img-fx`, `sweep-gradient` ön ayarı): sol üstten sağ alta ilerley
 hücre hücre titreşen bir gradyan taraması. İş bittiğinde görsel bu taramanın
 içinden hücre hücre beliriyor, sonra shader silinip gerçek medya kalıyor;
 video ve seste çözülecek bir kare olmadığı için tarama yalnızca sönüyor.
-WebGL yoksa altındaki marka gradyanı yerinde duruyor. Prompt kutusunun kenarında
+WebGL yoksa altındaki marka gradyanı yerinde duruyor. Tek dosyalık
+`dist/kie-studio.html` derlemesi bu yükleyiciyi taşımıyor: o sayfa API'ye
+ulaşamadığı için shader zaten hiç görünmüyor, sadece `three` yükü olurdu
+(645 KB yerine 1234 KB). Derleme onu `src/standalone/GenerationLoader.tsx`
+ile değiştiriyor, kutucuk gradyanda kalıyor. Prompt kutusunun kenarında
 sürekli dönen bir ışık huzmesi var (`.beam`): kayıtlı bir `--beam-angle`
 özelliğiyle döndürülen konik gradyan, kenarlığa maskelenmiş ince bir çizgi
 ve onun hemen içinde yumuşak bir hale olarak çiziliyor; kutuya

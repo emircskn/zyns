@@ -22,7 +22,11 @@ const js = await build({
   platform: "browser",
   jsx: "automatic",
   write: false,
-  alias: { "@": path.join(root, "src") },
+  alias: {
+    "@": path.join(root, "src"),
+    // Swapped for a stub: see src/standalone/GenerationLoader.tsx.
+    "@/components/GenerationLoader": path.join(root, "src/standalone/GenerationLoader.tsx"),
+  },
   define: { "process.env.NODE_ENV": '"production"' },
   logLevel: "warning",
 });
