@@ -45,7 +45,7 @@ const html = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0908" />
 <title>ZYNS</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23f2a33a'/%3E%3Cpath d='M10.5 10.5h11L10.5 21.5h11' fill='none' stroke='%230a0908' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%227.5%22 fill=%22%230a0908%22/><g transform=%22translate(11.47 15.18) scale(0.08445) translate(-16 825)%22 fill=%22%23f5efe6%22><path d=%22M74-825L753-825L344-165L726-165L726 0L16 0L424-660L74-660L74-825Z%22/></g><rect x=%2276.89%22 y=%2270.94%22 width=%2213.13%22 height=%2214%22 fill=%22%23f5efe6%22/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet" />
