@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -107,6 +108,23 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   const settled = useRef(false);
   const finish = useCallback(() => setLoading(false), []);
 
+  // On a phone the bar cannot wait for a hover, and leaving it up covers the
+  // picture it describes. So there it opens on a tap and the next tap on the
+  // media enlarges, which is where the same actions live anyway.
+  const coarse = useCoarsePointer();
+  const [tapped, setTapped] = useState(false);
+  const tile = useRef<HTMLDivElement>(null);
+  const barLive = !coarse || tapped;
+
+  useEffect(() => {
+    if (!tapped) return;
+    function onDown(event: PointerEvent) {
+      if (!tile.current?.contains(event.target as Node)) setTapped(false);
+    }
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [tapped]);
+
   // Only a run still in flight when the tile mounts gets the shader — work
   // restored from an earlier session should not replay it, and anyone who
   // asked for less motion keeps the plain gradient. Decided once, after
@@ -134,14 +152,21 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
 
   return (
     <div
-      className="anim-tile group relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-all duration-[200ms] hover:ring-line-strong"
+      ref={tile}
+      onClick={() => coarse && setTapped(true)}
+      className="anim-tile group @container relative mb-2.5 break-inside-avoid overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-all duration-[200ms] hover:ring-line-strong"
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
       <div style={{ aspectRatio: run.ratio }} className="relative w-full">
         {url ? (
           <button
             type="button"
-            onClick={() => (mediaKind(url) === "image" ? onOpen(url) : undefined)}
+            // The first tap on a phone belongs to the bar; enlarging is the
+            // one after it, once the tile has shown what it can do.
+            onClick={() => {
+              if (coarse && !tapped) return;
+              if (mediaKind(url) === "image") onOpen(url);
+            }}
             className="block h-full w-full cursor-zoom-in"
           >
             <Media url={url} />
@@ -176,9 +201,21 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
         </div>
       )}
 
-      <div className="hover-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
-        <div className="pointer-events-auto flex items-end justify-between gap-2">
-          <div className="min-w-0">
+      <div
+        className={`hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100 ${
+          tapped ? "is-open" : ""
+        }`}
+      >
+        {/* Nothing to press while the bar is down: at opacity 0 the actions
+            would still take the tap meant for the picture under them. */}
+        {/* Four actions and a prompt do not share a 200px tile: below that the
+            name sits on its own line instead of being squeezed to one letter. */}
+        <div
+          className={`flex flex-col items-start gap-1.5 @[248px]:flex-row @[248px]:items-end @[248px]:justify-between @[248px]:gap-2 ${
+            barLive ? "pointer-events-auto" : "pointer-events-none"
+          }`}
+        >
+          <div className="w-full min-w-0 @[248px]:w-auto">
             <p className="flex items-center gap-1.5 truncate text-[11.5px] text-white">
               <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: accent }} />
               {run.modelName}

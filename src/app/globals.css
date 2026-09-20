@@ -554,9 +554,20 @@ html {
   }
 }
 
-/* Touch screens have no hover: anything hover-revealed must simply be there. */
+/* Touch screens have no hover: anything hover-revealed must simply be there.
+   The exception is a bar too big to leave sitting on the picture — a gallery
+   tile's name, prompt and four actions. That one waits for a tap (.tap-reveal,
+   opened by .is-open) so the media itself stays visible until it is wanted. */
 @media (hover: none) {
   .hover-reveal {
+    opacity: 1 !important;
+  }
+
+  .hover-reveal.tap-reveal {
+    opacity: 0 !important;
+  }
+
+  .hover-reveal.tap-reveal.is-open {
     opacity: 1 !important;
   }
 }
