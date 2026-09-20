@@ -19,8 +19,11 @@ export function ThemeSync() {
     const apply = () => {
       root.dataset.theme = theme;
     };
-    // First paint sets the theme silently; later switches cross-fade.
-    if (!root.dataset.theme || !("startViewTransition" in document)) return apply();
+    // First paint sets the theme silently; later switches cross-fade. A
+    // phone skips the cross-fade: snapshotting the whole page twice costs it
+    // about half a second of dropped frames.
+    const roomy = window.matchMedia("(min-width: 768px)").matches;
+    if (!root.dataset.theme || !roomy || !("startViewTransition" in document)) return apply();
     (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(apply);
   }, [theme, hydrated]);
 

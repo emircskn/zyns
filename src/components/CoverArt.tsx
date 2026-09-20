@@ -33,11 +33,16 @@ export function CoverArt({
   return (
     <div
       className={`cover relative overflow-hidden ${className}`}
-      style={{ background: "#07070a", width: "100%", ...style }}
+      style={{
+        background:
+          "linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0) 55%, rgba(0,0,0,0.12)) , #07070a",
+        width: "100%",
+        ...style,
+      }}
       aria-hidden="true"
     >
       <div
-        className={animate ? "cover-drift" : undefined}
+        className={`cover-wash${animate ? " cover-drift" : ""}`}
         style={{
           position: "absolute",
           top: "-30%",
@@ -51,19 +56,11 @@ export function CoverArt({
             `radial-gradient(30% 30% at 18% 80%, ${c}, transparent 70%)`,
             `radial-gradient(60% 60% at 50% 50%, ${accent}40, transparent 80%)`,
           ].join(","),
-          filter: "blur(14px) saturate(125%)",
         }}
       />
       <div
         className="grain"
         style={{ position: "absolute", inset: 0, opacity: 0.38, mixBlendMode: "overlay" }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0) 55%, rgba(0,0,0,0.12))",
-        }}
       />
     </div>
   );

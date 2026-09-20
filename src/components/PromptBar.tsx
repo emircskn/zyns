@@ -409,16 +409,27 @@ export function PromptBar() {
   const promptRef = useRef<HTMLTextAreaElement | null>(null);
 
   // The bar's height depends on the model and mode, so publish it as a CSS
-  // variable and let the page pad itself instead of guessing.
+  // variable and let the page pad itself instead of guessing. The bar also
+  // animates that height, and writing the variable on every frame of the
+  // animation relaid out the whole page underneath it — most of what made
+  // the mode strip feel slow on a phone. So it is published once the height
+  // settles, not while it moves.
   useEffect(() => {
     const node = wrapper.current;
     if (!node) return;
-    const publish = () =>
+    let timer = 0;
+    const apply = () =>
       document.documentElement.style.setProperty("--bar-h", `${node.offsetHeight}px`);
-    publish();
-    const observer = new ResizeObserver(publish);
+    apply();
+    const observer = new ResizeObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(apply, 140);
+    });
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   if (!model) return null;

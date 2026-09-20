@@ -36,7 +36,7 @@ function ModelCard({
       type="button"
       onClick={onPick}
       style={{ animationDelay: `${180 + Math.min(index, 14) * 22}ms` }}
-      className={`anim-tile lift group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
+      className={`anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
         active ? "ring-t1/60" : "ring-transparent"
       }`}
     >

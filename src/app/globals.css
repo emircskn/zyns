@@ -114,9 +114,10 @@ body {
   letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
-  transition:
-    background-color var(--d-slow) var(--ease),
-    color var(--d-slow) var(--ease);
+  /* No colour transition here: `color` is inherited, so animating it on the
+     body animates every text node in the page at once. Desktop cross-fades
+     the theme through a view transition instead, and a phone switches it
+     outright. */
 }
 
 /* Krea's tell: button labels sit at 450, between body 400 and display 500. */
@@ -529,6 +530,27 @@ html {
   height: 0;
 }
 
+/* A phone pays for every backdrop filter and every blended layer on each
+   frame of an animation, and it has neither the fill rate nor the memory
+   bandwidth to spare. Below the rail breakpoint the covers lose their blur
+   and grain and the bars lose their backdrop blur; the surfaces behind them
+   are opaque enough to read on their own. */
+@media (max-width: 767px) {
+  .cover-wash {
+    filter: saturate(118%);
+  }
+  .grain {
+    display: none;
+  }
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* Touch screens have no hover: anything hover-revealed must simply be there. */
 @media (hover: none) {
   .hover-reveal {
@@ -581,6 +603,22 @@ html {
   transform: translateZ(0);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
   mask-image: radial-gradient(white, black);
+}
+
+/* The soft wash behind a cover. Its blur is the single most expensive thing
+   on the page: with 30 covers in the model sheet it cost two thirds of the
+   dropped frames when the sheet opened on a phone. Phones get the gradients
+   without it, which they are smooth enough to survive. */
+.cover-wash {
+  filter: blur(14px) saturate(125%);
+}
+
+/* A shelf of 30 model cards: the ones off screen are worth nothing until
+   they are scrolled to, and skipping their layout halves the work of opening
+   the sheet. The remembered size keeps the scrollbar honest. */
+.card-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 210px;
 }
 
 /* Film grain from a tiny inline SVG turbulence — no asset, no request. */
