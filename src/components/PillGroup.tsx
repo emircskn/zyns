@@ -216,7 +216,9 @@ export function PillGroup<T extends string>({
   const scroller = fill
     ? `relative flex gap-0.5 ${bare ? "" : "rounded-full bg-t1/[0.07] p-1"} ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
-        bare ? "gap-1" : "gap-0.5 p-1"
+        // The scroller does the clipping, so it needs the track's own radius:
+        // a square clip lets a pill's corner sit outside the capsule's end.
+        bare ? "gap-1" : "gap-0.5 rounded-full p-1"
       }`;
 
   const strip = (
