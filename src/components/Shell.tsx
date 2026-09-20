@@ -43,87 +43,93 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
-    <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-4 border-b border-line bg-canvas/80 px-4 py-3 backdrop-blur-2xl md:-mx-6 md:mb-6 md:gap-7 md:px-6">
-      <button
-        type="button"
-        onClick={() => setPage("home")}
-        aria-label="ZYNS — home"
-        className="shrink-0 text-t1 transition-opacity duration-[150ms] hover:opacity-70"
-      >
-        {/* Wordmark only up here; the tile belongs to the icon and the tab. */}
-        <ZynsWordmark height={19} className="relative top-[3px]" />
-      </button>
-
-      <nav className="hidden items-center gap-1 md:flex">
-        {NAV.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setPage(item.id)}
-            className={`rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[150ms] ${
-              page === item.id ? "text-t1" : "text-t3 hover:text-t1"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
-
-      <div className="ml-auto flex shrink-0 items-center gap-1.5">
-        {demo && (
-          <button
-            type="button"
-            onClick={clearDemo}
-            className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1 sm:flex"
-          >
-            Sample media
-            <Icon name="close" size={11} />
-          </button>
-        )}
-        {!demo && runs.length > 0 && page !== "home" && (
-          <button
-            type="button"
-            onClick={clearRuns}
-            className="hidden rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1 sm:block"
-          >
-            Clear gallery
-          </button>
-        )}
-        {active > 0 && (
-          <span className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 sm:flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "var(--accent)" }} />
-            {active} running
-          </span>
-        )}
+    // Full-bleed bar: the band and its border run edge to edge while the
+    // contents sit on the same 1600px column as the page below it. Negative
+    // margins could only ever cancel main's padding, so past 1600px the bar
+    // stopped short of the window on both sides.
+    <header className="sticky top-0 z-30 mb-4 border-b border-line bg-canvas/80 backdrop-blur-2xl md:mb-6">
+      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-4 px-4 py-3 md:gap-7 md:px-6">
         <button
           type="button"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-          className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+          onClick={() => setPage("home")}
+          aria-label="ZYNS — home"
+          className="shrink-0 text-t1 transition-opacity duration-[150ms] hover:opacity-70"
         >
-          <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+          {/* Wordmark only up here; the tile belongs to the icon and the tab. */}
+          <ZynsWordmark height={19} className="relative top-[3px]" />
         </button>
-        <button
-          type="button"
-          onClick={onKeyClick}
-          className="flex items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.12] hover:text-t1"
-        >
-          <span
-            className="h-1.5 w-1.5 shrink-0 rounded-full"
-            style={{ background: apiKey ? "var(--accent)" : "var(--t4)" }}
-          />
-          {apiKey ? (
-            credits !== null ? (
-              <>
-                <span className="font-mono tabular-nums">{credits.toLocaleString()}</span> credits
-              </>
-            ) : (
-              "Connected"
-            )
-          ) : (
-            "Add API key"
+
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setPage(item.id)}
+              className={`rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[150ms] ${
+                page === item.id ? "text-t1" : "text-t3 hover:text-t1"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          {demo && (
+            <button
+              type="button"
+              onClick={clearDemo}
+              className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1 sm:flex"
+            >
+              Sample media
+              <Icon name="close" size={11} />
+            </button>
           )}
-        </button>
+          {!demo && runs.length > 0 && page !== "home" && (
+            <button
+              type="button"
+              onClick={clearRuns}
+              className="hidden rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1 sm:block"
+            >
+              Clear gallery
+            </button>
+          )}
+          {active > 0 && (
+            <span className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 sm:flex">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "var(--accent)" }} />
+              {active} running
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
+            className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+          >
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={onKeyClick}
+            className="flex items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.12] hover:text-t1"
+          >
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ background: apiKey ? "var(--accent)" : "var(--t4)" }}
+            />
+            {apiKey ? (
+              credits !== null ? (
+                <>
+                  <span className="font-mono tabular-nums">{credits.toLocaleString()}</span> credits
+                </>
+              ) : (
+                "Connected"
+              )
+            ) : (
+              "Add API key"
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -164,13 +170,13 @@ export function Shell() {
   const composing = page !== "assets" && page !== "home";
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-dvh flex-col">
+      <TopBar onKeyClick={() => setKeyOpen(true)} />
       <main
-        className={`mx-auto flex min-h-dvh w-full max-w-[1600px] flex-col px-4 md:px-6 ${
+        className={`mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 ${
           composing ? "below-bar" : "pb-10"
         }`}
       >
-        <TopBar onKeyClick={() => setKeyOpen(true)} />
         {hydrated && !apiKey && page !== "home" && (
           <button
             type="button"

@@ -259,13 +259,18 @@ export function Lightbox({
           exiting ? "anim-zoom-out" : "anim-zoom"
         }`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={shown}
-          alt=""
-          className="max-h-[72vh] max-w-[min(92vw,1100px)] rounded-card object-contain"
-          style={{ boxShadow: "var(--shadow-pop)" }}
-        />
+        {/* A box the picture is fitted into rather than a ceiling it might
+            never reach: a max-height alone leaves anything smaller than the
+            cap at its own size, which is most of what a thumbnail links to. */}
+        <div className="flex h-[74vh] w-[min(92vw,1180px)] items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={shown}
+            alt=""
+            className="h-full w-full rounded-card object-contain"
+            style={{ boxShadow: "var(--shadow-pop)" }}
+          />
+        </div>
         {actions && (
           <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-black/55 p-1.5 backdrop-blur-md">
             {actions}
