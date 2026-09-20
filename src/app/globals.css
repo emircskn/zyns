@@ -142,8 +142,10 @@ h3 {
  * ------------------------------------------------------------------ */
 
 @utility surface-pop {
-  background: color-mix(in oklab, var(--elevated) 92%, transparent);
-  backdrop-filter: blur(32px) saturate(180%);
+  /* Opaque: the translucency leaned on a backdrop blur, and phones switch
+   * that off for the frame budget — which left the page legible straight
+   * through the panel. A solid surface reads the same everywhere. */
+  background: var(--elevated);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-pop);
 }
