@@ -145,7 +145,7 @@ const CHIP_ICON: Array<[RegExp, IconName]> = [
   [/audio|sound|instrumental|loop/, "audio"],
   [/^model$|^version$|^generation_type$|^mode$|persona_model/, "layers"],
   [/voice|vocal_gender|speaker/, "mic"],
-  [/style|rendering_speed|template/, "wand"],
+  [/style|rendering_speed|template/, "palette"],
   [/num_images|max_images|^n$|index/, "hash"],
 ];
 

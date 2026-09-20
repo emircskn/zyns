@@ -32,7 +32,7 @@ export type IconName =
   | "monitor"
   | "layers"
   | "mic"
-  | "wand"
+  | "palette"
   | "expand"
   | "hash"
   | "at";
@@ -165,8 +165,14 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M5 11a7 7 0 0014 0M12 18v3" />
     </>
   ),
-  wand: (
-    <path d="M15 4V2m0 14v-2M8 9h2m10 0h2m-4.2 2.8L19 13m-4-4h.01m2.79-2.8L19 5M3 21l9-9m.2-5.8L11 5" />
+  palette: (
+    <>
+      <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
+      <circle cx="13.5" cy="6.5" r=".9" />
+      <circle cx="17.5" cy="10.5" r=".9" />
+      <circle cx="6.5" cy="12.5" r=".9" />
+      <circle cx="8.5" cy="7.5" r=".9" />
+    </>
   ),
   expand: <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />,
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
@@ -203,7 +209,7 @@ const NUDGE: Partial<Record<IconName, [number, number]>> = {
  * as their neighbours rather than looming over them.
  */
 const FIT: Partial<Record<IconName, { k: number; cx: number; cy: number }>> = {
-  wand: { k: 0.84, cx: 12.5, cy: 11.5 },
+  palette: { k: 0.8, cx: 12, cy: 12 },
 };
 
 export function Icon({ name, size = 18, strokeWidth = 1.6, ...rest }: Props) {
