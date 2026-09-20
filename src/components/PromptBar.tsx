@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { BorderBeam } from "border-beam";
 import { Control, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
@@ -250,6 +251,36 @@ function PromptField({
     : [];
   const open = !!token && matches.length > 0 && dismissed !== token.start;
 
+  // Portalled for the same reason as Popover: inside the bar the beam's glow
+  // layers paint over it. Measured off the prompt row before paint.
+  const row = useRef<HTMLDivElement>(null);
+  const [spot, setSpot] = useState<{ left: number; bottom: number; width: number } | null>(null);
+  useLayoutEffect(() => {
+    if (!open) {
+      setSpot(null);
+      return;
+    }
+    const measure = () => {
+      const node = row.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const margin = 20;
+      const w = Math.min(260, window.innerWidth - 2 * margin);
+      setSpot({
+        left: Math.max(margin, Math.min(rect.left, window.innerWidth - margin - w)),
+        bottom: window.innerHeight - rect.top + 6,
+        width: w,
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [open]);
+
   useEffect(() => setCursor(0), [token?.query]);
 
   function syncCaret() {
@@ -296,7 +327,7 @@ function PromptField({
   }
 
   return (
-    <div className="relative mb-2 flex items-start gap-2">
+    <div ref={row} className="relative mb-2 flex items-start gap-2">
       <textarea
         ref={(node) => {
           ref.current = node;
@@ -317,9 +348,12 @@ function PromptField({
         className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
       />
       {trailing}
-      {open && (
+      {open &&
+        spot &&
+        createPortal(
         <div
-          className="surface-pop anim-rise absolute bottom-[calc(100%+6px)] left-0 z-50 w-[min(260px,calc(100vw-40px))] rounded-panel p-1.5"
+          className="surface-pop anim-rise fixed z-50 rounded-panel p-1.5"
+          style={{ left: spot.left, bottom: spot.bottom, width: spot.width }}
           role="listbox"
         >
           <div className="px-2.5 pb-1.5 pt-1 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">
@@ -342,7 +376,8 @@ function PromptField({
               <span className="truncate">{name}</span>
             </button>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
