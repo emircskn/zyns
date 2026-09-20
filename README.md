@@ -233,12 +233,12 @@ WebGL yoksa altındaki marka gradyanı yerinde duruyor. Tek dosyalık
 ulaşamadığı için shader zaten hiç görünmüyor, sadece `three` yükü olurdu
 (645 KB yerine 1234 KB). Derleme onu `src/standalone/GenerationLoader.tsx`
 ile değiştiriyor, kutucuk gradyanda kalıyor. Prompt kutusunun kenarında
-sürekli dönen bir ışık huzmesi var (`.beam`): kayıtlı bir `--beam-angle`
-özelliğiyle döndürülen konik gradyan, kenarlığa maskelenmiş ince bir çizgi
-ve onun hemen içinde yumuşak bir hale olarak çiziliyor; kutuya
-odaklanıldığında biraz daha parlıyor. Telefonda hale katmanı kapanıp
-yalnızca çizgi kalıyor. `prefers-reduced-motion` açıksa tüm hareket
-kapanıyor (huzme dahil).
+`border-beam`'in `pulse-inner` efekti nefes alıyor: dönen bir huzme değil,
+kenarlığın içinde yavaşça yer değiştiren yumuşak bir parıltı. `mono`
+varyantı paletle çakışmıyor, `staticColors` gri tonda karşılığı olmayan
+hue-rotate filtresini kapatıyor ve tema kullanıcının seçtiği tema (OS
+tercihi değil). `prefers-reduced-motion` açıksa `active={false}` ile
+duruyor.
 
 ## Arayüz notları
 

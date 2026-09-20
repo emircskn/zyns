@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { BorderBeam } from "border-beam";
 import { Control, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
@@ -403,10 +404,17 @@ export function PromptBar() {
   const togglePicker = useStudio((s) => s.togglePicker);
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const apiKey = useStudio((s) => s.apiKey);
+  const theme = useStudio((s) => s.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const promptRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Decided after mount so the server-rendered markup and the client agree.
+  const [motion, setMotion] = useState(false);
+  useEffect(() => {
+    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
   // The bar's height depends on the model and mode, so publish it as a CSS
   // variable and let the page pad itself instead of guessing. The bar also
@@ -502,8 +510,20 @@ export function PromptBar() {
           </div>
         )}
 
+        <BorderBeam
+          size="pulse-inner"
+          colorVariant="mono"
+          // Greyscale has no hue to rotate, so the hue-shift filter is pure
+          // cost. The theme is the one the user picked, not the OS's.
+          staticColors
+          theme={theme}
+          active={motion}
+          // The library's root is a block it sizes itself; the bar has to keep
+          // filling the column it sits in.
+          style={{ display: "block", width: "100%" }}
+        >
         <div
-          className="beam rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
+          className="rounded-panel border border-line bg-elevated/90 p-3 backdrop-blur-2xl"
           style={{ boxShadow: "var(--shadow-bar)" }}
         >
           <Reveal>
@@ -564,6 +584,7 @@ export function PromptBar() {
             </div>
           </div>
         </div>
+        </BorderBeam>
 
         <p className="mt-2 hidden px-2 text-center text-[11px] text-t4 md:block">
           {blocker ? blocker : `${model.vendor} · ${model.tagline}`}
