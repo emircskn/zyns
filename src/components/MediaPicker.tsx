@@ -4,50 +4,93 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
+import { Lightbox } from "@/components/Gallery";
 import { useAssets, type Asset } from "@/lib/assets";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
+import { useStudio } from "@/store/studio";
 
 type Kind = "image" | "video" | "audio";
 type Tab = "generated" | "uploads";
 
-function Thumb({
-  asset,
-  picked,
+function TileAction({
+  icon,
+  label,
   onClick,
 }: {
-  asset: Asset;
-  picked: boolean;
+  icon: Parameters<typeof Icon>[0]["name"];
+  label: string;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
-      title={asset.prompt ?? asset.label}
+      aria-label={label}
+      title={label}
+      onClick={(event) => {
+        // The tile underneath picks the asset; these do their own thing.
+        event.stopPropagation();
+        onClick();
+      }}
+      className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
+    >
+      <Icon name={icon} size={13} />
+    </button>
+  );
+}
+
+function Thumb({
+  asset,
+  picked,
+  onClick,
+  onPreview,
+  onRemove,
+}: {
+  asset: Asset;
+  picked: boolean;
+  onClick: () => void;
+  /** Uploads can be looked at full size and thrown away from here. */
+  onPreview?: () => void;
+  onRemove?: () => void;
+}) {
+  return (
+    <div
       className={`group relative aspect-square overflow-hidden rounded-card bg-surface-2 ring-1 transition-colors duration-[150ms] ${
         picked ? "ring-t1/70" : "ring-line hover:ring-line-strong"
       }`}
     >
-      {asset.kind === "image" ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={asset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
-      ) : asset.kind === "video" ? (
-        <video src={asset.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-      ) : (
-        <span className="pending-surface grid h-full w-full place-items-center">
-          <Icon name="audio" size={20} className="relative z-10 text-white/80" />
+      <button
+        type="button"
+        onClick={onClick}
+        title={asset.prompt ?? asset.label}
+        className="block h-full w-full"
+      >
+        {asset.kind === "image" ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={asset.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+        ) : asset.kind === "video" ? (
+          <video src={asset.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+        ) : (
+          <span className="pending-surface grid h-full w-full place-items-center">
+            <Icon name="audio" size={20} className="relative z-10 text-white/80" />
+          </span>
+        )}
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-2 pb-1.5 pt-6 text-left text-[10.5px] text-white/85">
+          {asset.label}
         </span>
-      )}
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-2 pb-1.5 pt-6 text-left text-[10.5px] text-white/85">
-        {asset.label}
-      </span>
+      </button>
       {picked && (
-        <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
+        <span className="pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
           <Icon name="check" size={11} strokeWidth={2.4} />
         </span>
       )}
-    </button>
+      {(onPreview || onRemove) && (
+        <div className="hover-reveal absolute right-1.5 top-1.5 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+          {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
+          {onRemove && <TileAction icon="trash" label="Remove upload" onClick={onRemove} />}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -77,6 +120,8 @@ export function MediaPicker({
   const [tab, setTab] = useState<Tab>("generated");
   const [chosen, setChosen] = useState<string[]>([]);
   const [url, setUrl] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
+  const removeUpload = useStudio((s) => s.removeUpload);
   const urlField = useRef<HTMLInputElement>(null);
 
   const made = useMemo(
@@ -92,6 +137,7 @@ export function MediaPicker({
     if (!open) return;
     setChosen([]);
     setUrl("");
+    setPreview(null);
     setTab(made.length > 0 ? "generated" : "uploads");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,11 +146,12 @@ export function MediaPicker({
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      // The preview is on top and closes itself first.
+      if (event.key === "Escape" && !preview) onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, onClose, preview]);
 
   if (!mounted || typeof document === "undefined") return null;
 
@@ -206,6 +253,12 @@ export function MediaPicker({
                   asset={asset}
                   picked={chosen.includes(asset.url) || taken.includes(asset.url)}
                   onClick={() => choose(asset)}
+                  onPreview={
+                    tab === "uploads" && asset.kind === "image"
+                      ? () => setPreview(asset.url)
+                      : undefined
+                  }
+                  onRemove={tab === "uploads" ? () => removeUpload(asset.id) : undefined}
                 />
               ))}
             </div>
@@ -275,6 +328,7 @@ export function MediaPicker({
           }}
         />
       </div>
+      <Lightbox url={preview} onClose={() => setPreview(null)} z={130} />
     </div>,
     document.body,
   );

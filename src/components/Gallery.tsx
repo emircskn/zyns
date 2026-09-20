@@ -211,7 +211,16 @@ function Tile({ run, index, onOpen }: { run: Run; index: number; onOpen: (url: s
   );
 }
 
-export function Lightbox({ url, onClose }: { url: string | null; onClose: () => void }) {
+export function Lightbox({
+  url,
+  onClose,
+  z = 110,
+}: {
+  url: string | null;
+  onClose: () => void;
+  /** Raised when the preview opens from something already on a layer. */
+  z?: number;
+}) {
   const { mounted, exiting } = usePresence(!!url, 220);
   const [shown, setShown] = useState(url);
   useEffect(() => {
@@ -229,9 +238,10 @@ export function Lightbox({ url, onClose }: { url: string | null; onClose: () => 
 
   return (
     <div
-      className={`fixed inset-0 z-[110] flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md ${
+      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/92 p-6 backdrop-blur-md ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
+      style={{ zIndex: z }}
     >
       <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
