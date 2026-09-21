@@ -61,10 +61,10 @@ function RailButton({
 }
 
 /**
- * The desktop's left edge: the mark, the pages, and at the foot of it the
- * two things that belong to the browser rather than to any page — the theme
- * and the API key. A phone gets the bottom row instead, so this is hidden
- * there; everything else clears it through --rail-w.
+ * The desktop's left edge: the mark, the pages, and at the foot of it what
+ * belongs to the browser rather than to any page — the sample media, the
+ * theme and the API key. A phone gets the bottom row instead, so this is
+ * hidden there; everything else clears it through --rail-w.
  */
 export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const page = useStudio((s) => s.page);
@@ -74,8 +74,11 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const apiKey = useStudio((s) => s.apiKey);
   const credits = useStudio((s) => s.credits);
   const runs = useStudio((s) => s.runs);
+  const loadDemo = useStudio((s) => s.loadDemo);
+  const clearDemo = useStudio((s) => s.clearDemo);
 
   const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
+  const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[var(--rail-w)] flex-col items-center border-r border-line bg-canvas py-3 md:flex">
@@ -110,6 +113,15 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             {active}
           </span>
         )}
+        {/* Somewhere to see the studio full before there is an API key, and
+            the way back out of it. */}
+        <RailButton
+          label="Samples"
+          icon="palette"
+          on={demo}
+          title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
+          onClick={demo ? clearDemo : loadDemo}
+        />
         <RailButton
           label={theme === "dark" ? "Light" : "Dark"}
           title={theme === "dark" ? "Switch to light" : "Switch to dark"}

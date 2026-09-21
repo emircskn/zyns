@@ -40,7 +40,9 @@ export function FavoritesPage() {
               Press the heart on a tile, or in the enlarged view, and it stays here, out of the
               way of everything else you make.
             </p>
-            <span className="t-stagger-line t-stagger-line--3 mt-6">
+            {/* inline-block, because .t-stagger-line carries no display and an
+                inline span drops its top margin onto the line above. */}
+            <span className="t-stagger-line t-stagger-line--3 mt-8 inline-block">
               <button
                 type="button"
                 onClick={() => setPage("image")}

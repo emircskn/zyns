@@ -142,7 +142,9 @@ export function Shell() {
         ) : page === "favorites" ? (
           <FavoritesPage />
         ) : (
-          <CategoryPage category={page} />
+          // Keyed by page: without it React reuses this element between
+          // categories and the empty state's reveal never runs again.
+          <CategoryPage key={page} category={page} />
         )}
       </main>
 
