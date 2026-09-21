@@ -51,23 +51,36 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
   const recent = useMemo(() => assets.slice(0, 6), [assets]);
 
-  // The box holds the middle of the first screen whatever is under it, so
-  // the hero is given the height left below whatever the page put above it
-  // and Recent starts under the fold rather than pushing the box up.
+  // The box holds the middle of the first screen, whether or not there is
+  // anything under it: the hero takes all the height left below whatever the
+  // page put above it, and Recent is pulled up into the empty part beneath
+  // the box rather than taking any of it away.
   const hero = useRef<HTMLElement>(null);
+  const middle = useRef<HTMLDivElement>(null);
   const [top, setTop] = useState(0);
+  const [pull, setPull] = useState(0);
   const demo = useStudio((s) => s.runs.some((r) => r.id.startsWith("demo-")));
 
   useLayoutEffect(() => {
     const node = hero.current;
     if (!node) return;
-    // Measured off the page rather than off itself, so growing it cannot
-    // feed back into the number.
-    const measure = () => setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
+    const measure = () => {
+      // Measured off the page rather than off itself, so growing it cannot
+      // feed back into the number.
+      setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
+      // And the pull is only ever as much as the room under the box: on a
+      // short screen there is none, and Recent simply follows the hero.
+      const room = node.offsetHeight - (middle.current?.offsetHeight ?? 0);
+      const peek =
+        Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue("--home-peek"),
+        ) || 0;
+      setPull(Math.max(0, Math.min(peek, Math.round(room / 2) - 24)));
+    };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [hydrated, apiKey, demo]);
+  }, [hydrated, apiKey, demo, recent.length]);
 
   // Fonts land after the first paint and move everything above it.
   useEffect(() => {
@@ -81,19 +94,12 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      {/* The box holds the middle of the first screen. When there is work
-          under it, the screen gives back the height of a peek so Recent
-          shows its heading and the top of the row. */}
       <section
         ref={hero}
-        style={{
-          minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px${
-            recent.length > 0 ? " - var(--home-peek)" : ""
-          })`,
-        }}
+        style={{ minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px)` }}
         className="flex flex-col items-center justify-center py-8 md:py-12"
       >
-        <div className="w-full max-w-[720px]">
+        <div ref={middle} className="w-full max-w-[720px]">
           <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
             What do you want to make?
           </h1>
@@ -136,7 +142,12 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
       </section>
 
       {recent.length > 0 && (
-        <section className="mx-auto w-full max-w-[1000px] pb-2 pt-2">
+        // Lifted into the empty room under the box, so its heading peeks at
+        // the foot of the first screen without moving the box at all.
+        <section
+          style={{ marginTop: pull ? -pull : undefined }}
+          className="relative mx-auto w-full max-w-[1000px] pb-2 pt-2"
+        >
           <div className="mb-3 flex items-end justify-between gap-3">
             <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-t4">Recent</h2>
             <button

@@ -79,7 +79,9 @@ function TopStrip() {
   const clearDemo = useStudio((s) => s.clearDemo);
   const page = useStudio((s) => s.page);
 
-  const demo = runs.some((r) => r.id.startsWith("demo-"));
+  // Not on the home screen: a row appearing above the box would move the
+  // box, and the rail's own Samples button already says the studio is full.
+  const demo = runs.some((r) => r.id.startsWith("demo-")) && page !== "home";
   const showClear = !demo && runs.length > 0 && page !== "home";
   if (!demo && !showClear) return null;
 
