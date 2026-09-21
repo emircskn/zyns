@@ -628,13 +628,15 @@ export function MediaViewer({
           )}
         </div>
 
-        {/* On a phone the close button floats over the picture, since the
-            panel's own header is for the desktop layout. */}
+        {/* A phone scrolls the whole view, and the panel's header is for the
+            desktop, so the way out is pinned to the screen rather than to the
+            picture: fixed, above the stage's own layers, and legible on a
+            bright image because it carries its own dark disc. */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-t1/[0.1] text-t1 backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.18] md:hidden"
+          className="fixed right-4 top-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-t1/15 backdrop-blur-md transition-colors duration-[120ms] hover:bg-canvas-deep/80 md:hidden"
         >
           <Icon name="close" size={18} />
         </button>
