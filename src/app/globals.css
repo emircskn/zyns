@@ -812,6 +812,12 @@ html {
   position: relative;
 }
 
+/* The wrapper the pop scales, and the origin the burst is thrown from. */
+.t-like-icon {
+  position: relative;
+  display: inline-flex;
+}
+
 .t-like-heart {
   color: currentColor;
   transition: color var(--like-fill) var(--like-ease);

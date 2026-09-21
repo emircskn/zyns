@@ -85,13 +85,16 @@ export function LikeHeart({
         press();
       }}
     >
+      {/* The burst hangs off the heart, not off the button: on a tile with a
+          label under it the button's middle is below the glyph, which put the
+          spray under the heart instead of around it. */}
       <span className="t-like-icon inline-flex">
         <Icon name="heart" size={size} className="t-like-heart" />
-      </span>
-      <span ref={particles} aria-hidden className="t-like-particles">
-        {Array.from({ length: DOTS }, (_, index) => (
-          <i key={index} />
-        ))}
+        <span ref={particles} aria-hidden className="t-like-particles">
+          {Array.from({ length: DOTS }, (_, index) => (
+            <i key={index} />
+          ))}
+        </span>
       </span>
       {children}
     </button>
