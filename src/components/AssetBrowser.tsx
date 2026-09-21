@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
@@ -8,6 +8,7 @@ import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { downloadAll } from "@/lib/download";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
+import { useReflow } from "@/lib/useReflow";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
@@ -74,6 +75,7 @@ function AssetTile({
   return (
     <div
       {...press}
+      data-flip={asset.id}
       onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
@@ -190,6 +192,9 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
   // Deleting, or taking something out of Favorites, empties a cell: the tile
   // is held in it while it shrinks away.
   const { items: tiles, leaving } = useLeaving(assets, (asset) => asset.id);
+  // And the tiles that are still there slide into the room it leaves.
+  const grid = useRef<HTMLDivElement>(null);
+  useReflow(grid);
 
   // A pick can be taken out from under the selection — by a delete here, or
   // by a run finishing elsewhere — so it is trimmed to what is on screen.
@@ -216,6 +221,7 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
   return (
     <>
       <div
+        ref={grid}
         className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
           COLUMNS[density] ?? COLUMNS[4]
         }`}

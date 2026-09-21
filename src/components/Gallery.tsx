@@ -12,6 +12,7 @@ import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
+import { useReflow } from "@/lib/useReflow";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -168,6 +169,7 @@ function Tile({
   return (
     <div
       {...press}
+      data-flip={run.id}
       onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
@@ -326,6 +328,10 @@ export function Gallery({ category }: { category?: Category }) {
   // A deleted run holds its cell while it shrinks out of it, rather than the
   // grid closing over it between two frames.
   const { items: tiles, leaving } = useLeaving(shown, (run) => run.id);
+  // And whatever is left slides into the room it leaves, rather than the
+  // next tile simply being there.
+  const grid = useRef<HTMLDivElement>(null);
+  useReflow(grid);
 
   // A run can finish, or be deleted, while its tile is picked.
   useEffect(() => {
@@ -347,6 +353,7 @@ export function Gallery({ category }: { category?: Category }) {
       {/* Phone: everything the same size in a grid of three, or one piece of
           media at a time. Desktop: the packed columns, at the chosen step. */}
       <div
+        ref={grid}
         className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:block md:gap-2.5 ${
           COLUMNS[density] ?? COLUMNS[4]
         }`}
