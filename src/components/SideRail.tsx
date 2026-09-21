@@ -39,23 +39,12 @@ function RailButton({
       onClick={onClick}
       title={title ?? label}
       aria-current={on ? "page" : undefined}
-      className={`group flex w-14 flex-col items-center gap-1 rounded-card px-1 py-2 text-[9.5px] leading-none transition-colors duration-[150ms] ${
+      className={`flex w-14 flex-col items-center gap-1 rounded-card px-1 py-2 text-[9.5px] leading-none transition-colors duration-[150ms] ${
         on ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
       <span className="relative">
-        {/* The folder bumps: on hover, and once as it becomes the page you
-            are on, which is the only cue a touch screen gets. Keyed so that
-            second one starts over rather than sitting finished. */}
-        <Icon
-          key={icon === "folder" && on ? "bumped" : "still"}
-          name={icon}
-          size={19}
-          fill={on && icon === "heart" ? "currentColor" : "none"}
-          className={
-            icon === "folder" ? `icon-bump${on ? " icon-bump--now" : ""}` : undefined
-          }
-        />
+        <Icon name={icon} size={19} fill={on && icon === "heart" ? "currentColor" : "none"} />
         {badge !== undefined && (
           <span
             className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-2"

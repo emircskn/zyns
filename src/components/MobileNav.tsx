@@ -18,20 +18,13 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
       type="button"
       onClick={() => setPage(id)}
       aria-current={on ? "page" : undefined}
-      className={`group flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
+      className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
         on ? "font-medium text-t1" : "text-t4"
       }`}
     >
       {/* The page you are on is simply brighter — the accent belongs to the
-          one button that starts something. The folder bumps as it becomes
-          that page, since a phone has no hover to carry the animation. */}
-      <Icon
-        key={icon === "folder" && on ? "bumped" : "still"}
-        name={icon}
-        size={21}
-        fill={on && icon === "heart" ? "currentColor" : "none"}
-        className={icon === "folder" ? `icon-bump${on ? " icon-bump--now" : ""}` : undefined}
-      />
+          one button that starts something. */}
+      <Icon name={icon} size={21} fill={on && icon === "heart" ? "currentColor" : "none"} />
       {label}
     </button>
   );
