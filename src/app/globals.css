@@ -793,6 +793,73 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * The landing hero
+ * A held frame before the tools: ruled light at the top and bottom edges,
+ * two slow aurorae at the sides, and a warm bloom behind the mark.
+ * ------------------------------------------------------------------ */
+.hero-grid {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  width: min(1600px, 160%);
+  height: 220px;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(0deg, var(--line-strong) 0 1px, transparent 1px 72px);
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 88%);
+  mask-image: linear-gradient(to bottom, #000, transparent 88%);
+}
+
+.hero-grid--top {
+  top: 0;
+}
+
+.hero-grid--bottom {
+  bottom: 0;
+  rotate: 180deg;
+}
+
+/* Two shapes of light either side of the headline, drifting slowly enough
+   that the frame never reads as a flat gradient. */
+.hero-aurora {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 120%;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 38% at 12% 22%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 88% 22%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%),
+    radial-gradient(60% 40% at 50% 100%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 72%);
+  animation: hero-drift 24s var(--ease) infinite alternate;
+}
+
+@keyframes hero-drift {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  to { transform: translate3d(1.5%, 1.5%, 0) scale(1.06); }
+}
+
+.hero-bloom {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 55%, transparent), transparent 68%);
+  filter: blur(60px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Transitions.dev — like button
  * A heart that fills and springs on the press, with a short burst of
  * particles thrown along per-dot vectors set in JS (see LikeHeart).
@@ -897,7 +964,9 @@ html {
 }
 
 .t-stagger-line {
-  display: block;
+  /* No display of its own: this class sits on headings, paragraphs and flex
+     rows alike, and an unlayered `display: block` here beat the utility that
+     made the row a row. */
   opacity: 0;
   transform: translateY(var(--stagger-distance));
   filter: blur(var(--stagger-blur));
