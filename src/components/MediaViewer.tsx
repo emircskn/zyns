@@ -228,6 +228,34 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
 }
 
 /**
+ * The same picture, scaled up and blurred out, filling the room the picture
+ * itself cannot: the stage around a tall image was a black field, and this
+ * gives it the light of whatever is standing on it.
+ */
+function Ambient({ url }: { url: string }) {
+  const kind = mediaKind(url);
+  if (kind === "audio") return null;
+  // Blurred small and then magnified, rather than blurred at full size: the
+  // filter runs over a tenth of the pixels and the scale does the rest, so
+  // the wash costs almost nothing and never tiles.
+  const wash = "h-full w-full object-cover saturate-[1.3]";
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 isolate z-0 overflow-hidden">
+      <div className="absolute left-1/2 top-1/2 h-[12%] w-[12%] -translate-x-1/2 -translate-y-1/2 scale-[10] opacity-50 blur-[5px]">
+        {kind === "video" ? (
+          // Metadata only: this is the first frame as a wash, not a second
+          // copy of the clip playing behind the one you are watching.
+          <video src={url} muted playsInline preload="metadata" className={wash} />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt="" className={wash} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
  * The media itself. On a phone it takes the width it is given and keeps its
  * own height, so the page under it scrolls; on a desktop it fills the stage
  * beside the panel. Bare either way — a frame on a picture this size reads
@@ -545,11 +573,12 @@ export function MediaViewer({
             exiting ? "" : "anim-zoom"
           }`}
         >
-          <div className="flex w-full min-h-0 items-center justify-center md:flex-1">
+          <Ambient url={shown} />
+          <div className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1">
             <Stage url={shown} />
           </div>
           {run && run.urls.length > 1 && (
-            <div className="no-bar flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
+            <div className="no-bar relative z-10 flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
               {run.urls.map((one) => (
                 <button
                   key={one}
@@ -810,7 +839,10 @@ export function MediaPreview({
     >
       <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
       <div className={`relative flex h-full w-full items-center justify-center ${exiting ? "" : "anim-zoom"}`}>
-        <Stage url={shown} />
+        <Ambient url={shown} />
+        <div className="relative z-10 flex h-full w-full items-center justify-center">
+          <Stage url={shown} />
+        </div>
       </div>
       <button
         type="button"
