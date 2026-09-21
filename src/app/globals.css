@@ -73,6 +73,9 @@
   --nav-h: 0px;
   /* The desktop rail down the left, which the pages and the bar clear. */
   --rail-w: 0px;
+  /* How much of Recent shows under the home screen's box: its heading and
+     the top of the row, enough to say there is more down there. */
+  --home-peek: 150px;
 
   --d-fast: 120ms;
   --d-base: 200ms;
@@ -112,6 +115,13 @@
 @media (min-width: 768px) {
   :root {
     --rail-w: 72px;
+  }
+}
+
+/* A phone has less to spare, and its bottom row is in the way. */
+@media (max-width: 767px) {
+  :root {
+    --home-peek: 104px;
   }
 }
 
@@ -917,6 +927,38 @@ html {
     transform 0s linear,
     filter 0s linear;
   transition-delay: 0s;
+}
+
+/* ------------------------------------------------------------------ *
+ * Tile exit
+ * Deleting something, or taking it out of Favorites, empties a cell. The
+ * tile shrinks out of the one it was standing in instead of the grid
+ * closing over it in a single frame.
+ * ------------------------------------------------------------------ */
+@keyframes tile-leave {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.84);
+    filter: blur(3px);
+  }
+}
+
+.tile-leave {
+  animation: tile-leave 260ms var(--ease) both;
+  pointer-events: none;
+  /* It is on its way out: nothing about it should still be reachable. */
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-leave {
+    animation: tile-leave 120ms linear both;
+  }
 }
 
 /* ------------------------------------------------------------------ *

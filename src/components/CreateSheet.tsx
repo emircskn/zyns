@@ -71,6 +71,7 @@ function ModelCard({
  */
 export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const selectModel = useStudio((s) => s.selectModel);
+  const setPage = useStudio((s) => s.setPage);
   const modelId = useStudio((s) => s.modelId);
   const [tab, setTab] = useState<Tab>("all");
   const { mounted, exiting } = usePresence(open, 300);
@@ -141,6 +142,9 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
                 active={model.id === modelId}
                 onPick={() => {
                   selectModel(model.id);
+                  // Picked to make something: the page that makes it is
+                  // where this belongs, not the home screen it opened from.
+                  setPage(model.category);
                   onClose();
                 }}
               />

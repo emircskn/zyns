@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
@@ -11,6 +11,7 @@ import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { usePhone } from "@/lib/usePhone";
+import { useLeaving } from "@/lib/useLeaving";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -103,6 +104,7 @@ function Tile({
   index,
   onOpen,
   square,
+  leaving,
   picked,
   picking,
   onPick,
@@ -112,6 +114,8 @@ function Tile({
   onOpen: (url: string) => void;
   /** Square and cropped in a phone's grid; its own shape everywhere else. */
   square: boolean;
+  /** On its way out: shrinking where it stood rather than blinking away. */
+  leaving?: boolean;
   picked: boolean;
   /** Something is already picked, so a tap picks rather than opens. */
   picking: boolean;
@@ -165,7 +169,9 @@ function Tile({
     <div
       {...press}
       onMouseLeave={() => setConfirming(false)}
-      className={`anim-tile group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
+      className={`${
+        leaving ? "tile-leave" : "anim-tile"
+      } group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
         square ? "" : "mb-2.5 break-inside-avoid"
       } ${
         picked ? "ring-2 ring-t1/70" : "ring-line hover:ring-line-strong"
@@ -312,6 +318,15 @@ export function Gallery({ category }: { category?: Category }) {
   const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
 
+  const shown = useMemo(
+    () =>
+      category ? runs.filter((run) => getModel(run.modelId)?.category === category) : runs,
+    [runs, category],
+  );
+  // A deleted run holds its cell while it shrinks out of it, rather than the
+  // grid closing over it between two frames.
+  const { items: tiles, leaving } = useLeaving(shown, (run) => run.id);
+
   // A run can finish, or be deleted, while its tile is picked.
   useEffect(() => {
     setPicked((current) => {
@@ -322,9 +337,6 @@ export function Gallery({ category }: { category?: Category }) {
 
   if (!hydrated) return null;
 
-  const shown = category
-    ? runs.filter((run) => getModel(run.modelId)?.category === category)
-    : runs;
   // The run behind the open preview, so the panel beside it knows what it is
   // looking at and what its buttons act on.
   const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
@@ -339,12 +351,13 @@ export function Gallery({ category }: { category?: Category }) {
           COLUMNS[density] ?? COLUMNS[4]
         }`}
       >
-        {shown.map((run, index) => (
+        {tiles.map((run, index) => (
           <Tile
             key={run.id}
             run={run}
             index={index}
             square={phone && phoneGrid}
+            leaving={leaving.has(run.id)}
             onOpen={(url) => setViewer({ url, runId: run.id })}
             picked={picked.includes(run.id)}
             picking={picked.length > 0}

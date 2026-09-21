@@ -7,6 +7,7 @@ import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { downloadAll } from "@/lib/download";
 import { usePhone } from "@/lib/usePhone";
+import { useLeaving } from "@/lib/useLeaving";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
@@ -47,6 +48,7 @@ function AssetTile({
   picked,
   picking,
   square,
+  leaving,
   onPick,
   onOpen,
   onRemove,
@@ -57,6 +59,8 @@ function AssetTile({
   picking: boolean;
   /** Square and cropped in a grid; its own shape one at a time. */
   square: boolean;
+  /** On its way out: shrinking where it stood rather than blinking away. */
+  leaving?: boolean;
   onPick: () => void;
   onOpen: () => void;
   onRemove?: () => void;
@@ -71,7 +75,9 @@ function AssetTile({
     <div
       {...press}
       onMouseLeave={() => setConfirming(false)}
-      className={`anim-tile card-lazy group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-shadow duration-[150ms] ${
+      className={`${
+        leaving ? "tile-leave" : "anim-tile"
+      } card-lazy group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-shadow duration-[150ms] ${
         picked ? "ring-2 ring-t1/70" : "ring-line"
       }`}
       style={{ animationDelay: `${Math.min(index, 12) * 24}ms` }}
@@ -181,6 +187,9 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
   const setFavorites = useStudio((s) => s.setFavorites);
   const [viewing, setViewing] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  // Deleting, or taking something out of Favorites, empties a cell: the tile
+  // is held in it while it shrinks away.
+  const { items: tiles, leaving } = useLeaving(assets, (asset) => asset.id);
 
   // A pick can be taken out from under the selection — by a delete here, or
   // by a run finishing elsewhere — so it is trimmed to what is on screen.
@@ -211,12 +220,13 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
           COLUMNS[density] ?? COLUMNS[4]
         }`}
       >
-        {assets.map((asset, index) => (
+        {tiles.map((asset, index) => (
           <AssetTile
             key={asset.id}
             asset={asset}
             index={index}
             square={!phone || phoneGrid}
+            leaving={leaving.has(asset.id)}
             picked={picked.includes(asset.url)}
             picking={picked.length > 0}
             onPick={() =>

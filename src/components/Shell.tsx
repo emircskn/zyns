@@ -26,6 +26,11 @@ function PhoneBar() {
   const setPage = useStudio((s) => s.setPage);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
+  const runs = useStudio((s) => s.runs);
+  const loadDemo = useStudio((s) => s.loadDemo);
+  const clearDemo = useStudio((s) => s.clearDemo);
+
+  const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
     <header className="flex items-center justify-between px-4 py-3 md:hidden">
@@ -37,14 +42,28 @@ function PhoneBar() {
       >
         <ZynsWordmark height={17} className="relative top-[3px]" />
       </button>
-      <button
-        type="button"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-        className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
-      >
-        <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
-      </button>
+      <div className="flex items-center gap-1">
+        {/* The rail's samples button, for a phone that has no rail. */}
+        <button
+          type="button"
+          onClick={demo ? clearDemo : loadDemo}
+          aria-label={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
+          aria-pressed={demo}
+          className={`grid h-9 w-9 place-items-center rounded-full transition-colors duration-[150ms] ${
+            demo ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
+          }`}
+        >
+          <Icon name="palette" size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
+          className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+        >
+          <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+        </button>
+      </div>
     </header>
   );
 }

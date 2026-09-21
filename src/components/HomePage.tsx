@@ -81,9 +81,16 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
+      {/* The box holds the middle of the first screen. When there is work
+          under it, the screen gives back the height of a peek so Recent
+          shows its heading and the top of the row. */}
       <section
         ref={hero}
-        style={{ minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px)` }}
+        style={{
+          minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px${
+            recent.length > 0 ? " - var(--home-peek)" : ""
+          })`,
+        }}
         className="flex flex-col items-center justify-center py-8 md:py-12"
       >
         <div className="w-full max-w-[720px]">
