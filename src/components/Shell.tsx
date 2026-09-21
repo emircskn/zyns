@@ -69,43 +69,27 @@ function PhoneBar() {
 }
 
 /**
- * The few actions that used to ride in the header. They are about the
- * gallery rather than about the studio, so they sit above the page instead
- * of above the app, and say nothing when there is nothing to say.
+ * Clearing the gallery: about the page rather than about the studio, so it
+ * sits above the page instead of above the app, and says nothing when there
+ * is nothing to clear. Sample media has its own button in the rail.
  */
 function TopStrip() {
   const runs = useStudio((s) => s.runs);
   const clearRuns = useStudio((s) => s.clearRuns);
-  const clearDemo = useStudio((s) => s.clearDemo);
   const page = useStudio((s) => s.page);
 
-  // Not on the home screen: a row appearing above the box would move the
-  // box, and the rail's own Samples button already says the studio is full.
-  const demo = runs.some((r) => r.id.startsWith("demo-")) && page !== "home";
-  const showClear = !demo && runs.length > 0 && page !== "home";
-  if (!demo && !showClear) return null;
+  const demo = runs.some((r) => r.id.startsWith("demo-"));
+  if (demo || runs.length === 0 || page === "home") return null;
 
   return (
-    <div className="mb-2 flex justify-end gap-1.5">
-      {demo && (
-        <button
-          type="button"
-          onClick={clearDemo}
-          className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1"
-        >
-          Sample media
-          <Icon name="close" size={13} />
-        </button>
-      )}
-      {showClear && (
-        <button
-          type="button"
-          onClick={clearRuns}
-          className="rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1"
-        >
-          Clear gallery
-        </button>
-      )}
+    <div className="mb-2 flex justify-end">
+      <button
+        type="button"
+        onClick={clearRuns}
+        className="rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1"
+      >
+        Clear gallery
+      </button>
     </div>
   );
 }
@@ -144,8 +128,6 @@ function PageSwap({ page, children }: { page: Page; children: (page: Page) => Re
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const apiKey = useStudio((s) => s.apiKey);
-  const hydrated = useStudio((s) => s.hydrated);
   const page = useStudio((s) => s.page);
 
   // ⌘K is the shortcut people already reach for in this kind of studio.
@@ -174,19 +156,6 @@ export function Shell() {
         }`}
       >
         <TopStrip />
-        {hydrated && !apiKey && page !== "home" && (
-          <button
-            type="button"
-            onClick={() => setKeyOpen(true)}
-            className="anim-swap mb-4 flex w-full items-center gap-3 rounded-card border border-line bg-t1/[0.028] px-4 py-3 text-left transition-colors duration-[200ms] hover:bg-t1/[0.055] md:mb-6"
-          >
-            <Icon name="key" size={16} className="shrink-0 text-t2" />
-            <span className="min-w-0 flex-1 text-[12.5px] text-t2">
-              Add your KIE API key to start generating. It stays in this browser.
-            </span>
-            <span className="cta shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium">Add key</span>
-          </button>
-        )}
         <PageSwap page={page}>
           {(shown) =>
             shown === "home" ? (
