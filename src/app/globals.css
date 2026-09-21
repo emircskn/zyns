@@ -74,8 +74,8 @@
   /* The desktop rail down the left, which the pages and the bar clear. */
   --rail-w: 0px;
   /* How much of Recent shows under the home screen's box: its heading and
-     the top of the row, enough to say there is more down there. */
-  --home-peek: 150px;
+     the first inch of the row, enough to say there is more down there. */
+  --home-peek: 96px;
 
   --d-fast: 120ms;
   --d-base: 200ms;
@@ -121,7 +121,7 @@
 /* A phone has less to spare, and its bottom row is in the way. */
 @media (max-width: 767px) {
   :root {
-    --home-peek: 104px;
+    --home-peek: 72px;
   }
 }
 
