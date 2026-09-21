@@ -920,6 +920,50 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * Icon bump — AnimateIcons' folder, in CSS
+ * The same keyframes their motion variant tweens (scale 1 → 1.05 → 0.98,
+ * a couple of degrees either way, and a small hop), so the icon can carry
+ * it without the animation library behind it.
+ * ------------------------------------------------------------------ */
+@keyframes icon-bump {
+  0% {
+    transform: scale(1) rotate(0deg) translateY(0);
+  }
+  33% {
+    transform: scale(1.05) rotate(-2deg) translateY(-2px);
+  }
+  66% {
+    transform: scale(0.98) rotate(2deg) translateY(1px);
+  }
+  100% {
+    transform: scale(1) rotate(0deg) translateY(0);
+  }
+}
+
+.icon-bump {
+  transform-origin: center;
+}
+
+/* On the way in, and again whenever the pointer comes back to it. */
+.icon-bump--now {
+  animation: icon-bump 900ms ease-in-out;
+}
+
+@media (hover: hover) {
+  .group:hover .icon-bump {
+    animation: icon-bump 900ms ease-in-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-bump,
+  .icon-bump--now,
+  .group:hover .icon-bump {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Page swap
  * A page leaves upward and the next one rises into its place, so the
  * headline of an empty state moves rather than being replaced between

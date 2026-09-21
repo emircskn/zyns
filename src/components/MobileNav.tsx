@@ -6,7 +6,7 @@ import { useStudio, type Page } from "@/store/studio";
 const ITEMS: Array<{ id: Page; label: string; icon: IconName }> = [
   { id: "home", label: "Home", icon: "home" },
   { id: "favorites", label: "Favorites", icon: "heart" },
-  { id: "assets", label: "Assets", icon: "layers" },
+  { id: "assets", label: "Assets", icon: "folder" },
 ];
 
 function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
@@ -18,13 +18,20 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
       type="button"
       onClick={() => setPage(id)}
       aria-current={on ? "page" : undefined}
-      className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
+      className={`group flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
         on ? "font-medium text-t1" : "text-t4"
       }`}
     >
       {/* The page you are on is simply brighter — the accent belongs to the
-          one button that starts something. */}
-      <Icon name={icon} size={21} fill={on && icon === "heart" ? "currentColor" : "none"} />
+          one button that starts something. The folder bumps as it becomes
+          that page, since a phone has no hover to carry the animation. */}
+      <Icon
+        key={icon === "folder" && on ? "bumped" : "still"}
+        name={icon}
+        size={21}
+        fill={on && icon === "heart" ? "currentColor" : "none"}
+        className={icon === "folder" ? `icon-bump${on ? " icon-bump--now" : ""}` : undefined}
+      />
       {label}
     </button>
   );

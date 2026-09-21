@@ -31,6 +31,7 @@ export type IconName =
   | "clock"
   | "monitor"
   | "layers"
+  | "folder"
   | "mic"
   | "palette"
   | "expand"
@@ -162,6 +163,10 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M12 3l9 5-9 5-9-5z" />
       <path d="M3 13l9 5 9-5" />
     </>
+  ),
+  // Lucide's folder, as the AnimateIcons component draws it.
+  folder: (
+    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
   ),
   mic: (
     <>
