@@ -92,7 +92,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
         <ZynsMark size={26} />
       </button>
 
-      <nav className="flex w-full flex-col items-center gap-0.5">
+      <nav className="flex w-full flex-col items-center gap-1.5">
         {NAV.map((item) => (
           <RailButton
             key={item.id}
@@ -104,7 +104,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-auto flex w-full flex-col items-center gap-0.5 pt-3">
+      <div className="mt-auto flex w-full flex-col items-center gap-1.5 pt-3">
         {active > 0 && (
           <span
             title={`${active} running`}

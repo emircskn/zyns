@@ -21,7 +21,7 @@ import { useEffect, useRef } from "react";
 
 /** Grid spacing, how far the pointer reaches, and how far a dot leans. */
 const STEP = 28;
-const REACH = 150;
+const REACH = 112;
 const SHIFT = 2.5;
 /** A ring travels this many pixels a second, fading as it goes. */
 const RING_SPEED = 620;
@@ -70,14 +70,14 @@ export function Backdrop() {
       sprites = [];
       for (let i = 0; i < STEPS; i++) {
         const lift = (i + 1) / STEPS;
-        const radius = 1 + lift * 1.7;
+        const radius = 1 + lift * 1.15;
         const size = Math.ceil((radius + 1) * 2 * dpr);
         const stamp = document.createElement("canvas");
         stamp.width = size;
         stamp.height = size;
         const paint = stamp.getContext("2d")!;
         paint.setTransform(dpr, 0, 0, dpr, 0, 0);
-        paint.fillStyle = `rgba(${r},${g},${b},${0.055 + lift * 0.42})`;
+        paint.fillStyle = `rgba(${r},${g},${b},${0.055 + lift * 0.26})`;
         paint.beginPath();
         paint.arc(size / (2 * dpr), size / (2 * dpr), radius, 0, Math.PI * 2);
         paint.fill();

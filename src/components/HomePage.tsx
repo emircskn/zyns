@@ -5,7 +5,77 @@ import { AssetBrowser } from "@/components/AssetBrowser";
 import { Icon } from "@/components/Icon";
 import { PromptBar } from "@/components/PromptBar";
 import { useAssets } from "@/lib/assets";
+import { MODELS } from "@/lib/registry";
 import { useStudio } from "@/store/studio";
+
+/**
+ * One verb, four things it can end in, rolling one into the next: the
+ * headline says what the studio is for by naming the four kinds of work
+ * instead of describing them.
+ *
+ * The four words share a single grid cell, and the cell is given the width of
+ * whichever one is showing, so the line never opens a gap after the verb and
+ * the change of width is itself part of the move. A cell left to size itself
+ * would be as wide as the longest word, which read as a hole in the sentence.
+ * Each word is laid to the start of the cell rather than stretched across it,
+ * both so the box hugs the text and so measuring it returns the word's own
+ * width instead of the width it was just given.
+ */
+const MAKES = ["a still.", "a scene.", "a sound.", "it sharper."];
+const HOLD = 2600;
+
+function Rolling() {
+  const [at, setAt] = useState(0);
+  const [was, setWas] = useState(-1);
+  const [width, setWidth] = useState<number | null>(null);
+  const words = useRef<(HTMLSpanElement | null)[]>([]);
+
+  // Before paint, so the first frame is already the width of the first word
+  // rather than the width of the longest. Webfonts land late, and the words
+  // are measured again when they do.
+  useLayoutEffect(() => {
+    function measure() {
+      const node = words.current[at];
+      if (node) setWidth(node.getBoundingClientRect().width);
+    }
+    measure();
+    void document.fonts?.ready.then(measure);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [at]);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      setAt((current) => {
+        setWas(current);
+        return (current + 1) % MAKES.length;
+      });
+    }, HOLD);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <span
+      className="roll-cell inline-grid align-baseline"
+      style={width === null ? undefined : { width }}
+    >
+      {MAKES.map((word, i) => (
+        <span
+          key={word}
+          ref={(node) => {
+            words.current[i] = node;
+          }}
+          aria-hidden={i !== at}
+          data-state={i === at ? "on" : i === was ? "past" : "next"}
+          className="roll col-start-1 row-start-1 justify-self-start whitespace-nowrap"
+        >
+          {word}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 /**
  * The screen the studio opens on: the box in the middle of it, the pages
@@ -70,12 +140,14 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
         className="flex flex-col items-center justify-center py-8 md:py-12"
       >
         <div ref={middle} className="w-full max-w-[720px]">
+          {/* A real space between the verb and the word, not a flex gap: the
+              line is read aloud and copied as one sentence. */}
           <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
-            What do you want to make?
+            Make <Rolling />
           </h1>
-          <p className="mx-auto mt-3 max-w-[420px] text-center text-[13px] leading-relaxed text-t3 md:text-[13.5px]">
-            Every model on the KIE API behind one box: stills, motion, sound and the tools that
-            clean them up.
+          <p className="mx-auto mt-3 max-w-[430px] text-center text-[13px] leading-relaxed text-t3 md:text-[13.5px]">
+            All {MODELS.length} models on the KIE API behind one prompt bar. Start typing and pick
+            the model after.
           </p>
 
           <div className="mt-7 md:mt-8">

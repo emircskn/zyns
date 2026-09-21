@@ -962,6 +962,52 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * The rolling word
+ * The headline's last word rises into place as the one before it leaves
+ * upward, both blurring as they go, so the line reads as one word being
+ * turned over rather than four words taking turns.
+ * ------------------------------------------------------------------ */
+.roll-cell {
+  /* The cell takes the width of the word showing, and carries the line with
+     it as that changes. */
+  transition: width 460ms var(--ease);
+}
+
+.roll {
+  transition:
+    opacity 460ms var(--ease),
+    transform 460ms var(--ease),
+    filter 460ms var(--ease);
+}
+
+.roll[data-state="on"] {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+.roll[data-state="past"] {
+  opacity: 0;
+  transform: translateY(-0.42em);
+  filter: blur(7px);
+}
+
+/* Waiting its turn, below the line and out of the way. */
+.roll[data-state="next"] {
+  opacity: 0;
+  transform: translateY(0.42em);
+  filter: blur(7px);
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll,
+  .roll-cell {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * The backdrop's field
  * The dots at rest, as a background image: the canvas over them paints
  * only what the pointer lights, so sitting still costs nothing. The step
@@ -973,15 +1019,17 @@ html {
   position: absolute;
   left: 0;
   top: 0;
-  width: 480px;
-  height: 480px;
-  margin-left: -240px;
-  margin-top: -240px;
+  /* Small enough to read as a pool of light under the pointer rather than a
+     headlight, and faint enough to sit behind the work. */
+  width: 300px;
+  height: 300px;
+  margin-left: -150px;
+  margin-top: -150px;
   pointer-events: none;
   background: radial-gradient(
     circle at center,
-    color-mix(in oklab, var(--t1) 5%, transparent),
-    transparent 70%
+    color-mix(in oklab, var(--t1) 2.6%, transparent),
+    transparent 66%
   );
   will-change: transform, opacity;
 }
