@@ -235,40 +235,6 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
 }
 
 /**
- * The same picture, blown up and blurred out, filling the stage the picture
- * itself cannot: the room around a tall image was a black field, and this
- * turns it into the spill of whatever is standing there. It covers the whole
- * stage, edge to edge, so there is no black left at the sides.
- *
- * Blurred small and then magnified rather than blurred at full size: the
- * filter runs over a fraction of the pixels and the scale does the rest, so a
- * wash this soft costs almost nothing. The copy is drawn a third wider than
- * the stage, because the blur fades out at its own edges and that fade would
- * otherwise show as a seam. A dim sheet over it keeps the media the brightest
- * thing on screen.
- */
-function Ambient({ url }: { url: string }) {
-  const kind = mediaKind(url);
-  if (kind === "audio") return null;
-  const wash = "h-full w-full object-cover";
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <div className="absolute left-1/2 top-1/2 h-[18%] w-[18%] -translate-x-1/2 -translate-y-1/2 scale-[8] opacity-[0.72] blur-[9px] saturate-[1.2]">
-        {kind === "video" ? (
-          // Metadata only: this is the first frame as a wash, not a second
-          // copy of the clip playing behind the one you are watching.
-          <video src={url} muted playsInline preload="metadata" className={wash} />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt="" className={wash} />
-        )}
-      </div>
-      <div className="absolute inset-0 bg-canvas-deep/25" />
-    </div>
-  );
-}
-
-/**
  * The media itself. On a phone it takes the width it is given and keeps its
  * own height, so the page under it scrolls; on a desktop it fills the stage
  * beside the panel. Bare either way — a frame on a picture this size reads
@@ -587,8 +553,7 @@ export function MediaViewer({
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
     >
-      <div className="relative flex shrink-0 items-center justify-center overflow-hidden p-3 md:min-h-0 md:flex-1 md:p-8">
-        <Ambient url={shown} />
+      <div className="relative flex shrink-0 items-center justify-center p-3 md:min-h-0 md:flex-1 md:p-8">
         <button
           type="button"
           className="no-press absolute inset-0 hidden md:block"
@@ -867,7 +832,6 @@ export function MediaPreview({
     >
       <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
       <div className={`relative flex h-full w-full items-center justify-center ${exiting ? "" : "anim-zoom"}`}>
-        <Ambient url={shown} />
         <div className="relative z-10 flex h-full w-full items-center justify-center">
           <Stage url={shown} />
         </div>
