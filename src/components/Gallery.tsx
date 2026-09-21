@@ -6,7 +6,6 @@ import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
-import { CATEGORY_ACCENT } from "@/components/ModelPicker";
 import { downloadAll } from "@/lib/download";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";

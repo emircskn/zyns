@@ -438,7 +438,40 @@ function MentionStrip({
   );
 }
 
-export function PromptBar() {
+/**
+ * The prompt box before a model exists. What is typed here is kept in the
+ * store and moves into the model's own prompt the moment one is chosen, so
+ * you can start writing and pick the model after.
+ */
+function DraftField({ trailing, onSubmit }: { trailing?: ReactNode; onSubmit: () => void }) {
+  const draft = useStudio((s) => s.draft);
+  const setDraft = useStudio((s) => s.setDraft);
+  return (
+    <div className="relative mb-2 flex items-start gap-2">
+      <textarea
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            onSubmit();
+          }
+        }}
+        rows={2}
+        placeholder="Describe what you want to make…"
+        className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
+      />
+      {trailing}
+    </div>
+  );
+}
+
+/**
+ * The studio's one input. It docks at the bottom of a page that makes
+ * things, and stands in the middle of the home screen; both are the same
+ * box, so what you type survives the move between them.
+ */
+export function PromptBar({ placement = "docked" }: { placement?: "docked" | "center" }) {
   const model = useModel();
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
@@ -465,7 +498,8 @@ export function PromptBar() {
   // settles, not while it moves.
   useEffect(() => {
     const node = wrapper.current;
-    if (!node) return;
+    // The centred box sits in the page's own flow; nothing pads itself for it.
+    if (!node || placement === "center") return;
     let timer = 0;
     const apply = () =>
       document.documentElement.style.setProperty("--bar-h", `${node.offsetHeight}px`);
@@ -479,20 +513,19 @@ export function PromptBar() {
       window.clearTimeout(timer);
       observer.disconnect();
     };
-  }, []);
+  }, [placement]);
 
-  if (!model) return null;
-
-  const fields = activeFields(model, values);
+  const centered = placement === "center";
+  const fields = model ? activeFields(model, values) : [];
   const promptFields = fields.filter((f) => f.placement === "prompt");
   const inputFields = fields.filter((f) => f.placement === "input");
   const barFields = fields.filter((f) => f.placement === "bar");
   const panelFields = fields.filter((f) => f.placement === "panel");
 
-  const blocker = validateValues(model, values);
-  const hint = model.creditHint?.(values);
-  const mentionable = mentionSources(model, values).length > 0;
-  const names = mentionable ? mentionNames(model, values) : [];
+  const blocker = model ? validateValues(model, values) : "Choose a model to start";
+  const hint = model?.creditHint?.(values);
+  const mentionable = !!model && mentionSources(model, values).length > 0;
+  const names = mentionable && model ? mentionNames(model, values) : [];
   const firstPrompt = promptFields[0];
 
   // Tapping a token drops `@name` where the caret last was in the prompt.
@@ -537,9 +570,18 @@ export function PromptBar() {
   );
 
   return (
-    <div className="pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:px-4 md:pb-5">
-      <div ref={wrapper} className="pointer-events-auto w-full max-w-[720px]">
-        <ModeStrip />
+    <div
+      className={
+        centered
+          ? "w-full"
+          : "pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
+      }
+    >
+      <div
+        ref={wrapper}
+        className={centered ? "w-full" : "pointer-events-auto w-full max-w-[720px]"}
+      >
+        {model && <ModeStrip />}
 
         {error && (
           <div className="anim-pop mb-2 flex items-start gap-2 rounded-card bg-[#ff6b6b]/10 px-3.5 py-2.5 text-[12.5px] text-[#ff8f8f] ring-1 ring-inset ring-[#ff6b6b]/25">
@@ -567,11 +609,15 @@ export function PromptBar() {
         >
         <div
           className="rounded-panel border border-line bg-elevated p-3"
-          style={{ boxShadow: "var(--shadow-bar)" }}
+          style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
           <Reveal>
             <InputStrip fields={inputFields} />
           </Reveal>
+
+          {!model && (
+            <DraftField trailing={send} onSubmit={() => togglePicker(true, "all")} />
+          )}
 
           {promptFields.map((field, index) => (
             <PromptField
@@ -599,8 +645,16 @@ export function PromptBar() {
           </Reveal>
 
           <div className="flex flex-wrap items-center gap-1">
-            <button type="button" onClick={() => togglePicker(true, model.category, true)} className="shrink-0">
-              <Chip icon={<VendorBadge vendor={model.vendor} size={18} />} value={model.name} />
+            <button
+              type="button"
+              onClick={() => togglePicker(true, model ? model.category : "all", !!model)}
+              className="shrink-0"
+            >
+              {model ? (
+                <Chip icon={<VendorBadge vendor={model.vendor} size={18} />} value={model.name} />
+              ) : (
+                <Chip icon={<Icon name="spark" size={15} />} value="Choose model" />
+              )}
             </button>
 
             {barFields.map((field) => (
@@ -623,14 +677,14 @@ export function PromptBar() {
             <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
               {hint && <span className="font-mono text-[11px] tabular-nums text-t4">{hint}</span>}
               {/* Models without a prompt still need somewhere to send from. */}
-              {promptFields.length === 0 && send}
+              {model && promptFields.length === 0 && send}
             </div>
           </div>
         </div>
         </BorderBeam>
 
         <p className="mt-2 hidden px-2 text-center text-[11px] text-t4 md:block">
-          {blocker ? blocker : `${model.vendor} · ${model.tagline}`}
+          {blocker ? blocker : `${model!.vendor} · ${model!.tagline}`}
         </p>
       </div>
     </div>

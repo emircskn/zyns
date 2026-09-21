@@ -5,11 +5,7 @@ import { Icon } from "@/components/Icon";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
-import { ACCENT } from "@/lib/vendors";
 import { useStudio } from "@/store/studio";
-
-/** One accent per category, drawn from the four brand colours. */
-export const CATEGORY_ACCENT: Record<Category, string> = ACCENT as Record<Category, string>;
 
 const GROUP_LABEL: Record<Category, string> = {
   image: "Image models",

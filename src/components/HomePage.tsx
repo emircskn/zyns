@@ -1,113 +1,122 @@
 "use client";
 
+import { useMemo } from "react";
+import { AssetBrowser } from "@/components/AssetBrowser";
 import { Icon, type IconName } from "@/components/Icon";
-import Hero14 from "@/components/originkit/hero-14";
+import { PromptBar } from "@/components/PromptBar";
+import { useAssets } from "@/lib/assets";
 import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
 import { useStudio, type Page } from "@/store/studio";
 
-const LINES: Record<Category, string[]> = {
-  image: ["Text to image, and editing on what you have", "Reference images and character locking", "Up to 4K, every ratio the model allows"],
-  video: ["Text, first frame or reference to video", "Camera and motion control where offered", "Extend, restyle and transform existing cuts"],
-  audio: ["Music with structure, not just a loop", "Speech in dozens of voices", "Stems, lyrics and isolation"],
-  tool: ["Upscale stills and footage", "Cut out backgrounds cleanly", "Separate what was mixed together"],
+const COUNT: Record<Category, number> = CATEGORIES.reduce(
+  (all, c) => ({ ...all, [c.id]: MODELS.filter((m) => m.category === c.id).length }),
+  {} as Record<Category, number>,
+);
+
+const ICON: Record<Category, IconName> = {
+  image: "image",
+  video: "video",
+  audio: "audio",
+  tool: "tool",
 };
 
-function Card({
-  index,
-  icon,
-  title,
-  lines,
-  action,
-  onClick,
-}: {
-  index: string;
-  icon: IconName;
-  title: string;
-  lines: string[];
-  action: string;
-  onClick: () => void;
-}) {
+/** One way in per kind of work, under the box that does all of them. */
+function Quick({ category }: { category: Category }) {
+  const setPage = useStudio((s) => s.setPage);
+  const meta = CATEGORIES.find((c) => c.id === category);
   return (
     <button
       type="button"
-      onClick={onClick}
-      className="group relative flex min-h-[248px] flex-col rounded-panel border border-line bg-t1/[0.022] p-5 text-left transition-colors duration-[200ms] hover:border-line-strong hover:bg-t1/[0.045]"
+      onClick={() => setPage(category as Page)}
+      className="flex items-center gap-2 rounded-full border border-line bg-t1/[0.03] py-1.5 pl-3 pr-3.5 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:border-line-strong hover:bg-t1/[0.07] hover:text-t1"
     >
-      <span className="absolute right-5 top-5 font-mono text-[11px] text-t4">{index}</span>
-      <span className="mb-4 grid h-9 w-9 place-items-center rounded-chip bg-t1/[0.07] text-t2">
-        <Icon name={icon} size={17} />
-      </span>
-      <h3 className="text-[15px] tracking-[-0.01em] text-t1">{title}</h3>
-      <ul className="mt-3 flex flex-col gap-1.5">
-        {lines.map((line) => (
-          <li key={line} className="flex gap-2 text-[12.5px] leading-snug text-t3">
-            <Icon name="check" size={14} className="mt-[3px] shrink-0 opacity-70" />
-            {line}
-          </li>
-        ))}
-      </ul>
-      <span className="mt-auto flex items-center gap-1.5 pt-5 text-[12.5px] text-t2 transition-colors duration-[200ms] group-hover:text-t1">
-        {action}
-        <Icon name="chevron" size={14} className="-rotate-90" />
-      </span>
+      <Icon name={ICON[category]} size={15} className="opacity-80" />
+      {meta?.label}
+      <span className="font-mono text-[11px] tabular-nums text-t4">{COUNT[category]}</span>
     </button>
   );
 }
 
 /**
- * The landing page: a full frame of hero — mark, headline, the two ways in —
- * and the cards for each kind of work under it.
+ * The screen the studio opens on: the box in the middle of it, the pages
+ * down the left, and whatever was made last underneath. Nothing else — no
+ * model is chosen for you, and the box says so until you choose one.
  */
-export function HomePage() {
+export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
+  const assets = useAssets();
+  const apiKey = useStudio((s) => s.apiKey);
+  const hydrated = useStudio((s) => s.hydrated);
   const setPage = useStudio((s) => s.setPage);
-  const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
 
-  return (
-    <div className="anim-fade flex flex-1 flex-col gap-4 pb-10 md:gap-6">
-      {/* A held frame before the tools: Originkit's hero-14, carrying the
-          mark, the headline and the four kinds of work pointing in at it. */}
-      <Hero14
-        headline="Every model on the KIE API, in"
-        accent="one studio."
-        subtitle={`Stills, motion, sound and the tools that clean them up. ${MODELS.length} models behind one prompt bar, each with its own settings, everything you make in one place.`}
-        primaryLabel="Start creating"
-        onPrimary={() => setPage("image")}
-        secondaryLabel={runs.length === 0 ? "See it with sample media" : undefined}
-        onSecondary={() => {
-          loadDemo();
-          setPage("image");
-        }}
-        onTag={(id) => setPage(id as Page)}
-      />
+  const recent = useMemo(() => assets.slice(0, 6), [assets]);
 
-      <section className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-        {CATEGORIES.map((category, index) => (
-          <Card
-            key={category.id}
-            index={`0${index + 1}`}
-            icon={category.id === "tool" ? "tool" : (category.id as IconName)}
-            title={`${category.label}.`}
-            lines={LINES[category.id]}
-            action={`Open ${category.label.toLowerCase()}`}
-            onClick={() => setPage(category.id as Page)}
-          />
-        ))}
+  return (
+    <div className="anim-fade flex flex-1 flex-col">
+      {/* With nothing made yet the box holds the whole screen; once there is
+          work underneath, it gives some of that back so the grid shows. */}
+      <section
+        className={`flex flex-col items-center justify-center ${
+          recent.length > 0 ? "py-10 md:py-14" : "flex-1 py-8 md:py-12"
+        }`}
+      >
+        <div className="w-full max-w-[720px]">
+          <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
+            What do you want to make?
+          </h1>
+          <p className="mx-auto mt-3 max-w-[420px] text-center text-[13px] leading-relaxed text-t3 md:text-[13.5px]">
+            Every model on the KIE API behind one box: stills, motion, sound and the tools that
+            clean them up.
+          </p>
+
+          <div className="mt-7 md:mt-8">
+            <PromptBar placement="center" />
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {CATEGORIES.map((category) => (
+              <Quick key={category.id} category={category.id} />
+            ))}
+          </div>
+
+          {hydrated && !apiKey && (
+            <p className="mt-6 text-center text-[12px] text-t4">
+              <button
+                type="button"
+                onClick={onKeyClick}
+                className="underline decoration-line-strong underline-offset-[3px] transition-colors duration-[150ms] hover:text-t1 hover:decoration-t1"
+              >
+                Add your API key
+              </button>{" "}
+              to generate, or{" "}
+              <button
+                type="button"
+                onClick={loadDemo}
+                className="underline decoration-line-strong underline-offset-[3px] transition-colors duration-[150ms] hover:text-t1 hover:decoration-t1"
+              >
+                fill the studio with sample media
+              </button>{" "}
+              to look around first.
+            </p>
+          )}
+        </div>
       </section>
 
-      {runs.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setPage("assets")}
-          className="flex items-center gap-3 rounded-panel border border-line bg-t1/[0.022] px-5 py-4 text-left transition-colors duration-[200ms] hover:bg-t1/[0.045]"
-        >
-          <Icon name="grid" size={16} className="shrink-0 text-t3" />
-          <span className="min-w-0 flex-1 text-[13px] text-t2">
-            {runs.length} {runs.length === 1 ? "run" : "runs"} so far. Everything generated and
-            uploaded lives in Assets.
-          </span>
-          <Icon name="chevron" size={15} className="-rotate-90 shrink-0 text-t4" />
-        </button>
+      {recent.length > 0 && (
+        <section className="mx-auto w-full max-w-[1000px] pb-2">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-t4">Recent</h2>
+            <button
+              type="button"
+              onClick={() => setPage("assets")}
+              className="flex items-center gap-1 text-[12.5px] text-t3 transition-colors duration-[150ms] hover:text-t1"
+            >
+              All assets
+              <Icon name="chevron" size={14} className="-rotate-90" />
+            </button>
+          </div>
+          <AssetBrowser assets={recent} />
+        </section>
       )}
     </div>
   );

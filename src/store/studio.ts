@@ -4,10 +4,11 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import {
-  MODELS,
+  activeFields,
   defaultValues,
   getModel,
   type Category,
+  type ModelDef,
   type Values,
 } from "@/lib/registry";
 
@@ -49,7 +50,10 @@ interface StudioState {
   credits: number | null;
   category: Category;
   page: Page;
+  /** Empty until a model is chosen: the studio never picks one for you. */
   modelId: string;
+  /** What was typed in the prompt box while no model was chosen yet. */
+  draft: string;
   /** The model each category was last used with, so pages remember. */
   modelByCategory: Partial<Record<Category, string>>;
   valuesByModel: Record<string, Values>;
@@ -76,6 +80,7 @@ interface StudioState {
   phoneGrid: boolean;
   setPhoneGrid: (grid: boolean) => void;
   selectModel: (id: string) => void;
+  setDraft: (draft: string) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
   resetValues: () => void;
@@ -99,6 +104,14 @@ interface StudioState {
   clearDemo: () => void;
 }
 
+/** Drop a draft into a model's first prompt field, if that field is empty. */
+function seedPrompt(model: ModelDef, values: Values, draft: string): Values {
+  if (!draft.trim()) return values;
+  const field = activeFields(model, values).find((f) => f.placement === "prompt");
+  if (!field || String(values[field.key] ?? "").trim()) return values;
+  return { ...values, [field.key]: draft };
+}
+
 function valuesFor(state: StudioState, id: string): Values {
   const existing = state.valuesByModel[id];
   if (existing) return existing;
@@ -116,7 +129,8 @@ export const useStudio = create<StudioState>()(
       page: "home",
       density: 6,
       phoneGrid: true,
-      modelId: MODELS.find((m) => m.category === "image")?.id ?? MODELS[0]?.id ?? "",
+      modelId: "",
+      draft: "",
       modelByCategory: {},
       valuesByModel: {},
       runs: [],
@@ -142,8 +156,10 @@ export const useStudio = create<StudioState>()(
       setPage: (page) =>
         set((state) => {
           if (page === "assets" || page === "favorites" || page === "home") return { page };
-          const id =
-            state.modelByCategory[page] ?? MODELS.find((m) => m.category === page)?.id ?? state.modelId;
+          // A page remembers the model it was last used with. It does not
+          // invent one: until you choose, the bar says Choose model.
+          const id = state.modelByCategory[page] ?? "";
+          if (!id) return { page, category: page, modelId: "" };
           return {
             page,
             category: page,
@@ -155,18 +171,24 @@ export const useStudio = create<StudioState>()(
       selectModel: (id) => {
         const model = getModel(id);
         if (!model) return;
-        set((state) => ({
-          modelId: id,
-          category: model.category,
-          page: model.category,
-          modelByCategory: { ...state.modelByCategory, [model.category]: id },
-          pickerOpen: false,
-          valuesByModel: {
-            ...state.valuesByModel,
-            [id]: valuesFor(state, id),
-          },
-        }));
+        set((state) => {
+          const values = valuesFor(state, id);
+          // Whatever was typed before a model existed belongs in the prompt
+          // of the one just chosen, as long as it has nothing in it already.
+          const seeded = seedPrompt(model, values, state.draft);
+          return {
+            modelId: id,
+            category: model.category,
+            page: state.page === "home" ? state.page : model.category,
+            modelByCategory: { ...state.modelByCategory, [model.category]: id },
+            pickerOpen: false,
+            draft: seeded === values ? state.draft : "",
+            valuesByModel: { ...state.valuesByModel, [id]: seeded },
+          };
+        });
       },
+
+      setDraft: (draft) => set({ draft }),
 
       setValue: (key, value) =>
         set((state) => {
@@ -285,6 +307,7 @@ export const useStudio = create<StudioState>()(
         density: state.density,
         phoneGrid: state.phoneGrid,
         modelId: state.modelId,
+        draft: state.draft,
         modelByCategory: state.modelByCategory,
         valuesByModel: state.valuesByModel,
         runs: state.runs,
@@ -306,7 +329,8 @@ if (typeof window !== "undefined") {
     useStudio.setState({ hydrated: true });
     const page = state.page;
     if (page === "assets" || page === "favorites" || page === "home") return;
-    if (getModel(state.modelId)?.category !== page) state.setPage(page);
+    const model = getModel(state.modelId);
+    if (model ? model.category !== page : state.modelId !== "") state.setPage(page);
   };
   useStudio.persist?.onFinishHydration(settle);
   if (useStudio.persist?.hasHydrated()) settle();

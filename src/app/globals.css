@@ -1,16 +1,13 @@
 @import "tailwindcss";
-/* The Originkit hero section ships its own tokens and self-hosted face;
-   they are read here so the utilities it uses are emitted for the app
-   and for the single-file build alike. */
-@import "../components/originkit/hero-14.css";
 
 /* ------------------------------------------------------------------ *
  * Design tokens
  *
- * A Swiss-grotesque system in the spirit of Krea: a near-black canvas the
- * generated work sits on, a neutral text ramp instead of tinted greys, four
- * radii and nothing between them, and pure white reserved for the one action
- * that matters on screen. Colour is spent only on the four brand accents.
+ * Black and white, and the greys between them. There is no brand colour:
+ * emphasis is carried by contrast alone, so the one filled button on a
+ * screen is simply the lightest thing on it (or, in the light theme, the
+ * darkest). Red is kept for deleting, because that one needs to be read as
+ * a warning and not as another shade.
  * ------------------------------------------------------------------ */
 
 @theme inline {
@@ -28,10 +25,6 @@
   --color-t3: var(--t3);
   --color-t4: var(--t4);
 
-  --color-amber: #f2a33a;
-  --color-copper: #d9632c;
-  --color-gold: #f0cf6b;
-  --color-ash: #a89f92;
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
 
@@ -47,23 +40,23 @@
 }
 
 :root {
-  /* Cinema black: a warm near-black, never blue; amber is the only voltage. */
-  --canvas: #0a0908;
-  --canvas-deep: #050403;
-  --surface: #151311;
-  --surface-2: #1f1c18;
-  --elevated: #171412;
+  --canvas: #0a0a0a;
+  --canvas-deep: #000000;
+  --surface: #171717;
+  --surface-2: #222222;
+  --elevated: #141414;
 
-  --line: rgb(245 239 230 / 0.09);
-  --line-strong: rgb(245 239 230 / 0.18);
+  --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.2);
 
-  --t1: #f5efe6;
-  --t2: #d6cfc3;
-  --t3: #a39b8f;
-  --t4: #6f685e;
+  --t1: #fafafa;
+  --t2: #d4d4d4;
+  --t3: #a1a1a1;
+  --t4: #6e6e6e;
 
-  --accent: #f2a33a;
-  --accent-ink: #1a1207;
+  /* The accent is the text colour: white on black, black on white. */
+  --accent: #fafafa;
+  --accent-ink: #0a0a0a;
 
   /* Deleting is the one destructive thing in here, and it reads in both
      themes: a pale red vanishes on the light canvas. */
@@ -78,6 +71,8 @@
   /* The phone's bottom row, which the prompt bar and every page sit above.
      Zero on a desktop, where the row is not there at all. */
   --nav-h: 0px;
+  /* The desktop rail down the left, which the pages and the bar clear. */
+  --rail-w: 0px;
 
   --d-fast: 120ms;
   --d-base: 200ms;
@@ -87,31 +82,37 @@
 }
 
 [data-theme="light"] {
-  /* The canvas sits a shade off white so elevated surfaces — the prompt bar,
-     gallery tiles, popovers — read as lifted rather than as outlines. */
-  --canvas: #f7f3ec;
-  --canvas-deep: #fffdf9;
-  --surface: #fffdf9;
-  --surface-2: #efe9df;
-  --elevated: #fffdf9;
+  /* Off white, so an elevated surface — the prompt box, a tile, a popover —
+     reads as lifted rather than as an outline on the same white. */
+  --canvas: #f4f4f4;
+  --canvas-deep: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #e9e9e9;
+  --elevated: #ffffff;
 
-  --line: rgb(26 22 19 / 0.1);
-  --line-strong: rgb(26 22 19 / 0.2);
+  --line: rgb(0 0 0 / 0.11);
+  --line-strong: rgb(0 0 0 / 0.22);
 
-  --t1: #1a1613;
-  --t2: #46403a;
-  --t3: #7a7268;
-  --t4: #a59c90;
+  --t1: #0a0a0a;
+  --t2: #3d3d3d;
+  --t3: #6e6e6e;
+  --t4: #9b9b9b;
 
-  --accent: #c9821f;
-  --accent-ink: #fffdf9;
+  --accent: #0a0a0a;
+  --accent-ink: #ffffff;
 
   --danger: #c0352c;
 
-  --shadow-pop: 0 24px 60px -16px rgb(11 15 21 / 0.18), 0 2px 8px rgb(11 15 21 / 0.06);
-  --shadow-bar: 0 20px 50px -20px rgb(11 15 21 / 0.22);
+  --shadow-pop: 0 24px 60px -16px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.06);
+  --shadow-bar: 0 20px 50px -20px rgb(0 0 0 / 0.2);
 
   color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --rail-w: 72px;
+  }
 }
 
 html,
@@ -397,7 +398,7 @@ h3 {
 }
 
 /**
- * Placeholder for a run that has not returned yet: the four brand accents
+ * Placeholder for a run that has not returned yet: a few soft lights
  * drifting behind a slow sweep, so a pending tile reads as work in progress
  * rather than a broken image.
  */
@@ -411,10 +412,10 @@ h3 {
   position: absolute;
   inset: -40%;
   background:
-    radial-gradient(38% 38% at 28% 30%, #f2a33a66, transparent 70%),
-    radial-gradient(34% 34% at 72% 34%, #d9632c66, transparent 70%),
-    radial-gradient(40% 40% at 42% 76%, #f0cf6b44, transparent 70%),
-    radial-gradient(26% 26% at 80% 78%, #a89f9233, transparent 70%);
+    radial-gradient(38% 38% at 28% 30%, rgb(255 255 255 / 0.22), transparent 70%),
+    radial-gradient(34% 34% at 72% 34%, rgb(255 255 255 / 0.14), transparent 70%),
+    radial-gradient(40% 40% at 42% 76%, rgb(255 255 255 / 0.1), transparent 70%),
+    radial-gradient(26% 26% at 80% 78%, rgb(255 255 255 / 0.07), transparent 70%);
   filter: blur(18px);
   animation: drift 9s var(--ease) infinite;
 }
@@ -529,7 +530,7 @@ html {
 }
 
 ::selection {
-  background: #f2a33a55;
+  background: color-mix(in oklab, var(--t1) 28%, transparent);
 }
 
 /* A strip that scrolls sideways — mode pills, reference thumbnails — carries
@@ -667,34 +668,6 @@ html {
   background-size: 160px 160px;
 }
 
-/* A quiet light behind the top of the page in the active category's colour. */
-.stage-glow {
-  position: fixed;
-  inset: -10% 0 auto 0;
-  height: 70vh;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(60% 65% at 50% 0%, color-mix(in oklab, var(--stage, #f2a33a) 30%, transparent), transparent 72%);
-  transition: background var(--d-slow) var(--ease);
-}
-
-.rail {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 6px;
-  margin-inline: -16px;
-  padding-inline: 16px;
-  scrollbar-width: none;
-}
-.rail::-webkit-scrollbar {
-  display: none;
-}
-.rail > * {
-  scroll-snap-align: start;
-}
-
 /* A card under the pointer lights its edge and the art behind it warms under
    a drifting sweep. It does not grow or move: the cover sits directly above
    the title, so a scale would ride over it, and the entrance animation pins
@@ -713,7 +686,7 @@ html {
 }
 
 /* The strip that pulses at the top of the API key dialog, reused as a card's
-   hover state: the four accents drifting behind a slow light sweep. It only
+   hover state: soft lights drifting behind a slow sweep. It only
    runs while the pointer is on the card. */
 .lift .cover::before,
 .lift .cover::after {
@@ -726,10 +699,10 @@ html {
 .lift .cover::before {
   inset: -40%;
   background:
-    radial-gradient(38% 38% at 28% 30%, #f2a33a66, transparent 70%),
-    radial-gradient(34% 34% at 72% 34%, #d9632c66, transparent 70%),
-    radial-gradient(40% 40% at 42% 76%, #f0cf6b44, transparent 70%),
-    radial-gradient(26% 26% at 80% 78%, #a89f9233, transparent 70%);
+    radial-gradient(38% 38% at 28% 30%, rgb(255 255 255 / 0.22), transparent 70%),
+    radial-gradient(34% 34% at 72% 34%, rgb(255 255 255 / 0.14), transparent 70%),
+    radial-gradient(40% 40% at 42% 76%, rgb(255 255 255 / 0.1), transparent 70%),
+    radial-gradient(26% 26% at 80% 78%, rgb(255 255 255 / 0.07), transparent 70%);
   filter: blur(18px);
 }
 .lift .cover::after {
@@ -802,7 +775,8 @@ html {
  * particles thrown along per-dot vectors set in JS (see LikeHeart).
  * ------------------------------------------------------------------ */
 :root {
-  --like-color: #f40051;
+  /* The heart fills with the text colour: no brand colour in here. */
+  --like-color: var(--t1);
   --like-fill: 150ms;
   --like-pop: 350ms;
   --like-pop-ease: cubic-bezier(0.34, 1.96, 0.64, 1);
@@ -988,43 +962,4 @@ html {
   transition:
     --fade-l var(--d-base) var(--ease),
     --fade-r var(--d-base) var(--ease);
-}
-
-/* ------------------------------------------------------------------ *
- * The home hero: an inset canvas lit from within
- * ------------------------------------------------------------------ */
-.stage {
-  background:
-    radial-gradient(90% 70% at 18% 8%, color-mix(in oklab, var(--accent) 13%, transparent), transparent 62%),
-    radial-gradient(70% 60% at 88% 92%, color-mix(in oklab, var(--accent) 9%, transparent), transparent 60%),
-    var(--elevated);
-  isolation: isolate;
-}
-
-/* A slow drift keeps the light from reading as a flat gradient. */
-.stage::before {
-  content: "";
-  position: absolute;
-  inset: -30%;
-  z-index: -1;
-  background: radial-gradient(
-    38% 38% at 32% 36%,
-    color-mix(in oklab, var(--accent) 16%, transparent),
-    transparent 70%
-  );
-  animation: drift 18s var(--ease) infinite;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stage::before {
-    animation: none;
-  }
-}
-
-/* Phones pay for that extra painted layer without seeing much of it. */
-@media (max-width: 767px) {
-  .stage::before {
-    display: none;
-  }
 }

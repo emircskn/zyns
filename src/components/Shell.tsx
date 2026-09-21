@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { ZynsWordmark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { FavoritesPage } from "@/components/FavoritesPage";
@@ -11,190 +11,81 @@ import { CreateSheet } from "@/components/CreateSheet";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
-import { PillGroup } from "@/components/PillGroup";
 import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import { SideRail } from "@/components/SideRail";
 import { ThemeSync } from "@/components/ThemeSync";
-import { CATEGORIES, type Category } from "@/lib/registry";
-import { useModel, useStudio, type Page } from "@/store/studio";
-
-const CATEGORY_ICON: Record<Category, IconName> = {
-  image: "image",
-  video: "video",
-  audio: "audio",
-  tool: "tool",
-};
-
-const NAV: { id: Page; label: string; icon: IconName }[] = [
-  ...CATEGORIES.map((c) => ({ id: c.id as Page, label: c.label, icon: CATEGORY_ICON[c.id] })),
-  { id: "assets" as Page, label: "Assets", icon: "layers" },
-  { id: "favorites" as Page, label: "Favorites", icon: "heart" },
-];
+import { useStudio } from "@/store/studio";
 
 /**
- * The bar's own tabs, with the selected one carried between them rather than
- * redrawn: a pill that slides makes it plain which page you are on and which
- * way you just moved.
+ * A phone has no rail, so the mark and the theme sit in a thin strip at the
+ * top; the pages and the key are on the bottom row.
  */
-function NavTabs() {
-  const page = useStudio((s) => s.page);
-  const setPage = useStudio((s) => s.setPage);
-  const track = useRef<HTMLDivElement>(null);
-  const items = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
-
-  const measure = useCallback(() => {
-    const node = items.current[page];
-    const box = track.current;
-    if (!node || !box) {
-      setPill(null);
-      return;
-    }
-    setPill({ left: node.offsetLeft, width: node.offsetWidth });
-  }, [page]);
-
-  useLayoutEffect(measure, [measure]);
-
-  // Fonts land after the first paint and change every tab's width with them.
-  useEffect(() => {
-    const observer = new ResizeObserver(measure);
-    if (track.current) observer.observe(track.current);
-    document.fonts?.ready.then(measure).catch(() => {});
-    return () => observer.disconnect();
-  }, [measure]);
-
-  return (
-    <div ref={track} className="relative hidden items-center gap-0.5 md:flex">
-      {pill && (
-        <span
-          aria-hidden
-          className="absolute inset-y-0 rounded-full bg-t1/[0.09] transition-[left,width] duration-[380ms]"
-          style={{ left: pill.left, width: pill.width, transitionTimingFunction: "var(--ease-spring)" }}
-        />
-      )}
-      {NAV.map((item) => {
-        const on = page === item.id;
-        return (
-          <button
-            key={item.id}
-            ref={(node) => {
-              items.current[item.id] = node;
-            }}
-            type="button"
-            onClick={() => setPage(item.id)}
-            aria-current={on ? "page" : undefined}
-            className={`relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[200ms] ${
-              on ? "text-t1" : "text-t3 hover:text-t1"
-            }`}
-          >
-            <Icon
-              name={item.icon}
-              size={16}
-              className="transition-colors duration-[200ms]"
-              style={on ? { color: "var(--accent)" } : undefined}
-              fill={on && item.icon === "heart" ? "currentColor" : "none"}
-            />
-            {item.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
-  const credits = useStudio((s) => s.credits);
-  const apiKey = useStudio((s) => s.apiKey);
-  const runs = useStudio((s) => s.runs);
-  const clearRuns = useStudio((s) => s.clearRuns);
-  const clearDemo = useStudio((s) => s.clearDemo);
-  const page = useStudio((s) => s.page);
+function PhoneBar() {
   const setPage = useStudio((s) => s.setPage);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
 
-  const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
+  return (
+    <header className="flex items-center justify-between px-4 py-3 md:hidden">
+      <button
+        type="button"
+        onClick={() => setPage("home")}
+        aria-label="ZYNS home"
+        className="text-t1 transition-opacity duration-[150ms] hover:opacity-70"
+      >
+        <ZynsWordmark height={17} className="relative top-[3px]" />
+      </button>
+      <button
+        type="button"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
+        className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+      >
+        <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+      </button>
+    </header>
+  );
+}
+
+/**
+ * The few actions that used to ride in the header. They are about the
+ * gallery rather than about the studio, so they sit above the page instead
+ * of above the app, and say nothing when there is nothing to say.
+ */
+function TopStrip() {
+  const runs = useStudio((s) => s.runs);
+  const clearRuns = useStudio((s) => s.clearRuns);
+  const clearDemo = useStudio((s) => s.clearDemo);
+  const page = useStudio((s) => s.page);
+
   const demo = runs.some((r) => r.id.startsWith("demo-"));
+  const showClear = !demo && runs.length > 0 && page !== "home";
+  if (!demo && !showClear) return null;
 
   return (
-    // Full-bleed bar: the band and its border run edge to edge while the
-    // contents sit on the same 1600px column as the page below it. Negative
-    // margins could only ever cancel main's padding, so past 1600px the bar
-    // stopped short of the window on both sides.
-    <header className="sticky top-0 z-30 mb-4 border-b border-line bg-canvas/80 backdrop-blur-2xl md:mb-6">
-      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-4 px-4 py-3 md:gap-7 md:px-6">
+    <div className="mb-2 flex justify-end gap-1.5">
+      {demo && (
         <button
           type="button"
-          onClick={() => setPage("home")}
-          aria-label="ZYNS home"
-          className="shrink-0 text-t1 transition-opacity duration-[150ms] hover:opacity-70"
+          onClick={clearDemo}
+          className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1"
         >
-          {/* Wordmark only up here; the tile belongs to the icon and the tab. */}
-          <ZynsWordmark height={19} className="relative top-[3px]" />
+          Sample media
+          <Icon name="close" size={13} />
         </button>
-
-        <NavTabs />
-
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          {demo && (
-            <button
-              type="button"
-              onClick={clearDemo}
-              className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 transition-colors duration-[150ms] hover:text-t1 sm:flex"
-            >
-              Sample media
-              <Icon name="close" size={13} />
-            </button>
-          )}
-          {!demo && runs.length > 0 && page !== "home" && (
-            <button
-              type="button"
-              onClick={clearRuns}
-              className="hidden rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1 sm:block"
-            >
-              Clear gallery
-            </button>
-          )}
-          {active > 0 && (
-            <span className="hidden items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[11.5px] text-t3 sm:flex">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "var(--accent)" }} />
-              {active} running
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-            className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
-          >
-            <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={onKeyClick}
-            // The phone reaches the key from its bottom row instead.
-            className="hidden items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
-          >
-            <span
-              className="h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: apiKey ? "var(--accent)" : "var(--t4)" }}
-            />
-            {apiKey ? (
-              credits !== null ? (
-                <>
-                  <span className="font-mono tabular-nums">{credits.toLocaleString()}</span> credits
-                </>
-              ) : (
-                "Connected"
-              )
-            ) : (
-              "Add API key"
-            )}
-          </button>
-        </div>
-      </div>
-    </header>
+      )}
+      {showClear && (
+        <button
+          type="button"
+          onClick={clearRuns}
+          className="rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1"
+        >
+          Clear gallery
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -217,25 +108,27 @@ export function Shell() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  // Assets and home are for browsing, so the prompt bar steps aside and the
-  // page keeps its own bottom margin instead of reserving room for it.
+  // Home carries the box in the middle of itself and the browsing pages have
+  // none at all; only a page that makes things docks one at the bottom.
   const composing = page !== "assets" && page !== "favorites" && page !== "home";
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <TopBar onKeyClick={() => setKeyOpen(true)} />
+    <div className="flex min-h-dvh flex-col md:pl-[var(--rail-w)]">
+      <SideRail onKeyClick={() => setKeyOpen(true)} />
+      <PhoneBar />
       <main
-        className={`mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 ${
+        className={`mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
           composing ? "below-bar" : "below-nav"
         }`}
       >
+        <TopStrip />
         {hydrated && !apiKey && page !== "home" && (
           <button
             type="button"
             onClick={() => setKeyOpen(true)}
             className="anim-swap mb-4 flex w-full items-center gap-3 rounded-card border border-line bg-t1/[0.028] px-4 py-3 text-left transition-colors duration-[200ms] hover:bg-t1/[0.055] md:mb-6"
           >
-            <Icon name="key" size={16} className="shrink-0" style={{ color: "var(--accent)" }} />
+            <Icon name="key" size={16} className="shrink-0 text-t2" />
             <span className="min-w-0 flex-1 text-[12.5px] text-t2">
               Add your KIE API key to start generating. It stays in this browser.
             </span>
@@ -243,7 +136,7 @@ export function Shell() {
           </button>
         )}
         {page === "home" ? (
-          <HomePage />
+          <HomePage onKeyClick={() => setKeyOpen(true)} />
         ) : page === "assets" ? (
           <AssetsPage />
         ) : page === "favorites" ? (
