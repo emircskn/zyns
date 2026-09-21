@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Icon } from "@/components/Icon";
 import { ZynsWordmark } from "@/components/Logo";
@@ -16,7 +16,7 @@ import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SideRail } from "@/components/SideRail";
 import { ThemeSync } from "@/components/ThemeSync";
-import { useStudio } from "@/store/studio";
+import { useStudio, type Page } from "@/store/studio";
 
 /**
  * A phone has no rail, so the mark and the theme sit in a thin strip at the
@@ -89,6 +89,37 @@ function TopStrip() {
   );
 }
 
+/**
+ * Holds the page on screen while the next one is asked for, so one leaves
+ * upward and the other rises into its place. Without it the headline of an
+ * empty state was simply different on the next frame.
+ */
+function PageSwap({ page, children }: { page: Page; children: (page: Page) => ReactNode }) {
+  const [shown, setShown] = useState(page);
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    if (page === shown) return;
+    setLeaving(true);
+    const timer = window.setTimeout(() => {
+      setShown(page);
+      setLeaving(false);
+    }, 170);
+    return () => window.clearTimeout(timer);
+  }, [page, shown]);
+
+  return (
+    <div
+      // Keyed by what is on screen, not by what was asked for: a new
+      // element cannot transition out of a state it never had.
+      key={shown}
+      className={`page-swap flex flex-1 flex-col ${leaving ? "is-leaving" : "is-entering"}`}
+    >
+      {children(shown)}
+    </div>
+  );
+}
+
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -135,17 +166,21 @@ export function Shell() {
             <span className="cta shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium">Add key</span>
           </button>
         )}
-        {page === "home" ? (
-          <HomePage onKeyClick={() => setKeyOpen(true)} />
-        ) : page === "assets" ? (
-          <AssetsPage />
-        ) : page === "favorites" ? (
-          <FavoritesPage />
-        ) : (
-          // Keyed by page: without it React reuses this element between
-          // categories and the empty state's reveal never runs again.
-          <CategoryPage key={page} category={page} />
-        )}
+        <PageSwap page={page}>
+          {(shown) =>
+            shown === "home" ? (
+              <HomePage onKeyClick={() => setKeyOpen(true)} />
+            ) : shown === "assets" ? (
+              <AssetsPage />
+            ) : shown === "favorites" ? (
+              <FavoritesPage />
+            ) : (
+              // Keyed by page: without it React reuses this element between
+              // categories and the empty state's reveal never runs again.
+              <CategoryPage key={shown} category={shown} />
+            )
+          }
+        </PageSwap>
       </main>
 
       {composing && <PromptBar />}

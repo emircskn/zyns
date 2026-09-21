@@ -2,10 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
+
+type Tab = "all" | Category;
+
+const TABS: Array<{ id: Tab; label: string }> = [
+  { id: "all", label: "All" },
+  ...CATEGORIES.map((category) => ({ id: category.id as Tab, label: category.label })),
+];
 
 const GROUP_LABEL: Record<Category, string> = {
   image: "Image models",
@@ -72,14 +80,17 @@ export function ModelPicker() {
   const storedTab = useStudio((s) => s.pickerTab);
   const locked = useStudio((s) => s.pickerLocked);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<Tab>("all");
   const { mounted, exiting } = usePresence(open, 300);
-  const scope: Category = storedTab === "all" ? "image" : storedTab;
 
   // Every opening starts from a clean search, so a stale query never hides
-  // the catalogue.
+  // the catalogue. The page it was opened from sets the row, and the row is
+  // a row: the rest of the catalogue is one chip away, never hidden.
   useEffect(() => {
-    if (open) setQuery("");
-  }, [open]);
+    if (!open) return;
+    setQuery("");
+    setTab(locked ? storedTab : "all");
+  }, [open, locked, storedTab]);
 
   useEffect(() => {
     if (!open) return;
@@ -90,17 +101,25 @@ export function ModelPicker() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open, togglePicker]);
 
-  // A page's picker lists that page's models, but a search reaches the whole
-  // catalogue — asking for "kling" from Images should find it, not nothing.
+  // The chip narrows the list, but a search reaches the whole catalogue:
+  // asking for "kling" from Images should find it, not nothing.
   const groups = useMemo(() => {
     const searching = query.trim().length > 0;
     const found = searching ? searchModels(query) : MODELS;
-    const scoped = locked && !searching ? found.filter((m) => m.category === scope) : found;
+    const scoped = tab === "all" || searching ? found : found.filter((m) => m.category === tab);
     return CATEGORIES.map((category) => ({
       id: category.id,
       models: scoped.filter((m) => m.category === category.id),
     })).filter((group) => group.models.length > 0);
-  }, [query, locked, scope]);
+  }, [query, tab]);
+
+  const counts = useMemo(() => {
+    const all: Record<string, number> = { all: MODELS.length };
+    for (const category of CATEGORIES) {
+      all[category.id] = MODELS.filter((m) => m.category === category.id).length;
+    }
+    return all;
+  }, []);
 
   if (!mounted) return null;
 
@@ -152,6 +171,16 @@ export function ModelPicker() {
             <Icon name="close" size={17} />
           </button>
         </header>
+
+        {/* Every kind of work, one chip away: the picker opens on the page's
+            own category and the others are right there beside it. */}
+        <div className="border-b border-line px-3 py-2">
+          <PillGroup
+            value={tab}
+            onChange={setTab}
+            items={TABS.map((t) => ({ ...t, count: counts[t.id] ?? 0 }))}
+          />
+        </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-[max(16px,env(safe-area-inset-bottom))] pt-1 sm:pb-3">
           {count === 0 ? (

@@ -11,6 +11,8 @@ export interface PillItem<T extends string> {
   id: T;
   label: string;
   hint?: string;
+  /** How many things are behind this pill, set beside the label. */
+  count?: number;
 }
 
 /**
@@ -260,6 +262,15 @@ export function PillGroup<T extends string>({
             } ${active ? "text-canvas" : "text-t3 hover:text-t1"}`}
           >
             {item.label}
+            {item.count !== undefined && (
+              <span
+                className={`ml-1.5 font-mono text-[0.86em] tabular-nums ${
+                  active ? "opacity-55" : "text-t4"
+                }`}
+              >
+                {item.count}
+              </span>
+            )}
           </button>
         );
       })}

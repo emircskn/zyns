@@ -64,6 +64,37 @@ function attach(model: ModelDef, field: Field, url: string) {
   setValue(field.key, [...list, url].slice(-room));
 }
 
+/**
+ * The overflow menu, opening and closing under the More tile. It stays
+ * mounted through the close so the transition has something to run on, and
+ * the open state lands a frame after the mount for the same reason.
+ */
+function MoreMenu({ open, children }: { open: boolean; children: ReactNode }) {
+  const { mounted, exiting } = usePresence(open, 150);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    if (!mounted) {
+      setShown(false);
+      return;
+    }
+    const frame = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(frame);
+  }, [mounted]);
+
+  if (!mounted) return null;
+
+  return (
+    <div
+      className={`t-modal t-modal--below flex flex-col gap-1 rounded-card bg-t1/[0.05] p-1.5 ${
+        exiting ? "is-closing" : shown ? "is-open" : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
 /** The pictures a run was given to work from, in the order it got them. */
 function inputMedia(run: Run): string[] {
   const model = getModel(run.modelId);
@@ -293,9 +324,21 @@ export function MediaViewer({
   const details = useMemo(() => (run ? detailsOf(run) : []), [run]);
   const model = run ? getModel(run.modelId) : undefined;
   const active = getModel(modelId);
-  const slot = active ? imageInput(active) : undefined;
   const isImage = shown ? mediaKind(shown) === "image" : false;
   const kept = !!shown && favorites.includes(shown);
+
+  // The model this picture goes to as a reference: the one in the bar when it
+  // takes pictures, and otherwise the image model the studio was last on, the
+  // way Turn to video finds a video model. Without this, browsing Assets with
+  // no model chosen left the picture nowhere to go.
+  const referenceModel = useMemo(() => {
+    if (!isImage) return undefined;
+    if (active && imageInput(active)) return active;
+    const last = useStudio.getState().modelByCategory.image;
+    const preferred = last ? getModel(last) : undefined;
+    if (preferred && imageInput(preferred)) return preferred;
+    return MODELS.find((m) => m.category === "image" && imageInput(m));
+  }, [isImage, active]);
 
   // The video model this picture can be handed to: the one the video page was
   // last on when it takes a first frame, or the first one that does.
@@ -333,8 +376,16 @@ export function MediaViewer({
   }
 
   function reference() {
-    if (!active || !shown) return;
-    attachReference(active, shown);
+    if (!referenceModel || !shown) return;
+    // The strip that takes it belongs to the bar, and the bar is on the
+    // model's own page: from Assets or Favorites there was nothing to see
+    // here, which is why this looked like it did nothing at all.
+    const store = useStudio.getState();
+    if (store.modelId !== referenceModel.id) store.selectModel(referenceModel.id);
+    else if (store.page !== "home" && store.page !== referenceModel.category) {
+      store.setPage(referenceModel.category);
+    }
+    if (!attachReference(referenceModel, shown)) return;
     onClose();
   }
 
@@ -349,7 +400,7 @@ export function MediaViewer({
   const actions = [
     videoModel && <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} />,
     run && <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} />,
-    slot && isImage && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
+    referenceModel && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
     <LikeHeart
       key="favorite"
       liked={kept}
@@ -483,8 +534,8 @@ export function MediaViewer({
             )}
           </div>
 
-          {overflowed && more && (
-            <div className="anim-pop flex flex-col gap-1 rounded-card bg-t1/[0.05] p-1.5">
+          {overflowed && (
+            <MoreMenu open={more}>
               <button
                 type="button"
                 onClick={() => copy(shown, "url")}
@@ -504,7 +555,7 @@ export function MediaViewer({
                   Delete
                 </button>
               )}
-            </div>
+            </MoreMenu>
           )}
 
           {confirming && (

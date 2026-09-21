@@ -909,6 +909,88 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * Page swap
+ * A page leaves upward and the next one rises into its place, so the
+ * headline of an empty state moves rather than being replaced between
+ * two frames.
+ * ------------------------------------------------------------------ */
+.page-swap {
+  transition:
+    opacity 170ms var(--ease),
+    transform 170ms var(--ease);
+}
+
+.page-swap.is-leaving {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.page-swap.is-entering {
+  animation: page-rise 320ms var(--ease) both;
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Transitions.dev — modal open / close
+ * Opens from just under full size and closes back into it. Used by the
+ * overflow menu in the enlarged view, which drops out of its own tile,
+ * so that one scales from its top edge rather than its middle.
+ * ------------------------------------------------------------------ */
+:root {
+  --modal-open-dur: 250ms;
+  --modal-close-dur: 150ms;
+  --modal-scale: 0.96;
+  --modal-scale-close: 0.96;
+  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-modal {
+  transform-origin: center;
+  transform: scale(var(--modal-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-open-dur) var(--modal-ease),
+    opacity var(--modal-open-dur) var(--modal-ease);
+  will-change: transform, opacity;
+}
+
+.t-modal.is-open {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.t-modal.is-closing {
+  transform: scale(var(--modal-scale-close));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-close-dur) var(--modal-ease),
+    opacity var(--modal-close-dur) var(--modal-ease);
+}
+
+.t-modal--below {
+  transform-origin: top center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-modal {
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Transitions.dev — card resize
  * A box that tweens between two sizes. Aspect ratio rides along with
  * it: a tile waiting on a run is a slim placeholder, and grows into the
