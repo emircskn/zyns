@@ -549,7 +549,13 @@ export function MediaViewer({
     // panel beside it, which is what `md:` switches back on throughout.
     <div
       data-viewer="media"
-      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep md:flex-row md:overflow-hidden ${
+      // The studio does not go black behind an enlarged picture: it stays
+      // there, blurred out under a dark sheet, so the picture is clearly on
+      // top of the page you were on rather than in a room of its own. A phone
+      // keeps the solid ground, both because a backdrop filter is switched
+      // off at that width for the frame rate and because there is nothing to
+      // see behind a view that fills the screen.
+      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep md:flex-row md:overflow-hidden md:bg-canvas-deep/70 md:backdrop-blur-xl ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
     >
