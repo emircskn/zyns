@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
@@ -69,9 +77,53 @@ function attach(model: ModelDef, field: Field, url: string) {
  * mounted through the close so the transition has something to run on, and
  * the open state lands a frame after the mount for the same reason.
  */
-function MoreMenu({ open, children }: { open: boolean; children: ReactNode }) {
+function MoreMenu({
+  open,
+  anchor,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  anchor: RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+  children: ReactNode;
+}) {
   const { mounted, exiting } = usePresence(open, 150);
   const [shown, setShown] = useState(false);
+  const [place, setPlace] = useState<{ left: number; y: number; below: boolean } | null>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const WIDTH = 216;
+
+  // Measured off the tile it belongs to, and flipped above it when the tile
+  // sits too low for the menu to fit under.
+  useLayoutEffect(() => {
+    if (!mounted) {
+      setPlace(null);
+      return;
+    }
+    const measure = () => {
+      const node = anchor.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const margin = 12;
+      const below = window.innerHeight - rect.bottom > 190;
+      setPlace({
+        left: Math.max(
+          margin,
+          Math.min(rect.right - WIDTH, window.innerWidth - margin - WIDTH),
+        ),
+        y: below ? rect.bottom + 8 : window.innerHeight - rect.top + 8,
+        below,
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [mounted, anchor]);
 
   useEffect(() => {
     if (!mounted) {
@@ -82,16 +134,46 @@ function MoreMenu({ open, children }: { open: boolean; children: ReactNode }) {
     return () => cancelAnimationFrame(frame);
   }, [mounted]);
 
-  if (!mounted) return null;
+  // A click anywhere else puts it away, and Escape closes the menu before it
+  // closes the view behind it, which is why this listens on the way down.
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (panel.current?.contains(target) || anchor.current?.contains(target)) return;
+      onClose();
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.stopPropagation();
+      onClose();
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKey, true);
+    };
+  }, [open, onClose, anchor]);
 
-  return (
+  if (!mounted || !place || typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className={`t-modal t-modal--below flex flex-col gap-1 rounded-card bg-t1/[0.05] p-1.5 ${
+      ref={panel}
+      role="menu"
+      className={`surface-pop t-modal ${place.below ? "t-modal--below" : "t-modal--above"} fixed z-[120] flex flex-col gap-0.5 rounded-card p-1.5 ${
         exiting ? "is-closing" : shown ? "is-open" : ""
       }`}
+      style={{
+        left: place.left,
+        width: WIDTH,
+        ...(place.below ? { top: place.y } : { bottom: place.y }),
+      }}
     >
       {children}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -184,6 +266,7 @@ function Action({
   primary,
   danger,
   filled,
+  innerRef,
 }: {
   icon: IconName;
   label: string;
@@ -193,6 +276,8 @@ function Action({
   danger?: boolean;
   /** A heart already given reads as solid. */
   filled?: boolean;
+  /** For a tile something else hangs off, like the overflow menu. */
+  innerRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const shape = TILE_SHAPE;
   const className = primary
@@ -222,7 +307,15 @@ function Action({
     );
   }
   return (
-    <button type="button" onClick={onClick} title={label} aria-label={label} style={tint} className={className}>
+    <button
+      ref={innerRef}
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      style={tint}
+      className={className}
+    >
       {inner}
     </button>
   );
@@ -292,6 +385,7 @@ export function MediaViewer({
   const [copied, setCopied] = useState<"url" | "prompt" | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [more, setMore] = useState(false);
+  const moreTile = useRef<HTMLButtonElement>(null);
   const [full, setFull] = useState(false);
 
   const removeRun = useStudio((s) => s.removeRun);
@@ -524,6 +618,7 @@ export function MediaViewer({
             {tiles}
             {overflowed && (
               <Action
+                innerRef={moreTile}
                 icon="more"
                 label="More"
                 onClick={() => {
@@ -535,23 +630,28 @@ export function MediaViewer({
           </div>
 
           {overflowed && (
-            <MoreMenu open={more}>
+            <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
               <button
                 type="button"
+                role="menuitem"
                 onClick={() => copy(shown, "url")}
-                className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
+                className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
               >
-                <Icon name={copied === "url" ? "check" : "copy"} size={15} />
+                <Icon name={copied === "url" ? "check" : "copy"} size={15} className="shrink-0" />
                 {copied === "url" ? "Copied" : "Copy URL"}
               </button>
-              {(run || upload) && !confirming && (
+              {(run || upload) && (
                 <button
                   type="button"
-                  onClick={() => setConfirming(true)}
+                  role="menuitem"
+                  onClick={() => {
+                    setMore(false);
+                    setConfirming(true);
+                  }}
                   style={{ color: "var(--danger)" }}
-                  className="flex items-center gap-2.5 rounded-full px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
+                  className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
                 >
-                  <Icon name="trash" size={15} />
+                  <Icon name="trash" size={15} className="shrink-0" />
                   Delete
                 </button>
               )}

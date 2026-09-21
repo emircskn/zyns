@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Icon, type IconName } from "@/components/Icon";
 import { PromptBar } from "@/components/PromptBar";
@@ -51,14 +51,40 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
   const recent = useMemo(() => assets.slice(0, 6), [assets]);
 
+  // The box holds the middle of the first screen whatever is under it, so
+  // the hero is given the height left below whatever the page put above it
+  // and Recent starts under the fold rather than pushing the box up.
+  const hero = useRef<HTMLElement>(null);
+  const [top, setTop] = useState(0);
+  const demo = useStudio((s) => s.runs.some((r) => r.id.startsWith("demo-")));
+
+  useLayoutEffect(() => {
+    const node = hero.current;
+    if (!node) return;
+    // Measured off the page rather than off itself, so growing it cannot
+    // feed back into the number.
+    const measure = () => setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [hydrated, apiKey, demo]);
+
+  // Fonts land after the first paint and move everything above it.
+  useEffect(() => {
+    document.fonts?.ready
+      .then(() => {
+        const node = hero.current;
+        if (node) setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      {/* With nothing made yet the box holds the whole screen; once there is
-          work underneath, it gives some of that back so the grid shows. */}
       <section
-        className={`flex flex-col items-center justify-center ${
-          recent.length > 0 ? "py-10 md:py-14" : "flex-1 py-8 md:py-12"
-        }`}
+        ref={hero}
+        style={{ minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px)` }}
+        className="flex flex-col items-center justify-center py-8 md:py-12"
       >
         <div className="w-full max-w-[720px]">
           <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
@@ -103,7 +129,7 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
       </section>
 
       {recent.length > 0 && (
-        <section className="mx-auto w-full max-w-[1000px] pb-2">
+        <section className="mx-auto w-full max-w-[1000px] pb-2 pt-2">
           <div className="mb-3 flex items-end justify-between gap-3">
             <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-t4">Recent</h2>
             <button

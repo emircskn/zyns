@@ -598,6 +598,17 @@ html {
    the phone's bottom row under that. */
 .below-bar {
   padding-bottom: calc(var(--bar-h, 280px) + var(--nav-h) + 28px + env(safe-area-inset-bottom));
+  /* The bar grows and shrinks with the model, the mode and the references
+     it is holding, and whatever is centred above it is centred in what is
+     left. Without this the middle of the page jumped by a whole reference
+     strip at a time. */
+  transition: padding-bottom var(--d-slow) var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .below-bar {
+    transition: none;
+  }
 }
 
 /* Pages with no prompt bar still clear the bottom row. */
@@ -980,8 +991,13 @@ html {
     opacity var(--modal-close-dur) var(--modal-ease);
 }
 
+/* A menu grows out of the tile it belongs to, whichever side it opened on. */
 .t-modal--below {
   transform-origin: top center;
+}
+
+.t-modal--above {
+  transform-origin: bottom center;
 }
 
 @media (prefers-reduced-motion: reduce) {
