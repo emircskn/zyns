@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Icon } from "@/components/Icon";
-import { ZynsWordmark } from "@/components/Logo";
+import { ZynsMark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { Backdrop } from "@/components/Backdrop";
 import { FavoritesPage } from "@/components/FavoritesPage";
@@ -35,13 +35,15 @@ function PhoneBar() {
 
   return (
     <header className="relative z-10 flex items-center justify-between px-4 py-3 md:hidden">
+      {/* The badge, not the name: a phone bar is too short a line to spell
+          anything out on, and the mark carries further at this size. */}
       <button
         type="button"
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
-        className="text-t1 transition-opacity duration-[150ms] hover:opacity-70"
+        className="transition-opacity duration-[150ms] hover:opacity-70"
       >
-        <ZynsWordmark height={12} />
+        <ZynsMark size={32} />
       </button>
       <div className="flex items-center gap-1">
         {/* The rail's samples button, for a phone that has no rail. */}
