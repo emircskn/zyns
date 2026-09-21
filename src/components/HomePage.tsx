@@ -5,7 +5,6 @@ import { AssetBrowser } from "@/components/AssetBrowser";
 import { Icon } from "@/components/Icon";
 import { PromptBar } from "@/components/PromptBar";
 import { useAssets } from "@/lib/assets";
-import { MODELS } from "@/lib/registry";
 import { useStudio } from "@/store/studio";
 
 /**
@@ -145,9 +144,14 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
           <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
             Make <Rolling />
           </h1>
+          {/* Not a spec sheet. What is true of the empty box is that nothing
+              in here exists yet, and one sentence is the whole price of
+              entry; the model count belongs on the pages, not here. */}
           <p className="mx-auto mt-3 max-w-[430px] text-center text-[13px] leading-relaxed text-t3 md:text-[13.5px]">
-            All {MODELS.length} models on the KIE API behind one prompt bar. Start typing and pick
-            the model after.
+            Nothing here exists until you describe it.{" "}
+            {/* Kept whole, so the two lines are the two sentences rather than
+                a sentence broken over the turn. */}
+            <span className="whitespace-nowrap">One sentence is enough to begin.</span>
           </p>
 
           <div className="mt-7 md:mt-8">
