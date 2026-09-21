@@ -41,7 +41,7 @@ function PhoneBar() {
         aria-label="ZYNS home"
         className="text-t1 transition-opacity duration-[150ms] hover:opacity-70"
       >
-        <ZynsWordmark height={17} className="relative top-[3px]" />
+        <ZynsWordmark height={12} />
       </button>
       <div className="flex items-center gap-1">
         {/* The rail's samples button, for a phone that has no rail. */}
