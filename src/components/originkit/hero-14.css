@@ -1,0 +1,43 @@
+/* hero-14 — Originkit section (landfree-hero), dressed in ZYNS colours.
+ *
+ * The section keeps its own dark scale in both themes: the beams, the grid
+ * and the ring are artwork drawn for a near-black ground, so the hero reads
+ * as a poster at the top of the page rather than following the canvas. The
+ * lime the section shipped with has been replaced by the studio's amber,
+ * in the tokens here and in the SVGs under public/originkit/hero-14.
+ */
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/originkit/hero-14/fonts-SpaceGrotesk.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-grotesk: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  /* The section's accent, mapped onto the studio's amber and gold. */
+  --color-hero-accent: #f2a33a;
+  --color-hero-accent-soft: #f0cf6b;
+
+  /* The section's own neutral scale — fixed, not theme-following. */
+  --color-grey90: #e6e6e6;
+  --color-grey80: #cccccc;
+  --color-grey50: #808080;
+  --color-dark02: #050505;
+  --color-dark04: #0a0a0a;
+  --color-dark06: #0f0f0f;
+  --color-dark10: #1a1a1a;
+  --color-dark12: #1f1f1f;
+}
+
+/* The section was authored to hold exactly one viewport. Here it sits above
+   the cards on the landing page, so --ok-design-h is a floor rather than a
+   fixed height: on a phone the headline and the two buttons need more room
+   than 88svh leaves, and a fixed height would cut the second button off. */
+.hero-14 {
+  min-height: var(--ok-design-h, 100svh);
+  overflow: hidden;
+}

@@ -36,7 +36,34 @@ const css = await postcss([tailwind()]).process(cssSource, {
   from: path.join(root, "src/app/globals.css"),
 });
 
-const script = js.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
+/**
+ * There is no /public here — the file is opened straight off a disk — so
+ * every asset the hero section asks for is read once and carried inline.
+ * Both halves reference them: the markup through src=, the stylesheet
+ * through the @font-face.
+ */
+const MIME = { ".svg": "image/svg+xml", ".woff2": "font/woff2", ".png": "image/png" };
+const assets = new Map();
+async function inline(text) {
+  const refs = new Set(text.match(/\/originkit\/[\w./-]+/g) ?? []);
+  for (const ref of refs) {
+    if (!assets.has(ref)) {
+      const file = path.join(root, "public", ref);
+      const type = MIME[path.extname(ref)];
+      if (!type) throw new Error(`no MIME type for ${ref}`);
+      assets.set(ref, `data:${type};base64,${(await readFile(file)).toString("base64")}`);
+    }
+    text = text.split(ref).join(assets.get(ref));
+  }
+  return text;
+}
+
+// Without an outdir esbuild calls the one bundle <stdout>; be explicit all
+// the same, so a stylesheet output could never be mistaken for the script.
+const bundle = js.outputFiles.find((f) => !f.path.endsWith(".css"));
+if (!bundle) throw new Error("esbuild produced no JS output");
+const script = (await inline(bundle.text)).replace(/<\/script/gi, "<\\/script");
+const styles = await inline(css.css);
 
 const html = `<!doctype html>
 <html lang="en" data-theme="dark">
@@ -49,7 +76,7 @@ const html = `<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet" />
-<style>${css.css}</style>
+<style>${styles}</style>
 </head>
 <body>
 <div id="root"></div>
@@ -61,4 +88,4 @@ const html = `<!doctype html>
 await mkdir(path.join(root, "dist"), { recursive: true });
 const out = path.join(root, "dist/zyns.html");
 await writeFile(out, html);
-console.log(`wrote ${out} (${(html.length / 1024).toFixed(0)} KB)`);
+console.log(`wrote ${out} (${(html.length / 1024).toFixed(0)} KB, ${assets.size} assets inlined)`);
