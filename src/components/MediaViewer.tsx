@@ -555,7 +555,7 @@ export function MediaViewer({
       // keeps the solid ground, both because a backdrop filter is switched
       // off at that width for the frame rate and because there is nothing to
       // see behind a view that fills the screen.
-      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep md:flex-row md:overflow-hidden md:bg-canvas-deep/70 md:backdrop-blur-xl ${
+      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep pt-[calc(56px+env(safe-area-inset-top))] md:flex-row md:overflow-hidden md:bg-canvas-deep/70 md:pt-0 md:backdrop-blur-xl ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
     >
@@ -598,20 +598,26 @@ export function MediaViewer({
             </div>
           )}
         </div>
-
-        {/* A phone scrolls the whole view, and the panel's header is for the
-            desktop, so the way out is pinned to the screen rather than to the
-            picture: fixed, above the stage's own layers, and legible on a
-            bright image because it carries its own dark disc. */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="fixed right-4 top-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-t1/15 backdrop-blur-md transition-colors duration-[120ms] hover:bg-canvas-deep/80 md:hidden"
-        >
-          <Icon name="close" size={18} />
-        </button>
       </div>
+
+      {/* A phone scrolls the whole view, and the panel's header belongs to the
+          desktop, so the way out sits in a bar of its own across the top of
+          the screen: pinned there while the view scrolls through the actions
+          and the details, and solid, so nothing of the picture runs under it.
+          The view is padded by the bar's height rather than sliding beneath
+          it. */}
+      <header className="fixed inset-x-0 top-0 z-20 bg-canvas-deep pt-[env(safe-area-inset-top)] md:hidden">
+        <div className="flex h-14 items-center justify-end px-4">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.09] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.16]"
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+      </header>
 
       <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
         <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
