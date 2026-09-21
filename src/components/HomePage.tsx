@@ -2,40 +2,10 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { PromptBar } from "@/components/PromptBar";
 import { useAssets } from "@/lib/assets";
-import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
-import { useStudio, type Page } from "@/store/studio";
-
-const COUNT: Record<Category, number> = CATEGORIES.reduce(
-  (all, c) => ({ ...all, [c.id]: MODELS.filter((m) => m.category === c.id).length }),
-  {} as Record<Category, number>,
-);
-
-const ICON: Record<Category, IconName> = {
-  image: "image",
-  video: "video",
-  audio: "audio",
-  tool: "tool",
-};
-
-/** One way in per kind of work, under the box that does all of them. */
-function Quick({ category }: { category: Category }) {
-  const setPage = useStudio((s) => s.setPage);
-  const meta = CATEGORIES.find((c) => c.id === category);
-  return (
-    <button
-      type="button"
-      onClick={() => setPage(category as Page)}
-      className="flex items-center gap-2 rounded-full border border-line bg-t1/[0.03] py-1.5 pl-3 pr-3.5 text-[12.5px] text-t2 transition-colors duration-[150ms] hover:border-line-strong hover:bg-t1/[0.07] hover:text-t1"
-    >
-      <Icon name={ICON[category]} size={15} className="opacity-80" />
-      {meta?.label}
-      <span className="font-mono text-[11px] tabular-nums text-t4">{COUNT[category]}</span>
-    </button>
-  );
-}
+import { useStudio } from "@/store/studio";
 
 /**
  * The screen the studio opens on: the box in the middle of it, the pages
@@ -110,12 +80,6 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
           <div className="mt-7 md:mt-8">
             <PromptBar placement="center" />
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            {CATEGORIES.map((category) => (
-              <Quick key={category.id} category={category.id} />
-            ))}
           </div>
 
           {hydrated && !apiKey && (
