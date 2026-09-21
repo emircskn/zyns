@@ -5,6 +5,7 @@ import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { Icon } from "@/components/Icon";
 import { ZynsWordmark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
+import { Backdrop } from "@/components/Backdrop";
 import { FavoritesPage } from "@/components/FavoritesPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
@@ -33,7 +34,7 @@ function PhoneBar() {
   const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 md:hidden">
+    <header className="relative z-10 flex items-center justify-between px-4 py-3 md:hidden">
       <button
         type="button"
         onClick={() => setPage("home")}
@@ -148,10 +149,12 @@ export function Shell() {
 
   return (
     <div className="flex min-h-dvh flex-col md:pl-[var(--rail-w)]">
+      {/* The surface the whole studio stands on, under everything. */}
+      <Backdrop />
       <SideRail onKeyClick={() => setKeyOpen(true)} />
       <PhoneBar />
       <main
-        className={`mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
+        className={`relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
           composing ? "below-bar" : "below-nav"
         }`}
       >

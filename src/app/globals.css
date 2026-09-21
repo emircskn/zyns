@@ -962,6 +962,41 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * The backdrop's field
+ * The dots at rest, as a background image: the canvas over them paints
+ * only what the pointer lights, so sitting still costs nothing. The step
+ * and the half-step offset match the grid the canvas draws on.
+ * ------------------------------------------------------------------ */
+/* The pool of light the pointer drags: one gradient the compositor moves,
+   rather than a gradient repainted into the canvas every frame. */
+.backdrop-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 480px;
+  height: 480px;
+  margin-left: -240px;
+  margin-top: -240px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklab, var(--t1) 5%, transparent),
+    transparent 70%
+  );
+  will-change: transform, opacity;
+}
+
+.backdrop-field {
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in oklab, var(--t1) 6%, transparent) 0 1px,
+    transparent 1.4px
+  );
+  background-size: 28px 28px;
+  background-position: 14px 14px;
+}
+
+/* ------------------------------------------------------------------ *
  * Page swap
  * A page leaves upward and the next one rises into its place, so the
  * headline of an empty state moves rather than being replaced between
