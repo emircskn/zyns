@@ -127,7 +127,7 @@ function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         <button
           type="button"
           onClick={() => setPage("home")}
-          aria-label="ZYNS — home"
+          aria-label="ZYNS home"
           className="shrink-0 text-t1 transition-opacity duration-[150ms] hover:opacity-70"
         >
           {/* Wordmark only up here; the tile belongs to the icon and the tab. */}

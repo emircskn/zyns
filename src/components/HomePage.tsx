@@ -70,7 +70,7 @@ export function HomePage() {
       <Hero14
         headline="Every model on the KIE API, in"
         accent="one studio."
-        subtitle={`Stills, motion, sound and the tools that clean them up — ${MODELS.length} models behind one prompt bar, each with its own settings, everything you make in one place.`}
+        subtitle={`Stills, motion, sound and the tools that clean them up. ${MODELS.length} models behind one prompt bar, each with its own settings, everything you make in one place.`}
         primaryLabel="Start creating"
         onPrimary={() => setPage("image")}
         secondaryLabel={runs.length === 0 ? "See it with sample media" : undefined}
@@ -103,7 +103,7 @@ export function HomePage() {
         >
           <Icon name="grid" size={16} className="shrink-0 text-t3" />
           <span className="min-w-0 flex-1 text-[13px] text-t2">
-            {runs.length} {runs.length === 1 ? "run" : "runs"} so far — everything generated and
+            {runs.length} {runs.length === 1 ? "run" : "runs"} so far. Everything generated and
             uploaded lives in Assets.
           </span>
           <Icon name="chevron" size={15} className="-rotate-90 shrink-0 text-t4" />

@@ -59,7 +59,7 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
       <button
         type="button"
         onClick={onKey}
-        aria-label={apiKey ? "API key — connected" : "Add API key"}
+        aria-label={apiKey ? "API key connected" : "Add API key"}
         className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
           page === "home" ? "text-t4" : "text-t4"
         }`}

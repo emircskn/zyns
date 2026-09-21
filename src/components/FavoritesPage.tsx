@@ -37,7 +37,7 @@ export function FavoritesPage() {
               Nothing kept yet.
             </p>
             <p className="t-stagger-line t-stagger-line--2 mx-auto mt-4 max-w-[380px] text-[13.5px] leading-relaxed text-t3">
-              Press the heart on a tile, or in the enlarged view, and it stays here — out of the
+              Press the heart on a tile, or in the enlarged view, and it stays here, out of the
               way of everything else you make.
             </p>
             <span className="t-stagger-line t-stagger-line--3 mt-6">

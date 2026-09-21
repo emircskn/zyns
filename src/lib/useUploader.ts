@@ -25,7 +25,7 @@ export function useUploader(accept: Kind | undefined) {
 
   async function send(files: FileList | File[], onDone: (urls: string[]) => void) {
     if (!apiKey) {
-      setError("Add your API key first — uploads go through your KIE account.");
+      setError("Add your API key first. Uploads go through your KIE account.");
       return;
     }
     setBusy(true);

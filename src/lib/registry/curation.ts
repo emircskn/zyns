@@ -71,7 +71,7 @@ export const FAMILIES: Family[] = [
     category: "image",
     output: "image",
     badge: "4K",
-    tagline: "Gemini 3.1 Flash Image — fast, sharp text rendering, up to 14 references.",
+    tagline: "Gemini 3.1 Flash Image: fast, sharp text rendering, up to 14 references.",
     modes: [
       m("generate", "Generate", "nano-banana-2", { hide: ["image_input"] }),
       m("edit", "Edit", "nano-banana-2", { hint: "Up to 14 reference images", require: ["image_input"] }),
@@ -83,7 +83,7 @@ export const FAMILIES: Family[] = [
     vendor: "Google",
     category: "image",
     output: "image",
-    tagline: "The fastest, cheapest Nano Banana — 1K output, up to 10 references.",
+    tagline: "The fastest, cheapest Nano Banana: 1K output, up to 10 references.",
     modes: [
       m("generate", "Generate", "nano-banana-2-lite", { hide: ["image_urls"] }),
       m("edit", "Edit", "nano-banana-2-lite", { require: ["image_urls"] }),
@@ -109,7 +109,7 @@ export const FAMILIES: Family[] = [
     vendor: "Google",
     category: "image",
     output: "image",
-    tagline: "The original Gemini image model — quick generation and editing.",
+    tagline: "The original Gemini image model: quick generation and editing.",
     modes: [
       m("generate", "Generate", "google/nano-banana"),
       m("edit", "Edit", "google/nano-banana-edit", { hint: "Up to 10 images" }),
@@ -217,7 +217,7 @@ export const FAMILIES: Family[] = [
     category: "image",
     output: "image",
     badge: "NEW",
-    tagline: "GPT Image 2.5, Flare tuning — vivid, high-contrast renders.",
+    tagline: "GPT Image 2.5, Flare tuning: vivid, high-contrast renders.",
     modes: [
       m("generate", "Generate", "gpt-image-2-5-flare-text-to-image"),
       m("edit", "Edit", "gpt-image-2-5-flare-image-to-image"),
@@ -230,7 +230,7 @@ export const FAMILIES: Family[] = [
     category: "image",
     output: "image",
     badge: "NEW",
-    tagline: "GPT Image 2.5, Sunburst tuning — warm, naturalistic light.",
+    tagline: "GPT Image 2.5, Sunburst tuning: warm, naturalistic light.",
     modes: [
       m("generate", "Generate", "gpt-image-2-5-sunburst-text-to-image"),
       m("edit", "Edit", "gpt-image-2-5-sunburst-image-to-image"),
@@ -433,7 +433,7 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     badge: "4K",
-    tagline: "Cinematic motion with native audio — text, frames or material references.",
+    tagline: "Cinematic motion with native audio: text, frames or material references.",
     modes: [
       m("text-to-video", "Text to video", "veo-3-1", {
         hide: ["image_urls"],
@@ -476,7 +476,7 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     badge: "4K",
-    tagline: "Seedance 2.0 — up to 4K with references, frames and audio.",
+    tagline: "Seedance 2.0: up to 4K with references, frames and audio.",
     modes: seedanceModes("bytedance/seedance-2"),
   },
   {
@@ -572,7 +572,7 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     badge: "4K",
-    tagline: "Kling 3.0's omni model — text, frames, references and video transformation up to 4K.",
+    tagline: "Kling 3.0's omni model: text, frames, references and video transformation up to 4K.",
     modes: [
       m("text-to-video", "Text to video", "kling-3.0-omni/text-to-video"),
       m("first-frame", "First frame", "kling-3.0-omni/image-to-video", { variant: "Single First Frame" }),
@@ -693,7 +693,7 @@ export const FAMILIES: Family[] = [
     vendor: "MiniMax",
     category: "video",
     output: "video",
-    tagline: "MiniMax H3 — text, frame-guided and multimodal reference video up to 2K.",
+    tagline: "MiniMax H3: text, frame-guided and multimodal reference video up to 2K.",
     modes: [
       m("text-to-video", "Text to video", "minimax-h3/text-to-video"),
       m("image-to-video", "Image to video", "minimax-h3/image-to-video", { require: ["first_frame_url"] }),
@@ -738,7 +738,7 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     badge: "NEW",
-    tagline: "All-purpose references — images, video, audio, even a document or a link.",
+    tagline: "All-purpose references: images, video, audio, even a document or a link.",
     modes: [
       m("video", "Video", "wan/3-0-video"),
       m("prime", "Video Prime", "wan/3-0-video-prime", { hint: "Highest quality tier" }),
@@ -791,7 +791,7 @@ export const FAMILIES: Family[] = [
     vendor: "Alibaba",
     category: "video",
     output: "video",
-    tagline: "Wan 2.2 A14B Turbo — text, image and speech-driven video.",
+    tagline: "Wan 2.2 A14B Turbo: text, image and speech-driven video.",
     modes: [
       m("text-to-video", "Text to video", "wan/2-2-a14b-text-to-video-turbo"),
       m("image-to-video", "Image to video", "wan/2-2-a14b-image-to-video-turbo"),
@@ -964,7 +964,7 @@ export const FAMILIES: Family[] = [
     category: "audio",
     output: "audio",
     badge: "V6",
-    tagline: "Full songs from a brief or your own lyrics — extend, cover, mash up and more.",
+    tagline: "Full songs from a brief or your own lyrics: extend, cover, mash up and more.",
     modes: [
       m("generate", "Generate", "ai-music-api/generate"),
       m("extend", "Extend", "ai-music-api/extend", { hint: "Continue a generated track" }),

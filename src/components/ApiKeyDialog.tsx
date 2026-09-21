@@ -77,7 +77,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
           <h2 className="mb-2 text-[17px] text-t1">Your KIE API key</h2>
           <p className="mb-5 text-[12.5px] leading-relaxed text-t3">
             {isDirect()
-              ? "The key is kept in this browser and sent straight to api.kie.ai with each request — there is no server in between."
+              ? "The key is kept in this browser and sent straight to api.kie.ai with each request. There is no server in between."
               : "The key is kept in this browser and sent with each request through this app's own proxy route. It is never stored on the server."}{" "}
             Get one at{" "}
             <a

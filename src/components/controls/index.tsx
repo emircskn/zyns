@@ -159,7 +159,7 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
           onClick={() => onChange(undefined)}
           className="mt-1.5 text-[11px] text-t4 transition-colors hover:text-t1"
         >
-          Clear — let the model decide
+          Clear, let the model decide
         </button>
       )}
     </div>
@@ -637,7 +637,7 @@ function ItemInput({
           onChange={(event) => onChange(event.target.value || undefined)}
           className={SMALL_INPUT}
         >
-          <option value="">—</option>
+          <option value="">None</option>
           {(column.choices ?? []).map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}

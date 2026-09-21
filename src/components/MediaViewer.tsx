@@ -595,7 +595,7 @@ export function MediaViewer({
                 </>
               ) : (
                 <p className="text-[12.5px] leading-relaxed text-t4">
-                  No prompt — this run worked from its inputs.
+                  No prompt. This run worked from its inputs.
                 </p>
               )}
             </Section>
