@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon, type IconName } from "@/components/Icon";
+import { MetalButton } from "@/components/MetalButton";
 import { useStudio, type Page } from "@/store/studio";
 
 const ITEMS: Array<{ id: Page; label: string; icon: IconName }> = [
@@ -44,15 +45,25 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
       <Tab {...ITEMS[0]} />
       <Tab {...ITEMS[1]} />
 
-      <button
-        type="button"
-        onClick={onCreate}
-        aria-label="Create"
-        className="mx-1 grid w-[68px] shrink-0 place-items-center self-center rounded-card py-2.5 transition-transform duration-[150ms] active:scale-95"
-        style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
-      >
-        <Icon name="spark" size={22} fill="currentColor" strokeWidth={1.2} />
-      </button>
+      {/* The same metal ring the send button wears, around a circle this
+          time, and still the spark rather than an arrow: this button opens
+          the models, it does not send anything. */}
+      <span className="mx-2 self-center">
+        <MetalButton>
+          <button
+            type="button"
+            onClick={onCreate}
+            aria-label="Create"
+            className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full text-t1 transition-transform duration-[150ms] active:scale-95"
+          >
+            {/* The fill sits inside the button, not on it: the ring normalizes
+                the host's own chrome, and a background set there is dropped. */}
+            <span className="grid h-full w-full place-items-center rounded-full bg-t1/[0.07]">
+              <Icon name="spark" size={22} fill="currentColor" strokeWidth={1.2} />
+            </span>
+          </button>
+        </MetalButton>
+      </span>
 
       <Tab {...ITEMS[2]} />
 

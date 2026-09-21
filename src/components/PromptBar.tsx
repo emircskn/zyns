@@ -13,6 +13,7 @@ import { BorderBeam } from "border-beam";
 import { Control, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
+import { MetalButton } from "@/components/MetalButton";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
 import { insertMention, mentionAtCaret, mentionNames, mentionSources, usedMentions } from "@/lib/mentions";
@@ -554,19 +555,28 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   }
 
   const send = (
-    <button
-      type="button"
-      onClick={run}
-      disabled={busy || !!blocker || !apiKey}
-      title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-      className="cta grid h-9 w-9 shrink-0 place-items-center rounded-full hover:scale-[1.06] active:scale-95 disabled:cursor-not-allowed disabled:bg-t1/15 disabled:text-t4 disabled:hover:scale-100"
-    >
-      {busy ? (
-        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
-      ) : (
-        <Icon name="arrow-up" size={16} strokeWidth={2} />
-      )}
-    </button>
+    // The one button that starts something, so the one that wears the metal
+    // ring. The lift on hover is gone: the ring is measured off the child, and
+    // a child that grows under it drags the ring a frame behind.
+    <MetalButton>
+      <button
+        type="button"
+        onClick={run}
+        disabled={busy || !!blocker || !apiKey}
+        title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-t1 transition-colors duration-[150ms] active:scale-95 disabled:cursor-not-allowed disabled:text-t4"
+      >
+        {/* The fill sits inside the button, not on it: the ring normalizes the
+            host's own chrome, and a background set there is dropped. */}
+        <span className="grid h-full w-full place-items-center rounded-full bg-t1/[0.07]">
+          {busy ? (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+          ) : (
+            <Icon name="arrow-up" size={16} strokeWidth={2} />
+          )}
+        </span>
+      </button>
+    </MetalButton>
   );
 
   return (
