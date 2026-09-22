@@ -8,10 +8,11 @@ import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { downloadAll } from "@/lib/download";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
+import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
-import { useStudio } from "@/store/studio";
+import { useStudio, type Run } from "@/store/studio";
 
 function TileButton({
   icon,
@@ -45,6 +46,7 @@ function TileButton({
 
 function AssetTile({
   asset,
+  run,
   index,
   picked,
   picking,
@@ -55,6 +57,8 @@ function AssetTile({
   onRemove,
 }: {
   asset: Asset;
+  /** The run that made it, when one did: only those can be recreated. */
+  run?: Run;
   index: number;
   picked: boolean;
   picking: boolean;
@@ -130,32 +134,47 @@ function AssetTile({
 
       {!picking && (
         // A phone never shows these: they cover the picture, and the enlarged
-        // view carries the same actions with room to name them.
-        <div className="hover-reveal tap-reveal pointer-events-none absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[150ms] group-hover:pointer-events-auto group-hover:opacity-100">
-          <LikeHeart
-            liked={kept}
-            size={14}
-            title={kept ? "Remove from favorites" : "Add to favorites"}
-            onToggle={() => toggleFavorite(asset.url)}
-            className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
-          />
-          <TileButton icon="download" label="Open / download" href={asset.url} />
-          {onRemove &&
-            (confirming ? (
-              <>
-                <TileButton icon="close" label="Keep it" onClick={() => setConfirming(false)} />
-                <button
-                  type="button"
-                  onClick={onRemove}
-                  aria-label="Confirm delete"
-                  className="grid h-8 w-8 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-                >
-                  <Icon name="check" size={14} strokeWidth={2.2} />
-                </button>
-              </>
-            ) : (
-              <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
-            ))}
+        // view carries the same actions with room to name them. They stand in
+        // a column down the right, with the one that sends this picture
+        // somewhere else on the opposite corner.
+        <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[150ms] group-hover:pointer-events-auto group-hover:opacity-100">
+          <div className="absolute right-1.5 top-1.5 flex flex-col items-end gap-1">
+            <LikeHeart
+              liked={kept}
+              size={14}
+              title={kept ? "Remove from favorites" : "Add to favorites"}
+              onToggle={() => toggleFavorite(asset.url)}
+              className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
+            />
+            <TileButton icon="download" label="Open / download" href={asset.url} />
+            {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
+            {onRemove &&
+              (confirming ? (
+                <>
+                  <TileButton icon="close" label="Keep it" onClick={() => setConfirming(false)} />
+                  <button
+                    type="button"
+                    onClick={onRemove}
+                    aria-label="Confirm delete"
+                    className="grid h-8 w-8 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                  >
+                    <Icon name="check" size={14} strokeWidth={2.2} />
+                  </button>
+                </>
+              ) : (
+                <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
+              ))}
+          </div>
+
+          {asset.kind === "image" && (
+            <div className="absolute bottom-1.5 left-1.5">
+              <TileButton
+                icon="layers"
+                label="Use as reference"
+                onClick={() => sendReference(asset.url)}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -230,6 +249,7 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
           <AssetTile
             key={asset.id}
             asset={asset}
+            run={asset.source === "run" ? runs.find((r) => r.urls.includes(asset.url)) : undefined}
             index={index}
             square={!phone || phoneGrid}
             leaving={leaving.has(asset.id)}

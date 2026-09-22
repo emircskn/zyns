@@ -9,6 +9,7 @@ export type IconName =
   | "tool"
   | "sliders"
   | "plus"
+  | "minus"
   | "close"
   | "chevron"
   | "search"
@@ -75,6 +76,7 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   chevron: <path d="M6 9l6 6 6-6" />,
   search: (

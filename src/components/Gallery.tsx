@@ -12,6 +12,7 @@ import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
+import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
@@ -123,11 +124,8 @@ function Tile({
   onPick: () => void;
 }) {
   const removeRun = useStudio((s) => s.removeRun);
-  const selectModel = useStudio((s) => s.selectModel);
-  const setValues = useStudio((s) => s.setValues);
   const favorites = useStudio((s) => s.favorites);
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
-  const [copied, setCopied] = useState(false);
   const url = run.urls[0];
   const kept = !!url && favorites.includes(url);
   const [loading, setLoading] = useState(false);
@@ -153,18 +151,6 @@ function Tile({
     setLoading(true);
   }, [run.urls.length, run.state]);
 
-  function reuse() {
-    selectModel(run.modelId);
-    // `selectModel` switches the active model first so the values land on it.
-    setTimeout(() => setValues({ ...run.values }), 0);
-  }
-
-  async function copy() {
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1400);
-  }
 
   return (
     <div
@@ -245,10 +231,12 @@ function Tile({
       )}
 
       {/* Actions alone: the model and the prompt are a keystroke away in the
-          enlarged view, and on a tile they only cover the picture. */}
-      <div className="hover-reveal tap-reveal pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-2.5 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
+          enlarged view, and on a tile they only cover the picture. They stand
+          in a column down the right, in reaching order, with the one that
+          sends this picture somewhere else on the opposite corner. */}
+      <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
         <div
-          className={`flex items-center justify-end gap-1 ${
+          className={`absolute right-2 top-2 flex flex-col items-end gap-1 ${
             coarse || picking ? "pointer-events-none" : "pointer-events-auto"
           }`}
         >
@@ -261,13 +249,8 @@ function Tile({
               className="grid h-8 w-8 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
-          <TileAction icon="refresh" label="Reuse these settings" onClick={reuse} />
-          {url && (
-            <>
-              <TileAction icon={copied ? "check" : "copy"} label="Copy URL" onClick={copy} />
-              <TileAction icon="download" label="Open / download" href={url} />
-            </>
-          )}
+          {url && <TileAction icon="download" label="Open / download" href={url} />}
+          <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
           {confirming ? (
             <>
               <TileAction icon="close" label="Keep it" onClick={() => setConfirming(false)} />
@@ -289,6 +272,16 @@ function Tile({
             />
           )}
         </div>
+
+        {url && mediaKind(url) === "image" && (
+          <div
+            className={`absolute bottom-2 left-2 ${
+              coarse || picking ? "pointer-events-none" : "pointer-events-auto"
+            }`}
+          >
+            <TileAction icon="layers" label="Use as reference" onClick={() => sendReference(url)} />
+          </div>
+        )}
       </div>
     </div>
   );

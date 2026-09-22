@@ -114,7 +114,7 @@
 
 @media (min-width: 768px) {
   :root {
-    --rail-w: 72px;
+    --rail-w: 212px;
   }
 }
 
@@ -1004,6 +1004,44 @@ html {
   .roll,
   .roll-cell {
     transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The bottom of the screen, swapped
+ *
+ * Picking a tile hands the dock to the selection bar: the prompt bar drops
+ * out of it rather than being covered by a second bar stacked above, and
+ * comes back when the selection is let go.
+ * ------------------------------------------------------------------ */
+.bar-swap {
+  transition: transform var(--d-slow) var(--ease), opacity var(--d-slow) var(--ease);
+}
+.bar-swap[data-away="1"] {
+  transform: translateY(calc(100% + 28px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes bar-rise {
+  from {
+    transform: translateY(calc(100% + 28px));
+    opacity: 0;
+  }
+}
+.bar-rise {
+  animation: bar-rise var(--d-slow) var(--ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-swap {
+    transition: opacity 120ms linear;
+  }
+  .bar-swap[data-away="1"] {
+    transform: none;
+  }
+  .bar-rise {
+    animation: none;
   }
 }
 

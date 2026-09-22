@@ -12,26 +12,33 @@ const CATEGORY_ICON: Record<Category, IconName> = {
   tool: "tool",
 };
 
-const NAV: { id: Page; label: string; icon: IconName }[] = [
-  ...CATEGORIES.map((c) => ({ id: c.id as Page, label: c.label, icon: CATEGORY_ICON[c.id] })),
+/** The pages that make something, and the pages that hold what was made. */
+const MAKE: { id: Page; label: string; icon: IconName }[] = CATEGORIES.map((c) => ({
+  id: c.id as Page,
+  label: c.label,
+  icon: CATEGORY_ICON[c.id],
+}));
+
+const KEEP: { id: Page; label: string; icon: IconName }[] = [
   { id: "assets" as Page, label: "Assets", icon: "folder" },
   { id: "favorites" as Page, label: "Favorites", icon: "heart" },
 ];
 
-function RailButton({
+function NavRow({
   label,
   icon,
   on,
   onClick,
   title,
-  badge,
+  filled,
 }: {
   label: string;
   icon: IconName;
   on?: boolean;
   onClick: () => void;
   title?: string;
-  badge?: boolean;
+  /** The heart reads as kept when the page is the one you are on. */
+  filled?: boolean;
 }) {
   return (
     <button
@@ -39,32 +46,33 @@ function RailButton({
       onClick={onClick}
       title={title ?? label}
       aria-current={on ? "page" : undefined}
-      className={`flex w-14 flex-col items-center gap-1 rounded-card px-1 py-2 text-[9.5px] leading-none transition-colors duration-[150ms] ${
-        on ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
+      className={`flex w-full items-center gap-3 rounded-card px-3 py-2 text-[13px] transition-colors duration-[150ms] ${
+        on ? "bg-t1/[0.09] font-medium text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
-      <span className="relative">
-        <Icon name={icon} size={19} fill={on && icon === "heart" ? "currentColor" : "none"} />
-        {badge !== undefined && (
-          <span
-            className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-2"
-            style={{
-              background: badge ? "var(--t1)" : "var(--t4)",
-              ["--tw-ring-color" as string]: "var(--canvas)",
-            }}
-          />
-        )}
-      </span>
+      <Icon name={icon} size={18} fill={on && filled ? "currentColor" : "none"} />
       {label}
     </button>
   );
 }
 
+/** A quiet heading over a group, the way a file tree names its sections. */
+function GroupLabel({ children }: { children: string }) {
+  return (
+    <p className="px-3 pb-1.5 pt-4 text-[10px] font-medium uppercase tracking-[0.1em] text-t4">
+      {children}
+    </p>
+  );
+}
+
 /**
- * The desktop's left edge: the mark, the pages, and at the foot of it what
- * belongs to the browser rather than to any page — the sample media, the
- * theme and the API key. A phone gets the bottom row instead, so this is
- * hidden there; everything else clears it through --rail-w.
+ * The desktop's left edge: the mark, the pages by name, and at the foot an
+ * account block with what the key has left to spend. Rows rather than icons
+ * in a strip, so a page is read rather than guessed, and the two switches
+ * that belong to the browser instead of to any page sit with the key.
+ *
+ * A phone gets the bottom row instead, so this is hidden there; everything
+ * else clears it through --rail-w.
  */
 export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const page = useStudio((s) => s.page);
@@ -81,20 +89,21 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[var(--rail-w)] flex-col items-center border-r border-line bg-canvas py-3 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[var(--rail-w)] flex-col border-r border-line bg-canvas px-2.5 py-3 md:flex">
       <button
         type="button"
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
         title="Home"
-        className="mb-2 grid h-10 w-10 place-items-center rounded-card transition-opacity duration-[150ms] hover:opacity-70"
+        className="mb-2 flex items-center gap-2.5 rounded-card px-2 py-1.5 transition-opacity duration-[150ms] hover:opacity-70"
       >
-        <ZynsMark size={26} />
+        <ZynsMark size={28} />
+        <span className="text-[13.5px] font-medium tracking-[-0.01em] text-t1">ZYNS</span>
       </button>
 
-      <nav className="flex w-full flex-col items-center gap-1.5">
-        {NAV.map((item) => (
-          <RailButton
+      <nav className="flex w-full flex-col gap-0.5">
+        {MAKE.map((item) => (
+          <NavRow
             key={item.id}
             label={item.label}
             icon={item.icon}
@@ -104,43 +113,89 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-auto flex w-full flex-col items-center gap-1.5 pt-3">
+      <GroupLabel>Library</GroupLabel>
+      <nav className="flex w-full flex-col gap-0.5">
+        {KEEP.map((item) => (
+          <NavRow
+            key={item.id}
+            label={item.label}
+            icon={item.icon}
+            filled={item.icon === "heart"}
+            on={page === item.id}
+            onClick={() => setPage(item.id)}
+          />
+        ))}
+      </nav>
+
+      <div className="mt-auto w-full pt-4">
         {active > 0 && (
-          <span
-            title={`${active} running`}
-            className="mb-1 flex h-6 w-6 items-center justify-center rounded-full bg-t1/[0.07] font-mono text-[10px] tabular-nums text-t2"
-          >
-            {active}
-          </span>
+          <p className="mb-2 flex items-center gap-2 px-3 text-[11.5px] text-t3">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-t1" />
+            {active} running
+          </p>
         )}
-        {/* Somewhere to see the studio full before there is an API key, and
-            the way back out of it. */}
-        <RailButton
-          label="Samples"
-          icon="palette"
-          on={demo}
-          title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
-          onClick={demo ? clearDemo : loadDemo}
-        />
-        <RailButton
-          label={theme === "dark" ? "Light" : "Dark"}
-          title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-          icon={theme === "dark" ? "sun" : "moon"}
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        />
-        <RailButton
-          label="API key"
-          icon="key"
-          badge={!!apiKey}
-          title={
-            apiKey
-              ? credits !== null
-                ? `Connected · ${credits.toLocaleString()} credits`
-                : "Connected"
-              : "Add your API key"
-          }
-          onClick={onKeyClick}
-        />
+
+        <GroupLabel>Account</GroupLabel>
+        {/* What the key has left, and the key itself where the screenshot put
+            its overflow menu: on this studio there is nothing else to keep in
+            a menu, and the key is what an account here amounts to. */}
+        <div className="flex items-center gap-2 rounded-card px-2 py-1.5">
+          <ZynsMark size={26} />
+          <span className="min-w-0 flex-1 truncate text-[12.5px] text-t2">
+            {credits !== null ? (
+              <>
+                <span className="font-mono tabular-nums text-t1">{credits.toLocaleString()}</span>{" "}
+                credits
+              </>
+            ) : apiKey ? (
+              "Connected"
+            ) : (
+              "No API key"
+            )}
+          </span>
+          <button
+            type="button"
+            onClick={onKeyClick}
+            title={apiKey ? "Change your API key" : "Add your API key"}
+            aria-label={apiKey ? "Change your API key" : "Add your API key"}
+            className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+          >
+            <Icon name="key" size={17} />
+            <span
+              className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full ring-2"
+              style={{
+                background: apiKey ? "var(--t1)" : "var(--t4)",
+                ["--tw-ring-color" as string]: "var(--canvas)",
+              }}
+            />
+          </button>
+        </div>
+
+        <div className="mt-1 flex items-center gap-1">
+          {/* Somewhere to see the studio full before there is an API key, and
+              the way back out of it. */}
+          <button
+            type="button"
+            onClick={demo ? clearDemo : loadDemo}
+            title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
+            aria-pressed={demo}
+            className={`flex flex-1 items-center gap-2 rounded-card px-2.5 py-2 text-[12px] transition-colors duration-[150ms] ${
+              demo ? "bg-t1/[0.09] text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
+            }`}
+          >
+            <Icon name="palette" size={16} />
+            Samples
+          </button>
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+            aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-card text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.05] hover:text-t1"
+          >
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
+          </button>
+        </div>
       </div>
     </aside>
   );

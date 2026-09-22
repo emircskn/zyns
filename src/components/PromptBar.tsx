@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -181,6 +182,47 @@ function Chip({
     >
       {icon}
       {value}
+    </span>
+  );
+}
+
+/**
+ * How many copies of this run to send. Most image models return one picture
+ * a call, so the count is ours to keep rather than a field on the request:
+ * the bar simply sends the same thing that many times. Models that batch
+ * themselves have their own control and do not get this one.
+ */
+function BatchChip() {
+  const batch = useStudio((s) => s.batch);
+  const setBatch = useStudio((s) => s.setBatch);
+  const step = (by: number) => (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setBatch(batch + by);
+  };
+  return (
+    <span
+      title="How many to make"
+      className="flex h-8 select-none items-center gap-1 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] text-t2"
+    >
+      <button
+        type="button"
+        onClick={step(-1)}
+        disabled={batch <= 1}
+        aria-label="One fewer"
+        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent"
+      >
+        <Icon name="minus" size={13} strokeWidth={2.2} />
+      </button>
+      <span className="min-w-[30px] text-center font-mono tabular-nums">{batch}/4</span>
+      <button
+        type="button"
+        onClick={step(1)}
+        disabled={batch >= 4}
+        aria-label="One more"
+        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent"
+      >
+        <Icon name="plus" size={13} strokeWidth={2.2} />
+      </button>
     </span>
   );
 }
@@ -478,6 +520,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   const setValue = useStudio((s) => s.setValue);
   const togglePicker = useStudio((s) => s.togglePicker);
   const toggleSettings = useStudio((s) => s.toggleSettings);
+  const selecting = useStudio((s) => s.selecting);
   const apiKey = useStudio((s) => s.apiKey);
   const theme = useStudio((s) => s.theme);
   const [busy, setBusy] = useState(false);
@@ -523,6 +566,10 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   const barFields = fields.filter((f) => f.placement === "bar");
   const panelFields = fields.filter((f) => f.placement === "panel");
 
+  // A picture at a time, and nothing in the request that asks for more: then
+  // the count is ours to send. Models with their own count keep it.
+  const batchable =
+    !!model && model.output === "image" && !fields.some((f) => /^num_images$|^n$/.test(f.key));
   const blocker = model ? validateValues(model, values) : "Choose a model to start";
   const hint = model?.creditHint?.(values);
   const mentionable = !!model && mentionSources(model, values).length > 0;
@@ -549,8 +596,15 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   async function run() {
     setBusy(true);
     setError(null);
-    const result = await submitRun();
-    if (!result.ok) setError(result.error ?? "Something went wrong.");
+    // One send, several runs: they queue together and land in the gallery as
+    // they finish. The first failure is the one worth showing.
+    const copies = batchable ? useStudio.getState().batch : 1;
+    let failure: string | null = null;
+    for (let i = 0; i < copies; i++) {
+      const result = await submitRun();
+      if (!result.ok && !failure) failure = result.error ?? "Something went wrong.";
+    }
+    if (failure) setError(failure);
     setBusy(false);
   }
 
@@ -581,10 +635,14 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
 
   return (
     <div
+      // The docked bar gives its place up to the selection bar rather than
+      // being stacked under it: picking a tile drops it out of the dock, and
+      // letting the selection go brings it back.
+      data-away={!centered && selecting > 0 ? "1" : undefined}
       className={
         centered
           ? "w-full"
-          : "pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
       }
     >
       <div
@@ -672,6 +730,12 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
                 <FieldChip field={field} />
               </span>
             ))}
+
+            {batchable && (
+              <span className="shrink-0">
+                <BatchChip />
+              </span>
+            )}
 
             {panelFields.length > 0 && (
               <button

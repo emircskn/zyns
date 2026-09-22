@@ -25,12 +25,19 @@ export function SelectionBar({
   onDelete: () => void;
   onClose: () => void;
 }) {
-  const page = useStudio((s) => s.page);
+  const setSelecting = useStudio((s) => s.setSelecting);
   const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     setConfirming(false);
   }, [count]);
+
+  // The prompt bar steps aside for this one rather than stacking above it, so
+  // it has to know how many are picked. Leaving the page clears the count.
+  useEffect(() => {
+    setSelecting(count);
+    return () => setSelecting(0);
+  }, [count, setSelecting]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -42,26 +49,18 @@ export function SelectionBar({
 
   if (count === 0 || typeof document === "undefined") return null;
 
-  // On a page that composes, the prompt bar owns the bottom of the screen and
-  // this sits above it; elsewhere it keeps its own margin.
-  const composing = page !== "assets" && page !== "favorites" && page !== "home";
-
   // A phone has no room for three labels beside the count, so there the
   // buttons keep their icons and give up their words.
   const button =
     "flex shrink-0 items-center gap-2 rounded-full px-2.5 py-2 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 sm:px-3.5";
 
   return createPortal(
+    // Where the prompt bar stands: it slides out of the way as this rises
+    // into its place, so the bottom of the screen is about the picture you
+    // picked rather than about the next one you might make.
     <div
       data-select-bar=""
-      className="anim-pop pointer-events-none fixed inset-x-0 z-50 flex justify-center px-3"
-      style={{
-        // Clear of the prompt bar rather than resting on it: --bar-h covers
-        // the bar and its mode strip, and the rest is breathing room.
-        bottom: composing
-          ? "calc(var(--bar-h, 280px) + var(--nav-h) + 56px)"
-          : "calc(var(--nav-h) + max(20px, env(safe-area-inset-bottom)))",
-      }}
+      className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex justify-center px-3 pb-3 md:pb-5 md:pl-[calc(var(--rail-w)+16px)] md:pr-4"
     >
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">

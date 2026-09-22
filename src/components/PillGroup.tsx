@@ -216,7 +216,10 @@ export function PillGroup<T extends string>({
   // scroller free to fade its own contents out without taking the
   // background and the ring with them.
   const scroller = fill
-    ? `relative flex gap-0.5 ${bare ? "" : "rounded-full bg-t1/[0.07] p-1"} ${className}`
+    // Segments wrap rather than run off the end of whatever holds them: three
+    // words like Transparent / Opaque / Auto do not fit a chip's popover on
+    // one line, and a row that overflows put a scrollbar through the control.
+    ? `relative flex flex-wrap gap-0.5 ${bare ? "" : "rounded-2xl bg-t1/[0.07] p-1"} ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
         // The scroller does the clipping, so it needs the track's own radius:
         // a square clip lets a pill's corner sit outside the capsule's end.
@@ -257,7 +260,9 @@ export function PillGroup<T extends string>({
             data-pill={item.id}
             title={item.hint}
             onClick={() => onChange(item.id)}
-            className={`relative z-10 shrink-0 whitespace-nowrap rounded-full tracking-[-0.01em] transition-colors duration-[200ms] ${pad} ${
+            className={`relative z-10 shrink-0 whitespace-nowrap rounded-full tracking-[-0.01em] transition-colors duration-[200ms] ${
+              fill ? "grow text-center" : ""
+            } ${pad} ${
               fill ? "flex-1 text-center" : ""
             } ${active ? "text-canvas" : "text-t3 hover:text-t1"}`}
           >

@@ -13,71 +13,17 @@ import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
 import { VendorBadge } from "@/components/VendorMark";
+import { getModel, type Field } from "@/lib/registry";
 import {
-  MODELS,
-  activeFields,
-  defaultValues,
-  getModel,
-  type Field,
-  type ModelDef,
-} from "@/lib/registry";
+  attachReference,
+  firstFrameModel,
+  referenceModel,
+  recreateRun,
+  sendReference,
+} from "@/lib/reuse";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
-
-/** Every input a model takes a picture through, whatever mode turns it on. */
-function imageInputs(model: ModelDef): Field[] {
-  return model.fields.filter(
-    (f) =>
-      f.placement === "input" &&
-      f.accept === "image" &&
-      (f.kind === "images" || f.kind === "media"),
-  );
-}
-
-function imageInput(model: ModelDef): Field | undefined {
-  return imageInputs(model)[0];
-}
-
-/**
- * Put the picture in the model's reference strip, switching mode when that is
- * where the strip lives — Nano Banana takes a reference in Edit and not in
- * Generate, so handing it one has to mean switching. Returns false only when
- * the model takes no picture at all.
- */
-function attachReference(model: ModelDef, url: string): boolean {
-  const store = useStudio.getState();
-  const values = store.valuesByModel[model.id] ?? {};
-  const fields = imageInputs(model);
-  let field = fields.find((f) => !f.when || f.when(values));
-
-  if (!field) {
-    for (const candidate of fields) {
-      const mode = model.modes?.find((m) => candidate.when?.({ ...values, __mode: m.id }));
-      if (!mode) continue;
-      store.setMode(mode.id);
-      field = candidate;
-      break;
-    }
-  }
-  if (!field) return false;
-  attach(model, field, url);
-  return true;
-}
-
-/** Put `url` into that field, adding to a list or replacing a single slot. */
-function attach(model: ModelDef, field: Field, url: string) {
-  const { setValue } = useStudio.getState();
-  if (field.kind !== "images") {
-    setValue(field.key, url);
-    return;
-  }
-  const current = useStudio.getState().valuesByModel[model.id]?.[field.key];
-  const list = Array.isArray(current) ? current.filter((u) => typeof u === "string") : [];
-  if (list.includes(url)) return;
-  const room = field.maxItems ?? 10;
-  setValue(field.key, [...list, url].slice(-room));
-}
 
 /**
  * The overflow menu, opening and closing under the More tile. It stays
@@ -428,28 +374,12 @@ export function MediaViewer({
   const isImage = shown ? mediaKind(shown) === "image" : false;
   const kept = !!shown && favorites.includes(shown);
 
-  // The model this picture goes to as a reference: the one in the bar when it
-  // takes pictures, and otherwise the image model the studio was last on, the
-  // way Turn to video finds a video model. Without this, browsing Assets with
-  // no model chosen left the picture nowhere to go.
-  const referenceModel = useMemo(() => {
-    if (!isImage) return undefined;
-    if (active && imageInput(active)) return active;
-    const last = useStudio.getState().modelByCategory.image;
-    const preferred = last ? getModel(last) : undefined;
-    if (preferred && imageInput(preferred)) return preferred;
-    return MODELS.find((m) => m.category === "image" && imageInput(m));
-  }, [isImage, active]);
-
-  // The video model this picture can be handed to: the one the video page was
-  // last on when it takes a first frame, or the first one that does.
-  const videoModel = useMemo(() => {
-    if (!isImage) return undefined;
-    const last = useStudio.getState().modelByCategory.video;
-    const preferred = last ? getModel(last) : undefined;
-    if (preferred && imageInput(preferred)) return preferred;
-    return MODELS.find((m) => m.category === "video" && imageInput(m));
-  }, [isImage]);
+  // Which model a picture can be handed to, as a reference and as a first
+  // frame. Both follow the bar when it takes pictures and otherwise the model
+  // that category was last on, so browsing Assets with nothing chosen still
+  // has somewhere to send it.
+  const canReference = useMemo(() => (isImage ? referenceModel() : undefined), [isImage, active]);
+  const videoModel = useMemo(() => (isImage ? firstFrameModel() : undefined), [isImage]);
 
   if (!mounted || !shown || typeof document === "undefined") return null;
 
@@ -470,36 +400,13 @@ export function MediaViewer({
 
   function recreate() {
     if (!run) return;
-    const store = useStudio.getState();
-    const target = getModel(run.modelId);
-    store.selectModel(run.modelId);
-    if (target) {
-      // The run's own settings over the model's defaults, so a run recorded
-      // before a field existed still lands on a complete form. And a run
-      // that kept only its prompt line (sample media, or an older run) puts
-      // that line in the prompt field rather than arriving empty, which is
-      // what made Recreate look like it did nothing.
-      const values = { ...defaultValues(target), ...run.values };
-      const field = activeFields(target, values).find((f) => f.placement === "prompt");
-      if (field && run.prompt && !String(values[field.key] ?? "").trim()) {
-        values[field.key] = run.prompt;
-      }
-      store.setValues(values);
-    }
+    recreateRun(run);
     onClose();
   }
 
   function reference() {
-    if (!referenceModel || !shown) return;
-    // The strip that takes it belongs to the bar, and the bar is on the
-    // model's own page: from Assets or Favorites there was nothing to see
-    // here, which is why this looked like it did nothing at all.
-    const store = useStudio.getState();
-    if (store.modelId !== referenceModel.id) store.selectModel(referenceModel.id);
-    else if (store.page !== "home" && store.page !== referenceModel.category) {
-      store.setPage(referenceModel.category);
-    }
-    if (!attachReference(referenceModel, shown)) return;
+    if (!shown) return;
+    if (!sendReference(shown)) return;
     onClose();
   }
 
@@ -514,7 +421,7 @@ export function MediaViewer({
   const actions = [
     videoModel && <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} />,
     run && <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} />,
-    referenceModel && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
+    canReference && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
     <LikeHeart
       key="favorite"
       liked={kept}
@@ -525,12 +432,6 @@ export function MediaViewer({
       <span className="max-w-full truncate">{kept ? "Kept" : "Favorite"}</span>
     </LikeHeart>,
     <Action key="download" icon="download" label="Download" href={shown} />,
-    <Action
-      key="copy"
-      icon={copied === "url" ? "check" : "copy"}
-      label={copied === "url" ? "Copied" : "Copy URL"}
-      onClick={() => copy(shown, "url")}
-    />,
     (run || upload) && (
       <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
     ),
@@ -665,15 +566,6 @@ export function MediaViewer({
 
           {overflowed && (
             <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => copy(shown, "url")}
-                className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
-              >
-                <Icon name={copied === "url" ? "check" : "copy"} size={15} className="shrink-0" />
-                {copied === "url" ? "Copied" : "Copy URL"}
-              </button>
               {(run || upload) && (
                 <button
                   type="button"

@@ -54,6 +54,10 @@ interface StudioState {
   modelId: string;
   /** What was typed in the prompt box while no model was chosen yet. */
   draft: string;
+  /** How many copies of the next run to send, for models that make one at a time. */
+  batch: number;
+  /** How many tiles are picked, so the prompt bar can give up its place. */
+  selecting: number;
   /** The model each category was last used with, so pages remember. */
   modelByCategory: Partial<Record<Category, string>>;
   valuesByModel: Record<string, Values>;
@@ -81,6 +85,8 @@ interface StudioState {
   setPhoneGrid: (grid: boolean) => void;
   selectModel: (id: string) => void;
   setDraft: (draft: string) => void;
+  setBatch: (batch: number) => void;
+  setSelecting: (count: number) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
   resetValues: () => void;
@@ -131,6 +137,8 @@ export const useStudio = create<StudioState>()(
       phoneGrid: true,
       modelId: "",
       draft: "",
+      batch: 1,
+      selecting: 0,
       modelByCategory: {},
       valuesByModel: {},
       runs: [],
@@ -189,6 +197,14 @@ export const useStudio = create<StudioState>()(
       },
 
       setDraft: (draft) => set({ draft }),
+
+      // Four is the ceiling everywhere it appears, and it is a client-side
+      // count: the run is simply sent that many times.
+      setBatch: (batch) => set({ batch: Math.min(4, Math.max(1, Math.round(batch))) }),
+
+      // Not persisted: a picked tile is a thing about this visit, not about
+      // the studio, and a reload should never come back mid-selection.
+      setSelecting: (selecting) => set({ selecting }),
 
       setValue: (key, value) =>
         set((state) => {
@@ -308,6 +324,7 @@ export const useStudio = create<StudioState>()(
         phoneGrid: state.phoneGrid,
         modelId: state.modelId,
         draft: state.draft,
+        batch: state.batch,
         modelByCategory: state.modelByCategory,
         valuesByModel: state.valuesByModel,
         runs: state.runs,
