@@ -95,10 +95,11 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
         title="Home"
-        className="mb-2 flex items-center gap-2.5 rounded-card px-2 py-1.5 transition-opacity duration-[150ms] hover:opacity-70"
+        className="mb-3 flex w-fit items-center rounded-card px-2 py-1.5 transition-opacity duration-[150ms] hover:opacity-70"
       >
-        <ZynsMark size={28} />
-        <span className="text-[13.5px] font-medium tracking-[-0.01em] text-t1">ZYNS</span>
+        {/* The badge alone, and bigger for it: the name is set into the mark
+            already, and spelling it out beside it said it twice. */}
+        <ZynsMark size={38} />
       </button>
 
       <nav className="flex w-full flex-col gap-0.5">

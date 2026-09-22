@@ -137,8 +137,11 @@ function AssetTile({
         // view carries the same actions with room to name them. They stand in
         // a column down the right, with the one that sends this picture
         // somewhere else on the opposite corner.
-        <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[150ms] group-hover:pointer-events-auto group-hover:opacity-100">
-          <div className="absolute right-1.5 top-1.5 flex flex-col items-end gap-1">
+        // The sheet over the picture never takes a click itself: at
+        // pointer-events-auto it swallowed the tap meant for the media under
+        // it, and nothing opened. Only the two clusters take one.
+        <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+          <div className="pointer-events-auto absolute right-1.5 top-1.5 flex flex-col items-end gap-1">
             <LikeHeart
               liked={kept}
               size={14}
@@ -167,7 +170,7 @@ function AssetTile({
           </div>
 
           {asset.kind === "image" && (
-            <div className="absolute bottom-1.5 left-1.5">
+            <div className="pointer-events-auto absolute bottom-1.5 left-1.5">
               <TileButton
                 icon="layers"
                 label="Use as reference"
