@@ -39,13 +39,18 @@ export function SelectionBar({
     return () => setSelecting(0);
   }, [count, setSelecting]);
 
+  // Only while something is picked. Listening with nothing picked meant every
+  // Escape in the studio set the selection to a fresh empty array, which
+  // re-rendered the page under the enlarged view and pulled its own Escape
+  // listener off the document mid-dispatch, so the view never closed.
   useEffect(() => {
+    if (count === 0) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [count, onClose]);
 
   if (count === 0 || typeof document === "undefined") return null;
 

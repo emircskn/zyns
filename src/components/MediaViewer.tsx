@@ -26,6 +26,27 @@ import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
 
 /**
+ * Escape closes the view, through a listener that is registered once.
+ *
+ * A listener re-registered on every render is not merely wasteful here: a
+ * component that re-renders this one *while the key event is being
+ * dispatched* takes the old listener off the document before the event
+ * reaches it, and the spec says a listener removed mid-dispatch is not
+ * called. That is exactly what happened, so Escape did nothing at all.
+ */
+function useEscape(onClose: () => void) {
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") close.current();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+}
+
+/**
  * The overflow menu, opening and closing under the More tile. It stays
  * mounted through the close so the transition has something to run on, and
  * the open state lands a frame after the mount for the same reason.
@@ -359,13 +380,7 @@ export function MediaViewer({
     setFull(false);
   }, [url]);
 
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  useEscape(onClose);
 
   const refs = useMemo(() => (run ? inputMedia(run) : []), [run]);
   const details = useMemo(() => (run ? detailsOf(run) : []), [run]);
@@ -717,13 +732,7 @@ export function MediaPreview({
     if (url) setShown(url);
   }, [url]);
 
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  useEscape(onClose);
 
   if (!mounted || !shown || typeof document === "undefined") return null;
 
