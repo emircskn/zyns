@@ -29,10 +29,10 @@ function TileButton({
   danger?: boolean;
   filled?: boolean;
 }) {
-  const className = `grid h-9 w-9 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/85"
   }`;
-  const glyph = <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />;
+  const glyph = <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />;
   return href ? (
     <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
       {glyph}
@@ -147,13 +147,13 @@ function AssetTile({
         // pointer-events-auto it swallowed the tap meant for the media under
         // it, and nothing opened. Only the two clusters take one.
         <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
-          <div className="pointer-events-auto absolute right-1.5 top-1.5 flex flex-col items-end gap-1">
+          <div className="pointer-events-none absolute bottom-1.5 right-1.5 top-1.5 flex flex-col flex-wrap-reverse content-start gap-1 [&>*]:pointer-events-auto">
             <LikeHeart
               liked={kept}
-              size={16}
+              size={14}
               title={kept ? "Remove from favorites" : "Add to favorites"}
               onToggle={() => toggleFavorite(asset.url)}
-              className="grid h-9 w-9 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
+              className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
             />
             <TileButton icon="download" label="Open / download" href={asset.url} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
@@ -165,9 +165,9 @@ function AssetTile({
                     type="button"
                     onClick={onRemove}
                     aria-label="Confirm delete"
-                    className="grid h-9 w-9 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                    className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
                   >
-                    <Icon name="check" size={16} strokeWidth={2.2} />
+                    <Icon name="check" size={14} strokeWidth={2.2} />
                   </button>
                 </>
               ) : (

@@ -233,7 +233,7 @@ function Stage({ url }: { url: string }) {
  * reads as a set of equal choices rather than one shout and five whispers.
  */
 const TILE_SHAPE =
-  "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[12.5px] transition-colors duration-[120ms]";
+  "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[12px] transition-colors duration-[120ms]";
 
 function Action({
   icon,
@@ -263,7 +263,7 @@ function Action({
   const tint = danger ? { color: "var(--danger)" } : undefined;
   const inner = (
     <>
-      <Icon name={icon} size={20} fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={19} fill={filled ? "currentColor" : "none"} />
       <span className="max-w-full truncate">{label}</span>
     </>
   );
@@ -319,18 +319,18 @@ function Section({
             type="button"
             onClick={() => setOpen((was) => !was)}
             aria-expanded={open}
-            className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-t3 transition-colors duration-[120ms] hover:text-t1"
+            className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-t3 transition-colors duration-[120ms] hover:text-t1"
           >
             {title}
             <Icon
               name="chevron"
-              size={16}
+              size={15}
               className="transition-transform duration-[200ms]"
               style={{ transform: open ? "rotate(180deg)" : "none" }}
             />
           </button>
         ) : (
-          <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-t3">{title}</h3>
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-t3">{title}</h3>
         )}
         {right}
       </div>
@@ -541,15 +541,15 @@ export function MediaViewer({
       <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
         <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
           {model ? (
-            <VendorBadge model={model} size={34} />
+            <VendorBadge model={model} size={32} />
           ) : (
-            <span className="grid h-[34px] w-[34px] place-items-center rounded-chip bg-t1/[0.07]">
-              <Icon name="upload" size={17} className="text-t3" />
+            <span className="grid h-[32px] w-[32px] place-items-center rounded-chip bg-t1/[0.07]">
+              <Icon name="upload" size={16} className="text-t3" />
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[14.5px] font-medium text-t1">{title}</p>
-            <p className="truncate text-[12.5px] capitalize text-t3">{subtitle}</p>
+            <p className="truncate text-[14px] font-medium text-t1">{title}</p>
+            <p className="truncate text-[12px] capitalize text-t3">{subtitle}</p>
           </div>
           <button
             type="button"
@@ -669,7 +669,7 @@ export function MediaViewer({
               )}
               {run.prompt ? (
                 <>
-                  <p className={`text-[14px] leading-relaxed text-t1/85 ${full ? "" : "line-clamp-5"}`}>
+                  <p className={`text-[13.5px] leading-relaxed text-t1/85 ${full ? "" : "line-clamp-5"}`}>
                     {run.prompt}
                   </p>
                   {run.prompt.length > 220 && (
@@ -689,7 +689,7 @@ export function MediaViewer({
                   )}
                 </>
               ) : (
-                <p className="text-[14px] leading-relaxed text-t4">
+                <p className="text-[13.5px] leading-relaxed text-t4">
                   No prompt. This run worked from its inputs.
                 </p>
               )}
@@ -701,8 +701,8 @@ export function MediaViewer({
               <dl className="flex flex-col gap-1.5">
                 {details.map((row) => (
                   <div key={row.label} className="flex items-baseline justify-between gap-3">
-                    <dt className="shrink-0 text-[13px] text-t3">{row.label}</dt>
-                    <dd className="truncate text-right text-[13px] capitalize text-t1/85">{row.value}</dd>
+                    <dt className="shrink-0 text-[12.5px] text-t3">{row.label}</dt>
+                    <dd className="truncate text-right text-[12.5px] capitalize text-t1/85">{row.value}</dd>
                   </div>
                 ))}
               </dl>

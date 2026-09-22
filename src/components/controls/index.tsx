@@ -37,15 +37,15 @@ export function OptionList({ field, value, onChange }: ControlProps) {
             key={choice.value}
             type="button"
             onClick={() => onChange(choice.value)}
-            className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[14px] transition-colors duration-[120ms] ${
+            className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
               active ? "bg-t1 text-canvas" : "text-t2 hover:bg-t1/[0.07]"
             }`}
           >
             <span className="flex min-w-0 flex-col">
               <span className="truncate">{choice.label}</span>
-              {choice.hint && <span className="truncate text-[12px] opacity-60">{choice.hint}</span>}
+              {choice.hint && <span className="truncate text-[11.5px] opacity-60">{choice.hint}</span>}
             </span>
-            {active && <Icon name="check" size={17} className="shrink-0" />}
+            {active && <Icon name="check" size={16} className="shrink-0" />}
           </button>
         );
       })}
@@ -116,10 +116,10 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
                   }}
                 />
               ) : (
-                <span className="text-[10px] uppercase tracking-[0.08em]">auto</span>
+                <span className="text-[9.5px] uppercase tracking-[0.08em]">auto</span>
               )}
             </span>
-            <span className="font-mono text-[11.5px] tabular-nums">{choice.label}</span>
+            <span className="font-mono text-[10.5px] tabular-nums">{choice.label}</span>
           </button>
         );
       })}
@@ -136,8 +136,8 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between">
-        <span className="text-[13px] text-t3">{field.label}</span>
-        <span className="font-mono text-[13px] tabular-nums text-t1">
+        <span className="text-[12.5px] text-t3">{field.label}</span>
+        <span className="font-mono text-[12.5px] tabular-nums text-t1">
           {current === undefined ? "auto" : display}
         </span>
       </div>
@@ -149,7 +149,7 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
         value={display}
         onChange={(event) => onChange(Number(event.target.value))}
       />
-      <div className="mt-0.5 flex justify-between font-mono text-[11.5px] tabular-nums text-t4">
+      <div className="mt-0.5 flex justify-between font-mono text-[10.5px] tabular-nums text-t4">
         <span>{min}</span>
         <span>{max}</span>
       </div>
@@ -157,7 +157,7 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
         <button
           type="button"
           onClick={() => onChange(undefined)}
-          className="mt-1.5 text-[12px] text-t4 transition-colors hover:text-t1"
+          className="mt-1.5 text-[11.5px] text-t4 transition-colors hover:text-t1"
         >
           Clear, let the model decide
         </button>
@@ -167,7 +167,7 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
 }
 
 const INPUT_CLASS =
-  "w-full rounded-chip bg-t1/[0.055] px-3 py-2 text-[14px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:bg-t1/[0.08] focus:ring-line-strong";
+  "w-full rounded-chip bg-t1/[0.055] px-3 py-2 text-[13.5px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:bg-t1/[0.08] focus:ring-line-strong";
 
 export function NumberControl({ field, value, onChange }: ControlProps) {
   return (
@@ -204,7 +204,7 @@ export function ToggleControl({ field, value, onChange }: ControlProps) {
       onClick={() => onChange(!on)}
       className="flex w-full items-center justify-between gap-3 py-1 text-left"
     >
-      <span className="text-[14px] text-t1/90">{field.label}</span>
+      <span className="text-[13.5px] text-t1/90">{field.label}</span>
       <span
         className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-[200ms] ${
           on ? "bg-t1" : "bg-t1/15"
@@ -255,7 +255,7 @@ function MediaThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
         className="hover-reveal absolute right-1 top-1 grid place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
         style={{ height: 18, width: 18 }}
       >
-        <Icon name="close" size={12} />
+        <Icon name="close" size={11} />
       </button>
     </div>
   );
@@ -269,7 +269,7 @@ function AddTile({ busy, onClick }: { busy: boolean; onClick: () => void }) {
       disabled={busy}
       className="grid h-14 w-14 shrink-0 place-items-center rounded-chip border border-dashed border-line-strong text-t4 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1 disabled:opacity-50"
     >
-      {busy ? <Spinner /> : <Icon name="plus" size={17} />}
+      {busy ? <Spinner /> : <Icon name="plus" size={16} />}
     </button>
   );
 }
@@ -294,7 +294,7 @@ function UrlField({
           open ? "bg-t1/15 text-t1" : "text-t4 hover:text-t1"
         }`}
       >
-        <Icon name="link" size={15} />
+        <Icon name="link" size={14} />
       </button>
       {open && (
         <input
@@ -309,7 +309,7 @@ function UrlField({
               event.currentTarget.blur();
             }
           }}
-          className="anim-fade absolute inset-x-0 top-6 z-10 rounded-chip bg-elevated px-2.5 py-1.5 text-[12.5px] text-t1 shadow-[var(--shadow-pop)] outline-none ring-1 ring-inset ring-line placeholder:text-t4"
+          className="anim-fade absolute inset-x-0 top-6 z-10 rounded-chip bg-elevated px-2.5 py-1.5 text-[12px] text-t1 shadow-[var(--shadow-pop)] outline-none ring-1 ring-inset ring-line placeholder:text-t4"
         />
       )}
     </>
@@ -331,11 +331,11 @@ function SlotHeader({
     // The paste-a-URL button belongs to the label, so it sits beside it
     // rather than drifting to the far edge of a wide column.
     <div className="relative mb-1.5 flex items-center gap-1">
-      <span className="min-w-0 truncate text-[12.5px] text-t2" title={help}>
+      <span className="min-w-0 truncate text-[12px] text-t2" title={help}>
         {label}
       </span>
       {count && (
-        <span className="shrink-0 font-mono text-[11.5px] tabular-nums text-t4">{count}</span>
+        <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-t4">{count}</span>
       )}
       {children && <span className="flex shrink-0 items-center">{children}</span>}
     </div>
@@ -358,7 +358,7 @@ export function MediaControl({ field, value, onChange, compact }: ControlProps) 
           <AddTile busy={false} onClick={() => setPicking(true)} />
         )}
         {!compact && field.help && (
-          <p className="min-w-0 flex-1 text-[12px] leading-snug text-t4">{field.help}</p>
+          <p className="min-w-0 flex-1 text-[11.5px] leading-snug text-t4">{field.help}</p>
         )}
       </div>
       <MediaPicker
@@ -411,7 +411,7 @@ export function ImagesControl({ field, value, onChange, compact, lane }: Control
         ))}
         {!full && <AddTile busy={false} onClick={() => setPicking(true)} />}
       </div>
-      {!compact && field.help && <p className="mt-1.5 text-[12px] leading-snug text-t4">{field.help}</p>}
+      {!compact && field.help && <p className="mt-1.5 text-[11.5px] leading-snug text-t4">{field.help}</p>}
       <MediaPicker
         open={picking}
         accept={field.accept ?? "image"}
@@ -449,7 +449,7 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
           className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line"
         >
           <div className="mb-2 flex items-center justify-between">
-            <span className="font-mono text-[11.5px] uppercase tracking-[0.08em] text-t4">
+            <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-t4">
               Shot {index + 1}
             </span>
             <button
@@ -458,7 +458,7 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove shot"
             >
-              <Icon name="close" size={16} />
+              <Icon name="close" size={15} />
             </button>
           </div>
           <textarea
@@ -466,10 +466,10 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
             rows={2}
             placeholder="What happens in this shot…"
             onChange={(event) => update(index, { prompt: event.target.value })}
-            className="w-full resize-none rounded-chip bg-canvas/50 px-2.5 py-2 text-[13.5px] text-t1 outline-none placeholder:text-t4"
+            className="w-full resize-none rounded-chip bg-canvas/50 px-2.5 py-2 text-[13px] text-t1 outline-none placeholder:text-t4"
           />
           <div className="mt-2 flex items-center gap-2.5">
-            <span className="text-[12px] text-t4">Duration</span>
+            <span className="text-[11.5px] text-t4">Duration</span>
             <input
               type="range"
               min={1}
@@ -479,14 +479,14 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
               onChange={(event) => update(index, { duration: Number(event.target.value) })}
               className="flex-1"
             />
-            <span className="w-7 text-right font-mono text-[12px] tabular-nums text-t1">
+            <span className="w-7 text-right font-mono text-[11.5px] tabular-nums text-t1">
               {shot.duration}s
             </span>
           </div>
         </div>
       ))}
       <AddRow label="Add shot" onClick={() => onChange([...shots, { prompt: "", duration: 5 }])} />
-      {field.help && <p className="text-[12px] leading-snug text-t4">{field.help}</p>}
+      {field.help && <p className="text-[11.5px] leading-snug text-t4">{field.help}</p>}
     </div>
   );
 }
@@ -496,9 +496,9 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center gap-1.5 rounded-chip border border-dashed border-line-strong py-2 text-[13px] text-t3 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1"
+      className="flex items-center justify-center gap-1.5 rounded-chip border border-dashed border-line-strong py-2 text-[12.5px] text-t3 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1"
     >
-      <Icon name="plus" size={17} /> {label}
+      <Icon name="plus" size={16} /> {label}
     </button>
   );
 }
@@ -528,7 +528,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
               value={element.name}
               placeholder="Name (e.g. Mira)"
               onChange={(event) => update(index, { name: event.target.value })}
-              className="min-w-0 flex-1 rounded-chip bg-canvas/50 px-2.5 py-1.5 text-[13.5px] text-t1 outline-none placeholder:text-t4"
+              className="min-w-0 flex-1 rounded-chip bg-canvas/50 px-2.5 py-1.5 text-[13px] text-t1 outline-none placeholder:text-t4"
             />
             <button
               type="button"
@@ -536,7 +536,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove element"
             >
-              <Icon name="close" size={16} />
+              <Icon name="close" size={15} />
             </button>
           </div>
           <textarea
@@ -544,7 +544,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
             rows={2}
             placeholder="How this character or object looks and behaves…"
             onChange={(event) => update(index, { description: event.target.value })}
-            className="mb-2 w-full resize-none rounded-chip bg-canvas/50 px-2.5 py-2 text-[13.5px] text-t1 outline-none placeholder:text-t4"
+            className="mb-2 w-full resize-none rounded-chip bg-canvas/50 px-2.5 py-2 text-[13px] text-t1 outline-none placeholder:text-t4"
           />
           <ImagesControl
             field={{
@@ -566,7 +566,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
         label="Add element"
         onClick={() => onChange([...elements, { name: "", description: "" }])}
       />
-      {field.help && <p className="text-[12px] leading-snug text-t4">{field.help}</p>}
+      {field.help && <p className="text-[11.5px] leading-snug text-t4">{field.help}</p>}
     </div>
   );
 }
@@ -595,7 +595,7 @@ export function ClipsControl({ field, value, onChange }: ControlProps) {
       {clip?.url && (
         <div className="anim-fade flex items-center gap-2">
           {(["start", "ends"] as const).map((key) => (
-            <label key={key} className="flex flex-1 items-center gap-1.5 text-[12px] text-t4">
+            <label key={key} className="flex flex-1 items-center gap-1.5 text-[11.5px] text-t4">
               {key === "start" ? "Start" : "End"}
               <input
                 type="number"
@@ -603,7 +603,7 @@ export function ClipsControl({ field, value, onChange }: ControlProps) {
                 step={0.1}
                 value={clip[key]}
                 onChange={(event) => set({ [key]: Number(event.target.value) })}
-                className="w-full rounded-chip bg-t1/[0.055] px-2 py-1 font-mono text-[13px] tabular-nums text-t1 outline-none"
+                className="w-full rounded-chip bg-t1/[0.055] px-2 py-1 font-mono text-[12.5px] tabular-nums text-t1 outline-none"
               />
             </label>
           ))}
@@ -618,7 +618,7 @@ export function ClipsControl({ field, value, onChange }: ControlProps) {
  * ------------------------------------------------------------------ */
 
 const SMALL_INPUT =
-  "w-full rounded-chip bg-canvas/50 px-2.5 py-1.5 text-[13.5px] text-t1 outline-none placeholder:text-t4";
+  "w-full rounded-chip bg-canvas/50 px-2.5 py-1.5 text-[13px] text-t1 outline-none placeholder:text-t4";
 
 function ItemInput({
   column,
@@ -711,7 +711,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
       {rows.map((row, index) => (
         <div key={index} className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line">
           <div className="mb-2 flex items-center justify-between">
-            <span className="font-mono text-[11.5px] uppercase tracking-[0.08em] text-t4">
+            <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-t4">
               {field.label} {index + 1}
             </span>
             <button
@@ -720,14 +720,14 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
               className="text-t4 transition-colors hover:text-t1"
               aria-label="Remove row"
             >
-              <Icon name="close" size={16} />
+              <Icon name="close" size={15} />
             </button>
           </div>
           <div className="flex flex-col gap-2">
             {columns.map((column) => (
               <div key={column.key}>
                 {column.kind !== "toggle" && column.kind !== "media" && column.kind !== "images" && (
-                  <label className="mb-1 block text-[12px] text-t3">
+                  <label className="mb-1 block text-[11.5px] text-t3">
                     {column.label}
                     {column.required && <span className="text-t4"> · required</span>}
                   </label>
@@ -743,7 +743,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
         </div>
       ))}
       {!full && <AddRow label={`Add ${field.label.toLowerCase().replace(/s$/, "")}`} onClick={() => onChange([...rows, {}])} />}
-      {field.help && <p className="text-[12px] leading-snug text-t4">{field.help}</p>}
+      {field.help && <p className="text-[11.5px] leading-snug text-t4">{field.help}</p>}
     </div>
   );
 }
@@ -759,7 +759,7 @@ export function ListControl({ field, value, onChange }: ControlProps) {
           {items.map((item, index) => (
             <span
               key={`${item}-${index}`}
-              className="anim-pop flex items-center gap-1 rounded-chip bg-t1/[0.07] px-2 py-1 font-mono text-[12px] text-t1"
+              className="anim-pop flex items-center gap-1 rounded-chip bg-t1/[0.07] px-2 py-1 font-mono text-[11.5px] text-t1"
             >
               {String(item)}
               <button
@@ -768,7 +768,7 @@ export function ListControl({ field, value, onChange }: ControlProps) {
                 aria-label="Remove"
                 className="text-t4 hover:text-t1"
               >
-                <Icon name="close" size={12} />
+                <Icon name="close" size={11} />
               </button>
             </span>
           ))}
@@ -789,7 +789,7 @@ export function ListControl({ field, value, onChange }: ControlProps) {
           className={INPUT_CLASS}
         />
       )}
-      {field.help && <p className="text-[12px] leading-snug text-t4">{field.help}</p>}
+      {field.help && <p className="text-[11.5px] leading-snug text-t4">{field.help}</p>}
     </div>
   );
 }
@@ -816,9 +816,9 @@ export function JsonControl({ field, value, onChange }: ControlProps) {
             setError("Not valid JSON yet.");
           }
         }}
-        className="w-full resize-y rounded-chip bg-t1/[0.055] px-3 py-2 font-mono text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong"
+        className="w-full resize-y rounded-chip bg-t1/[0.055] px-3 py-2 font-mono text-[12.5px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong"
       />
-      {error && <p className="mt-1 text-[12px] text-[#ff8f8f]">{error}</p>}
+      {error && <p className="mt-1 text-[11.5px] text-[#ff8f8f]">{error}</p>}
     </div>
   );
 }

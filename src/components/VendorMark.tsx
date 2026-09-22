@@ -27,8 +27,8 @@ export function VendorBadge({
         // their 24-point box, so at full size they would touch the frame.
         <svg
           viewBox="0 0 24 24"
-          width={Math.round(size * 0.62)}
-          height={Math.round(size * 0.62)}
+          width={Math.round(size * 0.6)}
+          height={Math.round(size * 0.6)}
           fill="currentColor"
           fillRule="evenodd"
           aria-hidden="true"

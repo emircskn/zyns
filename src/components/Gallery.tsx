@@ -99,19 +99,19 @@ function TileAction({
   /** A heart that is already given reads as solid. */
   filled?: boolean;
 }) {
-  const className = `grid h-9 w-9 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
   }`;
   if (href) {
     return (
       <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
-        <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
+        <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
       </a>
     );
   }
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
-      <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
     </button>
   );
 }
@@ -258,17 +258,21 @@ function Tile({
           sends this picture somewhere else on the opposite corner. */}
       <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
         <div
-          className={`absolute right-2 top-2 flex flex-col items-end gap-1 ${
-            coarse || picking ? "pointer-events-none" : "pointer-events-auto"
+          // A short tile has no room for the whole column, so what does not
+          // fit wraps into a second one to its left instead of running off the
+          // foot. The column itself spans the height to measure against, so
+          // only the buttons in it take a click, never the gap under them.
+          className={`pointer-events-none absolute bottom-2 right-2 top-2 flex flex-col flex-wrap-reverse content-start gap-1 ${
+            coarse || picking ? "" : "[&>*]:pointer-events-auto"
           }`}
         >
           {url && (
             <LikeHeart
               liked={kept}
-              size={16}
+              size={14}
               title={kept ? "Remove from favorites" : "Add to favorites"}
               onToggle={() => toggleFavorite(url)}
-              className="grid h-9 w-9 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
+              className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
           {url && <TileAction icon="download" label="Open / download" href={url} />}
@@ -280,9 +284,9 @@ function Tile({
                 type="button"
                 onClick={() => removeRun(run.id)}
                 aria-label="Confirm delete"
-                className="grid h-9 w-9 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
+                className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
               >
-                <Icon name="check" size={16} strokeWidth={2.2} />
+                <Icon name="check" size={14} strokeWidth={2.2} />
               </button>
             </>
           ) : (

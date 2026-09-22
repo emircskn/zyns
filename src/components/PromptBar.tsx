@@ -128,7 +128,7 @@ function InputStrip({ fields }: { fields: Field[] }) {
 function RatioGlyph({ value }: { value: unknown }) {
   const [w, h] = String(value ?? "").split(":").map(Number);
   const valid = Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0;
-  const scale = valid ? 14 / Math.max(w, h) : 0;
+  const scale = valid ? 13 / Math.max(w, h) : 0;
   return (
     <span className="grid h-4 w-4 place-items-center">
       {valid ? (
@@ -141,7 +141,7 @@ function RatioGlyph({ value }: { value: unknown }) {
           }}
         />
       ) : (
-        <Icon name="grid" size={16} />
+        <Icon name="grid" size={15} />
       )}
     </span>
   );
@@ -162,7 +162,7 @@ function chipIcon(field: Field, value: unknown): ReactNode {
     return <RatioGlyph value={value} />;
   }
   const hit = CHIP_ICON.find(([re]) => re.test(field.key));
-  return hit ? <Icon name={hit[1]} size={17} /> : null;
+  return hit ? <Icon name={hit[1]} size={16} /> : null;
 }
 
 function Chip({
@@ -176,7 +176,7 @@ function Chip({
 }) {
   return (
     <span
-      className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12.5px] transition-all md:h-9 md:gap-2 md:px-3.5 md:text-[13.5px] duration-[120ms] ${
+      className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12.5px] transition-all md:h-[34px] md:gap-[7px] md:px-3.5 md:text-[13px] duration-[120ms] ${
         active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
       }`}
     >
@@ -202,16 +202,16 @@ function BatchChip() {
   return (
     <span
       title="How many to make"
-      className="flex h-8 select-none items-center gap-1 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] text-t2 md:h-9 md:text-[13.5px]"
+      className="flex h-8 select-none items-center gap-1 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] text-t2 md:h-[34px] md:text-[13px]"
     >
       <button
         type="button"
         onClick={step(-1)}
         disabled={batch <= 1}
         aria-label="One fewer"
-        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-7 md:w-7 disabled:hover:bg-transparent"
+        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-[26px] md:w-[26px] disabled:hover:bg-transparent"
       >
-        <Icon name="minus" size={15} strokeWidth={2.2} />
+        <Icon name="minus" size={14} strokeWidth={2.2} />
       </button>
       <span className="min-w-[34px] text-center font-mono tabular-nums">{batch}/4</span>
       <button
@@ -219,9 +219,9 @@ function BatchChip() {
         onClick={step(1)}
         disabled={batch >= 4}
         aria-label="One more"
-        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-7 md:w-7 disabled:hover:bg-transparent"
+        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-[26px] md:w-[26px] disabled:hover:bg-transparent"
       >
-        <Icon name="plus" size={15} strokeWidth={2.2} />
+        <Icon name="plus" size={14} strokeWidth={2.2} />
       </button>
     </span>
   );
@@ -260,7 +260,7 @@ function FieldChip({ field }: { field: Field }) {
           onChange={(next) => setValue(field.key, next)}
         />
         {field.help && (
-          <p className="px-1.5 pb-1 pt-2.5 text-[12px] leading-snug text-t3">{field.help}</p>
+          <p className="px-1.5 pb-1 pt-2.5 text-[11.5px] leading-snug text-t3">{field.help}</p>
         )}
       </div>
     </Popover>
@@ -417,7 +417,7 @@ function PromptField({
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => pick(name)}
               onMouseEnter={() => setCursor(i)}
-              className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-[14px] transition-colors duration-[120ms] ${
+              className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
                 i === cursor ? "bg-t1 text-canvas" : "text-t2"
               }`}
             >
@@ -450,8 +450,8 @@ function MentionStrip({
   const used = usedMentions(text, names);
   return (
     <div className="anim-swap mb-2 flex flex-wrap items-center gap-1 px-0.5">
-      <span className="mr-0.5 grid h-7 w-7 place-items-center text-t3" title="Reference an element with @name">
-        <Icon name="at" size={17} />
+      <span className="mr-0.5 grid h-[26px] w-[26px] place-items-center text-t3" title="Reference an element with @name">
+        <Icon name="at" size={16} />
       </span>
       {names.map((name) => {
         const active = used.has(name);
@@ -461,7 +461,7 @@ function MentionStrip({
             type="button"
             onClick={() => onInsert(name)}
             title={active ? `@${name} is in the prompt` : `Insert @${name}`}
-            className={`h-7 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
+            className={`h-[26px] rounded-full px-2.5 font-mono text-[12px] transition-colors duration-[120ms] ${
               active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
             }`}
           >
@@ -472,9 +472,9 @@ function MentionStrip({
       <button
         type="button"
         onClick={onDefine}
-        className="flex h-7 items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+        className="flex h-[26px] items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
       >
-        <Icon name="plus" size={15} />
+        <Icon name="plus" size={14} />
         {names.length === 0 ? "Add an element to reference it with @" : "Element"}
       </button>
     </div>
@@ -618,7 +618,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
         onClick={run}
         disabled={busy || !!blocker || !apiKey}
         title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-t1 transition-colors duration-[150ms] active:scale-95 disabled:cursor-not-allowed disabled:text-t4"
+        className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full text-t1 transition-colors duration-[150ms] active:scale-95 disabled:cursor-not-allowed disabled:text-t4"
       >
         {/* The fill sits inside the button, not on it: the ring normalizes the
             host's own chrome, and a background set there is dropped. */}
@@ -626,7 +626,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           {busy ? (
             <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
           ) : (
-            <Icon name="arrow-up" size={18} strokeWidth={2} />
+            <Icon name="arrow-up" size={17} strokeWidth={2} />
           )}
         </span>
       </button>
@@ -719,9 +719,9 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
               className="shrink-0"
             >
               {model ? (
-                <Chip icon={<VendorBadge model={model} size={23} />} value={model.name} />
+                <Chip icon={<VendorBadge model={model} size={21} />} value={model.name} />
               ) : (
-                <Chip icon={<Icon name="spark" size={17} />} value="Choose model" />
+                <Chip icon={<Icon name="spark" size={16} />} value="Choose model" />
               )}
             </button>
 
@@ -742,14 +742,14 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
                 type="button"
                 onClick={() => toggleSettings(true)}
                 title="Advanced settings"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-all md:h-9 md:w-9 duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-all md:h-[34px] md:w-[34px] duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
               >
-                <Icon name="sliders" size={18} />
+                <Icon name="sliders" size={17} />
               </button>
             )}
 
             <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
-              {hint && <span className="font-mono text-[12px] tabular-nums text-t3">{hint}</span>}
+              {hint && <span className="font-mono text-[11.5px] tabular-nums text-t3">{hint}</span>}
               {/* Models without a prompt still need somewhere to send from. */}
               {model && promptFields.length === 0 && send}
             </div>
@@ -757,7 +757,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
         </div>
         </BorderBeam>
 
-        <p className="mt-2 hidden px-2 text-center text-[12px] text-t4 md:block">
+        <p className="mt-2 hidden px-2 text-center text-[11.5px] text-t4 md:block">
           {blocker ? blocker : `${model!.vendor} · ${model!.tagline}`}
         </p>
       </div>

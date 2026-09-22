@@ -51,14 +51,14 @@ function ModelRow({
       <VendorBadge model={model} size={34} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
-          <span className="truncate text-[14.5px] font-medium text-t1">{model.name}</span>
+          <span className="truncate text-[14px] font-medium text-t1">{model.name}</span>
           {model.badge && (
             <span className="shrink-0 rounded-[2px] bg-accent px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-ink">
               {model.badge}
             </span>
           )}
         </span>
-        <span className="block truncate text-[12.5px] leading-snug text-t3">{model.tagline}</span>
+        <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
       </span>
       {active && (
         <Icon name="check" size={17} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
@@ -188,7 +188,7 @@ export function ModelPicker() {
           ) : (
             groups.map((group) => (
               <section key={group.id} className="pb-1.5">
-                <h3 className="px-3 pb-1 pt-3 text-[12px] font-semibold uppercase tracking-[0.08em] text-t3">
+                <h3 className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-t3">
                   {GROUP_LABEL[group.id]}
                 </h3>
                 <div className="flex flex-col gap-0.5">

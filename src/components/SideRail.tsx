@@ -46,11 +46,11 @@ function NavRow({
       onClick={onClick}
       title={title ?? label}
       aria-current={on ? "page" : undefined}
-      className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-[14.5px] transition-colors duration-[150ms] ${
+      className={`flex w-full items-center gap-3 rounded-card px-3 py-2 text-[13.5px] transition-colors duration-[150ms] ${
         on ? "bg-t1/[0.09] font-medium text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
-      <Icon name={icon} size={21} fill={on && filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={19} fill={on && filled ? "currentColor" : "none"} />
       {label}
     </button>
   );
@@ -59,7 +59,7 @@ function NavRow({
 /** A quiet heading over a group, the way a file tree names its sections. */
 function GroupLabel({ children }: { children: string }) {
   return (
-    <p className="px-3 pb-2 pt-5 text-[11.5px] font-medium uppercase tracking-[0.1em] text-t3">
+    <p className="px-3 pb-1.5 pt-4 text-[10.5px] font-medium uppercase tracking-[0.1em] text-t3">
       {children}
     </p>
   );
@@ -99,7 +99,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
       >
         {/* The badge alone, and bigger for it: the name is set into the mark
             already, and spelling it out beside it said it twice. */}
-        <ZynsMark size={42} />
+        <ZynsMark size={40} />
       </button>
 
       <nav className="flex w-full flex-col gap-0.5">
@@ -130,7 +130,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
 
       <div className="mt-auto w-full pt-4">
         {active > 0 && (
-          <p className="mb-2 flex items-center gap-2 px-3 text-[13px] text-t3">
+          <p className="mb-2 flex items-center gap-2 px-3 text-[12px] text-t3">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-t1" />
             {active} running
           </p>
@@ -141,8 +141,8 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             its overflow menu: on this studio there is nothing else to keep in
             a menu, and the key is what an account here amounts to. */}
         <div className="flex items-center gap-2 rounded-card px-2 py-1.5">
-          <ZynsMark size={30} />
-          <span className="min-w-0 flex-1 truncate text-[14px] text-t2">
+          <ZynsMark size={28} />
+          <span className="min-w-0 flex-1 truncate text-[13px] text-t2">
             {credits !== null ? (
               <>
                 <span className="font-mono tabular-nums text-t1">{credits.toLocaleString()}</span>{" "}
@@ -159,11 +159,11 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={onKeyClick}
             title={apiKey ? "Change your API key" : "Add your API key"}
             aria-label={apiKey ? "Change your API key" : "Add your API key"}
-            className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
+            className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
           >
-            <Icon name="key" size={22} />
+            <Icon name="key" size={19} />
             <span
-              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full ring-2"
+              className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full ring-2"
               style={{
                 background: apiKey ? "var(--t1)" : "var(--t4)",
                 ["--tw-ring-color" as string]: "var(--canvas)",
@@ -180,11 +180,11 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={demo ? clearDemo : loadDemo}
             title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
             aria-pressed={demo}
-            className={`flex flex-1 items-center gap-2.5 rounded-card px-3 py-2.5 text-[14px] transition-colors duration-[150ms] ${
+            className={`flex flex-1 items-center gap-2 rounded-card px-3 py-2 text-[13px] transition-colors duration-[150ms] ${
               demo ? "bg-t1/[0.09] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
             }`}
           >
-            <Icon name="palette" size={19} />
+            <Icon name="palette" size={17} />
             Samples
           </button>
           <button
@@ -192,9 +192,9 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={theme === "dark" ? "Switch to light" : "Switch to dark"}
             aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-card text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.05] hover:text-t1"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-card text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.05] hover:text-t1"
           >
-            <Icon name={theme === "dark" ? "sun" : "moon"} size={20} />
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={18} />
           </button>
         </div>
       </div>

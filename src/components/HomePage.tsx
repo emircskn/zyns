@@ -159,7 +159,7 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
           </div>
 
           {hydrated && !apiKey && (
-            <p className="mt-6 text-center text-[13px] text-t4">
+            <p className="mt-6 text-center text-[12.5px] text-t4">
               <button
                 type="button"
                 onClick={onKeyClick}
@@ -189,14 +189,14 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
           className="relative mx-auto w-full max-w-[1000px] pb-2 pt-2"
         >
           <div className="mb-3 flex items-end justify-between gap-3">
-            <h2 className="text-[14px] font-medium uppercase tracking-[0.08em] text-t3">Recent</h2>
+            <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-t3">Recent</h2>
             <button
               type="button"
               onClick={() => setPage("assets")}
-              className="flex items-center gap-1 text-[13.5px] text-t3 transition-colors duration-[150ms] hover:text-t1"
+              className="flex items-center gap-1 text-[13px] text-t3 transition-colors duration-[150ms] hover:text-t1"
             >
               All assets
-              <Icon name="chevron" size={16} className="-rotate-90" />
+              <Icon name="chevron" size={15} className="-rotate-90" />
             </button>
           </div>
           <AssetBrowser assets={recent} />

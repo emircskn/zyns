@@ -186,7 +186,7 @@ export function PillGroup<T extends string>({
   }
 
   const pad =
-    size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[13.5px] font-medium";
+    size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[13px] font-medium";
 
   const arrow = `grid shrink-0 place-items-center rounded-full bg-elevated text-t2 ring-1 ring-inset ring-line transition-colors duration-[120ms] hover:text-t1 disabled:opacity-40 disabled:hover:text-t2 ${
     size === "lg" ? "h-8 w-8" : "h-7 w-7"
