@@ -541,7 +541,7 @@ export function MediaViewer({
       <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
         <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
           {model ? (
-            <VendorBadge vendor={model.vendor} size={30} />
+            <VendorBadge model={model} size={30} />
           ) : (
             <span className="grid h-[30px] w-[30px] place-items-center rounded-chip bg-t1/[0.07]">
               <Icon name="upload" size={15} className="text-t3" />

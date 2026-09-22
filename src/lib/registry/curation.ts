@@ -1067,37 +1067,6 @@ export const FAMILIES: Family[] = [
     modes: [m("generate", "Generate", "runway/gen4-aleph")],
     fields: RUNWAY_FIELDS,
   },
-  {
-    id: "omnihuman-1-5",
-    name: "OmniHuman 1.5",
-    vendor: "ByteDance",
-    category: "video",
-    output: "video",
-    tagline: "Animate a portrait, pet or character from an image plus audio.",
-    modes: [
-      m("animate", "Animate", "omnihuman-1-5"),
-      m("identify", "Human identification", "omnihuman-1-5/human-identification", { hint: "Check an image before animating" }),
-      m("detect", "Subject detection", "omnihuman-1-5/subject-detection", { hint: "Find subjects for masks" }),
-    ],
-  },
-  {
-    id: "infinitalk",
-    name: "InfiniTalk",
-    vendor: "InfiniTalk",
-    category: "video",
-    output: "video",
-    tagline: "Long-form lip sync from a portrait and an audio file.",
-    modes: [m("from-audio", "From audio", "infinitalk/from-audio")],
-  },
-  {
-    id: "volcengine-lipsync",
-    name: "Volcengine Lip Sync",
-    vendor: "Volcengine",
-    category: "video",
-    output: "video",
-    tagline: "Re-sync an existing video's lips to a new audio track.",
-    modes: [m("lipsync", "Lip sync", "volcengine/video-to-video-lip-sync")],
-  },
 
   /* ============================================================== *
    * AUDIO

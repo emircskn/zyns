@@ -719,7 +719,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
               className="shrink-0"
             >
               {model ? (
-                <Chip icon={<VendorBadge vendor={model.vendor} size={18} />} value={model.name} />
+                <Chip icon={<VendorBadge model={model} size={18} />} value={model.name} />
               ) : (
                 <Chip icon={<Icon name="spark" size={15} />} value="Choose model" />
               )}

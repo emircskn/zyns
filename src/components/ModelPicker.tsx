@@ -48,7 +48,7 @@ function ModelRow({
         active ? "bg-t1/[0.06] ring-1 ring-inset ring-line-strong" : "hover:bg-t1/[0.045]"
       }`}
     >
-      <VendorBadge vendor={model.vendor} size={34} />
+      <VendorBadge model={model} size={34} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span className="truncate text-[13.5px] font-medium text-t1">{model.name}</span>

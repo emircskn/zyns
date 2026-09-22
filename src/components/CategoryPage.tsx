@@ -56,7 +56,7 @@ export function CategoryPage({ category }: { category: Category }) {
         >
           {model && model.category === category ? (
             <>
-              <VendorBadge vendor={model.vendor} size={22} />
+              <VendorBadge model={model} size={22} />
               <span className="max-w-[160px] truncate">{model.name}</span>
             </>
           ) : (

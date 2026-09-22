@@ -1,8 +1,38 @@
+import type { Brand } from "@/lib/brandIcons";
+
 /**
- * Visual identity per vendor: a monogram. These are designed marks, not the
- * vendors' own logos, so they stay consistent across all 19 vendors and free
- * of trademark baggage. The studio has no brand colour any more, so the tile
- * they sit on is drawn from the text ramp like everything else.
+ * Which maker's mark a model wears. Chosen by the model line rather than by
+ * the vendor field, because the two part ways: Qwen, Wan and HappyHorse all
+ * come from Alibaba, yet Qwen and Wan carry Qwen's mark and HappyHorse
+ * Alibaba's. First match wins, so the order only matters where one prefix
+ * starts another.
+ */
+const BRAND_BY_LINE: Array<[RegExp, Brand]> = [
+  [/^(nano-banana|imagen|veo|gemini)/, "google"],
+  [/^(seedream|seedance)/, "bytedance"],
+  [/^(gpt-image|4o-image)/, "openai"],
+  [/^flux/, "flux"],
+  [/^grok/, "xai"],
+  [/^ideogram/, "ideogram"],
+  [/^(qwen|wan|z-image)/, "qwen"],
+  [/^kling/, "kling"],
+  [/^(hailuo|minimax)/, "minimax"],
+  [/^happyhorse/, "alibaba"],
+  [/^pixverse/, "pixverse"],
+  [/^runway/, "runway"],
+  [/^suno/, "suno"],
+  [/^elevenlabs/, "elevenlabs"],
+  [/^topaz/, "topazlabs"],
+  [/^recraft/, "recraft"],
+];
+
+export function brandOf(modelId: string): Brand | undefined {
+  return BRAND_BY_LINE.find(([line]) => line.test(modelId))?.[1];
+}
+
+/**
+ * The monogram a model falls back to when no maker's mark is on file for it:
+ * two letters on the same tile, so an unmapped model still fits the row.
  */
 export const VENDORS: Record<string, string> = {
   Google: "G",
@@ -22,8 +52,6 @@ export const VENDORS: Record<string, string> = {
   MiniMax: "Mx",
   Runway: "Rw",
   PixVerse: "Px",
-  Volcengine: "Vo",
-  InfiniTalk: "In",
 };
 
 export function vendorMark(vendor: string): string {
