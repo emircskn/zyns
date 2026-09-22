@@ -58,7 +58,7 @@ function ModelCard({
         <span className="block truncate text-[13.5px] font-semibold uppercase leading-tight tracking-[-0.01em] text-t1">
           {model.name}
         </span>
-        <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
+        <span className="block truncate text-[12.5px] leading-snug text-t3">{model.tagline}</span>
       </div>
     </button>
   );

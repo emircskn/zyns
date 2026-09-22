@@ -99,19 +99,19 @@ function TileAction({
   /** A heart that is already given reads as solid. */
   filled?: boolean;
 }) {
-  const className = `grid h-8 w-8 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-9 w-9 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
   }`;
   if (href) {
     return (
       <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
-        <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
+        <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
       </a>
     );
   }
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
-      <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={16} fill={filled ? "currentColor" : "none"} />
     </button>
   );
 }
@@ -265,10 +265,10 @@ function Tile({
           {url && (
             <LikeHeart
               liked={kept}
-              size={14}
+              size={16}
               title={kept ? "Remove from favorites" : "Add to favorites"}
               onToggle={() => toggleFavorite(url)}
-              className="grid h-8 w-8 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
+              className="grid h-9 w-9 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
           {url && <TileAction icon="download" label="Open / download" href={url} />}
@@ -280,9 +280,9 @@ function Tile({
                 type="button"
                 onClick={() => removeRun(run.id)}
                 aria-label="Confirm delete"
-                className="grid h-8 w-8 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
+                className="grid h-9 w-9 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
               >
-                <Icon name="check" size={14} strokeWidth={2.2} />
+                <Icon name="check" size={16} strokeWidth={2.2} />
               </button>
             </>
           ) : (

@@ -233,7 +233,7 @@ function Stage({ url }: { url: string }) {
  * reads as a set of equal choices rather than one shout and five whispers.
  */
 const TILE_SHAPE =
-  "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[11.5px] transition-colors duration-[120ms]";
+  "flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-card px-1.5 py-3 text-[12.5px] transition-colors duration-[120ms]";
 
 function Action({
   icon,
@@ -263,7 +263,7 @@ function Action({
   const tint = danger ? { color: "var(--danger)" } : undefined;
   const inner = (
     <>
-      <Icon name={icon} size={18} fill={filled ? "currentColor" : "none"} />
+      <Icon name={icon} size={20} fill={filled ? "currentColor" : "none"} />
       <span className="max-w-full truncate">{label}</span>
     </>
   );
@@ -319,18 +319,18 @@ function Section({
             type="button"
             onClick={() => setOpen((was) => !was)}
             aria-expanded={open}
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-t4 transition-colors duration-[120ms] hover:text-t2"
+            className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-t3 transition-colors duration-[120ms] hover:text-t1"
           >
             {title}
             <Icon
               name="chevron"
-              size={14}
+              size={16}
               className="transition-transform duration-[200ms]"
               style={{ transform: open ? "rotate(180deg)" : "none" }}
             />
           </button>
         ) : (
-          <h3 className="font-mono text-[10px] uppercase tracking-[0.1em] text-t4">{title}</h3>
+          <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-t3">{title}</h3>
         )}
         {right}
       </div>
@@ -541,15 +541,15 @@ export function MediaViewer({
       <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
         <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
           {model ? (
-            <VendorBadge model={model} size={30} />
+            <VendorBadge model={model} size={34} />
           ) : (
-            <span className="grid h-[30px] w-[30px] place-items-center rounded-chip bg-t1/[0.07]">
-              <Icon name="upload" size={15} className="text-t3" />
+            <span className="grid h-[34px] w-[34px] place-items-center rounded-chip bg-t1/[0.07]">
+              <Icon name="upload" size={17} className="text-t3" />
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] text-t1">{title}</p>
-            <p className="truncate text-[11px] capitalize text-t4">{subtitle}</p>
+            <p className="truncate text-[14.5px] font-medium text-t1">{title}</p>
+            <p className="truncate text-[12.5px] capitalize text-t3">{subtitle}</p>
           </div>
           <button
             type="button"
@@ -557,7 +557,7 @@ export function MediaViewer({
             aria-label="Close"
             className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
           >
-            <Icon name="close" size={16} />
+            <Icon name="close" size={18} />
           </button>
         </header>
 
@@ -593,7 +593,7 @@ export function MediaViewer({
                     setConfirming(true);
                   }}
                   style={{ color: "var(--danger)" }}
-                  className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[12.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
+                  className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
                 >
                   <Icon name="trash" size={15} className="shrink-0" />
                   Delete
@@ -606,20 +606,20 @@ export function MediaViewer({
             // Asked before it happens: a gallery is the only copy of what it
             // holds, and a tap is easy to make by accident.
             <div className="anim-pop flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
-              <p className="flex-1 text-[12px]" style={{ color: "var(--danger)" }}>
+              <p className="flex-1 text-[13px]" style={{ color: "var(--danger)" }}>
                 Delete this?
               </p>
               <button
                 type="button"
                 onClick={() => setConfirming(false)}
-                className="rounded-full px-3 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                className="rounded-full px-3 py-1.5 text-[13px] text-t3 transition-colors duration-[120ms] hover:text-t1"
               >
                 No
               </button>
               <button
                 type="button"
                 onClick={remove}
-                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[12px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
+                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
               >
                 Yes, delete
               </button>
@@ -636,9 +636,9 @@ export function MediaViewer({
                   <button
                     type="button"
                     onClick={() => copy(run.prompt, "prompt")}
-                    className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[11px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                    className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1 text-[12px] text-t2 transition-colors duration-[120ms] hover:text-t1"
                   >
-                    <Icon name={copied === "prompt" ? "check" : "copy"} size={13} />
+                    <Icon name={copied === "prompt" ? "check" : "copy"} size={14} />
                     Copy
                   </button>
                 ) : undefined
@@ -669,14 +669,14 @@ export function MediaViewer({
               )}
               {run.prompt ? (
                 <>
-                  <p className={`text-[12.5px] leading-relaxed text-t2 ${full ? "" : "line-clamp-5"}`}>
+                  <p className={`text-[14px] leading-relaxed text-t1/85 ${full ? "" : "line-clamp-5"}`}>
                     {run.prompt}
                   </p>
                   {run.prompt.length > 220 && (
                     <button
                       type="button"
                       onClick={() => setFull((was) => !was)}
-                      className="mt-1.5 flex items-center gap-1 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                      className="mt-1.5 flex items-center gap-1 text-[13px] text-t3 transition-colors duration-[120ms] hover:text-t1"
                     >
                       {full ? "Show less" : "See all"}
                       <Icon
@@ -689,7 +689,7 @@ export function MediaViewer({
                   )}
                 </>
               ) : (
-                <p className="text-[12.5px] leading-relaxed text-t4">
+                <p className="text-[14px] leading-relaxed text-t4">
                   No prompt. This run worked from its inputs.
                 </p>
               )}
@@ -701,8 +701,8 @@ export function MediaViewer({
               <dl className="flex flex-col gap-1.5">
                 {details.map((row) => (
                   <div key={row.label} className="flex items-baseline justify-between gap-3">
-                    <dt className="shrink-0 text-[12px] text-t4">{row.label}</dt>
-                    <dd className="truncate text-right text-[12px] capitalize text-t2">{row.value}</dd>
+                    <dt className="shrink-0 text-[13px] text-t3">{row.label}</dt>
+                    <dd className="truncate text-right text-[13px] capitalize text-t1/85">{row.value}</dd>
                   </div>
                 ))}
               </dl>

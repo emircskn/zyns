@@ -52,22 +52,22 @@ export function CategoryPage({ category }: { category: Category }) {
           onClick={() => togglePicker(true, category, true)}
           // A phone picks its model from the bar at the bottom, where it is
           // already named; up here it was the same word twice.
-          className="hidden items-center gap-2 rounded-full bg-t1/[0.07] py-1.5 pl-1.5 pr-3.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
+          className="hidden items-center gap-2 rounded-full bg-t1/[0.07] py-1.5 pl-1.5 pr-3.5 text-[13.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
         >
           {model && model.category === category ? (
             <>
-              <VendorBadge model={model} size={22} />
+              <VendorBadge model={model} size={24} />
               <span className="max-w-[160px] truncate">{model.name}</span>
             </>
           ) : (
             <>
-              <span className="grid h-[22px] w-[22px] place-items-center rounded-chip bg-t1/[0.1]">
-                <Icon name="spark" size={14} />
+              <span className="grid h-[24px] w-[24px] place-items-center rounded-chip bg-t1/[0.1]">
+                <Icon name="spark" size={16} />
               </span>
               <span>Choose a model</span>
             </>
           )}
-          <Icon name="chevron" size={15} className="-rotate-90 opacity-60" />
+          <Icon name="chevron" size={17} className="-rotate-90 opacity-70" />
         </button>
         </div>
       </div>
@@ -90,7 +90,7 @@ export function CategoryPage({ category }: { category: Category }) {
               <button
                 type="button"
                 onClick={() => togglePicker(true, category, true)}
-                className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"
+                className="cta rounded-full px-4 py-2 text-[13.5px] font-medium"
               >
                 Browse {meta?.label.toLowerCase() ?? category} models
               </button>
