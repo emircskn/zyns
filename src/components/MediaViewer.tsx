@@ -208,7 +208,10 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
  * as a border the picture does not have.
  */
 function Stage({ url }: { url: string }) {
-  const fit = "max-h-[52vh] w-auto max-w-full object-contain md:h-full md:max-h-none md:w-full";
+  // no-lift: a long press here belongs to the phone's own Save / Copy menu,
+  // not to dragging the picture out of the page.
+  const fit =
+    "no-lift max-h-[52vh] w-auto max-w-full object-contain md:h-full md:max-h-none md:w-full";
   const kind = mediaKind(url);
   if (kind === "video") {
     return <video src={url} controls autoPlay loop playsInline className={fit} />;
@@ -222,7 +225,7 @@ function Stage({ url }: { url: string }) {
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt="" className={fit} />;
+  return <img src={url} alt="" draggable={false} className={fit} />;
 }
 
 /**

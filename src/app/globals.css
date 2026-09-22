@@ -1008,6 +1008,21 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
+ * Long press on an enlarged picture
+ *
+ * iOS lets a picture be lifted out of the page and dragged, and it did that
+ * over the enlarged view instead of what a long press on a picture is
+ * normally for: the menu that saves or copies it. The lift is switched off
+ * there, and the callout asked for by name, so the press brings up Save
+ * Image the way it does on any other site. Only the enlarged view: on a
+ * gallery tile a long press is how a tile is picked.
+ * ------------------------------------------------------------------ */
+.no-lift {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: default;
+}
+
+/* ------------------------------------------------------------------ *
  * The bottom of the screen, swapped
  *
  * Picking a tile hands the dock to the selection bar: the prompt bar drops
