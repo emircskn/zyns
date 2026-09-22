@@ -4,6 +4,14 @@ import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
 import { useStudio, type Page } from "@/store/studio";
 
+/**
+ * The four tabs share one shape, and it is the Create button's height: the
+ * row is centred on that button, so a tab whose icon and name started at the
+ * top of the row sat visibly higher than it.
+ */
+const TAB =
+  "flex h-[52px] flex-1 flex-col items-center justify-center gap-1 text-[11px] transition-colors duration-[150ms]";
+
 const ITEMS: Array<{ id: Page; label: string; icon: IconName }> = [
   { id: "home", label: "Home", icon: "home" },
   { id: "favorites", label: "Favorites", icon: "heart" },
@@ -19,13 +27,11 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
       type="button"
       onClick={() => setPage(id)}
       aria-current={on ? "page" : undefined}
-      className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
-        on ? "font-medium text-t1" : "text-t4"
-      }`}
+      className={`${TAB} ${on ? "font-medium text-t1" : "text-t4"}`}
     >
       {/* The page you are on is simply brighter — the accent belongs to the
           one button that starts something. */}
-      <Icon name={icon} size={21} fill={on && icon === "heart" ? "currentColor" : "none"} />
+      <Icon name={icon} size={23} fill={on && icon === "heart" ? "currentColor" : "none"} />
       {label}
     </button>
   );
@@ -38,17 +44,16 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
  */
 export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: () => void }) {
   const apiKey = useStudio((s) => s.apiKey);
-  const page = useStudio((s) => s.page);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 flex items-stretch gap-1 border-t border-line bg-elevated px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-1 border-t border-line bg-elevated px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 md:hidden">
       <Tab {...ITEMS[0]} />
       <Tab {...ITEMS[1]} />
 
       {/* The same metal ring the send button wears, around a circle this
           time, and still the spark rather than an arrow: this button opens
           the models, it does not send anything. */}
-      <span className="mx-2 self-center">
+      <span className="mx-2">
         <MetalButton>
           <button
             type="button"
@@ -71,12 +76,10 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
         type="button"
         onClick={onKey}
         aria-label={apiKey ? "API key connected" : "Add API key"}
-        className={`flex flex-1 flex-col items-center gap-1 py-1 text-[10.5px] transition-colors duration-[150ms] ${
-          page === "home" ? "text-t4" : "text-t4"
-        }`}
+        className={`${TAB} text-t4`}
       >
         <span className="relative">
-          <Icon name="key" size={21} />
+          <Icon name="key" size={23} />
           <span
             className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-2"
             style={{
