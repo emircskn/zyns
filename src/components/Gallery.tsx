@@ -53,7 +53,14 @@ function Media({ url }: { url: string }) {
     return (
       // No controls on a tile: the tap belongs to the tile, and the enlarged
       // view is where the clip actually plays.
-      <video src={url} className="h-full w-full object-cover" muted loop playsInline preload="metadata" />
+      <video
+        src={url}
+        className="no-lift h-full w-full object-cover"
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      />
     );
   }
   if (kind === "audio") {
@@ -65,7 +72,15 @@ function Media({ url }: { url: string }) {
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />;
+  return (
+    <img
+      src={url}
+      alt=""
+      loading="lazy"
+      draggable={false}
+      className="no-lift h-full w-full object-cover"
+    />
+  );
 }
 
 function TileAction({
@@ -162,7 +177,7 @@ function Tile({
       } group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
         square ? "" : "mb-2.5 break-inside-avoid"
       } ${
-        picked ? "ring-2 ring-t1/70" : "ring-line hover:ring-line-strong"
+        picked ? "ring-line" : "ring-line hover:ring-line-strong"
       }`}
       style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
     >
@@ -211,6 +226,13 @@ function Tile({
             </button>
           ))}
         </div>
+      )}
+
+      {/* The frame that says it is picked, over the picture rather than under
+          it: an inset ring on the tile itself is painted beneath the media and
+          came out as thin lines along the edges. */}
+      {picked && (
+        <span className="pointer-events-none absolute inset-0 z-10 rounded-card ring-2 ring-inset ring-t1" />
       )}
 
       {url && (

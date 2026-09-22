@@ -83,9 +83,7 @@ function AssetTile({
       onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
-      } card-lazy group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-shadow duration-[150ms] ${
-        picked ? "ring-2 ring-t1/70" : "ring-line"
-      }`}
+      } card-lazy group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-shadow duration-[150ms]`}
       style={{ animationDelay: `${Math.min(index, 12) * 24}ms` }}
     >
       <button
@@ -100,7 +98,8 @@ function AssetTile({
             src={asset.url}
             alt=""
             loading="lazy"
-            className={`w-full ${square ? "h-full object-cover" : "h-auto"}`}
+            draggable={false}
+            className={`no-lift w-full ${square ? "h-full object-cover" : "h-auto"}`}
           />
         ) : asset.kind === "video" ? (
           <video
@@ -108,7 +107,7 @@ function AssetTile({
             muted
             playsInline
             preload="metadata"
-            className={`w-full ${square ? "h-full object-cover" : "h-auto"}`}
+            className={`no-lift w-full ${square ? "h-full object-cover" : "h-auto"}`}
           />
         ) : (
           <span className={`pending-surface grid w-full place-items-center ${square ? "h-full" : "aspect-square"}`}>
@@ -116,6 +115,13 @@ function AssetTile({
           </span>
         )}
       </button>
+
+      {/* The frame that says it is picked, over the picture rather than under
+          it: an inset ring on the tile itself is painted beneath the media and
+          came out as thin lines along the edges. */}
+      {picked && (
+        <span className="pointer-events-none absolute inset-0 z-10 rounded-card ring-2 ring-inset ring-t1" />
+      )}
 
       <button
         type="button"
