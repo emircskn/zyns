@@ -115,7 +115,6 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "nano-banana-2-lite", { hide: ["image_urls"] }),
       m("edit", "Edit", "nano-banana-2-lite", { require: ["image_urls"] }),
     ],
-    creditHint: () => "≈4 credits",
   },
   {
     id: "nano-banana-pro",

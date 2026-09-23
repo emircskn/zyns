@@ -198,6 +198,10 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
     }
   }
   rows.push({ label: "Created", value: when(run.createdAt) });
+  // The charge as KIE reported it; the estimate before the run is only that.
+  if (run.credits !== undefined) {
+    rows.push({ label: "Spent", value: `${run.credits.toLocaleString("en-US")} credits` });
+  }
   return rows;
 }
 

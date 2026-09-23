@@ -76,6 +76,7 @@ export async function pollRun(run: Run): Promise<void> {
       state: task.state,
       urls: task.urls ?? run.urls,
       error: task.error,
+      credits: task.credits ?? run.credits,
     });
     if (task.state === "success" || task.state === "failed") void refreshCredits();
   } catch (error) {

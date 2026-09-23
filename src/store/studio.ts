@@ -28,6 +28,8 @@ export interface Run {
   error?: string;
   createdAt: number;
   values: Values;
+  /** Credits KIE charged for the finished task, as it reported them. */
+  credits?: number;
 }
 
 export type Theme = "dark" | "light";

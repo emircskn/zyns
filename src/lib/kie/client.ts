@@ -18,6 +18,8 @@ export interface NormalisedTask {
   urls: string[];
   error?: string;
   progress?: string;
+  /** What KIE charged for the task, once it says (jobs/* tasks report it). */
+  credits?: number;
   raw: unknown;
 }
 
@@ -159,11 +161,13 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
 
   const error = pick(data, "failMsg", "errorMessage", "error_message", "msg") as string | undefined;
   const failCode = pick(data, "failCode", "errorCode");
+  const spent = Number(data.creditsConsumed);
+  const credits = data.creditsConsumed !== undefined && data.creditsConsumed !== null && Number.isFinite(spent) ? spent : undefined;
 
   // jobs/* uses a `state` string.
   const state = data.state as string | undefined;
   if (state) {
-    if (state === "success") return { state: "success", urls, raw: envelope };
+    if (state === "success") return { state: "success", urls, credits, raw: envelope };
     if (state === "fail") return { state: "failed", urls, error: error || `Failed (${failCode ?? "unknown"})`, raw: envelope };
     return { state: state === "waiting" || state === "queuing" ? "pending" : "running", urls, progress: state, raw: envelope };
   }

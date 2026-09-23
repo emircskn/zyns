@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -23,6 +24,7 @@ import { submitRun } from "@/lib/generate";
 import { insertMention, mentionAtCaret, mentionNames, mentionSources, usedMentions } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
+import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 
 export function ModeStrip({ flush }: { flush?: boolean }) {
@@ -604,7 +606,13 @@ export function useComposer() {
   const batchable =
     !!model && model.output === "image" && !fields.some((f) => /^num_images$|^n$/.test(f.key));
   const blocker = model ? validateValues(model, values) : "Choose a model to start";
-  const hint = model?.creditHint?.(values);
+  // What the send will cost, from KIE's price list: every copy of a batch
+  // is a run of its own.
+  const batch = useStudio((s) => s.batch);
+  const estimate = useMemo(() => (model ? estimateCredits(model, values) : undefined), [model, values]);
+  const hint =
+    model?.creditHint?.(values) ??
+    (estimate !== undefined ? formatCredits(estimate * (batchable ? batch : 1)) : undefined);
   const mentionable = !!model && mentionSources(model, values).length > 0;
   const names = mentionable && model ? mentionNames(model, values) : [];
   const firstPrompt = promptFields[0];
