@@ -701,7 +701,7 @@ function usePublishedHeight(node: React.RefObject<HTMLElement | null>, enabled: 
  * tap takes it to the full-screen composer, or to the catalogue when there
  * is no model yet.
  */
-function PromptCard({ placement }: { placement: "docked" | "center" }) {
+export function PromptCard({ placement }: { placement: "docked" | "center" }) {
   const model = useModel();
   const values = useValues();
   const draft = useStudio((s) => s.draft);
@@ -721,7 +721,7 @@ function PromptCard({ placement }: { placement: "docked" | "center" }) {
       className={
         centered
           ? "w-full md:hidden"
-          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 px-3 pb-3 md:hidden"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 px-3 pb-5 md:hidden"
       }
     >
       <div ref={card} className="pointer-events-auto">

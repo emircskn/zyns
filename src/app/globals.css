@@ -599,7 +599,10 @@ html {
 
 @media (max-width: 767px) {
   :root {
-    --nav-h: calc(62px + env(safe-area-inset-bottom));
+    /* The row's own height: 52px of tabs, 8px above them, a 1px rule, and
+       8px or the home indicator's inset below, whichever is taller. It said
+       62px plus the inset, which left anything docked on it 7px low. */
+    --nav-h: calc(61px + max(8px, env(safe-area-inset-bottom)));
   }
 }
 
@@ -622,8 +625,17 @@ html {
 }
 
 /* Pages with no prompt bar still clear the bottom row. */
-.below-nav {
+.below-nav,
+.below-card {
   padding-bottom: calc(var(--nav-h) + 40px);
+}
+
+/* The library pages: no bar on a desktop, but a phone's prompt card over
+   the bottom row, so there they clear the card as a composing page does. */
+@media (max-width: 767px) {
+  .below-card {
+    padding-bottom: calc(var(--bar-h, 120px) + var(--nav-h) + 28px + env(safe-area-inset-bottom));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
