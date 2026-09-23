@@ -18,7 +18,7 @@ export function VendorBadge({
   const icon = brand ? BRAND_ICONS[brand] : undefined;
   return (
     <span
-      className="grid shrink-0 place-items-center rounded-chip bg-t1/[0.09] font-semibold tracking-[-0.03em] text-t2 ring-1 ring-inset ring-line"
+      className="grid shrink-0 place-items-center rounded-chip bg-t1/[0.09] font-semibold tracking-[-0.03em] text-t2"
       title={icon?.title ?? model.vendor}
       style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
     >
