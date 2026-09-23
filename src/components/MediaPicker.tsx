@@ -54,11 +54,7 @@ function Thumb({
   onRemove?: () => void;
 }) {
   return (
-    <div
-      className={`group relative aspect-square overflow-hidden rounded-card bg-surface-2 ring-1 transition-colors duration-[150ms] ${
-        picked ? "ring-t1/70" : "ring-line hover:ring-line-strong"
-      }`}
-    >
+    <div className="group relative aspect-square overflow-hidden rounded-card bg-surface-2">
       <button
         type="button"
         onClick={onClick}
@@ -79,13 +75,22 @@ function Thumb({
           {asset.label}
         </span>
       </button>
+      {/* The frame is drawn inside the tile and over the picture. Drawn
+          outside it, as a ring, the scrolling list clipped its top edge on
+          the first row, so a picked tile lost its top line. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${
+          picked ? "ring-2 ring-t1/80" : "ring-1 ring-line group-hover:ring-line-strong"
+        }`}
+      />
       {picked && (
-        <span className="pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
+        <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
           <Icon name="check" size={13} strokeWidth={2.4} />
         </span>
       )}
       {(onPreview || onRemove) && (
-        <div className="hover-reveal absolute right-1.5 top-1.5 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
           {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
           {onRemove && <TileAction icon="trash" label="Remove upload" onClick={onRemove} />}
         </div>
