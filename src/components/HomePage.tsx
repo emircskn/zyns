@@ -199,7 +199,7 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
               <Icon name="chevron" size={15} className="-rotate-90" />
             </button>
           </div>
-          <AssetBrowser assets={recent} />
+          <AssetBrowser assets={recent} byDate={false} />
         </section>
       )}
     </div>

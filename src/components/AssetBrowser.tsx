@@ -206,7 +206,14 @@ const COLUMNS: Record<number, string> = {
   6: "md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
 };
 
-export function AssetBrowser({ assets }: { assets: Asset[] }) {
+export function AssetBrowser({
+  assets,
+  byDate = true,
+}: {
+  assets: Asset[];
+  /** Day headings over the grid; off for a short strip like home's Recent. */
+  byDate?: boolean;
+}) {
   const runs = useStudio((s) => s.runs);
   const density = useStudio((s) => s.density);
   const phoneGrid = useStudio((s) => s.phoneGrid);
@@ -251,11 +258,16 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
       {/* A heading for each day, newest first, under one container so a tile
           moving into the day above still slides there. */}
       <div ref={grid} className="-mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
-        {byDay(tiles, (asset) => asset.createdAt).map((day) => (
+        {(byDate
+          ? byDay(tiles, (asset) => asset.createdAt)
+          : [{ key: "all", label: "", items: tiles }]
+        ).map((day) => (
           <section key={day.key}>
+            {byDate && (
             <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
               {day.label}
             </h3>
+            )}
             <div
               className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
                 COLUMNS[density] ?? COLUMNS[4]
