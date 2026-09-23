@@ -666,6 +666,60 @@ export function useComposer() {
 }
 
 /**
+ * The prompt box's slow breathing glow, shared by the desktop bar and the
+ * phone's card so the two stay one effect.
+ *
+ * The library's greyscale palette is light greys, which glow on a dark card
+ * and vanish on a white one. In the light theme the same greys are taken
+ * down by its brightness multiplier into soft darks, so the glow reads there
+ * too, as a shadow breathing at the edge rather than a light.
+ */
+const LIGHT_GLOW_BRIGHTNESS = 0.35;
+
+function useMotionAllowed() {
+  // Decided after mount so the server-rendered markup and the client agree.
+  const [motion, setMotion] = useState(false);
+  useEffect(() => {
+    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+  return motion;
+}
+
+function Glow({
+  children,
+  active = true,
+  radius,
+}: {
+  children: ReactNode;
+  active?: boolean;
+  /** Where the glowing box is not its first child, say its corner outright. */
+  radius?: number;
+}) {
+  const theme = useStudio((s) => s.theme);
+  const motion = useMotionAllowed();
+  return (
+    <BorderBeam
+      size="pulse-inner"
+      colorVariant="mono"
+      // Greyscale has no hue to rotate, so the hue-shift filter is pure
+      // cost. The theme is the one the user picked, not the OS's.
+      staticColors
+      theme={theme}
+      active={motion && active}
+      brightness={theme === "light" ? LIGHT_GLOW_BRIGHTNESS : undefined}
+      borderRadius={radius}
+      // The library's root is a block it sizes itself; the box has to keep
+      // filling the column it sits in. It also clips to itself, which
+      // swallowed the popovers that open above the bar — its glow layers
+      // carry their own clip-path, so letting the box overflow is free.
+      style={{ display: "block", width: "100%", overflow: "visible" }}
+    >
+      {children}
+    </BorderBeam>
+  );
+}
+
+/**
  * Publishes a docked box's height as --bar-h so the page can pad itself.
  * Only while the box is on screen: the phone's card and the desktop bar are
  * both mounted, one of them hidden by a breakpoint, and a hidden one
@@ -805,6 +859,10 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
       {/* Measures the width the card has to fill; the card itself may be a
           pill at the time. */}
       <div ref={frame} className="flex justify-center">
+        {/* The same breathing glow as the desktop bar, while the card is a
+            card; as a pill it is only a way back, and rests. */}
+        <Glow active={!folded} radius={24}>
+        <div className="flex justify-center">
         <button
           type="button"
           onClick={open}
@@ -875,6 +933,8 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
             </span>
           </span>
         </button>
+        </div>
+        </Glow>
       </div>
     </div>
   );
@@ -904,14 +964,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
   const apiKey = useStudio((s) => s.apiKey);
-  const theme = useStudio((s) => s.theme);
   const wrapper = useRef<HTMLDivElement>(null);
-
-  // Decided after mount so the server-rendered markup and the client agree.
-  const [motion, setMotion] = useState(false);
-  useEffect(() => {
-    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
 
   const centered = placement === "center";
   // The centred box sits in the page's own flow; nothing pads itself for it.
@@ -973,20 +1026,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           </div>
         )}
 
-        <BorderBeam
-          size="pulse-inner"
-          colorVariant="mono"
-          // Greyscale has no hue to rotate, so the hue-shift filter is pure
-          // cost. The theme is the one the user picked, not the OS's.
-          staticColors
-          theme={theme}
-          active={motion}
-          // The library's root is a block it sizes itself; the bar has to keep
-          // filling the column it sits in. It also clips to itself, which
-          // swallowed the popovers that open above the bar — its glow layers
-          // carry their own clip-path, so letting the box overflow is free.
-          style={{ display: "block", width: "100%", overflow: "visible" }}
-        >
+        <Glow>
         <div
           className="rounded-panel border border-line bg-elevated p-3"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
@@ -1067,7 +1107,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
             </div>
           </div>
         </div>
-        </BorderBeam>
+        </Glow>
 
         <p className="mt-2 hidden px-2 text-center text-[11.5px] text-t4 md:block">
           {blocker ? blocker : `${model!.vendor} · ${model!.tagline}`}
