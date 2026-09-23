@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Control } from "@/components/controls";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { MediaPicker } from "@/components/MediaPicker";
 import {
@@ -15,7 +15,7 @@ import {
   useComposer,
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, type Field } from "@/lib/registry";
+import { CATEGORIES, MODELS, activeFields, getModel, type Category, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, useValues } from "@/store/studio";
 
@@ -83,6 +83,81 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   );
 }
 
+const SECTION_ICON: Record<Category, IconName> = {
+  image: "image",
+  video: "video",
+  audio: "audio",
+  tool: "tool",
+};
+
+/**
+ * The model a section opens on: the one last used there, or else the first
+ * the catalogue features, or else simply its first.
+ */
+function modelFor(category: Category): string | undefined {
+  const remembered = useStudio.getState().modelByCategory[category];
+  if (remembered && getModel(remembered)) return remembered;
+  const own = MODELS.filter((m) => m.category === category);
+  return (own.find((m) => m.featured) ?? own[0])?.id;
+}
+
+/**
+ * The header's menu: the four kinds of thing to make, to move between
+ * without leaving the composer. Each row says which model it will open on.
+ */
+function SectionMenu({
+  current,
+  onPick,
+  onClose,
+}: {
+  current: Category;
+  onPick: (category: Category) => void;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Close menu"
+        onClick={onClose}
+        className="no-press anim-fade absolute inset-0 z-10 bg-canvas-deep/60"
+      />
+      <div
+        role="menu"
+        aria-label="Switch what to make"
+        className="anim-pop absolute left-4 top-[calc(max(12px,env(safe-area-inset-top))+52px)] z-20 w-[min(280px,calc(100vw-32px))] rounded-panel border border-line bg-elevated p-1.5"
+        style={{ boxShadow: "var(--shadow-pop)", transformOrigin: "top left" }}
+      >
+        <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-t4">Create</p>
+        {CATEGORIES.map((category) => {
+          const on = category.id === current;
+          const next = modelFor(category.id);
+          const name = next ? getModel(next)?.name : undefined;
+          return (
+            <button
+              key={category.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={on}
+              onClick={() => onPick(category.id)}
+              className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors duration-[120ms] ${
+                on ? "bg-t1/[0.08] text-t1" : "text-t2 active:bg-t1/[0.05]"
+              }`}
+            >
+              <Icon name={SECTION_ICON[category.id]} size={19} className={on ? "" : "text-t3"} />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-medium leading-tight">{category.label}</span>
+                {name && <span className="block truncate text-[12px] leading-snug text-t4">{name}</span>}
+              </span>
+              {on && <Icon name="check" size={16} className="shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
 /**
  * Where a phone writes a prompt. The docked box took a third of the screen
  * away from the gallery all the time; this takes all of it, but only while
@@ -91,7 +166,12 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
 export function PhoneComposer({ onKey }: { onKey: () => void }) {
   const open = useStudio((s) => s.composer);
   const setComposer = useStudio((s) => s.setComposer);
-  const setCreateOpen = useStudio((s) => s.setCreateOpen);
+  const selectModel = useStudio((s) => s.selectModel);
+  const setPage = useStudio((s) => s.setPage);
+  const setValue = useStudio((s) => s.setValue);
+  const [menu, setMenu] = useState(false);
+  const menuOpen = useRef(false);
+  menuOpen.current = menu;
   const togglePicker = useStudio((s) => s.togglePicker);
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const apiKey = useStudio((s) => s.apiKey);
@@ -125,7 +205,9 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     // here goes first, and the composer only when it is the top layer.
     function onEscape(event: KeyboardEvent) {
       const { pickerOpen, createOpen, settingsOpen } = useStudio.getState();
-      if (event.key === "Escape" && !pickerOpen && !createOpen && !settingsOpen) setComposer(false);
+      if (event.key !== "Escape" || pickerOpen || createOpen || settingsOpen) return;
+      if (menuOpen.current) setMenu(false);
+      else setComposer(false);
     }
     document.addEventListener("keydown", onEscape);
     // The page under it must not scroll along with it.
@@ -158,11 +240,28 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     if (await run()) close();
   }
 
-  // Without a key the button is still the way forward: it asks for one.
   // Named for the page the model belongs to, the way the rail names it:
   // IMAGE, VIDEO, AUDIO, TOOLS.
   const section = CATEGORIES.find((c) => c.id === model.category)?.label ?? model.category;
 
+  // Another section keeps what has been written: the prompt goes with you to
+  // its model, unless that model already has one of its own.
+  function switchTo(category: Category) {
+    setMenu(false);
+    if (!model || category === model.category) return;
+    const id = modelFor(category);
+    const next = id ? getModel(id) : undefined;
+    if (!id || !next) return;
+    const text = firstPrompt ? ((values[firstPrompt.key] as string) ?? "").trim() : "";
+    selectModel(id);
+    setPage(category);
+    if (!text) return;
+    const state = useStudio.getState();
+    const target = activeFields(next, state.valuesByModel[id] ?? {}).find((f) => f.placement === "prompt");
+    if (target && !((state.valuesByModel[id]?.[target.key] as string) ?? "").trim()) setValue(target.key, text);
+  }
+
+  // Without a key the button is still the way forward: it asks for one.
   const disabled = !!apiKey && (busy || !!blocker);
   const why = apiKey ? blocker : null;
 
@@ -176,27 +275,36 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
       }`}
     >
       <header className="flex shrink-0 items-center gap-3 px-4 pb-2.5 pt-[max(12px,env(safe-area-inset-top))]">
-        {/* Another kind of thing to make is the catalogue, not this screen. */}
+        {/* Which kind of thing is being made, and the way to another. */}
         <button
           type="button"
-          onClick={() => setCreateOpen(true)}
-          className="flex min-w-0 items-center gap-2 transition-opacity duration-[150ms] active:opacity-70"
+          onClick={() => setMenu((was) => !was)}
+          aria-haspopup="menu"
+          aria-expanded={menu}
+          className="relative z-30 flex min-w-0 items-center gap-2.5 transition-opacity duration-[150ms] active:opacity-70"
         >
-          <ZynsMark size={26} />
-          <span className="truncate text-[16px] font-semibold uppercase tracking-[-0.005em] text-t1">
+          <ZynsMark size={30} />
+          <span className="truncate text-[19px] font-semibold uppercase tracking-[-0.01em] text-t1">
             {section}
           </span>
-          <Icon name="chevron" size={16} className="shrink-0 text-t3" />
+          <Icon
+            name="chevron"
+            size={18}
+            className="shrink-0 text-t3 transition-transform duration-[200ms]"
+            style={{ transform: menu ? "rotate(180deg)" : "none" }}
+          />
         </button>
         <button
           type="button"
           onClick={close}
           aria-label="Close"
-          className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
+          className="ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
         >
-          <Icon name="close" size={17} />
+          <Icon name="close" size={18} />
         </button>
       </header>
+
+      {menu && <SectionMenu current={model.category} onPick={switchTo} onClose={() => setMenu(false)} />}
 
       <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-4 pb-3 pt-1 [&>*]:shrink-0">
         <ModeStrip flush />
