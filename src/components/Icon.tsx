@@ -41,7 +41,8 @@ export type IconName =
   | "home"
   | "square"
   | "more"
-  | "at";
+  | "at"
+  | "ai-brain";
 
 const PATHS: Record<IconName, ReactElement> = {
   image: (
@@ -158,6 +159,13 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <rect x="3" y="4" width="18" height="12" rx="2" />
       <path d="M8 20h8M12 16v4" />
+    </>
+  ),
+  // A brain with "AI" set in it: what picks a model means here.
+  "ai-brain": (
+    <>
+      <path d="M4 16.5a3 3 0 0 0 3 3a2.5 2.5 0 0 0 5 0a2.5 2.5 0 1 0 5 0a3 3 0 0 0 2.567-4.554a3.001 3.001 0 0 0 0-5.893A3 3 0 0 0 17 4.5a2.5 2.5 0 1 0-5 0a2.5 2.5 0 0 0-5 0a3 3 0 0 0-2.567 4.553a3.001 3.001 0 0 0 0 5.893A3 3 0 0 0 4 16.5" />
+      <path d="m7.5 14.5l1.842-5.526a.694.694 0 0 1 1.316 0L12.5 14.5m3-6v6m-7-2h3" />
     </>
   ),
   layers: (

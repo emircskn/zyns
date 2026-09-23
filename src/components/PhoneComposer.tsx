@@ -125,7 +125,7 @@ function SectionMenu({
       <div
         role="menu"
         aria-label="Switch what to make"
-        className="anim-pop absolute left-4 top-[calc(max(12px,env(safe-area-inset-top))+52px)] z-20 w-[min(280px,calc(100vw-32px))] rounded-panel border border-line bg-elevated p-1.5"
+        className="anim-pop absolute left-4 top-[calc(max(12px,env(safe-area-inset-top))+52px)] z-20 flex w-[min(280px,calc(100vw-32px))] flex-col gap-1 rounded-panel border border-line bg-elevated p-2"
         style={{ boxShadow: "var(--shadow-pop)", transformOrigin: "top left" }}
       >
         <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-t4">Create</p>
@@ -345,7 +345,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
               promptFields.length > 0 ? "border-t border-line" : ""
             }`}
           >
-            <Icon name="layers" size={16} className="shrink-0 text-t3" />
+            <Icon name="ai-brain" size={18} className="shrink-0 text-t3" />
             <span className="text-[13.5px] text-t3">Model</span>
             <span className="ml-auto flex min-w-0 items-center gap-2 text-[14px] text-t1">
               <VendorBadge model={model} size={20} />
