@@ -369,6 +369,17 @@ if (typeof window !== "undefined") {
   const settle = () => {
     const state = useStudio.getState();
     useStudio.setState({ hydrated: true });
+    // A run still "Submitting" when the page opens was being sent by a page
+    // that has since closed or reloaded: nothing here is sending it, and it
+    // never got a task id to poll, so it would sit there for good. Say what
+    // happened instead; KIE may or may not have received it.
+    const stranded = state.runs.filter((run) => run.state === "queued" && !run.taskId);
+    for (const run of stranded) {
+      state.patchRun(run.id, {
+        state: "failed",
+        error: "Interrupted: the page closed before KIE confirmed this run.",
+      });
+    }
     const page = state.page;
     if (page === "assets" || page === "favorites" || page === "home") return;
     const model = getModel(state.modelId);
