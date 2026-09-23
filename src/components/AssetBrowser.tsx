@@ -11,6 +11,9 @@ import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { byDay } from "@/lib/days";
+import { type Box } from "@/lib/justify";
+import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
+import { JustifiedRows } from "@/components/JustifiedRows";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
@@ -56,8 +59,11 @@ function AssetTile({
   onPick,
   onOpen,
   onRemove,
+  box,
 }: {
   asset: Asset;
+  /** Its size in the desktop's justified rows; absent in a phone's grid. */
+  box?: Box;
   /** The run that made it, when one did: only those can be recreated. */
   run?: Run;
   index: number;
@@ -84,13 +90,18 @@ function AssetTile({
       onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
-      } card-lazy group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-line transition-shadow duration-[150ms]`}
-      style={{ animationDelay: `${Math.min(index, 12) * 24}ms` }}
+      } card-lazy group relative shrink-0 overflow-hidden bg-surface ${
+        box ? "transition-[width,height] duration-[200ms]" : "rounded-card ring-1 ring-inset ring-line transition-shadow duration-[150ms]"
+      }`}
+      style={{
+        animationDelay: `${Math.min(index, 12) * 24}ms`,
+        ...(box ? { width: box.width, height: box.height } : null),
+      }}
     >
       <button
         type="button"
         onClick={picking ? onPick : onOpen}
-        className={`block w-full cursor-zoom-in ${square ? "aspect-square" : ""}`}
+        className={`block w-full cursor-zoom-in ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -99,7 +110,8 @@ function AssetTile({
             alt=""
             loading="lazy"
             draggable={false}
-            className={`no-lift w-full ${square ? "h-full object-cover" : "h-auto"}`}
+            onLoad={(e) => noteRatio(asset.url, e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
+            className={`no-lift w-full ${box || square ? "h-full object-cover" : "h-auto"}`}
           />
         ) : asset.kind === "video" ? (
           <video
@@ -107,10 +119,11 @@ function AssetTile({
             muted
             playsInline
             preload="metadata"
-            className={`no-lift w-full ${square ? "h-full object-cover" : "h-auto"}`}
+            onLoadedMetadata={(e) => noteRatio(asset.url, e.currentTarget.videoWidth, e.currentTarget.videoHeight)}
+            className={`no-lift w-full ${box || square ? "h-full object-cover" : "h-auto"}`}
           />
         ) : (
-          <span className={`pending-surface grid w-full place-items-center ${square ? "h-full" : "aspect-square"}`}>
+          <span className={`pending-surface grid w-full place-items-center ${box || square ? "h-full" : "aspect-square"}`}>
             <Icon name="audio" size={22} className="relative z-10 text-t2" />
           </span>
         )}
@@ -120,7 +133,7 @@ function AssetTile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className="pointer-events-none absolute inset-0 z-10 rounded-card ring-2 ring-inset ring-t1" />
+        <span className={`pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1 ${box ? "" : "rounded-card"}`} />
       )}
 
       <button
@@ -194,18 +207,6 @@ function AssetTile({
  * A grid of finished media with everything you can do to it: one at a time
  * through the enlarged view, or several at once by picking them.
  */
-/**
- * How the columns pack from `md` up, per density step — written out so
- * Tailwind sees every class it has to generate.
- */
-const COLUMNS: Record<number, string> = {
-  2: "md:grid-cols-2",
-  3: "md:grid-cols-2 lg:grid-cols-3",
-  4: "md:grid-cols-3 lg:grid-cols-4",
-  5: "md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
-  6: "md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
-};
-
 export function AssetBrowser({
   assets,
   byDate = true,
@@ -215,7 +216,6 @@ export function AssetBrowser({
   byDate?: boolean;
 }) {
   const runs = useStudio((s) => s.runs);
-  const density = useStudio((s) => s.density);
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const phone = usePhone();
   const removeRun = useStudio((s) => s.removeRun);
@@ -253,6 +253,27 @@ export function AssetBrowser({
     }
   }
 
+  const tile = (asset: Asset, box?: Box) => (
+    <AssetTile
+      key={asset.id}
+      asset={asset}
+      box={box}
+      run={asset.source === "run" ? runs.find((r) => r.urls.includes(asset.url)) : undefined}
+      index={tiles.indexOf(asset)}
+      square={phone && phoneGrid}
+      leaving={leaving.has(asset.id)}
+      picked={picked.includes(asset.url)}
+      picking={picked.length > 0}
+      onPick={() =>
+        setPicked((current) =>
+          current.includes(asset.url) ? current.filter((u) => u !== asset.url) : [...current, asset.url],
+        )
+      }
+      onOpen={() => setViewing(asset.url)}
+      onRemove={() => drop(asset.url)}
+    />
+  );
+
   return (
     <>
       {/* A heading for each day, newest first, under one container so a tile
@@ -268,33 +289,23 @@ export function AssetBrowser({
               {day.label}
             </h3>
             )}
-            <div
-              className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
-                COLUMNS[density] ?? COLUMNS[4]
-              }`}
-            >
-              {day.items.map((asset) => (
-          <AssetTile
-            key={asset.id}
-            asset={asset}
-            run={asset.source === "run" ? runs.find((r) => r.urls.includes(asset.url)) : undefined}
-            index={tiles.indexOf(asset)}
-            square={!phone || phoneGrid}
-            leaving={leaving.has(asset.id)}
-            picked={picked.includes(asset.url)}
-            picking={picked.length > 0}
-            onPick={() =>
-              setPicked((current) =>
-                current.includes(asset.url)
-                  ? current.filter((u) => u !== asset.url)
-                  : [...current, asset.url],
-              )
-            }
-            onOpen={() => setViewing(asset.url)}
-            onRemove={() => drop(asset.url)}
-          />
-              ))}
-            </div>
+            {/* Phone: a grid of three squares, or one at a time. Desktop:
+                justified rows, each piece as wide as its shape. */}
+            {phone ? (
+              <div className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+                {day.items.map((asset) => tile(asset))}
+              </div>
+            ) : (
+              <JustifiedRows
+                items={day.items}
+                keyOf={(asset) => asset.id}
+                ratioOf={(asset) =>
+                  ratioOf(asset.url) ??
+                  (asset.source === "run" ? parseRatio(runs.find((r) => r.urls.includes(asset.url))?.ratio) : undefined)
+                }
+                render={(asset, box) => tile(asset, box)}
+              />
+            )}
           </section>
         ))}
       </div>

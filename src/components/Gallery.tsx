@@ -15,6 +15,9 @@ import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { byDay } from "@/lib/days";
+import { type Box } from "@/lib/justify";
+import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
+import { JustifiedRows } from "@/components/JustifiedRows";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -90,6 +93,7 @@ function Media({ url }: { url: string }) {
         loop
         playsInline
         preload="metadata"
+        onLoadedMetadata={(e) => noteRatio(url, e.currentTarget.videoWidth, e.currentTarget.videoHeight)}
       />
     );
   }
@@ -108,6 +112,7 @@ function Media({ url }: { url: string }) {
       alt=""
       loading="lazy"
       draggable={false}
+      onLoad={(e) => noteRatio(url, e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
       className="no-lift h-full w-full object-cover"
     />
   );
@@ -155,9 +160,12 @@ function Tile({
   picked,
   picking,
   onPick,
+  box,
 }: {
   run: Run;
   index: number;
+  /** Its size in the desktop's justified rows; absent in a phone's grid. */
+  box?: Box;
   onOpen: (url: string) => void;
   /** Square and cropped in a phone's grid; its own shape everywhere else. */
   square: boolean;
@@ -204,19 +212,22 @@ function Tile({
       onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
-      } group relative overflow-hidden rounded-card bg-surface ring-1 ring-inset transition-all duration-[200ms] ${
-        square ? "" : "mb-2.5 break-inside-avoid"
+      } group relative shrink-0 overflow-hidden bg-surface transition-all duration-[200ms] ${
+        box ? "" : `rounded-card ring-1 ring-inset ${square ? "" : "mb-2.5 break-inside-avoid"}`
       } ${
-        picked ? "ring-line" : "ring-line hover:ring-line-strong"
+        box ? "" : picked ? "ring-line" : "ring-line hover:ring-line-strong"
       }`}
-      style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
+      style={{
+        animationDelay: `${Math.min(index, 10) * 30}ms`,
+        ...(box ? { width: box.width, height: box.height } : null),
+      }}
     >
       {/* While the run is still queued the box is a slim placeholder; it
           grows into the shape of the media as the model starts on it, and
           the same transition carries the tile between grid sizes. */}
       <div
-        style={square ? undefined : { aspectRatio: run.state === "queued" ? "5 / 2" : run.ratio }}
-        className={`t-resize relative w-full ${square ? "aspect-square" : ""}`}
+        style={box || square ? undefined : { aspectRatio: run.state === "queued" ? "5 / 2" : run.ratio }}
+        className={`t-resize relative w-full ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {url ? (
           <button
@@ -260,7 +271,7 @@ function Tile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className="pointer-events-none absolute inset-0 z-10 rounded-card ring-2 ring-inset ring-t1" />
+        <span className={`pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1 ${box ? "" : "rounded-card"}`} />
       )}
 
       {url && (
@@ -344,24 +355,10 @@ function Tile({
   );
 }
 
-/**
- * The packed columns at the widest breakpoint, per density step. Written out
- * rather than interpolated so Tailwind sees every class it has to generate,
- * and from `md` up only: a phone lays the gallery out its own way.
- */
-const COLUMNS: Record<number, string> = {
-  2: "md:columns-2",
-  3: "md:columns-2 lg:columns-3",
-  4: "md:columns-2 lg:columns-3 xl:columns-4",
-  5: "md:columns-3 lg:columns-4 xl:columns-5",
-  6: "md:columns-3 lg:columns-5 xl:columns-6",
-};
-
 /** The runs of one category, newest first. */
 export function Gallery({ category }: { category?: Category }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
-  const density = useStudio((s) => s.density);
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const phone = usePhone();
   const favorites = useStudio((s) => s.favorites);
@@ -393,6 +390,25 @@ export function Gallery({ category }: { category?: Category }) {
 
   if (!hydrated) return null;
 
+  const tile = (run: Run, box?: Box) => (
+    <Tile
+      key={run.id}
+      run={run}
+      box={box}
+      index={tiles.indexOf(run)}
+      square={phone && phoneGrid}
+      leaving={leaving.has(run.id)}
+      onOpen={(url) => setViewer({ url, runId: run.id })}
+      picked={picked.includes(run.id)}
+      picking={picked.length > 0}
+      onPick={() =>
+        setPicked((current) =>
+          current.includes(run.id) ? current.filter((id) => id !== run.id) : [...current, run.id],
+        )
+      }
+    />
+  );
+
   // The run behind the open preview, so the panel beside it knows what it is
   // looking at and what its buttons act on.
   const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
@@ -410,33 +426,20 @@ export function Gallery({ category }: { category?: Category }) {
               {day.label}
             </h3>
             {/* Phone: everything the same size in a grid of three, or one
-                piece of media at a time. Desktop: the packed columns, at the
-                chosen step. */}
-            <div
-              className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:block md:gap-2.5 ${
-                COLUMNS[density] ?? COLUMNS[4]
-              }`}
-            >
-              {day.items.map((run) => (
-          <Tile
-            key={run.id}
-            run={run}
-            index={tiles.indexOf(run)}
-            square={phone && phoneGrid}
-            leaving={leaving.has(run.id)}
-            onOpen={(url) => setViewer({ url, runId: run.id })}
-            picked={picked.includes(run.id)}
-            picking={picked.length > 0}
-            onPick={() =>
-              setPicked((current) =>
-                current.includes(run.id)
-                  ? current.filter((id) => id !== run.id)
-                  : [...current, run.id],
-              )
-            }
-          />
-              ))}
-            </div>
+                piece of media at a time. Desktop: justified rows, as tall as
+                the density step asks, each tile as wide as its shape. */}
+            {phone ? (
+              <div className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+                {day.items.map((run) => tile(run))}
+              </div>
+            ) : (
+              <JustifiedRows
+                items={day.items}
+                keyOf={(run) => run.id}
+                ratioOf={(run) => ratioOf(run.urls[0]) ?? parseRatio(run.ratio)}
+                render={(run, box) => tile(run, box)}
+              />
+            )}
           </section>
         ))}
       </div>
