@@ -15,7 +15,7 @@ import {
   useComposer,
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
-import type { Field } from "@/lib/registry";
+import { CATEGORIES, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, useValues } from "@/store/studio";
 
@@ -159,6 +159,10 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   }
 
   // Without a key the button is still the way forward: it asks for one.
+  // Named for the page the model belongs to, the way the rail names it:
+  // IMAGE, VIDEO, AUDIO, TOOLS.
+  const section = CATEGORIES.find((c) => c.id === model.category)?.label ?? model.category;
+
   const disabled = !!apiKey && (busy || !!blocker);
   const why = apiKey ? blocker : null;
 
@@ -166,7 +170,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Create ${model.output}`}
+      aria-label={`${section} composer`}
       className={`fixed inset-0 z-[60] flex flex-col bg-canvas md:hidden ${
         exiting ? "anim-sheet-out" : "anim-sheet"
       }`}
@@ -180,7 +184,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
         >
           <ZynsMark size={26} />
           <span className="truncate text-[16px] font-semibold uppercase tracking-[-0.005em] text-t1">
-            Create {model.output}
+            {section}
           </span>
           <Icon name="chevron" size={16} className="shrink-0 text-t3" />
         </button>
