@@ -279,7 +279,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
           className="relative z-30 flex min-w-0 items-center gap-2.5 transition-opacity duration-[150ms] active:opacity-70"
         >
           <ZynsMark size={30} />
-          <span className="truncate text-[19px] font-semibold uppercase tracking-[-0.01em] text-t1">
+          <span className="truncate text-[17px] font-semibold uppercase tracking-[-0.005em] text-t1">
             {section}
           </span>
           <Icon
