@@ -32,9 +32,8 @@ function ModelCard({
       type="button"
       onClick={onPick}
       style={{ animationDelay: `${120 + Math.min(index, 12) * 20}ms` }}
-      className={`anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left ring-1 transition-colors duration-[200ms] ${
-        active ? "ring-t1/60" : "ring-transparent"
-      }`}
+      // The chosen card says so with its check, not with a line round it.
+      className="anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left transition-colors duration-[200ms]"
     >
       <div className="relative">
         <CoverArt id={model.id} category={model.category} className="aspect-[7/4]" />

@@ -45,7 +45,7 @@ function ModelRow({
       onClick={onPick}
       aria-current={active ? "true" : undefined}
       className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors duration-[120ms] ${
-        active ? "bg-t1/[0.06] ring-1 ring-inset ring-line-strong" : "hover:bg-t1/[0.045]"
+        active ? "bg-t1/[0.08]" : "hover:bg-t1/[0.045]"
       }`}
     >
       <VendorBadge model={model} size={34} />
