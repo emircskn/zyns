@@ -27,13 +27,40 @@ const STATE_LABEL: Record<Run["state"], string> = {
 };
 
 function StatusOverlay({ run }: { run: Run }) {
+  const removeRun = useStudio((s) => s.removeRun);
   if (run.state === "failed") {
+    // A failed tile has no media to open, so its way out has to be on the
+    // tile itself and always showing: a phone has no hover to find it with.
+    // The tile is a container, so a narrow one keeps the two actions side by
+    // side as icons and only a roomy one spells them out.
     return (
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[#ff6b6b]/10 p-4 text-center backdrop-blur-sm">
-        <Icon name="alert" size={18} className="text-[#ff8f8f]" />
-        <p className="line-clamp-4 text-[11.5px] leading-snug text-[#ff8f8f]">
+      <div className="@container absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] p-3 text-center backdrop-blur-sm">
+        <Icon name="alert" size={18} className="hidden shrink-0 text-[var(--danger)] @[140px]:block" />
+        <p className="line-clamp-3 text-[11.5px] leading-snug text-[var(--danger)] @[140px]:line-clamp-4">
           {run.error ?? "Generation failed."}
         </p>
+        <div className="mt-0.5 flex items-center justify-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => recreateRun(run)}
+            title="Put this run's model and settings back in the prompt bar"
+            aria-label="Recreate"
+            className="flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-t1/[0.08] px-2 text-[11.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.14] hover:text-t1 @[190px]:px-2.5"
+          >
+            <Icon name="refresh" size={13} />
+            <span className="hidden @[190px]:inline">Recreate</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => removeRun(run.id)}
+            title="Remove from gallery"
+            aria-label="Remove"
+            className="flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--danger)_16%,transparent)] px-2 text-[11.5px] text-[var(--danger)] transition-colors duration-[120ms] hover:bg-[color-mix(in_oklab,var(--danger)_28%,transparent)] @[190px]:px-2.5"
+          >
+            <Icon name="trash" size={13} />
+            <span className="hidden @[190px]:inline">Remove</span>
+          </button>
+        </div>
       </div>
     );
   }
@@ -257,6 +284,8 @@ function Tile({
           enlarged view, and on a tile they only cover the picture. They stand
           in a column down the right, in reaching order, with the one that
           sends this picture somewhere else on the opposite corner. */}
+      {/* A failed tile carries its own two actions in the overlay above. */}
+      {run.state !== "failed" && (
       <div className="hover-reveal tap-reveal pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-[200ms] group-hover:opacity-100">
         <div
           // A short tile has no room for the whole column, so what does not
@@ -310,6 +339,7 @@ function Tile({
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
