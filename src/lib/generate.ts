@@ -6,6 +6,7 @@ import type { PollKind } from "@/lib/kie/client";
 import { getModel, validateValues, type Values } from "@/lib/registry";
 import { useStudio, type Run } from "@/store/studio";
 import { withoutInputs } from "@/lib/runInputs";
+import { englishError } from "@/lib/kie/errors";
 
 export interface SubmitResult {
   ok: boolean;
@@ -51,7 +52,7 @@ export async function submitRun(): Promise<SubmitResult> {
     void refreshCredits();
     return { ok: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Request failed.";
+    const message = englishError(error instanceof Error ? error.message : "Request failed.");
     useStudio.getState().patchRun(id, { state: "failed", error: message });
     return { ok: false, error: message };
   }
@@ -68,15 +69,39 @@ export async function refreshCredits(): Promise<void> {
   }
 }
 
+/**
+ * How long a run may stay unfinished before the studio stops waiting for
+ * it, counted from when it was sent. Stills and sound come back in seconds
+ * to minutes and video in minutes, even behind a queue, so these only catch
+ * a task that KIE has lost or will never finish; without a limit its tile
+ * would read "Rendering" for good.
+ */
+export const TIME_LIMIT: Record<Run["output"], { ms: number; label: string }> = {
+  image: { ms: 30 * 60_000, label: "30 minutes" },
+  audio: { ms: 30 * 60_000, label: "30 minutes" },
+  video: { ms: 2 * 60 * 60_000, label: "2 hours" },
+};
+
 export async function pollRun(run: Run): Promise<void> {
   const { apiKey, patchRun } = useStudio.getState();
   if (!apiKey || !run.taskId) return;
+  const limit = TIME_LIMIT[run.output] ?? TIME_LIMIT.video;
+  const late = Date.now() - run.createdAt > limit.ms;
   try {
     const task = await getTask(apiKey, run.taskId, run.poll as PollKind);
+    // Asked once more at the limit: a run that finished meanwhile still
+    // lands; one that has not is let go.
+    if (late && task.state !== "success" && task.state !== "failed") {
+      patchRun(run.id, {
+        state: "failed",
+        error: `Timed out: no result from KIE after ${limit.label}.`,
+      });
+      return;
+    }
     patchRun(run.id, {
       state: task.state,
       urls: task.urls ? withoutInputs(task.urls, run.values) : run.urls,
-      error: task.error,
+      error: englishError(task.error),
       credits: task.credits ?? run.credits,
     });
     if (task.state === "success" || task.state === "failed") void refreshCredits();
@@ -84,7 +109,12 @@ export async function pollRun(run: Run): Promise<void> {
     // A definitive rejection (bad key, unknown task) should surface; a
     // transient network error is simply retried on the next tick.
     if (error instanceof Error && /unauthori|not found|invalid/i.test(error.message)) {
-      patchRun(run.id, { state: "failed", error: error.message });
+      patchRun(run.id, { state: "failed", error: englishError(error.message) });
+    } else if (late) {
+      patchRun(run.id, {
+        state: "failed",
+        error: `Timed out: KIE stopped answering after ${limit.label}.`,
+      });
     }
   }
 }

@@ -8,6 +8,7 @@
  * directly — KIE allows cross-origin calls with an Authorization header —
  * and reuses the same normalisation code the routes use.
  */
+import { englishError } from "@/lib/kie/errors";
 import {
   KIE_BASE,
   KIE_UPLOAD_BASE,
@@ -52,7 +53,7 @@ async function direct(apiKey: string, url: string, init: RequestInit = {}): Prom
   });
   const body = await readJson<Envelope>(res);
   if (!res.ok || (typeof body.code === "number" && body.code !== 200)) {
-    throw new Error(body.msg || `KIE rejected the request (HTTP ${res.status}).`);
+    throw new Error(englishError(body.msg || `KIE rejected the request (HTTP ${res.status}).`));
   }
   return body;
 }
@@ -68,7 +69,7 @@ export async function createTask(
       body: JSON.stringify(payload),
     });
     const taskId = extractTaskId(envelope);
-    if (!taskId) throw new Error(envelope.msg || "KIE accepted the request but returned no task ID.");
+    if (!taskId) throw new Error(englishError(envelope.msg || "KIE accepted the request but returned no task ID."));
     return { taskId };
   }
   const res = await fetch("/api/kie/create", {
@@ -77,7 +78,7 @@ export async function createTask(
     body: JSON.stringify({ endpoint, payload }),
   });
   const body = await readJson<{ taskId?: string; error?: string }>(res);
-  if (!res.ok || !body.taskId) throw new Error(body.error ?? `Request failed (HTTP ${res.status}).`);
+  if (!res.ok || !body.taskId) throw new Error(englishError(body.error ?? `Request failed (HTTP ${res.status}).`));
   return { taskId: body.taskId };
 }
 
@@ -99,7 +100,7 @@ export async function getTask(apiKey: string, taskId: string, poll: PollKind): P
     headers: { "x-kie-key": apiKey },
   });
   const body = await readJson<NormalisedTask & { error?: string }>(res);
-  if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+  if (!res.ok) throw new Error(englishError(body.error ?? `HTTP ${res.status}`));
   return body;
 }
 
@@ -110,7 +111,7 @@ export async function getCredits(apiKey: string): Promise<number | null> {
   }
   const res = await fetch("/api/kie/credits", { headers: { "x-kie-key": apiKey } });
   const body = await readJson<{ credits?: number | null; error?: string }>(res);
-  if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+  if (!res.ok) throw new Error(englishError(body.error ?? `HTTP ${res.status}`));
   return typeof body.credits === "number" ? body.credits : null;
 }
 
@@ -136,6 +137,6 @@ export async function uploadFile(apiKey: string, file: File): Promise<string> {
     body: form,
   });
   const body = await readJson<{ url?: string; error?: string }>(res);
-  if (!res.ok || !body.url) throw new Error(body.error ?? "Upload failed.");
+  if (!res.ok || !body.url) throw new Error(englishError(body.error ?? "Upload failed."));
   return body.url;
 }

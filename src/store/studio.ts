@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
+import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
   activeFields,
   defaultValues,
@@ -382,6 +383,8 @@ if (typeof window !== "undefined") {
     // Runs saved before task reports stopped echoing the request can hold
     // their own reference images as results, ahead of the real output.
     for (const run of state.runs) {
+      // Errors saved before KIE's Chinese messages were put into English.
+      if (hasChinese(run.error)) state.patchRun(run.id, { error: englishError(run.error) });
       if (run.urls.length === 0) continue;
       const kept = withoutInputs(run.urls, run.values);
       if (kept.length > 0 && kept.length < run.urls.length) state.patchRun(run.id, { urls: kept });

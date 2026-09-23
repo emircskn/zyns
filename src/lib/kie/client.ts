@@ -6,6 +6,8 @@
  * is written to disk or kept between requests.
  */
 
+import { englishError } from "./errors";
+
 export const KIE_BASE = "https://api.kie.ai";
 export const KIE_UPLOAD_BASE = "https://kieai.redpandaai.co";
 
@@ -63,7 +65,7 @@ async function request(
     throw new KieError(`KIE returned a non-JSON response (HTTP ${res.status}).`, res.status);
   }
 
-  const message = body.msg || body.message;
+  const message = englishError(body.msg || body.message);
   if (!res.ok) {
     throw new KieError(message || `KIE rejected the request (HTTP ${res.status}).`, res.status, body.code);
   }
@@ -170,7 +172,7 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
     if (!REQUEST_ECHO.test(key)) collectUrls(value, key, urls);
   }
 
-  const error = pick(data, "failMsg", "errorMessage", "error_message", "msg") as string | undefined;
+  const error = englishError(pick(data, "failMsg", "errorMessage", "error_message", "msg") as string | undefined);
   const failCode = pick(data, "failCode", "errorCode");
   const spent = Number(data.creditsConsumed);
   const credits = data.creditsConsumed !== undefined && data.creditsConsumed !== null && Number.isFinite(spent) ? spent : undefined;
