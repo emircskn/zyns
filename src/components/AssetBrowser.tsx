@@ -250,10 +250,10 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
     <>
       {/* A heading for each day, newest first, under one container so a tile
           moving into the day above still slides there. */}
-      <div ref={grid} className="flex flex-col gap-6 md:gap-8">
+      <div ref={grid} className="-mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
         {byDay(tiles, (asset) => asset.createdAt).map((day) => (
           <section key={day.key}>
-            <h3 className="mb-2.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:text-[16px]">
+            <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
               {day.label}
             </h3>
             <div

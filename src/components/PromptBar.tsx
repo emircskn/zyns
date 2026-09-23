@@ -831,10 +831,10 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               {text || "Describe what you want to make…"}
             </p>
             {/* The model's mark and name as one piece on one quiet fill. */}
-            <span className="mt-3.5 inline-flex h-[31px] max-w-full items-center gap-2 rounded-[12px] bg-t1/[0.05] px-2.5 text-[14px] text-t3">
+            <span className="mt-3.5 inline-flex h-[31px] max-w-full items-center gap-2 rounded-[12px] bg-t1/[0.05] px-2.5 text-[13px] text-t3">
               {model ? (
                 <>
-                  <VendorBadge model={model} size={17} bare />
+                  <VendorBadge model={model} size={15} bare />
                   <span className="truncate">{model.name}</span>
                 </>
               ) : (

@@ -371,10 +371,10 @@ export function Gallery({ category }: { category?: Category }) {
       {/* A heading for each day the media was made on, newest first. One
           container holds every day, so a tile that moves up into the day
           above still slides there rather than jumping. */}
-      <div ref={grid} className="flex flex-col gap-6 md:gap-8">
+      <div ref={grid} className="-mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
         {byDay(tiles, (run) => run.createdAt).map((day) => (
           <section key={day.key}>
-            <h3 className="mb-2.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:text-[16px]">
+            <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
               {day.label}
             </h3>
             {/* Phone: everything the same size in a grid of three, or one
