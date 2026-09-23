@@ -40,6 +40,12 @@
 }
 
 :root {
+  /* Model covers: a grey field, lights drawn in --cover-light, a shade
+     from below. Dark here; the light theme turns the field pale. */
+  --cover-base: #0d0d0d;
+  --cover-light: 255 255 255;
+  --cover-shade: 0 0 0;
+  --cover-shade-a: 0.62;
   --canvas: #0a0a0a;
   --canvas-deep: #000000;
   --surface: #171717;
@@ -85,6 +91,10 @@
 }
 
 [data-theme="light"] {
+  --cover-base: #dcdcdc;
+  --cover-light: 255 255 255;
+  --cover-shade: 0 0 0;
+  --cover-shade-a: 0.1;
   /* Off white, so an elevated surface — the prompt box, a tile, a popover —
      reads as lifted rather than as an outline on the same white. */
   --canvas: #f4f4f4;

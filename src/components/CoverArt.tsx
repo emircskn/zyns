@@ -26,16 +26,19 @@ export function CoverArt({
   // The family only decides how bright its lights are, so the shelf reads as
   // one set: every cover is the same grey, lit from a different place.
   const step = familyHue(id) % 5;
-  const accent = `rgb(255 255 255 / ${(0.16 + step * 0.03).toFixed(2)})`;
-  const a = `rgb(255 255 255 / ${(0.3 - step * 0.03).toFixed(2)})`;
-  const b = `rgb(255 255 255 / ${(0.14 + step * 0.02).toFixed(2)})`;
-  const c = `rgb(255 255 255 / 0.1)`;
+  // The colours come from the theme: a dark field in dark mode, a pale one
+  // in light, with the lights drawn the same way on both.
+  const light = (alpha: number) => `rgb(var(--cover-light) / ${alpha.toFixed(2)})`;
+  const accent = light(0.16 + step * 0.03);
+  const a = light(0.3 - step * 0.03);
+  const b = light(0.14 + step * 0.02);
+  const c = light(0.1);
   return (
     <div
       className={`cover relative overflow-hidden ${className}`}
       style={{
         background:
-          "linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0) 55%, rgba(0,0,0,0.12)) , #0d0d0d",
+          "linear-gradient(to top, rgb(var(--cover-shade) / var(--cover-shade-a)), transparent 55%, rgb(var(--cover-shade) / calc(var(--cover-shade-a) * 0.2))), var(--cover-base)",
         width: "100%",
         ...style,
       }}
@@ -54,7 +57,7 @@ export function CoverArt({
             `radial-gradient(38% 42% at 74% 30%, ${a}, transparent 66%)`,
             `radial-gradient(48% 40% at 55% 84%, ${b}, transparent 70%)`,
             `radial-gradient(30% 30% at 18% 80%, ${c}, transparent 70%)`,
-            `radial-gradient(60% 60% at 50% 50%, rgb(255 255 255 / 0.06), transparent 80%)`,
+            `radial-gradient(60% 60% at 50% 50%, ${light(0.06)}, transparent 80%)`,
           ].join(","),
         }}
       />

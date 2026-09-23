@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
@@ -854,20 +855,23 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               transition: `opacity ${folded ? "220ms 160ms" : "120ms"} ease`,
             }}
           >
-            {/* Lined up by eye, not by box: the line box puts the capitals a
-                little high, so the label drops to centre them, and the star
-                rises to meet them. The star's own box leaves air round the
-                glyph, so it gives some back on the left to match the gap on
-                the right, and sits close to the word. */}
-            <span ref={pill} className="inline-flex items-center gap-1" style={{ transform: "translateY(1.5px)" }}>
+            {/* Centred on the word's capitals, in whatever font the device
+                has: the word's box is trimmed to its cap height, so centring
+                the two boxes centres the star on the capitals and the pair
+                in the pill, with no nudges tuned to one font. The star's
+                own box leaves air round the glyph, so it gives some back on
+                the left to match the right, and sits close to the word. */}
+            <span ref={pill} className="inline-flex items-center gap-[7px]">
               <Icon
                 name="spark"
                 size={18}
                 fill="currentColor"
                 strokeWidth={1.2}
-                style={{ marginLeft: -3, transform: "translateY(-2px)" }}
+                style={{ marginLeft: -3, marginRight: -3 }}
               />
-              Keep Generate
+              <span className="leading-none" style={{ textBox: "trim-both cap alphabetic" } as CSSProperties}>
+                Keep Generate
+              </span>
             </span>
           </span>
         </button>

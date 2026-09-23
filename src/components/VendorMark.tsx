@@ -11,7 +11,6 @@ export function VendorBadge({
   model,
   size = 22,
   bare = false,
-  onMedia = false,
 }: {
   model: { id: string; vendor: string };
   size?: number;
@@ -20,12 +19,6 @@ export function VendorBadge({
    * a chip that already has a fill, a second one read as a frame.
    */
   bare?: boolean;
-  /**
-   * Set on a picture rather than on the page, like a model card's cover:
-   * the cover is dark in either theme, so the tile keeps to light on dark
-   * instead of following the theme into a dark mark on a dark picture.
-   */
-  onMedia?: boolean;
 }) {
   const brand = brandOf(model.id);
   const icon = brand ? BRAND_ICONS[brand] : undefined;
@@ -55,9 +48,7 @@ export function VendorBadge({
   }
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-chip font-semibold tracking-[-0.03em] ${
-        onMedia ? "bg-black/40 text-white/90" : "bg-t1/[0.09] text-t2"
-      }`}
+      className="grid shrink-0 place-items-center rounded-chip bg-t1/[0.09] font-semibold tracking-[-0.03em] text-t2"
       title={icon?.title ?? model.vendor}
       style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
     >

@@ -45,7 +45,7 @@ function ModelCard({
           ) : (
             <span />
           )}
-          <VendorBadge model={model} size={24} onMedia />
+          <VendorBadge model={model} size={24} />
         </div>
         {active && (
           <span className="absolute bottom-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full bg-t1 text-canvas">
