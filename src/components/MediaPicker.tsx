@@ -8,7 +8,6 @@ import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
-import { useStudio } from "@/store/studio";
 
 type Kind = "image" | "video" | "audio";
 type Tab = "generated" | "uploads";
@@ -42,24 +41,27 @@ function TileAction({
 function Thumb({
   asset,
   picked,
+  taken,
   onClick,
   onPreview,
-  onRemove,
 }: {
   asset: Asset;
   picked: boolean;
+  /** Already in the field: it keeps its tick and cannot be added twice. */
+  taken?: boolean;
   onClick: () => void;
-  /** Uploads can be looked at full size and thrown away from here. */
+  /** Uploads can be looked at full size from here. Removing one belongs to
+   *  Assets, where it does not crowd the choosing. */
   onPreview?: () => void;
-  onRemove?: () => void;
 }) {
   return (
     <div className="group relative aspect-square overflow-hidden rounded-card bg-surface-2">
       <button
         type="button"
-        onClick={onClick}
-        title={asset.prompt ?? asset.label}
-        className="block h-full w-full"
+        onClick={taken ? undefined : onClick}
+        aria-disabled={taken || undefined}
+        title={taken ? "Already added" : (asset.prompt ?? asset.label)}
+        className={`block h-full w-full ${taken ? "cursor-default" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -89,10 +91,9 @@ function Thumb({
           <Icon name="check" size={13} strokeWidth={2.4} />
         </span>
       )}
-      {(onPreview || onRemove) && (
-        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
-          {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
-          {onRemove && <TileAction icon="trash" label="Remove upload" onClick={onRemove} />}
+      {onPreview && (
+        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+          <TileAction icon="expand" label="View full size" onClick={onPreview} />
         </div>
       )}
     </div>
@@ -126,7 +127,6 @@ export function MediaPicker({
   const [chosen, setChosen] = useState<string[]>([]);
   const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
-  const removeUpload = useStudio((s) => s.removeUpload);
   const urlField = useRef<HTMLInputElement>(null);
 
   const made = useMemo(
@@ -164,6 +164,9 @@ export function MediaPicker({
   const noun = accept === "video" ? "clips" : accept === "audio" ? "audio" : "images";
 
   function choose(asset: Asset) {
+    // What is already in the field stays there; picking it again would only
+    // add it a second time.
+    if (taken.includes(asset.url)) return;
     if (!multiple) {
       onPick([asset.url]);
       onClose();
@@ -257,13 +260,13 @@ export function MediaPicker({
                   key={asset.id}
                   asset={asset}
                   picked={chosen.includes(asset.url) || taken.includes(asset.url)}
+                  taken={taken.includes(asset.url)}
                   onClick={() => choose(asset)}
                   onPreview={
                     tab === "uploads" && asset.kind === "image"
                       ? () => setPreview(asset.url)
                       : undefined
                   }
-                  onRemove={tab === "uploads" ? () => removeUpload(asset.id) : undefined}
                 />
               ))}
             </div>
