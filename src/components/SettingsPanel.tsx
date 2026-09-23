@@ -50,13 +50,13 @@ export function SettingsPanel() {
           type="button"
           aria-label="Close settings"
           onClick={() => toggleSettings(false)}
-          className={`no-press fixed inset-0 z-40 bg-canvas-deep/55 backdrop-blur-[3px] ${
+          className={`no-press fixed inset-0 z-[80] bg-canvas-deep/55 backdrop-blur-[3px] ${
             exiting ? "anim-fade-out" : "anim-fade"
           }`}
         />
       )}
       <aside
-        className="fixed right-0 top-0 z-50 flex h-full w-[min(400px,92vw)] flex-col border-l border-line bg-elevated"
+        className="fixed right-0 top-0 z-[85] flex h-full w-[min(400px,92vw)] flex-col border-l border-line bg-elevated"
         style={{
           transform: open ? "translateX(0)" : "translateX(104%)",
           transition: `transform var(--d-slow) ${open ? "var(--ease-spring)" : "var(--ease)"}`,

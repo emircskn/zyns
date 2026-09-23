@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  createContext,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -22,7 +24,7 @@ import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
 
-function ModeStrip() {
+export function ModeStrip() {
   const model = useModel();
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
@@ -47,7 +49,7 @@ function ModeStrip() {
  * The box is clipped only while it moves, so a popover inside can still
  * escape it at rest.
  */
-function Reveal({ children }: { children: ReactNode }) {
+export function Reveal({ children }: { children: ReactNode }) {
   const inner = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | null>(null);
   const [moving, setMoving] = useState(false);
@@ -165,7 +167,14 @@ function chipIcon(field: Field, value: unknown): ReactNode {
   return hit ? <Icon name={hit[1]} size={16} /> : null;
 }
 
-function Chip({
+/**
+ * The phone's composer has the whole screen to itself, so its chips are
+ * thumb-sized; the bar keeps its compact ones. Set by the composer around
+ * its chip row rather than threaded through every chip.
+ */
+export const LargeChips = createContext(false);
+
+export function Chip({
   icon,
   value,
   active,
@@ -174,9 +183,14 @@ function Chip({
   value: string;
   active?: boolean;
 }) {
+  const large = useContext(LargeChips);
   return (
     <span
-      className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[12.5px] transition-all md:h-[34px] md:gap-[7px] md:px-3.5 md:text-[13px] duration-[120ms] ${
+      className={`flex select-none items-center whitespace-nowrap rounded-full transition-all duration-[120ms] ${
+        large
+          ? "h-11 gap-2 px-4 text-[14.5px]"
+          : "h-8 gap-1.5 px-3 text-[12.5px] md:h-[34px] md:gap-[7px] md:px-3.5 md:text-[13px]"
+      } ${
         active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
       }`}
     >
@@ -192,9 +206,10 @@ function Chip({
  * the bar simply sends the same thing that many times. Models that batch
  * themselves have their own control and do not get this one.
  */
-function BatchChip() {
+export function BatchChip() {
   const batch = useStudio((s) => s.batch);
   const setBatch = useStudio((s) => s.setBatch);
+  const large = useContext(LargeChips);
   const step = (by: number) => (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setBatch(batch + by);
@@ -202,14 +217,18 @@ function BatchChip() {
   return (
     <span
       title="How many to make"
-      className="flex h-8 select-none items-center gap-1 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] text-t2 md:h-[34px] md:text-[13px]"
+      className={`flex select-none items-center gap-1 rounded-full bg-t1/[0.07] text-t2 ${
+        large ? "h-11 px-1.5 text-[14.5px]" : "h-8 pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
+      }`}
     >
       <button
         type="button"
         onClick={step(-1)}
         disabled={batch <= 1}
         aria-label="One fewer"
-        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-[26px] md:w-[26px] disabled:hover:bg-transparent"
+        className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
+          large ? "h-8 w-8" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+        }`}
       >
         <Icon name="minus" size={14} strokeWidth={2.2} />
       </button>
@@ -219,7 +238,9 @@ function BatchChip() {
         onClick={step(1)}
         disabled={batch >= 4}
         aria-label="One more"
-        className="grid h-6 w-6 place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 md:h-[26px] md:w-[26px] disabled:hover:bg-transparent"
+        className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
+          large ? "h-8 w-8" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+        }`}
       >
         <Icon name="plus" size={14} strokeWidth={2.2} />
       </button>
@@ -227,7 +248,7 @@ function BatchChip() {
   );
 }
 
-function FieldChip({ field }: { field: Field }) {
+export function FieldChip({ field }: { field: Field }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
   const value = values[field.key];
@@ -271,13 +292,14 @@ function FieldChip({ field }: { field: Field }) {
  * The prompt textarea with `@name` completion: typing `@` lists the
  * elements defined for this model, and a pick drops the token at the caret.
  */
-function PromptField({
+export function PromptField({
   field,
   index,
   names,
   onSubmit,
   trailing,
   inputRef,
+  large,
 }: {
   field: Field;
   index: number;
@@ -285,6 +307,8 @@ function PromptField({
   onSubmit: () => void;
   trailing?: ReactNode;
   inputRef?: (node: HTMLTextAreaElement | null) => void;
+  /** The phone composer's: a page of room to write in rather than a line. */
+  large?: boolean;
 }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
@@ -392,16 +416,20 @@ function PromptField({
         onClick={syncCaret}
         onSelect={syncCaret}
         onBlur={() => window.setTimeout(() => setCaret(null), 120)}
-        rows={index === 0 ? 2 : 1}
+        rows={large ? (index === 0 ? 6 : 2) : index === 0 ? 2 : 1}
         placeholder={field.placeholder ?? `${field.label}…`}
-        className="max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
+        className={
+          large
+            ? "min-h-[130px] min-w-0 flex-1 resize-none bg-transparent text-[18px] font-medium leading-[1.45] tracking-[-0.014em] text-t1 outline-none placeholder:font-normal placeholder:text-t4"
+            : "max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
+        }
       />
       {trailing}
       {open &&
         spot &&
         createPortal(
         <div
-          className="surface-pop anim-rise fixed z-50 rounded-panel p-1.5"
+          className="surface-pop anim-rise fixed z-[90] rounded-panel p-1.5"
           style={{ left: spot.left, bottom: spot.bottom, width: spot.width }}
           role="listbox"
         >
@@ -436,7 +464,7 @@ function PromptField({
  * The names a prompt may point at, as tap-to-insert tokens, plus a way to
  * define more. Only shown for models whose API understands `@name`.
  */
-function MentionStrip({
+export function MentionStrip({
   names,
   text,
   onInsert,
@@ -514,52 +542,14 @@ function DraftField({ trailing, onSubmit }: { trailing?: ReactNode; onSubmit: ()
  * things, and stands in the middle of the home screen; both are the same
  * box, so what you type survives the move between them.
  */
-export function PromptBar({ placement = "docked" }: { placement?: "docked" | "center" }) {
+export function useComposer() {
   const model = useModel();
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
-  const togglePicker = useStudio((s) => s.togglePicker);
-  const toggleSettings = useStudio((s) => s.toggleSettings);
-  const selecting = useStudio((s) => s.selecting);
-  const apiKey = useStudio((s) => s.apiKey);
-  const theme = useStudio((s) => s.theme);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const wrapper = useRef<HTMLDivElement>(null);
   const promptRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Decided after mount so the server-rendered markup and the client agree.
-  const [motion, setMotion] = useState(false);
-  useEffect(() => {
-    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-
-  // The bar's height depends on the model and mode, so publish it as a CSS
-  // variable and let the page pad itself instead of guessing. The bar also
-  // animates that height, and writing the variable on every frame of the
-  // animation relaid out the whole page underneath it — most of what made
-  // the mode strip feel slow on a phone. So it is published once the height
-  // settles, not while it moves.
-  useEffect(() => {
-    const node = wrapper.current;
-    // The centred box sits in the page's own flow; nothing pads itself for it.
-    if (!node || placement === "center") return;
-    let timer = 0;
-    const apply = () =>
-      document.documentElement.style.setProperty("--bar-h", `${node.offsetHeight}px`);
-    apply();
-    const observer = new ResizeObserver(() => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(apply, 140);
-    });
-    observer.observe(node);
-    return () => {
-      window.clearTimeout(timer);
-      observer.disconnect();
-    };
-  }, [placement]);
-
-  const centered = placement === "center";
   const fields = model ? activeFields(model, values) : [];
   const promptFields = fields.filter((f) => f.placement === "prompt");
   const inputFields = fields.filter((f) => f.placement === "input");
@@ -593,7 +583,8 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     });
   }
 
-  async function run() {
+  /** Sends the run, as many times as the batch asks; true when all went out. */
+  async function run(): Promise<boolean> {
     setBusy(true);
     setError(null);
     // One send, several runs: they queue together and land in the gallery as
@@ -606,7 +597,159 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     }
     if (failure) setError(failure);
     setBusy(false);
+    return !failure;
   }
+
+  return {
+    model,
+    values,
+    busy,
+    error,
+    setError,
+    promptRef,
+    promptFields,
+    inputFields,
+    barFields,
+    panelFields,
+    batchable,
+    blocker,
+    hint,
+    mentionable,
+    names,
+    firstPrompt,
+    insertToken,
+    run,
+  };
+}
+
+/**
+ * Publishes a docked box's height as --bar-h so the page can pad itself.
+ * Only while the box is on screen: the phone's card and the desktop bar are
+ * both mounted, one of them hidden by a breakpoint, and a hidden one
+ * measuring zero must not win.
+ */
+function usePublishedHeight(node: React.RefObject<HTMLElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const el = node.current;
+    if (!el || !enabled) return;
+    let timer = 0;
+    const apply = () => {
+      if (el.offsetWidth === 0) return;
+      document.documentElement.style.setProperty("--bar-h", `${el.offsetHeight}px`);
+    };
+    apply();
+    // The height animates with the model and mode, and writing the variable
+    // on every frame relaid out the whole page underneath it, so it is
+    // published once the height settles, not while it moves.
+    const observer = new ResizeObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(apply, 140);
+    });
+    observer.observe(el);
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [node, enabled]);
+}
+
+/**
+ * A phone's prompt box while it is not being written in: what the prompt
+ * says so far and the model it goes to, and nothing else on the screen. A
+ * tap takes it to the full-screen composer, or to the catalogue when there
+ * is no model yet.
+ */
+function PromptCard({ placement }: { placement: "docked" | "center" }) {
+  const model = useModel();
+  const values = useValues();
+  const draft = useStudio((s) => s.draft);
+  const selecting = useStudio((s) => s.selecting);
+  const setComposer = useStudio((s) => s.setComposer);
+  const setCreateOpen = useStudio((s) => s.setCreateOpen);
+  const card = useRef<HTMLDivElement>(null);
+  const centered = placement === "center";
+  usePublishedHeight(card, !centered);
+
+  const first = model ? activeFields(model, values).find((f) => f.placement === "prompt") : undefined;
+  const text = ((first ? values[first.key] : draft) as string | undefined)?.trim() ?? "";
+
+  return (
+    <div
+      data-away={!centered && selecting > 0 ? "1" : undefined}
+      className={
+        centered
+          ? "w-full md:hidden"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 px-3 pb-3 md:hidden"
+      }
+    >
+      <div ref={card} className="pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => (model ? setComposer(true) : setCreateOpen(true))}
+          className="block w-full rounded-panel border border-line bg-elevated px-4 pb-3.5 pt-4 text-left transition-transform duration-[150ms] active:scale-[0.99]"
+          style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
+        >
+          <p className={`line-clamp-2 text-[15.5px] leading-snug ${text ? "text-t2" : "text-t4"}`}>
+            {text || "Describe what you want to make…"}
+          </p>
+          <span className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full bg-t1/[0.06] py-1.5 pl-1.5 pr-3.5 text-[13.5px] text-t3">
+            {model ? (
+              <>
+                <VendorBadge model={model} size={24} />
+                <span className="truncate">{model.name}</span>
+              </>
+            ) : (
+              <>
+                <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1/[0.08]">
+                  <Icon name="spark" size={14} />
+                </span>
+                Choose a model
+              </>
+            )}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function PromptBar({ placement = "docked" }: { placement?: "docked" | "center" }) {
+  const {
+    model,
+    values,
+    busy,
+    error,
+    setError,
+    promptRef,
+    promptFields,
+    inputFields,
+    barFields,
+    panelFields,
+    batchable,
+    blocker,
+    hint,
+    mentionable,
+    names,
+    firstPrompt,
+    insertToken,
+    run,
+  } = useComposer();
+  const togglePicker = useStudio((s) => s.togglePicker);
+  const toggleSettings = useStudio((s) => s.toggleSettings);
+  const selecting = useStudio((s) => s.selecting);
+  const apiKey = useStudio((s) => s.apiKey);
+  const theme = useStudio((s) => s.theme);
+  const wrapper = useRef<HTMLDivElement>(null);
+
+  // Decided after mount so the server-rendered markup and the client agree.
+  const [motion, setMotion] = useState(false);
+  useEffect(() => {
+    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  const centered = placement === "center";
+  // The centred box sits in the page's own flow; nothing pads itself for it.
+  usePublishedHeight(wrapper, !centered);
 
   const send = (
     // The one button that starts something, so the one that wears the metal
@@ -634,15 +777,18 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   );
 
   return (
+    <>
+    <PromptCard placement={placement} />
     <div
       // The docked bar gives its place up to the selection bar rather than
       // being stacked under it: picking a tile drops it out of the dock, and
       // letting the selection go brings it back.
       data-away={!centered && selecting > 0 ? "1" : undefined}
       className={
+        // On a phone the box is the card above until it is opened.
         centered
-          ? "w-full"
-          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 flex justify-center px-3 pb-3 md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
+          ? "hidden w-full md:block"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 hidden justify-center px-3 pb-3 md:flex md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
       }
     >
       <div
@@ -762,5 +908,6 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
         </p>
       </div>
     </div>
+    </>
   );
 }

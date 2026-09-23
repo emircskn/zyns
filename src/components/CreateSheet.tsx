@@ -72,6 +72,7 @@ function ModelCard({
 export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const selectModel = useStudio((s) => s.selectModel);
   const setPage = useStudio((s) => s.setPage);
+  const setComposer = useStudio((s) => s.setComposer);
   const modelId = useStudio((s) => s.modelId);
   const [tab, setTab] = useState<Tab>("all");
   const { mounted, exiting } = usePresence(open, 300);
@@ -146,6 +147,9 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
                   // where this belongs, not the home screen it opened from.
                   setPage(model.category);
                   onClose();
+                  // And straight to writing: the prompt is the next thing
+                  // asked for, so the composer is where the pick lands.
+                  setComposer(true);
                 }}
               />
             ))}

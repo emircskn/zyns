@@ -58,6 +58,10 @@ interface StudioState {
   batch: number;
   /** How many tiles are picked, so the prompt bar can give up its place. */
   selecting: number;
+  /** A phone's full-screen composer, where the prompt box goes to be written in. */
+  composer: boolean;
+  /** A phone's catalogue of covers, opened by its Create button. */
+  createOpen: boolean;
   /** The model each category was last used with, so pages remember. */
   modelByCategory: Partial<Record<Category, string>>;
   valuesByModel: Record<string, Values>;
@@ -87,6 +91,8 @@ interface StudioState {
   setDraft: (draft: string) => void;
   setBatch: (batch: number) => void;
   setSelecting: (count: number) => void;
+  setComposer: (open: boolean) => void;
+  setCreateOpen: (open: boolean) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
   resetValues: () => void;
@@ -139,6 +145,8 @@ export const useStudio = create<StudioState>()(
       draft: "",
       batch: 1,
       selecting: 0,
+      composer: false,
+      createOpen: false,
       modelByCategory: {},
       valuesByModel: {},
       runs: [],
@@ -205,6 +213,8 @@ export const useStudio = create<StudioState>()(
       // Not persisted: a picked tile is a thing about this visit, not about
       // the studio, and a reload should never come back mid-selection.
       setSelecting: (selecting) => set({ selecting }),
+      setComposer: (composer) => set({ composer }),
+      setCreateOpen: (createOpen) => set({ createOpen }),
 
       setValue: (key, value) =>
         set((state) => {

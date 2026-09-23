@@ -12,6 +12,7 @@ import { CreateSheet } from "@/components/CreateSheet";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
+import { PhoneComposer } from "@/components/PhoneComposer";
 import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -130,7 +131,8 @@ function PageSwap({ page, children }: { page: Page; children: (page: Page) => Re
 
 export function Shell() {
   const [keyOpen, setKeyOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
+  const createOpen = useStudio((s) => s.createOpen);
+  const setCreateOpen = useStudio((s) => s.setCreateOpen);
   const page = useStudio((s) => s.page);
 
   // ⌘K is the shortcut people already reach for in this kind of studio.
@@ -180,6 +182,7 @@ export function Shell() {
 
       {composing && <PromptBar />}
       <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
+      <PhoneComposer onKey={() => setKeyOpen(true)} />
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />
       <ModelPicker />
