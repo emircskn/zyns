@@ -125,8 +125,7 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
 
         <div className="px-4 pb-2 sm:px-5">
           <PillGroup
-            size="lg"
-            bare
+            plain
             value={tab}
             onChange={setTab}
             items={TABS}

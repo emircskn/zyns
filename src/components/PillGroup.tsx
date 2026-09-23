@@ -26,6 +26,7 @@ export function PillGroup<T extends string>({
   size = "sm",
   fill = false,
   bare = false,
+  plain = false,
   className = "",
 }: {
   items: PillItem<T>[];
@@ -37,6 +38,12 @@ export function PillGroup<T extends string>({
   fill?: boolean;
   /** No track behind the pills (page tabs). */
   bare?: boolean;
+  /**
+   * Tabs and nothing else: no track, no step arrows, no counts, just the
+   * words and the one pill under the chosen one. The strip still scrolls
+   * under a thumb or a trackpad when it runs past its edge.
+   */
+  plain?: boolean;
   className?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
@@ -185,8 +192,12 @@ export function PillGroup<T extends string>({
     }
   }
 
-  const pad =
-    size === "lg" ? "px-4 py-2 text-[14px] font-medium" : "px-3.5 py-1.5 text-[13px] font-medium";
+  const flat = bare || plain;
+  const pad = plain
+    ? "px-4 py-2 text-[14px] font-semibold"
+    : size === "lg"
+      ? "px-4 py-2 text-[14px] font-medium"
+      : "px-3.5 py-1.5 text-[13px] font-medium";
 
   const arrow = `grid shrink-0 place-items-center rounded-full bg-elevated text-t2 ring-1 ring-inset ring-line transition-colors duration-[120ms] hover:text-t1 disabled:opacity-40 disabled:hover:text-t2 ${
     size === "lg" ? "h-8 w-8" : "h-7 w-7"
@@ -219,11 +230,11 @@ export function PillGroup<T extends string>({
     // Segments wrap rather than run off the end of whatever holds them: three
     // words like Transparent / Opaque / Auto do not fit a chip's popover on
     // one line, and a row that overflows put a scrollbar through the control.
-    ? `relative flex flex-wrap gap-0.5 ${bare ? "" : "rounded-2xl bg-t1/[0.07] p-1"} ${className}`
+    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-2xl bg-t1/[0.07] p-1"} ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
         // The scroller does the clipping, so it needs the track's own radius:
         // a square clip lets a pill's corner sit outside the capsule's end.
-        bare ? "gap-1" : "gap-0.5 rounded-full p-1"
+        flat ? "gap-1" : "gap-0.5 rounded-full p-1"
       }`;
 
   const strip = (
@@ -267,7 +278,7 @@ export function PillGroup<T extends string>({
             } ${active ? "text-canvas" : "text-t3 hover:text-t1"}`}
           >
             {item.label}
-            {item.count !== undefined && (
+            {item.count !== undefined && !plain && (
               <span
                 className={`ml-1.5 font-mono text-[0.86em] tabular-nums ${
                   active ? "opacity-55" : "text-t4"
@@ -286,7 +297,7 @@ export function PillGroup<T extends string>({
 
   const tracked = (
     <div
-      className={`relative min-w-0 max-w-full ${bare ? "" : "rounded-full bg-t1/[0.07]"} ${className}`}
+      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-full bg-t1/[0.07]"} ${className}`}
     >
       {strip}
     </div>
@@ -298,9 +309,9 @@ export function PillGroup<T extends string>({
   // greys out rather than vanishing, so the row never jumps.
   return (
     <div className="flex min-w-0 max-w-full items-center gap-1.5">
-      {edges.over && stepButton("left")}
+      {edges.over && !plain && stepButton("left")}
       {tracked}
-      {edges.over && stepButton("right")}
+      {edges.over && !plain && stepButton("right")}
     </div>
   );
 }

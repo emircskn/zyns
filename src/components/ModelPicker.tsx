@@ -113,14 +113,6 @@ export function ModelPicker() {
     })).filter((group) => group.models.length > 0);
   }, [query, tab]);
 
-  const counts = useMemo(() => {
-    const all: Record<string, number> = { all: MODELS.length };
-    for (const category of CATEGORIES) {
-      all[category.id] = MODELS.filter((m) => m.category === category.id).length;
-    }
-    return all;
-  }, []);
-
   if (!mounted) return null;
 
   const count = groups.reduce((sum, group) => sum + group.models.length, 0);
@@ -175,11 +167,7 @@ export function ModelPicker() {
         {/* Every kind of work, one chip away: the picker opens on the page's
             own category and the others are right there beside it. */}
         <div className="border-b border-line px-3 py-2">
-          <PillGroup
-            value={tab}
-            onChange={setTab}
-            items={TABS.map((t) => ({ ...t, count: counts[t.id] ?? 0 }))}
-          />
+          <PillGroup plain value={tab} onChange={setTab} items={TABS} />
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-[max(16px,env(safe-area-inset-bottom))] pt-1 sm:pb-3">
