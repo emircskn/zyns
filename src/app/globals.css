@@ -709,6 +709,11 @@ html {
   outline-offset: 0;
   transition: outline-color var(--d-base) var(--ease);
 }
+
+/* The chosen card keeps a thin line round it, the one hover draws. */
+.lift[data-chosen="true"] {
+  outline-color: color-mix(in oklab, var(--t1) 55%, transparent);
+}
 .lift .cover {
   transition: filter var(--d-slow) var(--ease);
 }

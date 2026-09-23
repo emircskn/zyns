@@ -32,7 +32,7 @@ function ModelCard({
       type="button"
       onClick={onPick}
       style={{ animationDelay: `${120 + Math.min(index, 12) * 20}ms` }}
-      // The chosen card says so with its check, not with a line round it.
+      data-chosen={active ? "true" : undefined}
       className="anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left transition-colors duration-[200ms]"
     >
       <div className="relative">
@@ -45,7 +45,7 @@ function ModelCard({
           ) : (
             <span />
           )}
-          <VendorBadge model={model} size={24} />
+          <VendorBadge model={model} size={24} onMedia />
         </div>
         {active && (
           <span className="absolute bottom-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full bg-t1 text-canvas">
