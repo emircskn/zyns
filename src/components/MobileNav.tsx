@@ -59,7 +59,7 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
             type="button"
             onClick={onCreate}
             aria-label="Create"
-            className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full text-t1 transition-transform duration-[150ms] active:scale-95"
+            className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full text-t1"
           >
             {/* The fill sits inside the button, not on it: the ring normalizes
                 the host's own chrome, and a background set there is dropped. */}

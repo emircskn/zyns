@@ -728,7 +728,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
         <button
           type="button"
           onClick={() => (model ? setComposer(true) : setCreateOpen(true))}
-          className="block w-full rounded-panel border border-line bg-elevated px-4 pb-3.5 pt-4 text-left transition-transform duration-[150ms] active:scale-[0.99]"
+          className="block w-full rounded-panel border border-line bg-elevated px-4 pb-3.5 pt-4 text-left"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
           <p className={`line-clamp-2 text-[15.5px] leading-snug ${text ? "text-t2" : "text-t4"}`}>
@@ -803,7 +803,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
         onClick={run}
         disabled={busy || !!blocker || !apiKey}
         title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-        className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full text-t1 transition-colors duration-[150ms] active:scale-95 disabled:cursor-not-allowed disabled:text-t4"
+        className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full text-t1 transition-colors duration-[150ms] disabled:cursor-not-allowed disabled:text-t4"
       >
         {/* The fill sits inside the button, not on it: the ring normalizes the
             host's own chrome, and a background set there is dropped. */}

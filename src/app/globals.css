@@ -523,11 +523,6 @@ textarea {
   }
 }
 
-/* Every press gives a little: a tap should feel like it landed. */
-button:not(:disabled):not(.no-press):active {
-  transform: scale(0.96);
-}
-
 html {
   scroll-behavior: smooth;
 }

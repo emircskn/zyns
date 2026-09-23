@@ -50,7 +50,7 @@ export function SettingsPanel() {
           type="button"
           aria-label="Close settings"
           onClick={() => toggleSettings(false)}
-          className={`no-press fixed inset-0 z-[80] bg-canvas-deep/55 backdrop-blur-[3px] ${
+          className={`fixed inset-0 z-[80] bg-canvas-deep/55 backdrop-blur-[3px] ${
             exiting ? "anim-fade-out" : "anim-fade"
           }`}
         />

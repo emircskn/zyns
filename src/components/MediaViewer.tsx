@@ -481,7 +481,7 @@ export function MediaViewer({
       <div className="relative flex shrink-0 items-center justify-center p-3 md:min-h-0 md:flex-1 md:p-8">
         <button
           type="button"
-          className="no-press absolute inset-0 hidden md:block"
+          className="absolute inset-0 hidden md:block"
           aria-label="Close"
           onClick={onClose}
         />
@@ -746,7 +746,7 @@ export function MediaPreview({
       }`}
       style={{ zIndex: z }}
     >
-      <button type="button" className="no-press absolute inset-0" aria-label="Close" onClick={onClose} />
+      <button type="button" className="absolute inset-0" aria-label="Close" onClick={onClose} />
       <div className={`relative flex h-full w-full items-center justify-center ${exiting ? "" : "anim-zoom"}`}>
         <div className="relative z-10 flex h-full w-full items-center justify-center">
           <Stage url={shown} />

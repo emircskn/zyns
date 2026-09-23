@@ -89,8 +89,7 @@ function AssetTile({
       <button
         type="button"
         onClick={picking ? onPick : onOpen}
-        // no-press, or holding the tile shrinks the picture inside it.
-        className={`no-press block w-full cursor-zoom-in ${square ? "aspect-square" : ""}`}
+        className={`block w-full cursor-zoom-in ${square ? "aspect-square" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element

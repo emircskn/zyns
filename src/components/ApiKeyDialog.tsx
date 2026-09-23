@@ -61,7 +61,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className={`no-press absolute inset-0 bg-canvas-deep/75 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
+        className={`absolute inset-0 bg-canvas-deep/75 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
         className={`relative w-full max-w-md overflow-hidden rounded-panel border border-line bg-elevated ${
@@ -129,7 +129,7 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
               type="button"
               onClick={save}
               disabled={checking}
-              className="cta flex items-center gap-2 rounded-full px-5 py-2 text-[12.5px] hover:scale-[1.03] active:scale-95 disabled:scale-100 disabled:opacity-50"
+              className="cta flex items-center gap-2 rounded-full px-5 py-2 text-[12.5px] hover:scale-[1.03] disabled:opacity-50"
             >
               {checking && (
                 <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />

@@ -192,9 +192,7 @@ function Tile({
           <button
             type="button"
             onClick={() => (picking ? onPick() : onOpen(url))}
-            // no-press: the global press-scale would shrink the picture
-            // inside its own frame and show the tile through the gap.
-            className="no-press block h-full w-full cursor-zoom-in"
+            className="block h-full w-full cursor-zoom-in"
           >
             <Media url={url} />
           </button>

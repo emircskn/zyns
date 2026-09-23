@@ -123,7 +123,7 @@ export function ModelPicker() {
         type="button"
         aria-label="Close model picker"
         onClick={() => togglePicker(false)}
-        className={`no-press absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
+        className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
           exiting ? "anim-fade-out" : "anim-fade"
         }`}
       />

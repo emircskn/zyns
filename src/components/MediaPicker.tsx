@@ -188,7 +188,7 @@ export function MediaPicker({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className={`no-press absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
+        className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
           exiting ? "anim-fade-out" : "anim-fade"
         }`}
       />

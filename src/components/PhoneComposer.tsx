@@ -120,7 +120,7 @@ function SectionMenu({
         type="button"
         aria-label="Close menu"
         onClick={onClose}
-        className="no-press anim-fade absolute inset-0 z-10 bg-canvas-deep/60"
+        className="anim-fade absolute inset-0 z-10 bg-canvas-deep/60"
       />
       <div
         role="menu"
@@ -400,7 +400,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
           type="button"
           onClick={() => void generate()}
           disabled={disabled}
-          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold active:scale-[0.99] disabled:opacity-40"
+          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
         >
           {busy ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
