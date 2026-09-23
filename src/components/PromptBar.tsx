@@ -701,6 +701,52 @@ function usePublishedHeight(node: React.RefObject<HTMLElement | null>, enabled: 
  * tap takes it to the full-screen composer, or to the catalogue when there
  * is no model yet.
  */
+/**
+ * Whether the page is being scrolled down, the way a phone's toolbars read
+ * it: a push down past the top hides the thing, any real pull back up, or
+ * reaching the top, brings it back. Small wobbles either way change nothing.
+ */
+function useScrollingDown(enabled: boolean) {
+  const [down, setDown] = useState(false);
+  useEffect(() => {
+    if (!enabled) return;
+    let last = window.scrollY;
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const dy = y - last;
+        if (y < 48) {
+          setDown(false);
+          last = y;
+        } else if (Math.abs(dy) > 8) {
+          setDown(dy > 0);
+          last = y;
+        }
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [enabled]);
+  return enabled && down;
+}
+
+/** The pill the docked card folds into while the page scrolls down. */
+const PILL_H = 44;
+const MORPH = "420ms cubic-bezier(0.32, 0.72, 0, 1)";
+
+/**
+ * A phone's prompt box while it is not being written in: what the prompt
+ * says so far and the model it goes to, and nothing else on the screen. A
+ * tap takes it to the full-screen composer, or to the catalogue when there
+ * is no model yet. Docked, it folds into a small Keep generating pill while
+ * the page is scrolled down, so the media gets the screen, and opens back
+ * out when the page is pulled back up.
+ */
 export function PromptCard({ placement }: { placement: "docked" | "center" }) {
   const model = useModel();
   const values = useValues();
@@ -708,12 +754,43 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
   const selecting = useStudio((s) => s.selecting);
   const setComposer = useStudio((s) => s.setComposer);
   const setCreateOpen = useStudio((s) => s.setCreateOpen);
-  const card = useRef<HTMLDivElement>(null);
   const centered = placement === "center";
-  usePublishedHeight(card, !centered);
+  const folded = useScrollingDown(!centered);
+
+  // The card's content is laid out at the card's full width whatever the box
+  // around it is doing, so its height is known while the box is a pill and
+  // the page's padding never moves under a scrolling finger.
+  const content = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const pill = useRef<HTMLSpanElement>(null);
+  const [full, setFull] = useState<{ w: number; h: number } | null>(null);
+  const [pillW, setPillW] = useState(188);
+  usePublishedHeight(content, !centered);
+
+  useLayoutEffect(() => {
+    const box = frame.current;
+    const inner = content.current;
+    if (!box || !inner) return;
+    const measure = () => {
+      const w = box.clientWidth;
+      if (w === 0) return;
+      setFull((was) => {
+        const h = inner.offsetHeight;
+        return was && was.w === w && was.h === h ? was : { w, h };
+      });
+      if (pill.current) setPillW(Math.ceil(pill.current.offsetWidth) + 36);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+    observer.observe(inner);
+    return () => observer.disconnect();
+  }, []);
 
   const first = model ? activeFields(model, values).find((f) => f.placement === "prompt") : undefined;
   const text = ((first ? values[first.key] : draft) as string | undefined)?.trim() ?? "";
+
+  const open = () => (model ? setComposer(true) : setCreateOpen(true));
 
   return (
     <div
@@ -721,33 +798,66 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
       className={
         centered
           ? "w-full md:hidden"
-          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 px-3 pb-5 md:hidden"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 px-4 pb-5 md:hidden"
       }
     >
-      <div ref={card} className="pointer-events-auto">
+      {/* Measures the width the card has to fill; the card itself may be a
+          pill at the time. */}
+      <div ref={frame} className="flex justify-center">
         <button
           type="button"
-          onClick={() => (model ? setComposer(true) : setCreateOpen(true))}
-          className="block w-full rounded-panel border border-line bg-elevated px-4 pb-3.5 pt-4 text-left"
-          style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
+          onClick={open}
+          aria-label={folded ? "Keep generating" : undefined}
+          className="pointer-events-auto relative overflow-hidden border border-line bg-elevated text-left"
+          style={{
+            width: folded ? pillW : "100%",
+            height: folded ? PILL_H : (full?.h ?? "auto"),
+            borderRadius: folded ? 16 : 24,
+            boxShadow: centered ? undefined : "var(--shadow-bar)",
+            transition: `width ${MORPH}, height ${MORPH}, border-radius ${MORPH}`,
+          }}
         >
-          <p className={`line-clamp-2 text-[15.5px] leading-snug ${text ? "text-t2" : "text-t4"}`}>
-            {text || "Describe what you want to make…"}
-          </p>
-          <span className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full bg-t1/[0.06] py-1.5 pl-1.5 pr-3.5 text-[13.5px] text-t3">
-            {model ? (
-              <>
-                <VendorBadge model={model} size={24} />
-                <span className="truncate">{model.name}</span>
-              </>
-            ) : (
-              <>
-                <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1/[0.08]">
-                  <Icon name="spark" size={14} />
-                </span>
-                Choose a model
-              </>
-            )}
+          <div
+            ref={content}
+            aria-hidden={folded}
+            className={`${full ? "absolute left-0 top-0" : ""} px-4 pb-3 pt-[18px]`}
+            style={{
+              width: full?.w ?? "100%",
+              opacity: folded ? 0 : 1,
+              transition: `opacity ${folded ? "140ms" : "260ms 120ms"} ease`,
+            }}
+          >
+            <p className={`line-clamp-2 text-[15px] leading-5 ${text ? "text-t3" : "text-t4"}`}>
+              {text || "Describe what you want to make…"}
+            </p>
+            {/* The model's mark and name as one piece on one quiet fill. */}
+            <span className="mt-3.5 inline-flex h-[31px] max-w-full items-center gap-2 rounded-[12px] bg-t1/[0.05] px-2.5 text-[14px] text-t3">
+              {model ? (
+                <>
+                  <VendorBadge model={model} size={17} bare />
+                  <span className="truncate">{model.name}</span>
+                </>
+              ) : (
+                <>
+                  <Icon name="spark" size={16} />
+                  Choose a model
+                </>
+              )}
+            </span>
+          </div>
+
+          <span
+            aria-hidden={!folded}
+            className="pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-[14.5px] font-medium text-t1"
+            style={{
+              opacity: folded ? 1 : 0,
+              transition: `opacity ${folded ? "220ms 160ms" : "120ms"} ease`,
+            }}
+          >
+            <span ref={pill} className="inline-flex items-center gap-2">
+              <Icon name="spark" size={16} fill="currentColor" strokeWidth={1.2} />
+              Keep generating
+            </span>
           </span>
         </button>
       </div>
@@ -906,7 +1016,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
               className="shrink-0"
             >
               {model ? (
-                <Chip icon={<VendorBadge model={model} size={21} />} value={model.name} />
+                <Chip icon={<VendorBadge model={model} size={17} bare />} value={model.name} />
               ) : (
                 <Chip icon={<Icon name="spark" size={16} />} value="Choose model" />
               )}

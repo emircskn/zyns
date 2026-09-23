@@ -348,7 +348,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
             <Icon name="ai-brain" size={18} className="shrink-0 text-t3" />
             <span className="text-[13.5px] text-t3">Model</span>
             <span className="ml-auto flex min-w-0 items-center gap-2 text-[14px] text-t1">
-              <VendorBadge model={model} size={20} />
+              <VendorBadge model={model} size={17} bare />
               <span className="truncate">{model.name}</span>
               <Icon name="chevron" size={15} className="shrink-0 text-t3" />
             </span>

@@ -10,6 +10,7 @@ import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
+import { byDay } from "@/lib/days";
 import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
@@ -247,18 +248,25 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
 
   return (
     <>
-      <div
-        ref={grid}
-        className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
-          COLUMNS[density] ?? COLUMNS[4]
-        }`}
-      >
-        {tiles.map((asset, index) => (
+      {/* A heading for each day, newest first, under one container so a tile
+          moving into the day above still slides there. */}
+      <div ref={grid} className="flex flex-col gap-6 md:gap-8">
+        {byDay(tiles, (asset) => asset.createdAt).map((day) => (
+          <section key={day.key}>
+            <h3 className="mb-2.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:text-[16px]">
+              {day.label}
+            </h3>
+            <div
+              className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:gap-2.5 ${
+                COLUMNS[density] ?? COLUMNS[4]
+              }`}
+            >
+              {day.items.map((asset) => (
           <AssetTile
             key={asset.id}
             asset={asset}
             run={asset.source === "run" ? runs.find((r) => r.urls.includes(asset.url)) : undefined}
-            index={index}
+            index={tiles.indexOf(asset)}
             square={!phone || phoneGrid}
             leaving={leaving.has(asset.id)}
             picked={picked.includes(asset.url)}
@@ -273,6 +281,9 @@ export function AssetBrowser({ assets }: { assets: Asset[] }) {
             onOpen={() => setViewing(asset.url)}
             onRemove={() => drop(asset.url)}
           />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
 

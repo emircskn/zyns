@@ -14,6 +14,7 @@ import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
+import { byDay } from "@/lib/days";
 import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -367,19 +368,28 @@ export function Gallery({ category }: { category?: Category }) {
 
   return (
     <>
-      {/* Phone: everything the same size in a grid of three, or one piece of
-          media at a time. Desktop: the packed columns, at the chosen step. */}
-      <div
-        ref={grid}
-        className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:block md:gap-2.5 ${
-          COLUMNS[density] ?? COLUMNS[4]
-        }`}
-      >
-        {tiles.map((run, index) => (
+      {/* A heading for each day the media was made on, newest first. One
+          container holds every day, so a tile that moves up into the day
+          above still slides there rather than jumping. */}
+      <div ref={grid} className="flex flex-col gap-6 md:gap-8">
+        {byDay(tiles, (run) => run.createdAt).map((day) => (
+          <section key={day.key}>
+            <h3 className="mb-2.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:text-[16px]">
+              {day.label}
+            </h3>
+            {/* Phone: everything the same size in a grid of three, or one
+                piece of media at a time. Desktop: the packed columns, at the
+                chosen step. */}
+            <div
+              className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"} md:block md:gap-2.5 ${
+                COLUMNS[density] ?? COLUMNS[4]
+              }`}
+            >
+              {day.items.map((run) => (
           <Tile
             key={run.id}
             run={run}
-            index={index}
+            index={tiles.indexOf(run)}
             square={phone && phoneGrid}
             leaving={leaving.has(run.id)}
             onOpen={(url) => setViewer({ url, runId: run.id })}
@@ -393,6 +403,9 @@ export function Gallery({ category }: { category?: Category }) {
               )
             }
           />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
 
