@@ -103,7 +103,7 @@ function modelFor(category: Category): string | undefined {
 
 /**
  * The header's menu: the four kinds of thing to make, to move between
- * without leaving the composer. Each row says which model it will open on.
+ * without leaving the composer.
  */
 function SectionMenu({
   current,
@@ -131,8 +131,6 @@ function SectionMenu({
         <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-t4">Create</p>
         {CATEGORIES.map((category) => {
           const on = category.id === current;
-          const next = modelFor(category.id);
-          const name = next ? getModel(next)?.name : undefined;
           return (
             <button
               key={category.id}
@@ -140,15 +138,12 @@ function SectionMenu({
               role="menuitemradio"
               aria-checked={on}
               onClick={() => onPick(category.id)}
-              className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors duration-[120ms] ${
+              className={`flex w-full items-center gap-3 rounded-card px-3 py-3 text-left transition-colors duration-[120ms] ${
                 on ? "bg-t1/[0.08] text-t1" : "text-t2 active:bg-t1/[0.05]"
               }`}
             >
               <Icon name={SECTION_ICON[category.id]} size={19} className={on ? "" : "text-t3"} />
-              <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-medium leading-tight">{category.label}</span>
-                {name && <span className="block truncate text-[12px] leading-snug text-t4">{name}</span>}
-              </span>
+              <span className="min-w-0 flex-1 text-[15px] font-medium">{category.label}</span>
               {on && <Icon name="check" size={16} className="shrink-0" />}
             </button>
           );
