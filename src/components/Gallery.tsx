@@ -40,8 +40,10 @@ function StatusOverlay({ run }: { run: Run }) {
   if (run.state === "success") return null;
   return (
     <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-2 p-3">
-      <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-white/40 border-t-white" />
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/80">
+      {/* In the theme's own ink: it sits on the loader, which follows the
+          theme, never on the finished picture. */}
+      <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-t1/30 border-t-t1" />
+      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-t2">
         {STATE_LABEL[run.state]}
       </span>
     </div>
@@ -67,7 +69,7 @@ function Media({ url }: { url: string }) {
   if (kind === "audio") {
     return (
       <div className="pending-surface flex h-full w-full flex-col items-center justify-center gap-3 p-5">
-        <Icon name="audio" size={22} className="relative z-10 text-white/80" />
+        <Icon name="audio" size={22} className="relative z-10 text-t2" />
         <audio src={url} controls className="relative z-10 w-full max-w-[280px]" />
       </div>
     );
@@ -198,7 +200,7 @@ function Tile({
             <Media url={url} />
           </button>
         ) : (
-          // Stays underneath the shader as the fallback when WebGL is missing.
+          // What a restored or reduced-motion tile shows while it waits.
           <div className="pending-surface h-full w-full" />
         )}
         {loading && (

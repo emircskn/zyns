@@ -111,7 +111,7 @@ function AssetTile({
           />
         ) : (
           <span className={`pending-surface grid w-full place-items-center ${square ? "h-full" : "aspect-square"}`}>
-            <Icon name="audio" size={22} className="relative z-10 text-white/80" />
+            <Icon name="audio" size={22} className="relative z-10 text-t2" />
           </span>
         )}
       </button>

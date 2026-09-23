@@ -452,6 +452,117 @@ h3 {
   animation: sweep 2.2s var(--ease) infinite;
 }
 
+/**
+ * The loader over a tile in flight (GenerationLoader): a still grid of cells,
+ * a light sweeping diagonally through it, and two sparse grids of cells that
+ * blink out of step with each other. Only transforms and opacities animate,
+ * so the compositor runs all of it without repainting the tile.
+ */
+.gen-loader {
+  --cell: 7px;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 50% at 30% 25%, color-mix(in oklab, var(--t1) 7%, transparent), transparent 70%),
+    radial-gradient(55% 45% at 75% 80%, color-mix(in oklab, var(--t1) 5%, transparent), transparent 70%),
+    var(--surface);
+  transition: opacity 320ms var(--ease);
+}
+.gen-loader-cells,
+.gen-loader-flicker {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(circle, #000 1.3px, transparent 1.9px);
+  mask-image: radial-gradient(circle, #000 1.3px, transparent 1.9px);
+  -webkit-mask-size: var(--cell) var(--cell);
+  mask-size: var(--cell) var(--cell);
+}
+.gen-loader-cells {
+  background: color-mix(in oklab, var(--t1) 9%, transparent);
+  transition: transform 700ms var(--ease);
+}
+.gen-loader-sweep {
+  position: absolute;
+  inset: -60%;
+  background: linear-gradient(
+    120deg,
+    transparent 38%,
+    color-mix(in oklab, var(--t1) 30%, transparent) 47%,
+    color-mix(in oklab, var(--t1) 55%, transparent) 50%,
+    color-mix(in oklab, var(--t1) 30%, transparent) 53%,
+    transparent 62%
+  );
+  animation: gen-sweep 2.4s var(--ease) infinite;
+  will-change: transform;
+}
+.gen-loader-flicker {
+  background: color-mix(in oklab, var(--t1) 34%, transparent);
+  -webkit-mask-size: calc(var(--cell) * 3) calc(var(--cell) * 5);
+  mask-size: calc(var(--cell) * 3) calc(var(--cell) * 5);
+  animation: gen-flicker 1.9s steps(3, jump-none) infinite;
+}
+.gen-loader-flicker.is-offbeat {
+  -webkit-mask-size: calc(var(--cell) * 5) calc(var(--cell) * 3);
+  mask-size: calc(var(--cell) * 5) calc(var(--cell) * 3);
+  -webkit-mask-position: calc(var(--cell) * 2) var(--cell);
+  mask-position: calc(var(--cell) * 2) var(--cell);
+  animation-duration: 2.7s;
+  animation-delay: -0.8s;
+}
+.gen-loader.is-leaving {
+  opacity: 0;
+}
+/* A still: the cells lift away a little slower, and the picture under them
+   comes up out of a soft blur rather than simply being there. */
+.gen-loader.is-revealing {
+  transition-duration: 600ms;
+  transition-delay: 100ms;
+}
+.gen-loader.is-revealing .gen-loader-cells {
+  transform: scale(1.06);
+}
+:where(.t-resize):has(> .gen-loader.is-revealing) img {
+  animation: gen-sharpen 700ms var(--ease) both;
+}
+@keyframes gen-sweep {
+  from {
+    transform: translate3d(-32%, -18%, 0);
+  }
+  to {
+    transform: translate3d(32%, 18%, 0);
+  }
+}
+@keyframes gen-flicker {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.35;
+  }
+}
+@keyframes gen-sharpen {
+  from {
+    filter: blur(14px) saturate(0.7);
+    transform: scale(1.04);
+  }
+  to {
+    filter: none;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gen-loader-sweep,
+  .gen-loader-flicker {
+    animation: none;
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Form elements
  * ------------------------------------------------------------------ */

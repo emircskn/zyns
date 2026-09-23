@@ -1,16 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ImageGeneration, type ImageGenerationHandle } from "img-fx";
+import { useEffect, useState } from "react";
 
 /**
- * Stands in for a tile while its run is in flight: a diagonal gradient sweep
- * with per-cell flicker, which reads as the model working.
+ * Stands in for a tile while its run is in flight: a diagonal sweep of lit
+ * cells over the tile, with a few cells flickering on their own, which reads
+ * as the model working.
  *
- * When an image comes back it materialises cell-by-cell out of that same
- * sweep instead of cutting to it. Video and audio have no still frame to
- * dissolve into, so those just fade the sweep away. Either way the finished
- * media sits underneath the whole time, so what fades out is only the shader.
+ * It is CSS only, and everything that moves is a transform or an opacity, so
+ * the compositor carries it without a repaint. It replaced a WebGL shader
+ * (img-fx) that copied its canvas into every tile on every frame; that held
+ * Chrome's whole frame pipeline up for as long as a run was pending, so the
+ * page froze on Generate and only came back once the run was done.
+ *
+ * When an image comes back it is fetched first, then the cells give way and
+ * the picture underneath sharpens into place, so the reveal never shows an
+ * empty frame. Video and audio have no still to wait for, so those just fade
+ * the cells away. Either way the finished media sits underneath the whole
+ * time, and what fades out is only this layer.
  */
 export function GenerationLoader({
   url,
@@ -20,68 +27,59 @@ export function GenerationLoader({
 }: {
   /** The first result, once the run has one. */
   url?: string;
-  /** Whether that result is a still we can dissolve into. */
+  /** Whether that result is a still worth waiting for before revealing. */
   reveal?: boolean;
   /** Stop on failure — there is nothing left to wait for. */
   failed?: boolean;
   onFinished: () => void;
 }) {
-  const handle = useRef<ImageGenerationHandle>(null);
   const [leaving, setLeaving] = useState(false);
-  const done = useRef(false);
 
-  // Hand over once: reveal the still through the sweep, or just step aside.
+  // Hand over once: after the still has loaded, or straight away.
   useEffect(() => {
-    if (done.current) return;
+    if (leaving) return;
     if (failed) {
-      done.current = true;
       setLeaving(true);
       return;
     }
     if (!url) return;
-    done.current = true;
     if (!reveal) {
       setLeaving(true);
       return;
     }
-    handle.current?.triggerReveal({ hold: "manual" });
-    // If the texture never loads (CORS, a dead link) no phase ever lands, so
-    // give the reveal a deadline rather than sitting on the finished media.
-    const guard = window.setTimeout(() => setLeaving(true), 8000);
-    return () => window.clearTimeout(guard);
-  }, [url, reveal, failed]);
+    let live = true;
+    const go = () => live && setLeaving(true);
+    const still = new Image();
+    still.onload = go;
+    // A dead link or a blocked host never loads; the tile shows its own
+    // fallback then, so there is no point holding the cells over it.
+    still.onerror = go;
+    still.src = url;
+    const guard = window.setTimeout(go, 8000);
+    return () => {
+      live = false;
+      window.clearTimeout(guard);
+    };
+  }, [url, reveal, failed, leaving]);
 
-  // The fade only starts once the class that animates it has been rendered.
   useEffect(() => {
     if (!leaving) return;
-    const timer = window.setTimeout(onFinished, 320);
+    const timer = window.setTimeout(onFinished, REVEAL_MS);
     return () => window.clearTimeout(timer);
   }, [leaving, onFinished]);
 
   return (
-    <ImageGeneration
-      ref={handle}
-      preset="sweep-gradient"
-      theme="auto"
-      images={reveal && url ? [url] : []}
-      onCycle={(event) => {
-        // The reveal has finished drawing; the real media is already behind us.
-        if (event.phase === "visible") setLeaving(true);
-      }}
-      cardBg="transparent"
-      className="transition-opacity duration-[320ms]"
-      // The library's own stylesheet makes the root an inline-block, and being
-      // unlayered it outranks any utility class — so the box has to be inline.
-      style={{
-        position: "absolute",
-        inset: 0,
-        display: "block",
-        zIndex: 10,
-        opacity: leaving ? 0 : 1,
-      }}
-      aria-hidden
-    >
-      <div style={{ width: "100%", height: "100%" }} />
-    </ImageGeneration>
+    <div aria-hidden className={`gen-loader ${leaving ? "is-leaving" : ""} ${leaving && reveal ? "is-revealing" : ""}`}>
+      {/* The grid stays put and the light moves through it, so the cells
+          light up in turn rather than sliding across the tile. */}
+      <span className="gen-loader-cells">
+        <span className="gen-loader-sweep" />
+      </span>
+      <span className="gen-loader-flicker" />
+      <span className="gen-loader-flicker is-offbeat" />
+    </div>
   );
 }
+
+/** Matches the longest transition on .gen-loader.is-leaving. */
+const REVEAL_MS = 700;
