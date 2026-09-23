@@ -37,7 +37,7 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
 
   if (!media || urls.length > 0) {
     return (
-      <div className="rounded-panel border border-line bg-elevated p-3.5">
+      <div className="rounded-panel border border-line bg-elevated p-3">
         <Control
           field={field}
           value={value}
@@ -56,15 +56,15 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         type="button"
         onClick={() => setPicking(true)}
         className={`flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
-          half ? "h-full min-h-[118px] gap-2 py-4" : "gap-3 py-7"
+          half ? "h-full min-h-[100px] gap-2 py-3.5" : "gap-2.5 py-5"
         }`}
       >
         <span
-          className={`grid place-items-center rounded-full bg-t1/[0.08] text-t2 ${half ? "h-10 w-10" : "h-12 w-12"}`}
+          className={`grid place-items-center rounded-full bg-t1/[0.08] text-t2 ${half ? "h-9 w-9" : "h-10 w-10"}`}
         >
-          <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={half ? 18 : 20} />
+          <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={half ? 16 : 18} />
         </span>
-        <span className={`text-t3 ${half ? "text-[13.5px] leading-snug" : "text-[14.5px]"}`}>
+        <span className={`text-t3 ${half ? "text-[13px] leading-snug" : "text-[14px]"}`}>
           {field.label && field.label.toLowerCase() !== "images" && field.label.toLowerCase() !== "image"
             ? field.label
             : `Choose ${noun} to upload`}
@@ -160,7 +160,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
 
   // Without a key the button is still the way forward: it asks for one.
   const disabled = !!apiKey && (busy || !!blocker);
-  const why = apiKey ? blocker : "Generating needs your KIE API key";
+  const why = apiKey ? blocker : null;
 
   return (
     <div
@@ -171,36 +171,36 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
         exiting ? "anim-sheet-out" : "anim-sheet"
       }`}
     >
-      <header className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))]">
+      <header className="flex shrink-0 items-center gap-3 px-4 pb-2.5 pt-[max(12px,env(safe-area-inset-top))]">
         {/* Another kind of thing to make is the catalogue, not this screen. */}
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="flex min-w-0 items-center gap-2.5 transition-opacity duration-[150ms] active:opacity-70"
+          className="flex min-w-0 items-center gap-2 transition-opacity duration-[150ms] active:opacity-70"
         >
-          <ZynsMark size={30} />
-          <span className="truncate text-[19px] font-semibold uppercase tracking-[-0.01em] text-t1">
+          <ZynsMark size={26} />
+          <span className="truncate text-[16px] font-semibold uppercase tracking-[-0.005em] text-t1">
             Create {model.output}
           </span>
-          <Icon name="chevron" size={18} className="shrink-0 text-t3" />
+          <Icon name="chevron" size={16} className="shrink-0 text-t3" />
         </button>
         <button
           type="button"
           onClick={close}
           aria-label="Close"
-          className="ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
+          className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
         >
-          <Icon name="close" size={19} />
+          <Icon name="close" size={17} />
         </button>
       </header>
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 [&>*]:shrink-0">
-        <ModeStrip />
+      <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-4 pb-3 pt-1 [&>*]:shrink-0">
+        <ModeStrip flush />
 
         {/* Two slots, a first and a last frame say, share a row: stacked,
             they pushed the prompt off a small phone's screen. */}
         {inputFields.length > 0 && (
-          <div className={inputFields.length > 1 ? "grid grid-cols-2 gap-3" : ""}>
+          <div className={inputFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
             {inputFields.map((field) => (
               <UploadSlot key={field.key} field={field} half={inputFields.length > 1} />
             ))}
@@ -209,7 +209,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
 
         <div className="rounded-panel border border-line bg-elevated">
           {promptFields.length > 0 && (
-            <div className="px-4 pb-2 pt-4">
+            <div className="px-4 pb-1.5 pt-3.5">
               {promptFields.map((field, index) => (
                 <PromptField
                   key={field.key}
@@ -234,16 +234,16 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
           <button
             type="button"
             onClick={() => togglePicker(true, model.category, true)}
-            className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors duration-[120ms] active:bg-t1/[0.04] ${
+            className={`flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors duration-[120ms] active:bg-t1/[0.04] ${
               promptFields.length > 0 ? "border-t border-line" : ""
             }`}
           >
-            <Icon name="layers" size={18} className="shrink-0 text-t3" />
-            <span className="text-[14.5px] text-t3">Model</span>
-            <span className="ml-auto flex min-w-0 items-center gap-2 text-[15px] text-t1">
-              <VendorBadge model={model} size={22} />
+            <Icon name="layers" size={16} className="shrink-0 text-t3" />
+            <span className="text-[13.5px] text-t3">Model</span>
+            <span className="ml-auto flex min-w-0 items-center gap-2 text-[14px] text-t1">
+              <VendorBadge model={model} size={20} />
               <span className="truncate">{model.name}</span>
-              <Icon name="chevron" size={17} className="shrink-0 text-t3" />
+              <Icon name="chevron" size={15} className="shrink-0 text-t3" />
             </span>
           </button>
         </div>
@@ -259,12 +259,12 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
         )}
       </div>
 
-      <footer className="shrink-0 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
+      <footer className="shrink-0 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
         {(barFields.length > 0 || batchable || panelFields.length > 0) && (
           <LargeChips.Provider value>
             {/* One row that scrolls sideways, as a phone's filter row does,
                 rather than two that eat into the prompt. */}
-            <div className="no-bar -mx-4 mb-3 flex items-center gap-2 overflow-x-auto px-4">
+            <div className="no-bar -mx-4 mb-2.5 flex items-center gap-2 overflow-x-auto px-4">
               {barFields.map((field) => (
                 <span key={field.key} className="shrink-0">
                   <FieldChip field={field} />
@@ -280,9 +280,9 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
                   type="button"
                   onClick={() => toggleSettings(true)}
                   aria-label="Advanced settings"
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] active:bg-t1/[0.12]"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] active:bg-t1/[0.12]"
                 >
-                  <Icon name="sliders" size={18} />
+                  <Icon name="sliders" size={17} />
                 </button>
               )}
             </div>
@@ -293,26 +293,26 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
           type="button"
           onClick={() => void generate()}
           disabled={disabled}
-          className="cta flex h-14 w-full items-center justify-center gap-2.5 rounded-panel text-[17px] font-semibold active:scale-[0.99] disabled:opacity-40"
+          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold active:scale-[0.99] disabled:opacity-40"
         >
           {busy ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
           ) : (
             !apiKey ? (
               <>
-                <Icon name="key" size={18} />
+                <Icon name="key" size={17} />
                 Add your API key
               </>
             ) : (
             <>
               Generate
-              <Icon name="spark" size={17} fill="currentColor" strokeWidth={1.2} />
-              {hint && <span className="font-mono text-[14px] font-medium tabular-nums opacity-70">{hint}</span>}
+              <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
+              {hint && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{hint}</span>}
             </>
             )
           )}
         </button>
-        {why && <p className="mt-2 text-center text-[12.5px] text-t4">{why}</p>}
+        {why && <p className="mt-1.5 text-center text-[12px] text-t4">{why}</p>}
       </footer>
     </div>
   );

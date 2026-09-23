@@ -24,7 +24,7 @@ import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
 
-export function ModeStrip() {
+export function ModeStrip({ flush }: { flush?: boolean }) {
   const model = useModel();
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
@@ -32,7 +32,7 @@ export function ModeStrip() {
   if (!model?.modes || model.modes.length < 2) return null;
 
   return (
-    <div key={model.id} className="anim-swap mb-2 flex justify-start">
+    <div key={model.id} className={`anim-swap flex justify-start ${flush ? "" : "mb-2"}`}>
       <PillGroup
         className="!bg-elevated ring-1 ring-inset ring-line"
         value={String(values.__mode ?? model.modes[0].id)}
@@ -188,7 +188,7 @@ export function Chip({
     <span
       className={`flex select-none items-center whitespace-nowrap rounded-full transition-all duration-[120ms] ${
         large
-          ? "h-11 gap-2 px-4 text-[14.5px]"
+          ? "h-10 gap-2 px-3.5 text-[14px]"
           : "h-8 gap-1.5 px-3 text-[12.5px] md:h-[34px] md:gap-[7px] md:px-3.5 md:text-[13px]"
       } ${
         active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
@@ -197,6 +197,52 @@ export function Chip({
       {icon}
       {value}
     </span>
+  );
+}
+
+/**
+ * A flag on the bar, like a model's own audio: the chip names it and a
+ * switch inside says whether it is on. A chip that simply turned white read
+ * as pressed rather than as on, and it was not plain that tapping it again
+ * was the way to turn the thing back off.
+ */
+function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: () => void }) {
+  const large = useContext(LargeChips);
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={field.label}
+      onClick={onFlip}
+      title={field.help}
+      className={`flex select-none items-center whitespace-nowrap rounded-full bg-t1/[0.07] transition-colors duration-[120ms] hover:bg-t1/[0.12] ${
+        on ? "text-t1" : "text-t3 hover:text-t1"
+      } ${
+        large
+          ? "h-10 gap-2 pl-3.5 pr-2.5 text-[14px]"
+          : "h-8 gap-1.5 pl-3 pr-2 text-[12.5px] md:h-[34px] md:gap-[7px] md:pl-3.5 md:pr-2.5 md:text-[13px]"
+      }`}
+    >
+      {chipIcon(field, on)}
+      {field.label}
+      <span
+        aria-hidden="true"
+        className={`relative ml-0.5 shrink-0 rounded-full transition-colors duration-[200ms] ${
+          large ? "h-[20px] w-[34px]" : "h-[18px] w-[30px]"
+        } ${on ? "bg-t1" : "bg-t1/[0.18]"}`}
+      >
+        <span
+          className={`absolute top-[2px] rounded-full transition-all duration-[200ms] ${
+            large ? "h-4 w-4" : "h-[14px] w-[14px]"
+          } ${on ? "bg-canvas" : "bg-t1/80"}`}
+          style={{
+            left: on ? (large ? 16 : 14) : 2,
+            transitionTimingFunction: "var(--ease-spring)",
+          }}
+        />
+      </span>
+    </button>
   );
 }
 
@@ -218,7 +264,7 @@ export function BatchChip() {
     <span
       title="How many to make"
       className={`flex select-none items-center gap-1 rounded-full bg-t1/[0.07] text-t2 ${
-        large ? "h-11 px-1.5 text-[14.5px]" : "h-8 pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
+        large ? "h-10 px-1.5 text-[14px]" : "h-8 pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
       }`}
     >
       <button
@@ -227,7 +273,7 @@ export function BatchChip() {
         disabled={batch <= 1}
         aria-label="One fewer"
         className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
-          large ? "h-8 w-8" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+          large ? "h-7 w-7" : "h-6 w-6 md:h-[26px] md:w-[26px]"
         }`}
       >
         <Icon name="minus" size={14} strokeWidth={2.2} />
@@ -239,7 +285,7 @@ export function BatchChip() {
         disabled={batch >= 4}
         aria-label="One more"
         className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
-          large ? "h-8 w-8" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+          large ? "h-7 w-7" : "h-6 w-6 md:h-[26px] md:w-[26px]"
         }`}
       >
         <Icon name="plus" size={14} strokeWidth={2.2} />
@@ -255,11 +301,7 @@ export function FieldChip({ field }: { field: Field }) {
 
   // Booleans read better as a chip you flip than as a chip that opens a menu.
   if (field.kind === "toggle") {
-    return (
-      <button type="button" onClick={() => setValue(field.key, value !== true)} title={field.help}>
-        <Chip icon={chipIcon(field, value)} value={field.label} active={value === true} />
-      </button>
-    );
+    return <ToggleChip field={field} on={value === true} onFlip={() => setValue(field.key, value !== true)} />;
   }
 
   const width = field.kind === "ratio" ? 296 : field.kind === "slider" ? 236 : 248;
@@ -420,7 +462,7 @@ export function PromptField({
         placeholder={field.placeholder ?? `${field.label}…`}
         className={
           large
-            ? "min-h-[130px] min-w-0 flex-1 resize-none bg-transparent text-[18px] font-medium leading-[1.45] tracking-[-0.014em] text-t1 outline-none placeholder:font-normal placeholder:text-t4"
+            ? "min-h-[104px] min-w-0 flex-1 resize-none bg-transparent text-[16.5px] font-medium leading-[1.45] tracking-[-0.012em] text-t1 outline-none placeholder:font-normal placeholder:text-t4"
             : "max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
         }
       />
