@@ -312,6 +312,8 @@ export function AssetBrowser({
 
       <SelectionBar
         count={picked.length}
+        total={assets.length}
+        onSelectAll={() => setPicked(assets.map((asset) => asset.url))}
         favorited={picked.length > 0 && picked.every((url) => favorites.includes(url))}
         onFavorite={() =>
           setFavorites(picked, !picked.every((url) => favorites.includes(url)))

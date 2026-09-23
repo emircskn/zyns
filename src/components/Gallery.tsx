@@ -446,6 +446,8 @@ export function Gallery({ category }: { category?: Category }) {
 
       <SelectionBar
         count={picked.length}
+        total={shown.length}
+        onSelectAll={() => setPicked(shown.map((run) => run.id))}
         favorited={pickedUrls.length > 0 && pickedUrls.every((url) => favorites.includes(url))}
         onFavorite={() =>
           setFavorites(pickedUrls, !pickedUrls.every((url) => favorites.includes(url)))

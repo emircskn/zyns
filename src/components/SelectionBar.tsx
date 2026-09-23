@@ -11,6 +11,8 @@ import { useStudio } from "@/store/studio";
  */
 export function SelectionBar({
   count,
+  total,
+  onSelectAll,
   favorited,
   onFavorite,
   onDownload,
@@ -18,6 +20,10 @@ export function SelectionBar({
   onClose,
 }: {
   count: number;
+  /** How many the page shows, so Select all can say whether it has anything left to add. */
+  total: number;
+  /** Picks everything on this page (and only this page). */
+  onSelectAll: () => void;
   /** True when every pick is already kept, so the button says what it does. */
   favorited: boolean;
   onFavorite: () => void;
@@ -92,6 +98,12 @@ export function SelectionBar({
           </>
         ) : (
           <>
+            {count < total && (
+              <button type="button" onClick={onSelectAll} aria-label={`Select all ${total}`} className={button}>
+                <Icon name="grid" size={16} />
+                <span className="hidden sm:inline">Select all</span>
+              </button>
+            )}
             <button type="button" onClick={onDownload} aria-label="Download" className={button}>
               <Icon name="download" size={16} />
               <span className="hidden sm:inline">Download</span>

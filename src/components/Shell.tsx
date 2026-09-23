@@ -79,32 +79,6 @@ function PhoneBar() {
 }
 
 /**
- * Clearing the gallery: about the page rather than about the studio, so it
- * sits above the page instead of above the app, and says nothing when there
- * is nothing to clear. Sample media has its own button in the rail.
- */
-function TopStrip() {
-  const runs = useStudio((s) => s.runs);
-  const clearRuns = useStudio((s) => s.clearRuns);
-  const page = useStudio((s) => s.page);
-
-  const demo = runs.some((r) => r.id.startsWith("demo-"));
-  if (demo || runs.length === 0 || page === "home") return null;
-
-  return (
-    <div className="mb-2 flex justify-end">
-      <button
-        type="button"
-        onClick={clearRuns}
-        className="rounded-full px-3 py-1.5 text-[11.5px] text-t4 transition-colors duration-[150ms] hover:text-t1"
-      >
-        Clear gallery
-      </button>
-    </div>
-  );
-}
-
-/**
  * Holds the page on screen while the next one is asked for, so one leaves
  * upward and the other rises into its place. Without it the headline of an
  * empty state was simply different on the next frame.
@@ -172,7 +146,6 @@ export function Shell() {
           composing ? "below-bar" : browsing ? "below-card" : "below-nav"
         }`}
       >
-        <TopStrip />
         <PageSwap page={page}>
           {(shown) =>
             shown === "home" ? (

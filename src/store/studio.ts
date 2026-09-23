@@ -113,7 +113,6 @@ interface StudioState {
   addRun: (run: Run) => void;
   patchRun: (id: string, patch: Partial<Run>) => void;
   removeRun: (id: string) => void;
-  clearRuns: () => void;
   /** Fill the studio with sample media, and take it back out again. */
   loadDemo: () => void;
   clearDemo: () => void;
@@ -324,7 +323,6 @@ export const useStudio = create<StudioState>()(
           runs: state.runs.map((run) => (run.id === id ? { ...run, ...patch } : run)),
         })),
       removeRun: (id) => set((state) => ({ runs: state.runs.filter((run) => run.id !== id) })),
-      clearRuns: () => set({ runs: [] }),
       loadDemo: () =>
         set((state) => ({
           runs: [...demoRuns(), ...state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX))],
