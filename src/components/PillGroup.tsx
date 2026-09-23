@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { Icon } from "@/components/Icon";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
 /** Width of the strip's edge fade, in step with --fade-l / --fade-r. */
@@ -39,7 +38,7 @@ export function PillGroup<T extends string>({
   /** No track behind the pills (page tabs). */
   bare?: boolean;
   /**
-   * Tabs and nothing else: no track, no step arrows, no counts, just the
+   * Tabs and nothing else: no track, no counts, just the
    * words and the one pill under the chosen one. The strip still scrolls
    * under a thumb or a trackpad when it runs past its edge.
    */
@@ -80,19 +79,19 @@ export function PillGroup<T extends string>({
   }, [jump]);
 
   const { box, settled } = useGlide(root, value, [itemsKey]);
-  const [edges, setEdges] = useState({ left: false, right: false, over: false });
+  const [edges, setEdges] = useState({ left: false, right: false });
 
-  // Which edges have more pills behind them, so only those get an arrow.
+  // Which edges have more pills behind them, so only those fade out.
   useEffect(() => {
     const node = root.current;
     if (!node || fill) return;
     const update = () => {
       const slack = node.scrollWidth - node.clientWidth;
-      const next = { left: node.scrollLeft > 2, right: node.scrollLeft < slack - 2, over: slack > 2 };
+      const next = { left: node.scrollLeft > 2, right: node.scrollLeft < slack - 2 };
       // Same numbers, same object: a fresh one every scroll event would
       // re-render the strip for nothing.
       setEdges((prev) =>
-        prev.left === next.left && prev.right === next.right && prev.over === next.over ? prev : next,
+        prev.left === next.left && prev.right === next.right ? prev : next,
       );
     };
     update();
@@ -106,7 +105,7 @@ export function PillGroup<T extends string>({
   }, [fill, itemsKey]);
 
   // A selection made with the keyboard, or one that starts off-screen, pulls
-  // itself into view rather than sitting under an arrow.
+  // itself into view rather than sitting under a faded edge.
   useEffect(() => {
     const node = root.current;
     if (!node || fill) return;
@@ -172,55 +171,12 @@ export function PillGroup<T extends string>({
     };
   }, [value, fill, itemsKey]);
 
-  // A step lands on a pill edge rather than an arbitrary offset, so the
-  // strip never comes to rest with a pill half shown or a gap at its end.
-  function step(direction: 1 | -1) {
-    const node = root.current;
-    if (!node) return;
-    const pills = [...node.querySelectorAll<HTMLElement>("[data-pill]")];
-    const pad = 4;
-    if (direction === 1) {
-      const edge = node.scrollLeft + node.clientWidth;
-      const next = pills.find((el) => el.offsetLeft + el.offsetWidth > edge + 1);
-      node.scrollTo({ left: next ? next.offsetLeft - pad : node.scrollWidth, behavior: "smooth" });
-    } else {
-      const previous = [...pills].reverse().find((el) => el.offsetLeft < node.scrollLeft - 1);
-      const left = previous
-        ? previous.offsetLeft + previous.offsetWidth + pad - node.clientWidth
-        : 0;
-      node.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-    }
-  }
-
   const flat = bare || plain;
   const pad = plain
     ? "px-4 py-2 text-[14px] font-semibold"
     : size === "lg"
       ? "px-4 py-2 text-[14px] font-medium"
       : "px-3.5 py-1.5 text-[13px] font-medium";
-
-  const arrow = `grid shrink-0 place-items-center rounded-full bg-elevated text-t2 ring-1 ring-inset ring-line transition-colors duration-[120ms] hover:text-t1 disabled:opacity-40 disabled:hover:text-t2 ${
-    size === "lg" ? "h-8 w-8" : "h-7 w-7"
-  }`;
-
-  // A plain function, not a component: a component declared in here would be
-  // a new type on every render, and React would tear the buttons down and
-  // rebuild them each time the strip scrolls.
-  const stepButton = (side: "left" | "right") => (
-    <button
-      type="button"
-      disabled={side === "left" ? !edges.left : !edges.right}
-      aria-label={side === "left" ? "Earlier options" : "More options"}
-      onClick={() => step(side === "left" ? -1 : 1)}
-      className={arrow}
-    >
-      <Icon
-        name="chevron"
-        size={size === "lg" ? 15 : 13}
-        className={side === "left" ? "rotate-90" : "-rotate-90"}
-      />
-    </button>
-  );
 
   // In fill mode the row is not a scroller, so it still wears the track
   // itself. Everywhere else the track moves to a wrapper, leaving the
@@ -303,15 +259,7 @@ export function PillGroup<T extends string>({
     </div>
   );
 
-  // The row is always this shape, arrows or not: swapping the tree around
-  // the strip would tear it down mid-scroll and lose its observers. Both
-  // arrows stay while it overflows, and the one with nothing behind it
-  // greys out rather than vanishing, so the row never jumps.
-  return (
-    <div className="flex min-w-0 max-w-full items-center gap-1.5">
-      {edges.over && !plain && stepButton("left")}
-      {tracked}
-      {edges.over && !plain && stepButton("right")}
-    </div>
-  );
+  // No step arrows: a strip that runs long scrolls under a thumb or a
+  // trackpad, and its fading edge is what says there is more past it.
+  return tracked;
 }
