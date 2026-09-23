@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
+import { withoutInputs } from "@/lib/runInputs";
 import {
   activeFields,
   defaultValues,
@@ -379,6 +380,13 @@ if (typeof window !== "undefined") {
         state: "failed",
         error: "Interrupted: the page closed before KIE confirmed this run.",
       });
+    }
+    // Runs saved before task reports stopped echoing the request can hold
+    // their own reference images as results, ahead of the real output.
+    for (const run of state.runs) {
+      if (run.urls.length === 0) continue;
+      const kept = withoutInputs(run.urls, run.values);
+      if (kept.length > 0 && kept.length < run.urls.length) state.patchRun(run.id, { urls: kept });
     }
     const page = state.page;
     if (page === "assets" || page === "favorites" || page === "home") return;

@@ -154,10 +154,21 @@ function pick(obj: Record<string, unknown>, ...keys: string[]): unknown {
   return undefined;
 }
 
+/**
+ * Fields that echo the request back rather than report a result. jobs/*
+ * returns the whole create body as `param`, ahead of `resultJson`, so an
+ * image-to-image task listed its reference image as its first "result": the
+ * pending tile showed the upload instead of the loader, and a finished one
+ * could open on the upload instead of the output.
+ */
+const REQUEST_ECHO = /^(param|paramJson|params|request|requestParam|input|callBackUrl)$/i;
+
 export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   const data = (envelope.data ?? {}) as Record<string, unknown>;
   const urls: string[] = [];
-  collectUrls(data, "", urls);
+  for (const [key, value] of Object.entries(data)) {
+    if (!REQUEST_ECHO.test(key)) collectUrls(value, key, urls);
+  }
 
   const error = pick(data, "failMsg", "errorMessage", "error_message", "msg") as string | undefined;
   const failCode = pick(data, "failCode", "errorCode");

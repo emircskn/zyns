@@ -5,6 +5,7 @@ import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import type { PollKind } from "@/lib/kie/client";
 import { getModel, validateValues, type Values } from "@/lib/registry";
 import { useStudio, type Run } from "@/store/studio";
+import { withoutInputs } from "@/lib/runInputs";
 
 export interface SubmitResult {
   ok: boolean;
@@ -74,7 +75,7 @@ export async function pollRun(run: Run): Promise<void> {
     const task = await getTask(apiKey, run.taskId, run.poll as PollKind);
     patchRun(run.id, {
       state: task.state,
-      urls: task.urls ?? run.urls,
+      urls: task.urls ? withoutInputs(task.urls, run.values) : run.urls,
       error: task.error,
       credits: task.credits ?? run.credits,
     });
@@ -87,3 +88,4 @@ export async function pollRun(run: Run): Promise<void> {
     }
   }
 }
+
