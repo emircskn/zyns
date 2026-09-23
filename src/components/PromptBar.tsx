@@ -743,7 +743,7 @@ const MORPH = "420ms cubic-bezier(0.32, 0.72, 0, 1)";
  * A phone's prompt box while it is not being written in: what the prompt
  * says so far and the model it goes to, and nothing else on the screen. A
  * tap takes it to the full-screen composer, or to the catalogue when there
- * is no model yet. Docked, it folds into a small Keep generating pill while
+ * is no model yet. Docked, it folds into a small Keep Generate pill while
  * the page is scrolled down, so the media gets the screen, and opens back
  * out when the page is pulled back up.
  */
@@ -807,7 +807,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
         <button
           type="button"
           onClick={open}
-          aria-label={folded ? "Keep generating" : undefined}
+          aria-label={folded ? "Keep Generate" : undefined}
           className="pointer-events-auto relative overflow-hidden border border-line bg-elevated text-left"
           style={{
             width: folded ? pillW : "100%",
@@ -854,9 +854,20 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               transition: `opacity ${folded ? "220ms 160ms" : "120ms"} ease`,
             }}
           >
-            <span ref={pill} className="inline-flex items-center gap-2">
-              <Icon name="spark" size={16} fill="currentColor" strokeWidth={1.2} />
-              Keep generating
+            {/* Lined up by eye, not by box: the line box puts the capitals a
+                little high, so the label drops to centre them, and the star
+                rises to meet them. The star's own box leaves air round the
+                glyph, so it gives some back on the left to match the gap on
+                the right, and sits close to the word. */}
+            <span ref={pill} className="inline-flex items-center gap-1" style={{ transform: "translateY(1.5px)" }}>
+              <Icon
+                name="spark"
+                size={18}
+                fill="currentColor"
+                strokeWidth={1.2}
+                style={{ marginLeft: -3, transform: "translateY(-2px)" }}
+              />
+              Keep Generate
             </span>
           </span>
         </button>
