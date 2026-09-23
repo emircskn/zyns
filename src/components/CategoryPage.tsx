@@ -31,7 +31,6 @@ export function CategoryPage({ category }: { category: Category }) {
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
   const meta = CATEGORIES.find((c) => c.id === category);
-  const count = MODELS.filter((m) => m.category === category).length;
   const mine = runs.filter((run) => MODELS.find((m) => m.id === run.modelId)?.category === category);
 
   return (
@@ -42,7 +41,7 @@ export function CategoryPage({ category }: { category: Category }) {
             {meta?.label ?? category}
           </h2>
           <p className="text-[13px] text-t3">
-            {BLURB[category]} · {count} models
+            {BLURB[category]}
           </p>
         </div>
         <div className="flex items-center gap-2">

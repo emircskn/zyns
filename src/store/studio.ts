@@ -385,6 +385,17 @@ export function useValues(): Values {
   return useStudio((state) => state.valuesByModel[state.modelId] ?? cachedDefaults(state.modelId));
 }
 
+/**
+ * Opens the model picker on the page you are on: a page that makes images
+ * lists image models and nothing else. Home belongs to no one kind of work,
+ * so from there the whole catalogue is listed, grouped by kind.
+ */
+export function openPickerHere() {
+  const { page, togglePicker } = useStudio.getState();
+  const scoped = page !== "home" && page !== "assets" && page !== "favorites";
+  togglePicker(true, scoped ? page : "all", scoped);
+}
+
 export function useModel() {
   return useStudio((state) => getModel(state.modelId));
 }

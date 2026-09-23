@@ -22,7 +22,7 @@ import { submitRun } from "@/lib/generate";
 import { insertMention, mentionAtCaret, mentionNames, mentionSources, usedMentions } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
-import { useModel, useStudio, useValues } from "@/store/studio";
+import { openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 
 export function ModeStrip({ flush }: { flush?: boolean }) {
   const model = useModel();
@@ -776,7 +776,6 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     insertToken,
     run,
   } = useComposer();
-  const togglePicker = useStudio((s) => s.togglePicker);
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
   const apiKey = useStudio((s) => s.apiKey);
@@ -872,7 +871,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           </Reveal>
 
           {!model && (
-            <DraftField trailing={send} onSubmit={() => togglePicker(true, "all")} />
+            <DraftField trailing={send} onSubmit={openPickerHere} />
           )}
 
           {promptFields.map((field, index) => (
@@ -903,7 +902,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           <div className="flex flex-wrap items-center gap-1">
             <button
               type="button"
-              onClick={() => togglePicker(true, model ? model.category : "all", !!model)}
+              onClick={openPickerHere}
               className="shrink-0"
             >
               {model ? (

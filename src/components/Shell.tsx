@@ -18,7 +18,7 @@ import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SideRail } from "@/components/SideRail";
 import { ThemeSync } from "@/components/ThemeSync";
-import { useStudio, type Page } from "@/store/studio";
+import { openPickerHere, useStudio, type Page } from "@/store/studio";
 
 /**
  * A phone has no rail, so the mark and the theme sit in a thin strip at the
@@ -140,7 +140,7 @@ export function Shell() {
     function onKey(event: KeyboardEvent) {
       if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
-        useStudio.getState().togglePicker(true, "all");
+        openPickerHere();
       }
     }
     document.addEventListener("keydown", onKey);
