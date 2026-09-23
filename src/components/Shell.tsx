@@ -31,6 +31,8 @@ function PhoneBar() {
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
   const clearDemo = useStudio((s) => s.clearDemo);
+  const apiKey = useStudio((s) => s.apiKey);
+  const hydrated = useStudio((s) => s.hydrated);
 
   const demo = runs.some((r) => r.id.startsWith("demo-"));
 
@@ -47,7 +49,10 @@ function PhoneBar() {
         <ZynsMark size={32} />
       </button>
       <div className="flex items-center gap-1">
-        {/* The rail's samples button, for a phone that has no rail. */}
+        {/* The rail's samples button, for a phone that has no rail, and only
+            while there is no key: it sits left of the theme switch, so the
+            switch keeps its place at the edge whether it is there or not. */}
+        {hydrated && !apiKey && (
         <button
           type="button"
           onClick={demo ? clearDemo : loadDemo}
@@ -59,6 +64,7 @@ function PhoneBar() {
         >
           <Icon name="palette" size={16} />
         </button>
+        )}
         <button
           type="button"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

@@ -158,7 +158,20 @@ export const useStudio = create<StudioState>()(
       pickerLocked: false,
       hydrated: false,
 
-      setApiKey: (apiKey) => set({ apiKey, credits: null }),
+      // Samples are for looking round without a key. Once one is connected
+      // they would only sit among the real work, with no button left to take
+      // them out, so connecting clears them.
+      setApiKey: (apiKey) =>
+        set((state) =>
+          apiKey
+            ? {
+                apiKey,
+                credits: null,
+                runs: state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX)),
+                uploads: state.uploads.filter((u) => !u.id.startsWith(DEMO_PREFIX)),
+              }
+            : { apiKey, credits: null },
+        ),
       setTheme: (theme) => set({ theme }),
       setCredits: (credits) => set({ credits }),
       setCategory: (category) => set({ category }),

@@ -31,6 +31,7 @@ function NavRow({
   onClick,
   title,
   filled,
+  toggle,
 }: {
   label: string;
   icon: IconName;
@@ -39,13 +40,16 @@ function NavRow({
   title?: string;
   /** The heart reads as kept when the page is the one you are on. */
   filled?: boolean;
+  /** A switch rather than a page: says so as pressed, not as current. */
+  toggle?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title ?? label}
-      aria-current={on ? "page" : undefined}
+      aria-current={on && !toggle ? "page" : undefined}
+      aria-pressed={toggle ? !!on : undefined}
       className={`flex w-full items-center gap-3 rounded-card px-3 py-2 text-[13.5px] transition-colors duration-[150ms] ${
         on ? "bg-t1/[0.09] font-medium text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
       }`}
@@ -84,6 +88,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
   const clearDemo = useStudio((s) => s.clearDemo);
+  const hydrated = useStudio((s) => s.hydrated);
 
   const active = runs.filter((r) => r.state === "pending" || r.state === "running").length;
   const demo = runs.some((r) => r.id.startsWith("demo-"));
@@ -126,6 +131,20 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={() => setPage(item.id)}
           />
         ))}
+        {/* Somewhere to see the studio full before there is an API key, and
+            the way back out of it. It goes once a key is connected, and it
+            sits here rather than at the foot: below it is only the empty run
+            of the rail, so nothing moves when it comes or goes. */}
+        {hydrated && !apiKey && (
+          <NavRow
+            label="Samples"
+            icon="palette"
+            toggle
+            on={demo}
+            title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
+            onClick={demo ? clearDemo : loadDemo}
+          />
+        )}
       </nav>
 
       <div className="mt-auto w-full pt-4">
@@ -172,30 +191,15 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
           </button>
         </div>
 
-        <div className="mt-1 flex items-center gap-1">
-          {/* Somewhere to see the studio full before there is an API key, and
-              the way back out of it. */}
-          <button
-            type="button"
-            onClick={demo ? clearDemo : loadDemo}
-            title={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
-            aria-pressed={demo}
-            className={`flex flex-1 items-center gap-2 rounded-card px-3 py-2 text-[13px] transition-colors duration-[150ms] ${
-              demo ? "bg-t1/[0.09] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
-            }`}
-          >
-            <Icon name="palette" size={17} />
-            Samples
-          </button>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        {/* The theme on a row of its own, so the foot of the rail is the
+            same two lines whatever else comes and goes above it. */}
+        <div className="mt-1">
+          <NavRow
+            label={theme === "dark" ? "Light theme" : "Dark theme"}
+            icon={theme === "dark" ? "sun" : "moon"}
             title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-            aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-card text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.05] hover:text-t1"
-          >
-            <Icon name={theme === "dark" ? "sun" : "moon"} size={18} />
-          </button>
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          />
         </div>
       </div>
     </aside>
