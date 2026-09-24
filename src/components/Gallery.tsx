@@ -6,7 +6,7 @@ import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
-import { downloadAll } from "@/lib/download";
+import { saveMedia } from "@/lib/download";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
@@ -121,14 +121,12 @@ function TileAction({
   icon,
   label,
   onClick,
-  href,
   danger,
   filled,
 }: {
   icon: Parameters<typeof Icon>[0]["name"];
   label: string;
   onClick?: () => void;
-  href?: string;
   danger?: boolean;
   /** A heart that is already given reads as solid. */
   filled?: boolean;
@@ -136,13 +134,6 @@ function TileAction({
   const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
   }`;
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
-        <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
-      </a>
-    );
-  }
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
       <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
@@ -313,7 +304,7 @@ function Tile({
               className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
-          {url && <TileAction icon="download" label="Open / download" href={url} />}
+          {url && <TileAction icon="download" label="Download" onClick={() => void saveMedia([url])} />}
           <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
           {confirming ? (
             <>
@@ -457,7 +448,7 @@ export function Gallery({ category }: { category?: Category }) {
         onFavorite={() =>
           setFavorites(pickedUrls, !pickedUrls.every((url) => favorites.includes(url)))
         }
-        onDownload={() => downloadAll(pickedUrls)}
+        onDownload={() => saveMedia(pickedUrls)}
         onDelete={() => {
           picked.forEach(removeRun);
           setPicked([]);

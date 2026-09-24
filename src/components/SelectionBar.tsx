@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { useStudio } from "@/store/studio";
+import type { SaveResult, SaveState } from "@/lib/download";
 
 /**
  * The bar that appears once something is picked: what it can do to all of
@@ -30,16 +31,25 @@ export function SelectionBar({
   /** True when every pick is already kept, so the button says what it does. */
   favorited: boolean;
   onFavorite: () => void;
-  onDownload: () => void;
+  /** Resolves "retry" when the phone needs one more tap to open its share sheet. */
+  onDownload: () => Promise<SaveResult> | void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const setSelecting = useStudio((s) => s.setSelecting);
   const [confirming, setConfirming] = useState(false);
+  const [saving, setSaving] = useState<SaveState>("idle");
 
   useEffect(() => {
     setConfirming(false);
+    setSaving("idle");
   }, [count]);
+
+  async function download() {
+    setSaving("busy");
+    const result = await onDownload();
+    setSaving(result === "retry" ? "retry" : "idle");
+  }
 
   // The prompt bar steps aside for this one rather than stacking above it, so
   // it has to know how many are picked. Leaving the page clears the count.
@@ -109,9 +119,19 @@ export function SelectionBar({
             )}
             {count > 0 && (
             <>
-            <button type="button" onClick={onDownload} aria-label="Download" className={button}>
-              <Icon name="download" size={16} />
-              <span className="hidden sm:inline">Download</span>
+            <button
+              type="button"
+              onClick={download}
+              disabled={saving === "busy"}
+              aria-label={saving === "retry" ? "Tap to save" : "Download"}
+              className={button}
+            >
+              <Icon name="download" size={16} className={saving === "busy" ? "animate-pulse" : ""} />
+              {/* The one more tap a phone may ask for has to say so, even
+                  where the other buttons keep to their icons. */}
+              <span className={saving === "retry" ? "inline" : "hidden sm:inline"}>
+                {saving === "busy" ? "Preparing…" : saving === "retry" ? "Tap to save" : "Download"}
+              </span>
             </button>
             <button
               type="button"

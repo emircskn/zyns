@@ -21,6 +21,7 @@ import {
   recreateRun,
   sendReference,
 } from "@/lib/reuse";
+import { prefetchMedia, useSave } from "@/lib/download";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, type Run } from "@/store/studio";
@@ -374,10 +375,21 @@ export function MediaViewer({
   const favorites = useStudio((s) => s.favorites);
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const modelId = useStudio((s) => s.modelId);
+  const saver = useSave();
+  const resetSaver = saver.reset;
 
   useEffect(() => {
     if (url) setShown(url);
   }, [url]);
+
+  // A phone saves through its share sheet, which has to open from the tap
+  // itself: a picture is fetched as soon as it is opened, so Download has it
+  // in hand. Videos are fetched on the tap (they can be large), and ask for
+  // one more tap if that took too long.
+  useEffect(() => {
+    resetSaver();
+    if (url && mediaKind(url) === "image") prefetchMedia(url);
+  }, [url, resetSaver]);
 
   // A fresh preview never opens mid-confirmation, or half-read.
   useEffect(() => {
@@ -453,7 +465,12 @@ export function MediaViewer({
     >
       <span className="max-w-full truncate">{kept ? "Kept" : "Favorite"}</span>
     </LikeHeart>,
-    <Action key="download" icon="download" label="Download" href={shown} />,
+    <Action
+      key="download"
+      icon="download"
+      label={saver.label}
+      onClick={() => shown && saver.state !== "busy" && void saver.save([shown])}
+    />,
     (run || upload) && (
       <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
     ),

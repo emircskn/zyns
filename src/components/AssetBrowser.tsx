@@ -5,7 +5,7 @@ import { Icon } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
-import { downloadAll } from "@/lib/download";
+import { saveMedia } from "@/lib/download";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
@@ -21,14 +21,12 @@ function TileButton({
   icon,
   label,
   onClick,
-  href,
   danger,
   filled,
 }: {
   icon: Parameters<typeof Icon>[0]["name"];
   label: string;
   onClick?: () => void;
-  href?: string;
   danger?: boolean;
   filled?: boolean;
 }) {
@@ -36,11 +34,7 @@ function TileButton({
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/85"
   }`;
   const glyph = <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />;
-  return href ? (
-    <a href={href} target="_blank" rel="noreferrer" download title={label} aria-label={label} className={className}>
-      {glyph}
-    </a>
-  ) : (
+  return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
       {glyph}
     </button>
@@ -165,7 +159,7 @@ function AssetTile({
               onToggle={() => toggleFavorite(asset.url)}
               className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
             />
-            <TileButton icon="download" label="Open / download" href={asset.url} />
+            <TileButton icon="download" label="Download" onClick={() => void saveMedia([asset.url])} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
             {onRemove &&
               (confirming ? (
@@ -323,7 +317,7 @@ export function AssetBrowser({
         onFavorite={() =>
           setFavorites(picked, !picked.every((url) => favorites.includes(url)))
         }
-        onDownload={() => downloadAll(picked)}
+        onDownload={() => saveMedia(picked)}
         onDelete={() => {
           picked.forEach(drop);
           setPicked([]);
