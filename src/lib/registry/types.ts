@@ -74,6 +74,11 @@ export interface Field {
   chip?: (value: unknown, v: Values) => string;
   /** Group heading inside the advanced panel. */
   group?: string;
+  /**
+   * An aspect ratio's "Auto" that the API itself lacks: when sending, the
+   * studio swaps it for the choice nearest the first reference's shape.
+   */
+  autoFrom?: "input";
   /** For `records`: the simple columns each row has. */
   itemFields?: ItemField[];
 }

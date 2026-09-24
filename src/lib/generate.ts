@@ -1,6 +1,7 @@
 "use client";
 
 import { aspectFromValues } from "@/lib/aspect";
+import { resolveAutoRatio } from "@/lib/autoRatio";
 import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import type { PollKind } from "@/lib/kie/client";
 import { getModel, validateValues, type Values } from "@/lib/registry";
@@ -27,7 +28,10 @@ export async function submitRun(): Promise<SubmitResult> {
   const problem = validateValues(model, values);
   if (problem) return { ok: false, error: problem };
 
-  const { endpoint, payload, poll } = model.build(values);
+  // The studio's own "Auto" ratio becomes a real one here; the run keeps
+  // "auto" in its values so Recreate brings Auto back.
+  const sent = await resolveAutoRatio(model, values);
+  const { endpoint, payload, poll } = model.build(sent);
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const run: Run = {
@@ -37,7 +41,7 @@ export async function submitRun(): Promise<SubmitResult> {
     mode: values.__mode,
     poll,
     prompt: (values.prompt as string) || (values.text as string) || (values.descriptions as string) || "",
-    ratio: aspectFromValues(values, model.output === "audio" ? "3 / 1" : "16 / 9"),
+    ratio: aspectFromValues(sent, model.output === "audio" ? "3 / 1" : "16 / 9"),
     output: model.output,
     state: "queued",
     urls: [],

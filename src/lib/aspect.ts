@@ -14,6 +14,15 @@ const NAMED: Record<string, string> = {
 
 const RATIO_KEYS = ["aspect_ratio", "aspectRatio", "ratio", "image_size", "size"];
 
+/** Width over height for a ratio choice ("16:9", "portrait_4_3"), if it is one. */
+export function ratioNumber(value: string): number | undefined {
+  const named = NAMED[value];
+  const match = (named ?? value).match(/^(\d+(?:\.\d+)?)\s*[:/]\s*(\d+(?:\.\d+)?)$/);
+  if (!match) return undefined;
+  const ratio = Number(match[1]) / Number(match[2]);
+  return Number.isFinite(ratio) && ratio > 0 ? ratio : undefined;
+}
+
 /**
  * Best guess at the shape a run will come back in, so gallery tiles reserve
  * the right space instead of jumping when the media loads.

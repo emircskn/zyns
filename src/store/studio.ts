@@ -364,6 +364,12 @@ export const useStudio = create<StudioState>()(
             if (!activeKeys.has(field.key)) delete next[field.key];
           }
           for (const field of activeFields) {
+            // Same option, other choices: a value the new mode does not
+            // offer falls back to that mode's default.
+            const val = next[field.key];
+            if (val !== undefined && val !== "" && field.choices && !field.choices.some((c) => c.value === String(val))) {
+              delete next[field.key];
+            }
             if (next[field.key] === undefined && field.default !== undefined) {
               next[field.key] = field.default;
             }

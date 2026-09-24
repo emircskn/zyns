@@ -8,6 +8,10 @@
 import catalog from "./generated/catalog.json";
 import type { Category, Choice, Field, FieldKind, ItemField, ModelDef, Placement, Values } from "./types";
 import { compact } from "./types";
+import { ratioNumber } from "@/lib/aspect";
+
+/** The keys an aspect ratio travels under. */
+const RATIO_KEY = /^(aspect_ratio|aspectRatio|ratio|image_size|size)$/;
 
 /* ------------------------------------------------------------------ *
  * Catalogue types
@@ -574,31 +578,61 @@ function coerce(value: unknown, prop: SpecProp | undefined, kind: FieldKind): un
 
 export function familyToModel(family: Family): ModelDef {
   const modes = family.modes.map((m) => resolveMode(m, family.id));
-  const fieldModes = new Map<string, Set<string>>();
-  const fieldProp = new Map<string, SpecProp>();
+
+  // The same key can mean different things per mode: Qwen 2.1 takes an
+  // "auto" aspect ratio when editing a picture but not when generating from
+  // text. One field per distinct definition, each shown only in the modes
+  // it belongs to; taking the first mode's definition for all of them hid
+  // options (and defaults) the other modes have.
+  //
+  // An aspect ratio is also split by whether its mode takes a reference
+  // picture: there the studio can offer an "Auto" the API lacks (see below).
+  const variants = new Map<string, { key: string; prop: SpecProp; modes: Set<string>; required: boolean; fromInput: boolean }>();
   for (const mode of modes) {
     for (const key of mode.keys) {
-      if (!fieldModes.has(key)) fieldModes.set(key, new Set());
-      fieldModes.get(key)!.add(mode.id);
-      if (!fieldProp.has(key)) fieldProp.set(key, mode.props[key]);
+      const prop = mode.props[key];
+      const { required: _required, ...shape } = prop ?? ({} as SpecProp);
+      const fromInput =
+        RATIO_KEY.test(key) &&
+        mode.keys.some((k) => k !== key && isMediaKey(k) && !/mask/.test(k) && acceptFor(k) !== "audio");
+      const sig = `${key}::${fromInput ? "input" : ""}::${JSON.stringify(shape)}`;
+      const entry = variants.get(sig) ?? { key, prop, modes: new Set<string>(), required: true, fromInput };
+      entry.modes.add(mode.id);
+      entry.required = entry.required && mode.required.has(key);
+      variants.set(sig, entry);
     }
   }
 
   const fields: Field[] = [];
-  for (const [key, prop] of fieldProp) {
-    const inModes = fieldModes.get(key)!;
+  for (const { key, prop, modes: inModes, required, fromInput } of variants.values()) {
     const field = fieldFor(key, prop, family.fields?.[key]);
+    // A mode that edits or animates a picture, whose API has no "auto"
+    // ratio: offer one anyway. It is resolved when sending, to whichever
+    // listed ratio sits closest to the first reference's shape.
+    const choices = field.choices ?? [];
+    if (
+      fromInput &&
+      choices.length > 1 &&
+      !choices.some((c) => /^(auto|adaptive)$/i.test(c.value)) &&
+      choices.every((c) => ratioNumber(c.value) !== undefined)
+    ) {
+      field.choices = [{ value: "auto", label: "Auto", hint: "Matches the reference" }, ...choices];
+      field.autoFrom = "input";
+    }
     if (inModes.size < modes.length) {
       const allowed = new Set(inModes);
       const previous = field.when;
       field.when = (v: Values) => allowed.has(v.__mode) && (!previous || previous(v));
     }
-    field.required = modes.every((m) => !m.keys.includes(key) || m.required.has(key));
+    field.required = required;
     fields.push(field);
   }
-  // Prompt first, then media, then everything else in documented order.
+  // Prompt first, then media, then everything else in documented order: by
+  // where each key first appears, so a key split per mode keeps its place.
+  const firstSeen = new Map<string, number>();
+  for (const f of fields) if (!firstSeen.has(f.key)) firstSeen.set(f.key, firstSeen.size);
   const rank = (f: Field) => (f.placement === "prompt" ? 0 : f.placement === "input" ? 1 : f.placement === "bar" ? 2 : 3);
-  fields.sort((a, b) => rank(a) - rank(b));
+  fields.sort((a, b) => rank(a) - rank(b) || firstSeen.get(a.key)! - firstSeen.get(b.key)!);
 
   const tags = family.tags ?? [...new Set(modes.map((m) => m.label.toLowerCase()))];
 
@@ -631,7 +665,7 @@ export function familyToModel(family: Family): ModelDef {
       const mode = modes.find((m) => m.id === v.__mode) ?? modes[0];
       const input: Record<string, unknown> = {};
       for (const key of mode.keys) {
-        const field = fields.find((f) => f.key === key)!;
+        const field = fields.find((f) => f.key === key && (!f.when || f.when(v))) ?? fields.find((f) => f.key === key)!;
         const val = coerce(v[key], mode.props[key], field.kind);
         if (val === undefined) continue;
         if (Array.isArray(val) && val.length === 0) continue;
