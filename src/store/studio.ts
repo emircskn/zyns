@@ -68,6 +68,12 @@ interface StudioState {
   createOpen: boolean;
   /** The model each category was last used with, so pages remember. */
   modelByCategory: Partial<Record<Category, string>>;
+  /**
+   * The prompt last written in each category. Every model of a category
+   * shows it, so switching Nano Banana for another image model keeps what
+   * was typed; another category keeps its own.
+   */
+  promptByCategory: Partial<Record<Category, string>>;
   valuesByModel: Record<string, Values>;
   runs: Run[];
   uploads: Upload[];
@@ -100,6 +106,8 @@ interface StudioState {
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
   resetValues: () => void;
+  /** Empty a model's media inputs, as a sent run does; the prompt stays. */
+  clearInputs: (modelId: string) => void;
   setMode: (mode: string) => void;
   toggleSettings: (open?: boolean) => void;
   togglePicker: (open?: boolean, tab?: Category | "all", locked?: boolean) => void;
@@ -119,12 +127,25 @@ interface StudioState {
   clearDemo: () => void;
 }
 
-/** Drop a draft into a model's first prompt field, if that field is empty. */
-function seedPrompt(model: ModelDef, values: Values, draft: string): Values {
-  if (!draft.trim()) return values;
-  const field = activeFields(model, values).find((f) => f.placement === "prompt");
-  if (!field || String(values[field.key] ?? "").trim()) return values;
-  return { ...values, [field.key]: draft };
+/** The field a model's prompt is written in, for the values it has now. */
+function promptKey(model: ModelDef, values: Values): string | undefined {
+  return activeFields(model, values).find((f) => f.placement === "prompt")?.key;
+}
+
+/** Put the category's prompt into a model's prompt field. */
+function withPrompt(model: ModelDef, values: Values, prompt: string | undefined): Values {
+  if (prompt === undefined) return values;
+  const key = promptKey(model, values);
+  if (!key || values[key] === prompt) return values;
+  return { ...values, [key]: prompt };
+}
+
+/** Remember the prompt these values hold as their category's prompt. */
+function sharedPrompt(state: StudioState, model: ModelDef, values: Values) {
+  const key = promptKey(model, values);
+  const prompt = key ? values[key] : undefined;
+  if (typeof prompt !== "string" || state.promptByCategory[model.category] === prompt) return {};
+  return { promptByCategory: { ...state.promptByCategory, [model.category]: prompt } };
 }
 
 function valuesFor(state: StudioState, id: string): Values {
@@ -151,6 +172,7 @@ export const useStudio = create<StudioState>()(
       composer: false,
       createOpen: false,
       modelByCategory: {},
+      promptByCategory: {},
       valuesByModel: {},
       runs: [],
       uploads: [],
@@ -191,12 +213,16 @@ export const useStudio = create<StudioState>()(
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
           const id = state.modelByCategory[page] ?? "";
-          if (!id) return { page, category: page, modelId: "" };
+          const model = getModel(id);
+          if (!id || !model) return { page, category: page, modelId: "" };
           return {
             page,
             category: page,
             modelId: id,
-            valuesByModel: { ...state.valuesByModel, [id]: valuesFor(state, id) },
+            valuesByModel: {
+              ...state.valuesByModel,
+              [id]: withPrompt(model, valuesFor(state, id), state.promptByCategory[model.category]),
+            },
           };
         }),
 
@@ -204,18 +230,20 @@ export const useStudio = create<StudioState>()(
         const model = getModel(id);
         if (!model) return;
         set((state) => {
-          const values = valuesFor(state, id);
-          // Whatever was typed before a model existed belongs in the prompt
-          // of the one just chosen, as long as it has nothing in it already.
-          const seeded = seedPrompt(model, values, state.draft);
+          // The model takes its category's prompt: whatever was last written
+          // in any model of the same kind. Text typed before a model was
+          // chosen is newer than that, so it goes in instead.
+          const draft = state.draft.trim() && promptKey(model, valuesFor(state, id)) ? state.draft : undefined;
+          const values = withPrompt(model, valuesFor(state, id), draft ?? state.promptByCategory[model.category]);
           return {
             modelId: id,
             category: model.category,
             page: state.page === "home" ? state.page : model.category,
             modelByCategory: { ...state.modelByCategory, [model.category]: id },
             pickerOpen: false,
-            draft: seeded === values ? state.draft : "",
-            valuesByModel: { ...state.valuesByModel, [id]: seeded },
+            draft: draft === undefined ? state.draft : "",
+            valuesByModel: { ...state.valuesByModel, [id]: values },
+            ...sharedPrompt(state, model, values),
           };
         });
       },
@@ -235,18 +263,35 @@ export const useStudio = create<StudioState>()(
       setValue: (key, value) =>
         set((state) => {
           const current = valuesFor(state, state.modelId);
+          const next = { ...current, [key]: value };
+          const model = getModel(state.modelId);
           return {
-            valuesByModel: {
-              ...state.valuesByModel,
-              [state.modelId]: { ...current, [key]: value },
-            },
+            valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
+            ...(model && key === promptKey(model, next) ? sharedPrompt(state, model, next) : {}),
           };
         }),
 
       setValues: (values) =>
-        set((state) => ({
-          valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
-        })),
+        set((state) => {
+          const model = getModel(state.modelId);
+          return {
+            valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
+            ...(model ? sharedPrompt(state, model, values) : {}),
+          };
+        }),
+
+      clearInputs: (modelId) =>
+        set((state) => {
+          const model = getModel(modelId);
+          const current = state.valuesByModel[modelId];
+          if (!model || !current) return {};
+          const next = { ...current };
+          const defaults = defaultValues(model);
+          for (const field of model.fields) {
+            if (field.placement === "input") next[field.key] = defaults[field.key];
+          }
+          return { valuesByModel: { ...state.valuesByModel, [modelId]: next } };
+        }),
 
       resetValues: () =>
         set((state) => {
@@ -255,7 +300,9 @@ export const useStudio = create<StudioState>()(
           return {
             valuesByModel: {
               ...state.valuesByModel,
-              [state.modelId]: defaultValues(model),
+              // The settings go back to their defaults; the prompt is not a
+              // setting and stays.
+              [state.modelId]: withPrompt(model, defaultValues(model), state.promptByCategory[model.category]),
             },
           };
         }),
@@ -286,7 +333,10 @@ export const useStudio = create<StudioState>()(
             }
           }
           return {
-            valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
+            valuesByModel: {
+              ...state.valuesByModel,
+              [state.modelId]: withPrompt(model, next, state.promptByCategory[model.category]),
+            },
           };
         }),
 
@@ -351,6 +401,7 @@ export const useStudio = create<StudioState>()(
         draft: state.draft,
         batch: state.batch,
         modelByCategory: state.modelByCategory,
+        promptByCategory: state.promptByCategory,
         valuesByModel: state.valuesByModel,
         runs: state.runs,
         uploads: state.uploads,

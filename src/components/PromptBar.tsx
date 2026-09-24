@@ -641,12 +641,17 @@ export function useComposer() {
     // One send, several runs: they queue together and land in the gallery as
     // they finish. The first failure is the one worth showing.
     const copies = batchable ? useStudio.getState().batch : 1;
+    const sent = useStudio.getState().modelId;
     let failure: string | null = null;
     for (let i = 0; i < copies; i++) {
       const result = await submitRun();
       if (!result.ok && !failure) failure = result.error ?? "Something went wrong.";
     }
+    // A sent run takes its references with it: the next one starts with an
+    // empty strip and the same prompt. The run keeps its own copy, so
+    // Recreate brings them back. A send that failed leaves them to retry.
     if (failure) setError(failure);
+    else useStudio.getState().clearInputs(sent);
     setBusy(false);
     return !failure;
   }

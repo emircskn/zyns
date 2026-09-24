@@ -15,7 +15,7 @@ import {
   useComposer,
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, MODELS, activeFields, getModel, type Category, type Field } from "@/lib/registry";
+import { CATEGORIES, MODELS, getModel, type Category, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio, useValues } from "@/store/studio";
 
@@ -163,7 +163,6 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   const setComposer = useStudio((s) => s.setComposer);
   const selectModel = useStudio((s) => s.selectModel);
   const setPage = useStudio((s) => s.setPage);
-  const setValue = useStudio((s) => s.setValue);
   const [menu, setMenu] = useState(false);
   const menuOpen = useRef(false);
   menuOpen.current = menu;
@@ -239,21 +238,15 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   // IMAGE, VIDEO, AUDIO, TOOLS.
   const section = CATEGORIES.find((c) => c.id === model.category)?.label ?? model.category;
 
-  // Another section keeps what has been written: the prompt goes with you to
-  // its model, unless that model already has one of its own.
+  // Another section has its own prompt: each category keeps what was last
+  // written in it, so the text here stays here.
   function switchTo(category: Category) {
     setMenu(false);
     if (!model || category === model.category) return;
     const id = modelFor(category);
-    const next = id ? getModel(id) : undefined;
-    if (!id || !next) return;
-    const text = firstPrompt ? ((values[firstPrompt.key] as string) ?? "").trim() : "";
+    if (!id || !getModel(id)) return;
     selectModel(id);
     setPage(category);
-    if (!text) return;
-    const state = useStudio.getState();
-    const target = activeFields(next, state.valuesByModel[id] ?? {}).find((f) => f.placement === "prompt");
-    if (target && !((state.valuesByModel[id]?.[target.key] as string) ?? "").trim()) setValue(target.key, text);
   }
 
   // Without a key the button is still the way forward: it asks for one.
