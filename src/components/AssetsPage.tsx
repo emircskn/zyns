@@ -18,19 +18,24 @@ const FILTERS: Array<{ id: Filter; label: string; icon: IconName }> = [
   { id: "upload", label: "Uploads", icon: "upload" },
 ];
 
+// Uploads live under their own tab and nowhere else: what you put in is not
+// what the studio made, and it would crowd the outputs out.
 function matches(asset: Asset, filter: Filter) {
-  if (filter === "all") return true;
   if (filter === "upload") return asset.source === "upload";
+  if (asset.source === "upload") return false;
+  if (filter === "all") return true;
   if (filter === "tool") return asset.category === "tool";
   return asset.kind === filter;
 }
 
-/** Everything in one place: what the studio made, and what was uploaded. */
+/** What the studio made, by kind, and what was uploaded, on a tab of its own. */
 export function AssetsPage() {
   const assets = useAssets();
   const [filter, setFilter] = useState<Filter>("all");
 
   const shown = useMemo(() => assets.filter((a) => matches(a, filter)), [assets, filter]);
+  const made = assets.filter((a) => a.source !== "upload").length;
+  const uploaded = assets.length - made;
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
@@ -40,7 +45,12 @@ export function AssetsPage() {
         <p className="text-[13px] text-t3">
           {assets.length === 0
             ? "Everything you generate or upload collects here."
-            : `${assets.length} item${assets.length === 1 ? "" : "s"} · generated and uploaded`}
+            : [
+                `${made} generated`,
+                uploaded > 0 ? `${uploaded} upload${uploaded === 1 ? "" : "s"}` : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
         </p>
         </div>
         {assets.length > 0 && <DensityControl />}
@@ -79,7 +89,9 @@ export function AssetsPage() {
           <Stagger>
             <p className="t-stagger-line text-[14px] text-t2">Nothing here yet</p>
             <p className="t-stagger-line t-stagger-line--2 mt-1 text-[12.5px] text-t4">
-              Outputs land here as runs finish, and uploads the moment you add them.
+              {filter === "upload"
+                ? "Media you upload as a reference collects here."
+                : "Outputs land here as runs finish."}
             </p>
           </Stagger>
         </div>
