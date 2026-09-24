@@ -820,6 +820,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
   const values = useValues();
   const draft = useStudio((s) => s.draft);
   const selecting = useStudio((s) => s.selecting);
+  const selectMode = useStudio((s) => s.selectMode);
   const setComposer = useStudio((s) => s.setComposer);
   const setCreateOpen = useStudio((s) => s.setCreateOpen);
   const centered = placement === "center";
@@ -862,7 +863,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
 
   return (
     <div
-      data-away={!centered && selecting > 0 ? "1" : undefined}
+      data-away={!centered && (selecting > 0 || selectMode) ? "1" : undefined}
       className={
         centered
           ? "w-full md:hidden"
@@ -976,6 +977,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   } = useComposer();
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
+  const selectMode = useStudio((s) => s.selectMode);
   const apiKey = useStudio((s) => s.apiKey);
   const wrapper = useRef<HTMLDivElement>(null);
 
@@ -1015,7 +1017,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
       // The docked bar gives its place up to the selection bar rather than
       // being stacked under it: picking a tile drops it out of the dock, and
       // letting the selection go brings it back.
-      data-away={!centered && selecting > 0 ? "1" : undefined}
+      data-away={!centered && (selecting > 0 || selectMode) ? "1" : undefined}
       className={
         // On a phone the box is the card above until it is opened.
         centered

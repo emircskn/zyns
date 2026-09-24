@@ -14,7 +14,6 @@ import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
-import { useLongPress } from "@/lib/useLongPress";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -81,11 +80,9 @@ function AssetTile({
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const kept = favorites.includes(asset.url);
   const [confirming, setConfirming] = useState(false);
-  const press = useLongPress(onPick);
 
   return (
     <div
-      {...press}
       data-flip={asset.id}
       onMouseLeave={() => setConfirming(false)}
       className={`${
@@ -224,6 +221,9 @@ export function AssetBrowser({
   const setFavorites = useStudio((s) => s.setFavorites);
   const [viewing, setViewing] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  // A phone's Select button: tiles pick on a tap before anything is picked.
+  const selectMode = useStudio((s) => s.selectMode);
+  const setSelectMode = useStudio((s) => s.setSelectMode);
   // Deleting, or taking something out of Favorites, empties a cell: the tile
   // is held in it while it shrinks away.
   const { items: tiles, leaving } = useLeaving(assets, (asset) => asset.id);
@@ -263,7 +263,7 @@ export function AssetBrowser({
       square={phone && phoneGrid}
       leaving={leaving.has(asset.id)}
       picked={picked.includes(asset.url)}
-      picking={picked.length > 0}
+      picking={picked.length > 0 || selectMode}
       onPick={() =>
         setPicked((current) =>
           current.includes(asset.url) ? current.filter((u) => u !== asset.url) : [...current, asset.url],
@@ -278,7 +278,7 @@ export function AssetBrowser({
     <>
       {/* A heading for each day, newest first, under one container so a tile
           moving into the day above still slides there. */}
-      <div ref={grid} className="-mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
+      <div ref={grid} className="no-callout -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
         {(byDate
           ? byDay(tiles, (asset) => asset.createdAt)
           : [{ key: "all", label: "", items: tiles }]
@@ -311,6 +311,7 @@ export function AssetBrowser({
       </div>
 
       <SelectionBar
+        open={selectMode}
         count={picked.length}
         total={assets.length}
         onSelectAll={() => setPicked(assets.map((asset) => asset.url))}
@@ -322,8 +323,12 @@ export function AssetBrowser({
         onDelete={() => {
           picked.forEach(drop);
           setPicked([]);
+          setSelectMode(false);
         }}
-        onClose={() => setPicked([])}
+        onClose={() => {
+          setPicked([]);
+          setSelectMode(false);
+        }}
       />
 
       <MediaViewer

@@ -1372,3 +1372,13 @@ html {
     --fade-l var(--d-base) var(--ease),
     --fade-r var(--d-base) var(--ease);
 }
+
+/* Gallery tiles on a touch screen: a held finger is not a request to select
+   the date heading's text or to open the browser's own menu for the picture.
+   Picking goes through the page's Select button instead. */
+.no-callout,
+.no-callout * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

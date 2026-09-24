@@ -10,6 +10,7 @@ import { useStudio } from "@/store/studio";
  * them at once, floating clear of the prompt bar it shares the bottom with.
  */
 export function SelectionBar({
+  open = false,
   count,
   total,
   onSelectAll,
@@ -19,6 +20,8 @@ export function SelectionBar({
   onDelete,
   onClose,
 }: {
+  /** Up with nothing picked yet: a phone's Select button was pressed. */
+  open?: boolean;
   count: number;
   /** How many the page shows, so Select all can say whether it has anything left to add. */
   total: number;
@@ -50,15 +53,15 @@ export function SelectionBar({
   // re-rendered the page under the enlarged view and pulled its own Escape
   // listener off the document mid-dispatch, so the view never closed.
   useEffect(() => {
-    if (count === 0) return;
+    if (count === 0 && !open) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [count, onClose]);
+  }, [count, open, onClose]);
 
-  if (count === 0 || typeof document === "undefined") return null;
+  if ((count === 0 && !open) || typeof document === "undefined") return null;
 
   // A phone has no room for three labels beside the count, so there the
   // buttons keep their icons and give up their words.
@@ -78,7 +81,7 @@ export function SelectionBar({
           <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
             <Icon name="check" size={15} strokeWidth={2.2} />
           </span>
-          {count} selected
+          {count === 0 ? "Tap to select" : `${count} selected`}
         </span>
         {confirming ? (
           <>
@@ -104,6 +107,8 @@ export function SelectionBar({
                 <span className="hidden sm:inline">Select all</span>
               </button>
             )}
+            {count > 0 && (
+            <>
             <button type="button" onClick={onDownload} aria-label="Download" className={button}>
               <Icon name="download" size={16} />
               <span className="hidden sm:inline">Download</span>
@@ -127,6 +132,8 @@ export function SelectionBar({
               <Icon name="trash" size={16} />
               <span className="hidden sm:inline">Delete</span>
             </button>
+            </>
+            )}
           </>
         )}
         <button

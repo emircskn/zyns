@@ -18,7 +18,6 @@ import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
-import { useLongPress } from "@/lib/useLongPress";
 import { useStudio, type Run } from "@/store/studio";
 
 const STATE_LABEL: Record<Run["state"], string> = {
@@ -172,7 +171,7 @@ function Tile({
   /** On its way out: shrinking where it stood rather than blinking away. */
   leaving?: boolean;
   picked: boolean;
-  /** Something is already picked, so a tap picks rather than opens. */
+  /** Picking is under way (something picked, or Select pressed): a tap picks rather than opens. */
   picking: boolean;
   onPick: () => void;
 }) {
@@ -190,7 +189,6 @@ function Tile({
   // enlarged view carries the same actions with room to label them.
   const coarse = useCoarsePointer();
   const [confirming, setConfirming] = useState(false);
-  const press = useLongPress(onPick);
 
   // Only a run still in flight when the tile mounts gets the shader — work
   // restored from an earlier session should not replay it, and anyone who
@@ -207,7 +205,6 @@ function Tile({
 
   return (
     <div
-      {...press}
       data-flip={run.id}
       onMouseLeave={() => setConfirming(false)}
       className={`${
@@ -366,6 +363,9 @@ export function Gallery({ category }: { category?: Category }) {
   const removeRun = useStudio((s) => s.removeRun);
   const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  // A phone's Select button: tiles pick on a tap before anything is picked.
+  const selectMode = useStudio((s) => s.selectMode);
+  const setSelectMode = useStudio((s) => s.setSelectMode);
 
   const shown = useMemo(
     () =>
@@ -400,7 +400,7 @@ export function Gallery({ category }: { category?: Category }) {
       leaving={leaving.has(run.id)}
       onOpen={(url) => setViewer({ url, runId: run.id })}
       picked={picked.includes(run.id)}
-      picking={picked.length > 0}
+      picking={picked.length > 0 || selectMode}
       onPick={() =>
         setPicked((current) =>
           current.includes(run.id) ? current.filter((id) => id !== run.id) : [...current, run.id],
@@ -419,7 +419,7 @@ export function Gallery({ category }: { category?: Category }) {
       {/* A heading for each day the media was made on, newest first. One
           container holds every day, so a tile that moves up into the day
           above still slides there rather than jumping. */}
-      <div ref={grid} className="-mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
+      <div ref={grid} className="no-callout -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
         {byDay(tiles, (run) => run.createdAt).map((day) => (
           <section key={day.key}>
             <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
@@ -445,6 +445,7 @@ export function Gallery({ category }: { category?: Category }) {
       </div>
 
       <SelectionBar
+        open={selectMode}
         count={picked.length}
         total={shown.length}
         onSelectAll={() => setPicked(shown.map((run) => run.id))}
@@ -456,8 +457,12 @@ export function Gallery({ category }: { category?: Category }) {
         onDelete={() => {
           picked.forEach(removeRun);
           setPicked([]);
+          setSelectMode(false);
         }}
-        onClose={() => setPicked([])}
+        onClose={() => {
+          setPicked([]);
+          setSelectMode(false);
+        }}
       />
 
       <MediaViewer

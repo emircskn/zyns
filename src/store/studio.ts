@@ -62,6 +62,12 @@ interface StudioState {
   batch: number;
   /** How many tiles are picked, so the prompt bar can give up its place. */
   selecting: number;
+  /**
+   * A phone picks media through its Select button rather than a long press:
+   * while this is on, a tap on a tile picks it instead of opening it.
+   */
+  selectMode: boolean;
+  setSelectMode: (on: boolean) => void;
   /** A phone's full-screen composer, where the prompt box goes to be written in. */
   composer: boolean;
   /** A phone's catalogue of covers, opened by its Create button. */
@@ -170,6 +176,7 @@ export const useStudio = create<StudioState>()(
       batch: 1,
       selecting: 0,
       composer: false,
+      selectMode: false,
       createOpen: false,
       modelByCategory: {},
       promptByCategory: {},
@@ -209,14 +216,15 @@ export const useStudio = create<StudioState>()(
       setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
-          if (page === "assets" || page === "favorites" || page === "home") return { page };
+          if (page === "assets" || page === "favorites" || page === "home") return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
           const id = state.modelByCategory[page] ?? "";
           const model = getModel(id);
-          if (!id || !model) return { page, category: page, modelId: "" };
+          if (!id || !model) return { page, category: page, modelId: "", selectMode: false };
           return {
             page,
+            selectMode: false,
             category: page,
             modelId: id,
             valuesByModel: {
@@ -258,6 +266,7 @@ export const useStudio = create<StudioState>()(
       // the studio, and a reload should never come back mid-selection.
       setSelecting: (selecting) => set({ selecting }),
       setComposer: (composer) => set({ composer }),
+      setSelectMode: (selectMode) => set({ selectMode }),
       setCreateOpen: (createOpen) => set({ createOpen }),
 
       setValue: (key, value) =>
