@@ -8,7 +8,8 @@ import { activeFields, type ModelDef, type Values } from "@/lib/registry";
  * The studio's own "Auto" aspect ratio (see `autoFrom` on a field), turned
  * into a value the API accepts: the listed ratio closest to the shape of the
  * first reference picture or clip. If that shape cannot be read, the ratio
- * is left out and the model uses its own default.
+ * is left out and the model uses its own default, or, where the API insists
+ * on one, the field's documented default is sent.
  */
 export async function resolveAutoRatio(model: ModelDef, values: Values): Promise<Values> {
   const fields = activeFields(model, values);
@@ -20,10 +21,17 @@ export async function resolveAutoRatio(model: ModelDef, values: Values): Promise
   const next: Values = { ...values };
   for (const field of autos) {
     const best = shape === undefined ? undefined : nearest(field.choices?.map((c) => c.value) ?? [], shape);
-    if (best) next[field.key] = best;
+    const fallback = field.required ? fallbackRatio(field) : undefined;
+    if (best ?? fallback) next[field.key] = best ?? fallback;
     else delete next[field.key];
   }
   return next;
+}
+
+/** A ratio the API will take when the reference's shape is unknown. */
+function fallbackRatio(field: ReturnType<typeof activeFields>[number]): string | undefined {
+  const fallback = typeof field.default === "string" && field.default !== "auto" ? field.default : undefined;
+  return fallback ?? field.choices?.find((c) => c.value !== "auto")?.value;
 }
 
 function firstReference(fields: ReturnType<typeof activeFields>, values: Values): string | undefined {
