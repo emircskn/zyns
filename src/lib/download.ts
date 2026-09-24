@@ -47,22 +47,41 @@ function fileName(url: string, type: string, index: number): string {
   return `${name || `zyns-${Date.now()}-${index + 1}`}.${ext === "jpeg" ? "jpg" : ext}`;
 }
 
-/** The file behind a URL, fetched once and kept for a moment. */
+/**
+ * The bytes behind a URL, or null.
+ *
+ * `no-store` matters: the gallery's <img> already loaded this file without
+ * an Origin, and the media hosts answer that without their CORS header and
+ * let it be cached for a year. Reading through that cached copy fails the
+ * CORS check, which is why pictures already on screen used to fall back to
+ * a new tab. Skipping the cache sends a fresh request that gets the header.
+ */
+async function readBlob(url: string): Promise<Blob | null> {
+  try {
+    const res = await fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" });
+    return res.ok ? await res.blob() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The file behind a URL, fetched once and kept for a moment: straight from
+ * its host, or failing that through this app's own /api/media (absent in
+ * the standalone build, where it simply fails and the link opens instead).
+ */
 function fetchFile(url: string, index = 0): Promise<File | null> {
   const known = ready.get(url);
   if (known) return Promise.resolve(known);
   const inFlight = pending.get(url);
   if (inFlight) return inFlight;
-  const job = fetch(url, { mode: "cors", credentials: "omit" })
-    .then(async (res) => {
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      const file = new File([blob], fileName(url, blob.type, index), { type: blob.type || "application/octet-stream" });
-      remember(url, file);
-      return file;
-    })
-    .catch(() => null)
-    .finally(() => pending.delete(url));
+  const job = (async () => {
+    const blob = (await readBlob(url)) ?? (await readBlob(`/api/media?url=${encodeURIComponent(url)}`));
+    if (!blob) return null;
+    const file = new File([blob], fileName(url, blob.type, index), { type: blob.type || "application/octet-stream" });
+    remember(url, file);
+    return file;
+  })().finally(() => pending.delete(url));
   pending.set(url, job);
   return job;
 }
