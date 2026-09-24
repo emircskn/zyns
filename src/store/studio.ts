@@ -161,6 +161,33 @@ function valuesFor(state: StudioState, id: string): Values {
   return model ? defaultValues(model) : {};
 }
 
+/** Where the studio keeps everything in this browser: key, gallery, settings. */
+const STORE_KEY = "zyns";
+/** The name it had while the app was called KIE Studio. */
+const OLD_STORE_KEY = "kie-studio";
+
+// Carry a browser's saved studio over from the old name before the store
+// reads it, so renaming the key loses nobody's API key or gallery. Runs
+// once: afterwards the old entry is gone. The old entry goes first, since a
+// big gallery held twice could overflow the browser's storage allowance;
+// if the copy still fails, it is put back and read from next time.
+if (typeof window !== "undefined") {
+  let old: string | null = null;
+  try {
+    old = localStorage.getItem(OLD_STORE_KEY);
+    if (old !== null) {
+      localStorage.removeItem(OLD_STORE_KEY);
+      if (localStorage.getItem(STORE_KEY) === null) localStorage.setItem(STORE_KEY, old);
+    }
+  } catch {
+    try {
+      if (old !== null && localStorage.getItem(STORE_KEY) === null) localStorage.setItem(OLD_STORE_KEY, old);
+    } catch {
+      // No storage at all (private mode, a preview): nothing to carry over.
+    }
+  }
+}
+
 export const useStudio = create<StudioState>()(
   persist(
     (set, get) => ({
@@ -395,9 +422,9 @@ export const useStudio = create<StudioState>()(
         })),
     }),
     {
-      // Deliberately not renamed with the brand: this is the localStorage key,
-      // and changing it would throw away everyone's saved key and gallery.
-      name: "kie-studio",
+      // The localStorage key. Renaming it again needs the same carry-over as
+      // OLD_STORE_KEY above, or every browser would lose its key and gallery.
+      name: STORE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         apiKey: state.apiKey,
