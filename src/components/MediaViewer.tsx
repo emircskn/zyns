@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
+import { SaveGlyph } from "@/components/SaveGlyph";
 import { VendorBadge } from "@/components/VendorMark";
 import { getModel, type Field } from "@/lib/registry";
 import {
@@ -249,8 +250,14 @@ function Action({
   danger,
   filled,
   innerRef,
+  glyph,
+  lit,
 }: {
   icon: IconName;
+  /** Drawn instead of the icon, for a button that shows its own progress. */
+  glyph?: ReactNode;
+  /** Lighter, the way a finished action reads (Download once saved). */
+  lit?: boolean;
   label: string;
   onClick?: () => void;
   href?: string;
@@ -264,11 +271,13 @@ function Action({
   const shape = TILE_SHAPE;
   const className = primary
     ? `cta ${shape} font-medium`
-    : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
+    : lit
+      ? `${shape} bg-t1/[0.14] text-t1`
+      : `${shape} bg-t1/[0.07] ${danger ? "hover:bg-[#ff6b6b]/15" : "text-t2 hover:bg-t1/[0.12] hover:text-t1"}`;
   const tint = danger ? { color: "var(--danger)" } : undefined;
   const inner = (
     <>
-      <Icon name={icon} size={19} fill={filled ? "currentColor" : "none"} />
+      {glyph ?? <Icon name={icon} size={19} fill={filled ? "currentColor" : "none"} />}
       <span className="max-w-full truncate">{label}</span>
     </>
   );
@@ -469,6 +478,8 @@ export function MediaViewer({
       key="download"
       icon="download"
       label={saver.label}
+      glyph={<SaveGlyph state={saver.state} size={19} />}
+      lit={saver.state === "done" || saver.state === "retry"}
       onClick={() => shown && saver.state !== "busy" && void saver.save([shown])}
     />,
     (run || upload) && (

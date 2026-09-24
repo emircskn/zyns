@@ -1382,3 +1382,45 @@ html {
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* A Download button's progress: a ring while the file is fetched, then a
+   tick that draws itself in and settles with a small pop. */
+.save-spin {
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  opacity: 0.85;
+  animation: save-spin 0.7s linear infinite;
+}
+
+@keyframes save-spin {
+  to { transform: rotate(360deg); }
+}
+
+.save-done {
+  animation: save-pop 420ms var(--ease);
+}
+
+.save-done path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: save-draw 360ms var(--ease) 80ms forwards;
+}
+
+@keyframes save-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes save-pop {
+  0% { transform: scale(0.6); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-spin { animation-duration: 1.6s; }
+  .save-done,
+  .save-done path { animation: none; stroke-dashoffset: 0; }
+}

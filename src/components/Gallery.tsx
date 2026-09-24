@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
-import { saveMedia } from "@/lib/download";
+import { saveMedia, useSave } from "@/lib/download";
+import { SaveGlyph } from "@/components/SaveGlyph";
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
@@ -119,12 +120,15 @@ function Media({ url }: { url: string }) {
 
 function TileAction({
   icon,
+  glyph,
   label,
   onClick,
   danger,
   filled,
 }: {
   icon: Parameters<typeof Icon>[0]["name"];
+  /** Drawn instead of the icon, for a button that shows its own progress. */
+  glyph?: ReactNode;
   label: string;
   onClick?: () => void;
   danger?: boolean;
@@ -136,8 +140,21 @@ function TileAction({
   }`;
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
-      <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />
+      {glyph ?? <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />}
     </button>
+  );
+}
+
+/** The tile's Download, which shows its save going through and done. */
+function SaveTileAction({ url }: { url: string }) {
+  const saver = useSave();
+  return (
+    <TileAction
+      icon="download"
+      glyph={<SaveGlyph state={saver.state} size={14} />}
+      label={saver.label}
+      onClick={() => saver.state !== "busy" && void saver.save([url])}
+    />
   );
 }
 
@@ -304,7 +321,7 @@ function Tile({
               className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
-          {url && <TileAction icon="download" label="Download" onClick={() => void saveMedia([url])} />}
+          {url && <SaveTileAction url={url} />}
           <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
           {confirming ? (
             <>

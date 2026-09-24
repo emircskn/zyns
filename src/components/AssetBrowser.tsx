@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
-import { saveMedia } from "@/lib/download";
+import { saveMedia, useSave } from "@/lib/download";
+import { SaveGlyph } from "@/components/SaveGlyph";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
@@ -19,12 +20,15 @@ import { useStudio, type Run } from "@/store/studio";
 
 function TileButton({
   icon,
+  glyph,
   label,
   onClick,
   danger,
   filled,
 }: {
   icon: Parameters<typeof Icon>[0]["name"];
+  /** Drawn instead of the icon, for a button that shows its own progress. */
+  glyph?: ReactNode;
   label: string;
   onClick?: () => void;
   danger?: boolean;
@@ -33,11 +37,23 @@ function TileButton({
   const className = `grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/85"
   }`;
-  const glyph = <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />;
   return (
     <button type="button" onClick={onClick} title={label} aria-label={label} className={className}>
-      {glyph}
+      {glyph ?? <Icon name={icon} size={14} fill={filled ? "currentColor" : "none"} />}
     </button>
+  );
+}
+
+/** The tile's Download, which shows its save going through and done. */
+function SaveTileButton({ url }: { url: string }) {
+  const saver = useSave();
+  return (
+    <TileButton
+      icon="download"
+      glyph={<SaveGlyph state={saver.state} size={14} />}
+      label={saver.label}
+      onClick={() => saver.state !== "busy" && void saver.save([url])}
+    />
   );
 }
 
@@ -159,7 +175,7 @@ function AssetTile({
               onToggle={() => toggleFavorite(asset.url)}
               className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
             />
-            <TileButton icon="download" label="Download" onClick={() => void saveMedia([asset.url])} />
+            <SaveTileButton url={asset.url} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
             {onRemove &&
               (confirming ? (

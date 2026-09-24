@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { useStudio } from "@/store/studio";
-import type { SaveResult, SaveState } from "@/lib/download";
+import { saveLabel, type SaveResult, type SaveState } from "@/lib/download";
+import { SaveGlyph } from "@/components/SaveGlyph";
 
 /**
  * The bar that appears once something is picked: what it can do to all of
@@ -48,7 +49,7 @@ export function SelectionBar({
   async function download() {
     setSaving("busy");
     const result = await onDownload();
-    setSaving(result === "retry" ? "retry" : "idle");
+    setSaving(result === "retry" ? "retry" : result === "saved" ? "done" : "idle");
   }
 
   // The prompt bar steps aside for this one rather than stacking above it, so
@@ -123,15 +124,13 @@ export function SelectionBar({
               type="button"
               onClick={download}
               disabled={saving === "busy"}
-              aria-label={saving === "retry" ? "Tap to save" : "Download"}
-              className={button}
+              aria-label={saveLabel(saving)}
+              className={`${button} ${saving === "done" || saving === "retry" ? "bg-t1/[0.1] text-t1" : ""}`}
             >
-              <Icon name="download" size={16} className={saving === "busy" ? "animate-pulse" : ""} />
+              <SaveGlyph state={saving} size={16} />
               {/* The one more tap a phone may ask for has to say so, even
                   where the other buttons keep to their icons. */}
-              <span className={saving === "retry" ? "inline" : "hidden sm:inline"}>
-                {saving === "busy" ? "Preparing…" : saving === "retry" ? "Tap to save" : "Download"}
-              </span>
+              <span className={saving === "retry" ? "inline" : "hidden sm:inline"}>{saveLabel(saving)}</span>
             </button>
             <button
               type="button"

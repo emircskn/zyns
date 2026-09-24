@@ -153,17 +153,24 @@ export async function saveMedia(urls: string[]): Promise<SaveResult> {
   return "saved";
 }
 
-export type SaveState = "idle" | "busy" | "retry";
+export type SaveState = "idle" | "busy" | "retry" | "done";
 
-/** A save button's state: working, or waiting for the one more tap. */
+/**
+ * A save button's state: working, waiting for the one more tap, or done.
+ * Done stays until the button is reset (the viewer resets it when it moves
+ * to another piece of media), so it answers "did I already save this?".
+ */
 export function useSave() {
   const [state, setState] = useState<SaveState>("idle");
   const save = useCallback(async (urls: string[]) => {
     setState("busy");
     const result = await saveMedia(urls);
-    setState(result === "retry" ? "retry" : "idle");
+    setState(result === "retry" ? "retry" : result === "saved" ? "done" : "idle");
   }, []);
   const reset = useCallback(() => setState("idle"), []);
-  const label = state === "busy" ? "Preparing…" : state === "retry" ? "Tap to save" : "Download";
-  return { state, save, reset, label };
+  return { state, save, reset, label: saveLabel(state) };
+}
+
+export function saveLabel(state: SaveState): string {
+  return state === "busy" ? "Preparing…" : state === "retry" ? "Tap to save" : state === "done" ? "Saved" : "Download";
 }
