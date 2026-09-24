@@ -278,7 +278,7 @@ export function AssetBrowser({
     <>
       {/* A heading for each day, newest first, under one container so a tile
           moving into the day above still slides there. */}
-      <div ref={grid} className="no-callout -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
+      <div ref={grid} className="no-text-select -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
         {(byDate
           ? byDay(tiles, (asset) => asset.createdAt)
           : [{ key: "all", label: "", items: tiles }]

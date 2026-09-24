@@ -1374,11 +1374,11 @@ html {
 }
 
 /* Gallery tiles on a touch screen: a held finger is not a request to select
-   the date heading's text or to open the browser's own menu for the picture.
-   Picking goes through the page's Select button instead. */
-.no-callout,
-.no-callout * {
-  -webkit-touch-callout: none;
+   the date heading's text. The browser's own menu for the picture (Save,
+   Copy, Share) stays: that is how a phone keeps a picture. Picking goes
+   through the page's Select button. */
+.no-text-select,
+.no-text-select * {
   -webkit-user-select: none;
   user-select: none;
 }
