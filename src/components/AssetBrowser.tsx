@@ -224,6 +224,10 @@ export function AssetBrowser({
   // A phone's Select button: tiles pick on a tap before anything is picked.
   const selectMode = useStudio((s) => s.selectMode);
   const setSelectMode = useStudio((s) => s.setSelectMode);
+  // Cancel ends picking outright: whatever was picked goes with it.
+  useEffect(() => {
+    if (!selectMode) setPicked([]);
+  }, [selectMode]);
   // Deleting, or taking something out of Favorites, empties a cell: the tile
   // is held in it while it shrinks away.
   const { items: tiles, leaving } = useLeaving(assets, (asset) => asset.id);

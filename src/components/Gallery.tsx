@@ -366,6 +366,10 @@ export function Gallery({ category }: { category?: Category }) {
   // A phone's Select button: tiles pick on a tap before anything is picked.
   const selectMode = useStudio((s) => s.selectMode);
   const setSelectMode = useStudio((s) => s.setSelectMode);
+  // Cancel ends picking outright: whatever was picked goes with it.
+  useEffect(() => {
+    if (!selectMode) setPicked([]);
+  }, [selectMode]);
 
   const shown = useMemo(
     () =>
