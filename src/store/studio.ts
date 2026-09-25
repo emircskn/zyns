@@ -218,11 +218,16 @@ function withRefs(model: ModelDef, values: Values, refs: string[] | undefined, s
   return same ? next : { ...next, [field.key]: value };
 }
 
-/** Remember the reference pictures these values hold as their category's. */
-function sharedRefs(state: StudioState, model: ModelDef, values: Values) {
+/**
+ * Remember the reference pictures these values hold as their category's.
+ * `whole` is for values that stand for the entire bar (a Recreate): there a
+ * mode without pictures means the category has none, rather than leaving
+ * the last ones to turn up again on the next model.
+ */
+function sharedRefs(state: StudioState, model: ModelDef, values: Values, whole = false) {
   const field = refField(model, values);
-  if (!field) return {};
-  const refs = refsIn(values, field.key);
+  if (!field && !whole) return {};
+  const refs = field ? refsIn(values, field.key) : [];
   if (JSON.stringify(state.refsByCategory[model.category] ?? []) === JSON.stringify(refs)) return {};
   return { refsByCategory: { ...state.refsByCategory, [model.category]: refs } };
 }
@@ -398,7 +403,7 @@ export const useStudio = create<StudioState>()(
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
             ...(model ? sharedPrompt(state, model, values) : {}),
-            ...(model ? sharedRefs(state, model, values) : {}),
+            ...(model ? sharedRefs(state, model, values, true) : {}),
           };
         }),
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
@@ -124,12 +124,12 @@ export function MediaPicker({
   const assets = useAssets();
   const { pending, error, input, send, accept: mime } = useUploader(accept);
   const [tab, setTab] = useState<Tab>("generated");
-  // Which way the lists slide when the tab changes: Uploads sits to the right.
-  const [direction, setDirection] = useState<1 | -1 | 0>(0);
   const [chosen, setChosen] = useState<string[]>([]);
   const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const urlField = useRef<HTMLInputElement>(null);
+  const sheet = useRef<HTMLDivElement>(null);
+  const lastHeight = useRef<number | null>(null);
 
   const made = useMemo(
     () => assets.filter((a) => a.source === "run" && a.kind === accept),
@@ -145,7 +145,6 @@ export function MediaPicker({
     setChosen([]);
     setUrl("");
     setPreview(null);
-    setDirection(0);
     setTab(made.length > 0 ? "generated" : "uploads");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,9 +160,30 @@ export function MediaPicker({
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose, preview]);
 
+  // The sheet is as tall as what it holds, so switching tabs, or a list
+  // growing, changes its height. It moves there rather than jumping: the
+  // old height is kept for a moment and eased into the new one.
+  const list = tab === "generated" ? made : uploaded;
+  const shape = `${tab}:${list.length}:${pending}:${chosen.length > 0}:${!!error}`;
+  useLayoutEffect(() => {
+    const node = sheet.current;
+    if (!node) {
+      lastHeight.current = null;
+      return;
+    }
+    const next = node.getBoundingClientRect().height;
+    const previous = lastHeight.current;
+    lastHeight.current = next;
+    if (previous === null || Math.abs(previous - next) < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    node.animate([{ height: `${previous}px` }, { height: `${next}px` }], {
+      duration: 320,
+      easing: "cubic-bezier(0.32, 0.72, 0, 1)",
+    });
+  }, [shape, mounted]);
+
   if (!mounted || typeof document === "undefined") return null;
 
-  const list = tab === "generated" ? made : uploaded;
   const noun = accept === "video" ? "clips" : accept === "audio" ? "audio" : "images";
 
   function choose(asset: Asset) {
@@ -204,6 +224,7 @@ export function MediaPicker({
         }`}
       />
       <div
+        ref={sheet}
         className={`relative flex max-h-[86dvh] w-full flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:max-w-2xl sm:rounded-panel ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
@@ -226,10 +247,7 @@ export function MediaPicker({
         <div className="flex items-center px-4 py-3 sm:px-5">
           <PillGroup
             value={tab}
-            onChange={(next) => {
-              if (next !== tab) setDirection(next === "uploads" ? 1 : -1);
-              setTab(next as Tab);
-            }}
+            onChange={(next) => setTab(next as Tab)}
             items={[
               { id: "generated", label: "Generated" },
               { id: "uploads", label: "Uploads" },
@@ -238,89 +256,82 @@ export function MediaPicker({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
-          {/* The lists slide the way the tab moved, so the switch reads as a
-              move sideways rather than a flash. */}
-          <div
-            key={tab}
-            className={direction === 1 ? "tab-in-right" : direction === -1 ? "tab-in-left" : undefined}
-          >
-            {tab === "generated" && list.length === 0 ? (
-              <p className="py-14 text-center text-[13px] text-t4">
-                Nothing generated yet. Runs that produce {noun} show up here.
-              </p>
-            ) : (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {/* Uploading is one of the tiles rather than a separate errand:
-                    the chooser sits where the uploads themselves are. */}
-                {tab === "uploads" && (
-                  <button
-                    type="button"
-                    onClick={() => input.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1 disabled:opacity-50"
+          {tab === "generated" && list.length === 0 ? (
+            <p className="py-14 text-center text-[13px] text-t4">
+              Nothing generated yet. Runs that produce {noun} show up here.
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {/* Uploading is one of the tiles rather than a separate errand:
+                  the chooser sits where the uploads themselves are. */}
+              {tab === "uploads" && (
+                <button
+                  type="button"
+                  onClick={() => input.current?.click()}
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1 disabled:opacity-50"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
+                    <Icon name="upload" size={17} />
+                  </span>
+                  <span className="px-2 text-center text-[12.5px] font-medium">Upload media</span>
+                </button>
+              )}
+              {/* A place for each file on its way up, where it will land. */}
+              {tab === "uploads" &&
+                Array.from({ length: pending }, (_, index) => (
+                  <div
+                    key={`pending-${index}`}
+                    aria-label="Uploading"
+                    className="anim-pop grid aspect-square place-items-center rounded-card bg-surface ring-1 ring-inset ring-line"
                   >
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
-                      <Icon name="upload" size={17} />
-                    </span>
-                    <span className="px-2 text-center text-[12.5px] font-medium">Upload media</span>
-                  </button>
-                )}
-                {/* A place for each file on its way up, where it will land. */}
-                {tab === "uploads" &&
-                  Array.from({ length: pending }, (_, index) => (
-                    <div
-                      key={`pending-${index}`}
-                      aria-label="Uploading"
-                      className="anim-pop grid aspect-square place-items-center rounded-card bg-surface ring-1 ring-inset ring-line"
-                    >
-                      <span className="h-7 w-7 animate-spin rounded-full border-[2.5px] border-t1/20 border-t-t1" />
-                    </div>
-                  ))}
-                {list.map((asset) => (
-                  <Thumb
-                    key={asset.id}
-                    asset={asset}
-                    picked={chosen.includes(asset.url) || taken.includes(asset.url)}
-                    taken={taken.includes(asset.url)}
-                    onClick={() => choose(asset)}
-                    onPreview={
-                      tab === "uploads" && asset.kind === "image"
-                        ? () => setPreview(asset.url)
-                        : undefined
-                    }
-                  />
+                    <span className="h-7 w-7 animate-spin rounded-full border-[2.5px] border-t1/20 border-t-t1" />
+                  </div>
                 ))}
-              </div>
-            )}
+              {list.map((asset) => (
+                <Thumb
+                  key={asset.id}
+                  asset={asset}
+                  picked={chosen.includes(asset.url) || taken.includes(asset.url)}
+                  taken={taken.includes(asset.url)}
+                  onClick={() => choose(asset)}
+                  onPreview={
+                    tab === "uploads" && asset.kind === "image"
+                      ? () => setPreview(asset.url)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          )}
 
-            {tab === "uploads" && (
-              <>
-                <div className="mt-3 flex items-center gap-2">
-                  <input
-                    ref={urlField}
-                    value={url}
-                    onChange={(event) => setUrl(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        commitUrl();
-                      }
-                    }}
-                    placeholder="…or paste a public URL"
-                    className="min-w-0 flex-1 rounded-full bg-t1/[0.055] px-4 py-2.5 text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:ring-line-strong"
-                  />
-                  <button
-                    type="button"
-                    onClick={commitUrl}
-                    disabled={!url.trim()}
-                    className="cta shrink-0 rounded-full px-4 py-2.5 text-[12.5px] font-medium disabled:opacity-40"
-                  >
-                    Add
-                  </button>
-                </div>
-                {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
-              </>
-            )}
-          </div>
+          {tab === "uploads" && (
+            <>
+              <div className="mt-3 flex items-center gap-2">
+                <input
+                  ref={urlField}
+                  value={url}
+                  onChange={(event) => setUrl(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      commitUrl();
+                    }
+                  }}
+                  placeholder="…or paste a public URL"
+                  className="min-w-0 flex-1 rounded-full bg-t1/[0.055] px-4 py-2.5 text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:ring-line-strong"
+                />
+                <button
+                  type="button"
+                  onClick={commitUrl}
+                  disabled={!url.trim()}
+                  className="cta shrink-0 rounded-full px-4 py-2.5 text-[12.5px] font-medium disabled:opacity-40"
+                >
+                  Add
+                </button>
+              </div>
+              {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
+            </>
+          )}
         </div>
 
         {multiple && chosen.length > 0 && (

@@ -422,7 +422,9 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
       <div
         className={
           roomy
-            ? "no-bar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-0.5 pt-0.5"
+            ? lane
+              ? "no-bar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-0.5 pt-0.5"
+              : "flex flex-wrap gap-2.5"
             : lane
               ? "no-bar flex gap-1.5 overflow-x-auto pb-0.5"
               : "flex flex-wrap gap-1.5 [&>*]:w-14"

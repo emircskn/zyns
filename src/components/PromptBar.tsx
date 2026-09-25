@@ -120,6 +120,7 @@ function InputStrip({ fields }: { fields: Field[] }) {
               values={values}
               compact
               lane={lane}
+              roomy
               onChange={(value) => setValue(field.key, value)}
             />
           </div>
@@ -447,6 +448,7 @@ export function PromptField({
   return (
     <div ref={row} className="relative mb-2 flex items-start gap-2">
       <textarea
+        data-prompt-input={index === 0 ? "" : undefined}
         ref={(node) => {
           ref.current = node;
           inputRef?.(node);

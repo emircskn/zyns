@@ -36,18 +36,14 @@ export function imageInput(model: ModelDef): Field | undefined {
   return imageInputs(model)[0];
 }
 
-/** Put that url into the field, adding to a list or replacing a single slot. */
-function attach(model: ModelDef, field: Field, url: string) {
+/**
+ * Make that url the field's picture. It replaces whatever was there rather
+ * than joining it: Reference means "work from this one", and pictures left
+ * over from an earlier Recreate or Reference would ride along unasked.
+ */
+function attach(_model: ModelDef, field: Field, url: string) {
   const { setValue } = useStudio.getState();
-  if (field.kind !== "images") {
-    setValue(field.key, url);
-    return;
-  }
-  const current = useStudio.getState().valuesByModel[model.id]?.[field.key];
-  const list = Array.isArray(current) ? current.filter((u) => typeof u === "string") : [];
-  if (list.includes(url)) return;
-  const room = field.maxItems ?? 10;
-  setValue(field.key, [...list, url].slice(-room));
+  setValue(field.key, field.kind === "images" ? [url] : url);
 }
 
 /**

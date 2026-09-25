@@ -1424,27 +1424,3 @@ html {
   .save-done,
   .save-done path { animation: none; stroke-dashoffset: 0; }
 }
-
-/* A tab's content arriving from the side the tab sits on. */
-.tab-in-right {
-  animation: tab-in-right 260ms var(--ease) both;
-}
-
-.tab-in-left {
-  animation: tab-in-left 260ms var(--ease) both;
-}
-
-@keyframes tab-in-right {
-  from { opacity: 0; transform: translateX(18px); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes tab-in-left {
-  from { opacity: 0; transform: translateX(-18px); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tab-in-right,
-  .tab-in-left { animation-duration: 1ms; }
-}

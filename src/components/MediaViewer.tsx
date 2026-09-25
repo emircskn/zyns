@@ -458,11 +458,22 @@ export function MediaViewer({
     readyToWrite();
   }
 
-  // On a phone the prompt box is a card that opens into the composer: after
-  // handing it a run or a picture, open it, so it is ready to write in. A
-  // desktop's bar is always open.
+  // After handing the bar a run or a picture, have it ready to write in: a
+  // phone opens its composer; a desktop's bar is always open, so its prompt
+  // simply takes the caret.
   function readyToWrite() {
-    if (phone) useStudio.getState().setComposer(true);
+    if (phone) {
+      useStudio.getState().setComposer(true);
+      return;
+    }
+    window.setTimeout(() => {
+      const box = [...document.querySelectorAll<HTMLTextAreaElement>("textarea[data-prompt-input]")].find(
+        (node) => node.getBoundingClientRect().width > 0,
+      );
+      if (!box) return;
+      box.focus();
+      box.setSelectionRange(box.value.length, box.value.length);
+    }, 260);
   }
 
   function remove() {
