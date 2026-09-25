@@ -88,7 +88,8 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
   const loadDemo = useStudio((s) => s.loadDemo);
 
-  const recent = useMemo(() => assets.slice(0, 6), [assets]);
+  // What the studio made lately; uploads are not something it made.
+  const recent = useMemo(() => assets.filter((a) => a.source !== "upload").slice(0, 6), [assets]);
 
   // The box holds the middle of the first screen, whether or not there is
   // anything under it: the hero takes all the height left below whatever the
