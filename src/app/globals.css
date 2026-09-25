@@ -1424,3 +1424,14 @@ html {
   .save-done,
   .save-done path { animation: none; stroke-dashoffset: 0; }
 }
+
+/* An `@Image N` in the prompt. It sits in a copy of the text laid out behind
+   the textarea, so it must not move a single letter: the pad is a shadow,
+   not padding, and the weight is the text's own. */
+.prompt-chip {
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--t1) 14%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--t1) 14%, transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}

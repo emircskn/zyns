@@ -21,7 +21,16 @@ import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
-import { insertMention, mentionAtCaret, mentionNames, mentionSources, usedMentions } from "@/lib/mentions";
+import {
+  imageName,
+  imageRefs,
+  imageTokens,
+  insertMention,
+  mentionAtCaret,
+  mentionNames,
+  mentionSources,
+  usedMentions,
+} from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { activeFields, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
@@ -334,9 +343,27 @@ export function FieldChip({ field }: { field: Field }) {
   );
 }
 
+/** A name the prompt can point at with `@`, and the picture it stands for. */
+type MentionOption = { name: string; thumb?: string };
+
+function optionMatches(option: MentionOption, query: string) {
+  const q = query.toLowerCase();
+  const name = option.name.toLowerCase();
+  if (name.startsWith(q) || name.replace(/\s+/g, "").startsWith(q)) return true;
+  // `@2` finds Image 2.
+  return !!option.thumb && /^\d+$/.test(q) && name.split(" ")[1]?.startsWith(q) === true;
+}
+
 /**
- * The prompt textarea with `@name` completion: typing `@` lists the
- * elements defined for this model, and a pick drops the token at the caret.
+ * The prompt textarea with `@` completion: typing `@` lists the elements
+ * defined for this model or, for models that take several pictures, the
+ * attached references as Image 1…N. A pick drops the token at the caret.
+ *
+ * A textarea cannot hold chips, so the `@Image N` tokens are drawn by a copy
+ * of the text laid out exactly behind it: the textarea's own glyphs go
+ * transparent (its caret and selection stay), and the copy paints the text
+ * with each token on its chip. The same copy tells which chip is under the
+ * pointer, for the enlarged look at its picture.
  */
 export function PromptField({
   field,
@@ -356,18 +383,25 @@ export function PromptField({
   /** The phone composer's: a page of room to write in rather than a line. */
   large?: boolean;
 }) {
+  const model = useModel();
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
   const text = (values[field.key] as string) ?? "";
   const ref = useRef<HTMLTextAreaElement>(null);
+  const mirror = useRef<HTMLDivElement>(null);
   const [caret, setCaret] = useState<number | null>(null);
   const [cursor, setCursor] = useState(0);
   const [dismissed, setDismissed] = useState<number | null>(null);
 
-  const token = caret === null || names.length === 0 ? null : mentionAtCaret(text, caret);
-  const matches = token
-    ? names.filter((name) => name.toLowerCase().startsWith(token.query.toLowerCase()))
-    : [];
+  const refs = model && names.length === 0 ? imageRefs(model, values) : [];
+  const options: MentionOption[] =
+    names.length > 0 ? names.map((name) => ({ name })) : refs.map((url, i) => ({ name: imageName(i), thumb: url }));
+  const chips = refs.length > 0 ? imageTokens(text).filter((t) => t.index < refs.length) : [];
+  const chipped = chips.length > 0;
+  // A caret set down inside a chip is not writing a new one.
+  const inChip = caret !== null && chips.some((chip) => caret > chip.start && caret <= chip.end);
+  const token = caret === null || options.length === 0 || inChip ? null : mentionAtCaret(text, caret);
+  const matches = token ? options.filter((option) => optionMatches(option, token.query)) : [];
   const open = !!token && matches.length > 0 && dismissed !== token.start;
 
   // Portalled for the same reason as Popover: inside the bar the beam's glow
@@ -402,6 +436,56 @@ export function PromptField({
 
   useEffect(() => setCursor(0), [token?.query]);
 
+  // The copy scrolls with the textarea once the prompt outgrows the box.
+  useLayoutEffect(() => {
+    if (mirror.current && ref.current) mirror.current.scrollTop = ref.current.scrollTop;
+  });
+
+  // The chip under the pointer (or the finger's last tap) and where it is.
+  const [peek, setPeek] = useState<{ index: number; rect: DOMRect } | null>(null);
+  useEffect(() => {
+    if (!peek) return;
+    const close = () => setPeek(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [peek]);
+  const peekUrl = peek ? refs[peek.index] : undefined;
+
+  function chipAt(x: number, y: number) {
+    const node = mirror.current;
+    if (!node) return null;
+    for (const chip of node.querySelectorAll<HTMLElement>("[data-chip]")) {
+      for (const rect of chip.getClientRects()) {
+        if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2) {
+          return { index: Number(chip.dataset.chip), rect };
+        }
+      }
+    }
+    return null;
+  }
+
+  // The caret after an edit of ours is set in the same commit as the new
+  // text: a frame later, a key typed in between would already have landed
+  // at the end, where React leaves the caret when it writes the value.
+  const pendingCaret = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const at = pendingCaret.current;
+    const node = ref.current;
+    if (at === null || !node) return;
+    pendingCaret.current = null;
+    node.focus();
+    node.setSelectionRange(at, at);
+    setCaret(at);
+  });
+
+  function placeCaret(at: number) {
+    pendingCaret.current = at;
+  }
+
   function syncCaret() {
     const node = ref.current;
     if (node) setCaret(node.selectionStart);
@@ -412,16 +496,32 @@ export function PromptField({
     const next = insertMention(text, token.start, caret ?? text.length, name);
     setValue(field.key, next.text);
     setDismissed(null);
-    requestAnimationFrame(() => {
-      const node = ref.current;
-      if (!node) return;
-      node.focus();
-      node.setSelectionRange(next.caret, next.caret);
-      setCaret(next.caret);
-    });
+    placeCaret(next.caret);
+  }
+
+  // A chip goes as one piece: Backspace at its end (or Delete at its start)
+  // takes the whole token rather than leaving a stray `@Image`.
+  function eraseChip(event: KeyboardEvent<HTMLTextAreaElement>) {
+    const node = event.currentTarget;
+    if (node.selectionStart !== node.selectionEnd) return false;
+    const at = node.selectionStart;
+    const chip = chips.find((c) =>
+      event.key === "Backspace" ? at > c.start && at <= c.end : at >= c.start && at < c.end,
+    );
+    if (!chip) return false;
+    event.preventDefault();
+    // One of the spaces either side goes too, so no double gap is left.
+    const end = text[chip.end] === " " && (chip.start === 0 || text[chip.start - 1] === " ") ? chip.end + 1 : chip.end;
+    setValue(field.key, text.slice(0, chip.start) + text.slice(end));
+    placeCaret(chip.start);
+    return true;
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    setPeek(null);
+    if ((event.key === "Backspace" || event.key === "Delete") && !event.altKey && !event.metaKey && !event.ctrlKey) {
+      if (eraseChip(event)) return;
+    }
     if (open) {
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
@@ -430,7 +530,7 @@ export function PromptField({
       }
       if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
-        pick(matches[cursor] ?? matches[0]);
+        pick((matches[cursor] ?? matches[0]).name);
         return;
       }
       if (event.key === "Escape") {
@@ -445,64 +545,155 @@ export function PromptField({
     }
   }
 
+  // The copy and the textarea share every rule that decides where a letter
+  // lands; only the box around the textarea is its own.
+  const type = large
+    ? "text-[16.5px] font-medium leading-[1.45] tracking-[-0.012em]"
+    : "px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] md:pt-1.5 md:text-[15px]";
+
+  const copy: ReactNode[] = [];
+  if (chipped) {
+    let last = 0;
+    for (const chip of chips) {
+      copy.push(text.slice(last, chip.start));
+      copy.push(
+        <span key={chip.start} data-chip={chip.index} className="prompt-chip">
+          {text.slice(chip.start, chip.end)}
+        </span>,
+      );
+      last = chip.end;
+    }
+    // A closing line break only takes room with something after it.
+    copy.push(text.slice(last) + "​");
+  }
+
   return (
     <div ref={row} className="relative mb-2 flex items-start gap-2">
-      <textarea
-        data-prompt-input={index === 0 ? "" : undefined}
-        ref={(node) => {
-          ref.current = node;
-          inputRef?.(node);
-        }}
-        value={text}
-        onChange={(event) => {
-          setValue(field.key, event.target.value);
-          setCaret(event.target.selectionStart);
-        }}
-        onKeyDown={onKeyDown}
-        onKeyUp={syncCaret}
-        onClick={syncCaret}
-        onSelect={syncCaret}
-        onBlur={() => window.setTimeout(() => setCaret(null), 120)}
-        rows={large ? (index === 0 ? 6 : 2) : index === 0 ? 2 : 1}
-        placeholder={field.placeholder ?? `${field.label}…`}
-        className={
-          large
-            ? "min-h-[104px] min-w-0 flex-1 resize-none bg-transparent text-[16.5px] font-medium leading-[1.45] tracking-[-0.012em] text-t1 outline-none placeholder:font-normal placeholder:text-t4"
-            : "max-h-40 min-w-0 flex-1 resize-none bg-transparent px-1 pt-[5px] text-[16px] leading-relaxed tracking-[-0.011em] text-t1 outline-none placeholder:text-t4 md:pt-1.5 md:text-[15px]"
-        }
-      />
+      <div className="relative min-w-0 flex-1">
+        {chipped && (
+          <div
+            ref={mirror}
+            aria-hidden
+            className={`no-bar pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words text-t1 ${type}`}
+          >
+            {copy}
+          </div>
+        )}
+        <textarea
+          data-prompt-input={index === 0 ? "" : undefined}
+          ref={(node) => {
+            ref.current = node;
+            inputRef?.(node);
+          }}
+          value={text}
+          onChange={(event) => {
+            setValue(field.key, event.target.value);
+            setCaret(event.target.selectionStart);
+            setPeek(null);
+          }}
+          onKeyDown={onKeyDown}
+          onKeyUp={syncCaret}
+          onClick={syncCaret}
+          onSelect={syncCaret}
+          onScroll={(event) => {
+            if (mirror.current) mirror.current.scrollTop = event.currentTarget.scrollTop;
+          }}
+          onPointerMove={(event) => {
+            if (event.pointerType !== "mouse" || !chipped) return;
+            const hit = chipAt(event.clientX, event.clientY);
+            setPeek((now) => (hit?.index === now?.index ? now : hit));
+          }}
+          onPointerLeave={(event) => {
+            if (event.pointerType === "mouse") setPeek(null);
+          }}
+          onPointerUp={(event) => {
+            // No hover on a phone: a tap on a chip shows its picture, the
+            // next tap anywhere else puts it away.
+            if (event.pointerType === "mouse") return;
+            const hit = chipped ? chipAt(event.clientX, event.clientY) : null;
+            setPeek((now) => (hit && hit.index !== now?.index ? hit : null));
+          }}
+          onBlur={() => {
+            window.setTimeout(() => setCaret(null), 120);
+            setPeek(null);
+          }}
+          rows={large ? (index === 0 ? 6 : 2) : index === 0 ? 2 : 1}
+          placeholder={field.placeholder ?? `${field.label}…`}
+          className={`relative block w-full resize-none bg-transparent text-t1 outline-none placeholder:text-t4 ${type} ${
+            large ? "min-h-[104px] placeholder:font-normal" : "max-h-40"
+          } ${chipped ? "no-bar text-transparent caret-t1" : ""}`}
+        />
+      </div>
       {trailing}
+      {peek &&
+        peekUrl &&
+        createPortal(
+          <ChipPeek url={peekUrl} name={imageName(peek.index)} rect={peek.rect} />,
+          document.body,
+        )}
       {open &&
         spot &&
         createPortal(
         <div
-          className="surface-pop anim-rise fixed z-[90] rounded-panel p-1.5"
+          className="surface-pop anim-rise fixed z-[90] max-h-[min(340px,50vh)] overflow-y-auto rounded-panel p-1.5"
           style={{ left: spot.left, bottom: spot.bottom, width: spot.width }}
           role="listbox"
         >
           <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
-            Elements
+            {names.length > 0 ? "Elements" : "References"}
           </div>
-          {matches.map((name, i) => (
+          {matches.map((option, i) => (
             <button
-              key={name}
+              key={option.name}
               type="button"
               role="option"
               aria-selected={i === cursor}
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => pick(name)}
+              onClick={() => pick(option.name)}
               onMouseEnter={() => setCursor(i)}
-              className={`flex w-full items-center gap-2 rounded-full px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-                i === cursor ? "bg-t1 text-canvas" : "text-t2"
-              }`}
+              className={`flex w-full items-center gap-2.5 rounded-full text-left text-[13.5px] transition-colors duration-[120ms] ${
+                option.thumb ? "py-1.5 pl-1.5 pr-3" : "px-3 py-2"
+              } ${i === cursor ? "bg-t1 text-canvas" : "text-t2"}`}
             >
-              <Icon name="at" size={16} className="shrink-0" />
-              <span className="truncate">{name}</span>
+              {option.thumb ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={option.thumb}
+                  alt=""
+                  draggable={false}
+                  className="h-8 w-8 shrink-0 rounded-full bg-t1/[0.07] object-cover"
+                />
+              ) : (
+                <Icon name="at" size={16} className="shrink-0" />
+              )}
+              <span className="truncate">{option.name}</span>
             </button>
           ))}
         </div>,
         document.body,
       )}
+    </div>
+  );
+}
+
+/** The enlarged look at a chip's picture, standing over the chip. */
+function ChipPeek({ url, name, rect }: { url: string; name: string; rect: DOMRect }) {
+  const margin = 16;
+  const half = 104;
+  const center = Math.max(margin + half, Math.min(rect.left + rect.width / 2, window.innerWidth - margin - half));
+  return (
+    <div
+      className="surface-pop anim-pop pointer-events-none fixed z-[95] -translate-x-1/2 rounded-card p-1.5"
+      style={{ left: center, bottom: window.innerHeight - rect.top + 10 }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt={name}
+        draggable={false}
+        className="block h-auto max-h-[200px] w-auto min-w-[120px] max-w-[196px] rounded-[10px] bg-t1/[0.07] object-contain"
+      />
+      <div className="px-1 pb-0.5 pt-1.5 text-center text-[12px] font-medium text-t2">@{name}</div>
     </div>
   );
 }

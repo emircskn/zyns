@@ -2,6 +2,7 @@
 
 import { aspectFromValues } from "@/lib/aspect";
 import { resolveAutoRatio } from "@/lib/autoRatio";
+import { withImageMentions } from "@/lib/mentions";
 import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import type { PollKind } from "@/lib/kie/client";
 import { getModel, validateValues, type Values } from "@/lib/registry";
@@ -30,8 +31,9 @@ export async function submitRun(): Promise<SubmitResult> {
 
   // The studio's own "Auto" ratio becomes a real one here; the run keeps
   // "auto" in its values so Recreate brings Auto back.
+  // `@Image N` in the prompt is ours too: the model reads it spelled out.
   const sent = await resolveAutoRatio(model, values);
-  const { endpoint, payload, poll } = model.build(sent);
+  const { endpoint, payload, poll } = model.build(withImageMentions(model, sent));
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const run: Run = {

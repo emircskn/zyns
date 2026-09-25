@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
+import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
   activeFields,
@@ -390,9 +391,14 @@ export const useStudio = create<StudioState>()(
           const current = valuesFor(state, state.modelId);
           const next = { ...current, [key]: value };
           const model = getModel(state.modelId);
+          // Taking a picture out moves the prompt's `@Image N` with the rest.
+          const prompt = model && promptKey(model, next);
+          if (model && prompt && typeof next[prompt] === "string" && imageFields(model, next).some((f) => f.key === key)) {
+            next[prompt] = followRemoval(next[prompt] as string, imageRefs(model, current), imageRefs(model, next));
+          }
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
-            ...(model && key === promptKey(model, next) ? sharedPrompt(state, model, next) : {}),
+            ...(model ? sharedPrompt(state, model, next) : {}),
             ...(model && key === refField(model, next)?.key ? sharedRefs(state, model, next) : {}),
           };
         }),
