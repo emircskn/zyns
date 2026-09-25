@@ -32,6 +32,7 @@ async function readJson<T>(res: Response): Promise<T> {
   try {
     return (await res.json()) as T;
   } catch {
+    if (res.status === 413) throw new Error("That file is too large to upload.");
     throw new Error(`KIE returned a non-JSON response (HTTP ${res.status}).`);
   }
 }
@@ -115,19 +116,38 @@ export async function getCredits(apiKey: string): Promise<number | null> {
   return typeof body.credits === "number" ? body.credits : null;
 }
 
+/** What this app's own server route can pass on: Vercel refuses bodies over 4.5 MB. */
+const SERVER_UPLOAD_LIMIT = 4 * 1024 * 1024;
+
+async function uploadDirect(apiKey: string, file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file, file.name);
+  form.append("uploadPath", "images/user-uploads");
+  form.append("fileName", file.name);
+  const envelope = (await direct(apiKey, `${KIE_UPLOAD_BASE}/api/file-stream-upload`, {
+    method: "POST",
+    body: form,
+  })) as Envelope & { data?: { downloadUrl?: string; fileUrl?: string } };
+  const url = envelope.data?.downloadUrl ?? envelope.data?.fileUrl;
+  if (!url) throw new Error("Upload succeeded but returned no URL.");
+  return url;
+}
+
+/**
+ * Sends a file to KIE's upload host and returns its public URL.
+ *
+ * Straight from the browser, always: the host allows it, and the app's own
+ * /api/kie/upload runs as a Vercel function, which turns away any request
+ * over 4.5 MB before it starts. A phone photo is often bigger, and failed
+ * as "HTTP 413". The route stays only as a second try for a small file,
+ * should the direct request be blocked outright (a network or CORS error).
+ */
 export async function uploadFile(apiKey: string, file: File): Promise<string> {
-  if (isDirect()) {
-    const form = new FormData();
-    form.append("file", file, file.name);
-    form.append("uploadPath", "images/user-uploads");
-    form.append("fileName", file.name);
-    const envelope = (await direct(apiKey, `${KIE_UPLOAD_BASE}/api/file-stream-upload`, {
-      method: "POST",
-      body: form,
-    })) as Envelope & { data?: { downloadUrl?: string; fileUrl?: string } };
-    const url = envelope.data?.downloadUrl ?? envelope.data?.fileUrl;
-    if (!url) throw new Error("Upload succeeded but returned no URL.");
-    return url;
+  try {
+    return await uploadDirect(apiKey, file);
+  } catch (error) {
+    const blocked = error instanceof TypeError;
+    if (!blocked || isDirect() || file.size > SERVER_UPLOAD_LIMIT) throw error;
   }
   const form = new FormData();
   form.append("file", file);
