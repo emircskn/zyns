@@ -31,6 +31,8 @@ const STATE_LABEL: Record<Run["state"], string> = {
 
 function StatusOverlay({ run }: { run: Run }) {
   const removeRun = useStudio((s) => s.removeRun);
+  // A long reason is cut to a few lines; a tap shows it whole.
+  const [whole, setWhole] = useState(false);
   if (run.state === "failed") {
     // A failed tile has no media to open, so its way out has to be on the
     // tile itself and always showing: a phone has no hover to find it with.
@@ -39,9 +41,26 @@ function StatusOverlay({ run }: { run: Run }) {
     return (
       <div className="@container absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] p-3 text-center backdrop-blur-sm">
         <Icon name="alert" size={18} className="hidden shrink-0 text-[var(--danger)] @[140px]:block" />
-        <p className="line-clamp-3 text-[11.5px] leading-snug text-[var(--danger)] @[140px]:line-clamp-4">
+        <button
+          type="button"
+          onClick={() => setWhole(true)}
+          title={run.error}
+          aria-expanded={whole}
+          className="line-clamp-3 text-[11.5px] leading-snug text-[var(--danger)] @[140px]:line-clamp-4"
+        >
           {run.error ?? "Generation failed."}
-        </p>
+        </button>
+        {/* The whole reason, over the whole tile; a tap puts it away. */}
+        {whole && (
+          <button
+            type="button"
+            onClick={() => setWhole(false)}
+            aria-label="Hide the full error"
+            className="no-bar absolute inset-0 z-10 overflow-y-auto bg-surface/95 p-3 text-left text-[12px] leading-snug text-[var(--danger)] backdrop-blur-sm"
+          >
+            {run.error ?? "Generation failed."}
+          </button>
+        )}
         <div className="mt-0.5 flex items-center justify-center gap-1.5">
           <button
             type="button"
