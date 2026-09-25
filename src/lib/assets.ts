@@ -9,13 +9,18 @@ export interface Asset {
   id: string;
   url: string;
   kind: "image" | "video" | "audio";
-  /** Where it came from: a model run, or a file the person uploaded. */
-  source: "run" | "upload";
+  /**
+   * Where it came from: a model run, a file the person uploaded, or a run
+   * still being made (no URL yet; Assets shows it with its loader).
+   */
+  source: "run" | "upload" | "pending";
   /** The model's category for a run; uploads belong to no category. */
   category?: Category;
   label: string;
   prompt?: string;
   createdAt: number;
+  /** The run behind a pending asset. */
+  run?: Run;
 }
 
 export function runAssets(run: Run): Asset[] {
@@ -31,6 +36,30 @@ export function runAssets(run: Run): Asset[] {
     prompt: run.prompt,
     createdAt: run.createdAt,
   }));
+}
+
+/** Sent and not finished: queued, submitted, or rendering. */
+export function inFlight(run: Run): boolean {
+  return run.state === "queued" || run.state === "pending" || run.state === "running";
+}
+
+/**
+ * A run still being made, as an asset. It takes the id its first output
+ * will have, so when the run lands the tile stays in its place instead of
+ * one shrinking away while another arrives.
+ */
+export function pendingAsset(run: Run): Asset {
+  return {
+    id: `${run.id}-0`,
+    url: "",
+    kind: run.output,
+    source: "pending",
+    category: getModel(run.modelId)?.category,
+    label: run.modelName,
+    prompt: run.prompt,
+    createdAt: run.createdAt,
+    run,
+  };
 }
 
 export function uploadAsset(upload: Upload): Asset {

@@ -15,6 +15,7 @@ import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
+import { Tile } from "@/components/Gallery";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
 
@@ -267,7 +268,25 @@ export function AssetBrowser({
     }
   }
 
-  const tile = (asset: Asset, box?: Box) => (
+  // Only finished media can be picked: a run still being made has nothing
+  // to download, favourite or delete as media yet.
+  const pickable = assets.filter((asset) => asset.source !== "pending");
+
+  const tile = (asset: Asset, box?: Box) =>
+    asset.source === "pending" && asset.run ? (
+      <Tile
+        key={asset.id}
+        run={asset.run}
+        box={box}
+        index={tiles.indexOf(asset)}
+        square={phone && phoneGrid}
+        leaving={leaving.has(asset.id)}
+        picked={false}
+        picking={false}
+        onPick={() => {}}
+        onOpen={() => {}}
+      />
+    ) : (
     <AssetTile
       key={asset.id}
       asset={asset}
@@ -286,7 +305,7 @@ export function AssetBrowser({
       onOpen={() => setViewing(asset.url)}
       onRemove={() => drop(asset.url)}
     />
-  );
+    );
 
   return (
     <>
@@ -314,7 +333,7 @@ export function AssetBrowser({
                 items={day.items}
                 keyOf={(asset) => asset.id}
                 ratioOf={(asset) =>
-                  ratioOf(asset.url) ??
+                  (asset.run ? parseRatio(asset.run.ratio) : ratioOf(asset.url)) ??
                   (asset.source === "run" ? parseRatio(runs.find((r) => r.urls.includes(asset.url))?.ratio) : undefined)
                 }
                 render={(asset, box) => tile(asset, box)}
@@ -327,8 +346,8 @@ export function AssetBrowser({
       <SelectionBar
         open={selectMode}
         count={picked.length}
-        total={assets.length}
-        onSelectAll={() => setPicked(assets.map((asset) => asset.url))}
+        total={pickable.length}
+        onSelectAll={() => setPicked(pickable.map((asset) => asset.url))}
         favorited={picked.length > 0 && picked.every((url) => favorites.includes(url))}
         onFavorite={() =>
           setFavorites(picked, !picked.every((url) => favorites.includes(url)))

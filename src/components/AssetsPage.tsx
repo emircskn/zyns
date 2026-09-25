@@ -5,7 +5,8 @@ import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
 import { DensityControl } from "@/components/DensityControl";
 import { Icon, type IconName } from "@/components/Icon";
-import { useAssets, type Asset } from "@/lib/assets";
+import { inFlight, pendingAsset, useAssets, type Asset } from "@/lib/assets";
+import { useStudio } from "@/store/studio";
 
 type Filter = "all" | "image" | "video" | "audio" | "tool" | "upload";
 
@@ -31,9 +32,16 @@ function matches(asset: Asset, filter: Filter) {
 /** What the studio made, by kind, and what was uploaded, on a tab of its own. */
 export function AssetsPage() {
   const assets = useAssets();
+  const runs = useStudio((s) => s.runs);
   const [filter, setFilter] = useState<Filter>("all");
 
-  const shown = useMemo(() => assets.filter((a) => matches(a, filter)), [assets, filter]);
+  // Runs still being made sit among the outputs with their loader, and turn
+  // into the finished media in the same place when they land.
+  const working = useMemo(() => runs.filter(inFlight).map(pendingAsset), [runs]);
+  const shown = useMemo(
+    () => [...working, ...assets].filter((a) => matches(a, filter)).sort((a, b) => b.createdAt - a.createdAt),
+    [working, assets, filter],
+  );
   const made = assets.filter((a) => a.source !== "upload").length;
   const uploaded = assets.length - made;
 
@@ -43,17 +51,18 @@ export function AssetsPage() {
         <div>
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Assets</h2>
         <p className="text-[13px] text-t3">
-          {assets.length === 0
+          {assets.length + working.length === 0
             ? "Everything you generate or upload collects here."
             : [
                 `${made} generated`,
+                working.length > 0 ? `${working.length} in progress` : "",
                 uploaded > 0 ? `${uploaded} upload${uploaded === 1 ? "" : "s"}` : "",
               ]
                 .filter(Boolean)
                 .join(" · ")}
         </p>
         </div>
-        {assets.length > 0 && <DensityControl />}
+        {assets.length + working.length > 0 && <DensityControl />}
       </div>
 
       {/* Each filter its own tile with its icon, the chosen one simply

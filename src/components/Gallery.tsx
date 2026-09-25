@@ -158,7 +158,8 @@ function SaveTileAction({ url }: { url: string }) {
   );
 }
 
-function Tile({
+/** A run's tile: its media, or its loader while it is being made. */
+export function Tile({
   run,
   index,
   onOpen,
