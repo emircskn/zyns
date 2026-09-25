@@ -21,6 +21,8 @@ interface ControlProps {
   compact?: boolean;
   /** The only reference slot there is, so its thumbs keep to one line. */
   lane?: boolean;
+  /** A phone's composer: big tiles for a thumb, the remove button always there. */
+  roomy?: boolean;
 }
 
 /* ------------------------------------------------------------------ *
@@ -234,10 +236,14 @@ function Spinner({ size = 12 }: { size?: number }) {
   );
 }
 
-function MediaThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
+function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: () => void; roomy?: boolean }) {
   const kind = mediaKind(url);
   return (
-    <div className="group/thumb anim-pop relative h-14 w-14 shrink-0 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line">
+    <div
+      className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-line ${
+        roomy ? "h-[88px] w-[88px] rounded-[20px]" : "h-14 w-14 rounded-chip"
+      }`}
+    >
       {kind === "image" && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt="" className="h-full w-full object-cover" />
@@ -252,16 +258,34 @@ function MediaThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label="Remove"
-        className="hover-reveal absolute right-1 top-1 grid place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
-        style={{ height: 18, width: 18 }}
+        className={
+          roomy
+            ? "absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms] active:scale-90"
+            : "hover-reveal absolute right-1 top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
+        }
       >
-        <Icon name="close" size={11} />
+        <Icon name="close" size={roomy ? 15 : 11} />
       </button>
     </div>
   );
 }
 
-function AddTile({ busy, onClick }: { busy: boolean; onClick: () => void }) {
+function AddTile({ busy, onClick, roomy }: { busy: boolean; onClick: () => void; roomy?: boolean }) {
+  if (roomy) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={busy}
+        aria-label="Add"
+        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
+      >
+        <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]">
+          {busy ? <Spinner size={16} /> : <Icon name="plus" size={20} />}
+        </span>
+      </button>
+    );
+  }
   return (
     <button
       type="button"
@@ -342,7 +366,7 @@ function SlotHeader({
   );
 }
 
-export function MediaControl({ field, value, onChange, compact }: ControlProps) {
+export function MediaControl({ field, value, onChange, compact, roomy }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const url = (value as string) ?? "";
 
@@ -353,9 +377,9 @@ export function MediaControl({ field, value, onChange, compact }: ControlProps) 
       </SlotHeader>
       <div className="flex items-center gap-2">
         {url ? (
-          <MediaThumb url={url} onRemove={() => onChange(undefined)} />
+          <MediaThumb url={url} roomy={roomy} onRemove={() => onChange(undefined)} />
         ) : (
-          <AddTile busy={false} onClick={() => setPicking(true)} />
+          <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />
         )}
         {!compact && field.help && (
           <p className="min-w-0 flex-1 text-[11.5px] leading-snug text-t4">{field.help}</p>
@@ -372,7 +396,7 @@ export function MediaControl({ field, value, onChange, compact }: ControlProps) 
   );
 }
 
-export function ImagesControl({ field, value, onChange, compact, lane }: ControlProps) {
+export function ImagesControl({ field, value, onChange, compact, lane, roomy }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
@@ -397,19 +421,22 @@ export function ImagesControl({ field, value, onChange, compact, lane }: Control
           whole bar: there they stay on one line and scroll. */}
       <div
         className={
-          lane
-            ? "no-bar flex gap-1.5 overflow-x-auto pb-0.5"
-            : "flex flex-wrap gap-1.5 [&>*]:w-14"
+          roomy
+            ? "no-bar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-0.5 pt-0.5"
+            : lane
+              ? "no-bar flex gap-1.5 overflow-x-auto pb-0.5"
+              : "flex flex-wrap gap-1.5 [&>*]:w-14"
         }
       >
         {urls.map((url, index) => (
           <MediaThumb
             key={`${url}-${index}`}
             url={url}
+            roomy={roomy}
             onRemove={() => onChange(urls.filter((_, i) => i !== index))}
           />
         ))}
-        {!full && <AddTile busy={false} onClick={() => setPicking(true)} />}
+        {!full && <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />}
       </div>
       {!compact && field.help && <p className="mt-1.5 text-[11.5px] leading-snug text-t4">{field.help}</p>}
       <MediaPicker

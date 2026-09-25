@@ -19,7 +19,10 @@ type Kind = "image" | "video" | "audio";
 export function useUploader(accept: Kind | undefined) {
   const apiKey = useStudio((s) => s.apiKey);
   const addUpload = useStudio((s) => s.addUpload);
-  const [busy, setBusy] = useState(false);
+  // How many files are on their way up, so each can hold a place of its own
+  // while it goes; busy while any are.
+  const [pending, setPending] = useState(0);
+  const busy = pending > 0;
   const [error, setError] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
@@ -28,27 +31,34 @@ export function useUploader(accept: Kind | undefined) {
       setError("Add your API key first. Uploads go through your KIE account.");
       return;
     }
-    setBusy(true);
+    const list = Array.from(files);
+    if (list.length === 0) return;
     setError(null);
-    try {
-      const list = Array.from(files);
-      const urls = await Promise.all(list.map((file) => uploadFile(file, apiKey)));
-      urls.forEach((url, index) =>
-        addUpload({
-          id: `up-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
-          url,
-          kind: accept ?? "image",
-          name: list[index]?.name,
-          createdAt: Date.now(),
-        }),
-      );
-      onDone(urls);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setBusy(false);
-    }
+    setPending((n) => n + list.length);
+    // Each file lands on its own, so a quick one does not wait for a slow one.
+    const results = await Promise.all(
+      list.map(async (file, index) => {
+        try {
+          const url = await uploadFile(file, apiKey);
+          addUpload({
+            id: `up-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+            url,
+            kind: accept ?? "image",
+            name: file.name,
+            createdAt: Date.now(),
+          });
+          return url;
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Upload failed.");
+          return null;
+        } finally {
+          setPending((n) => Math.max(0, n - 1));
+        }
+      }),
+    );
+    const urls = results.filter((url): url is string => !!url);
+    if (urls.length > 0) onDone(urls);
   }
 
-  return { busy, error, setError, input, send, accept: ACCEPT[accept ?? "image"] };
+  return { busy, pending, error, setError, input, send, accept: ACCEPT[accept ?? "image"] };
 }

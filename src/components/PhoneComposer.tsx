@@ -44,6 +44,7 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
           values={values}
           compact
           lane
+          roomy
           onChange={(next) => setValue(field.key, next)}
         />
       </div>

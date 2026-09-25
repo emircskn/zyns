@@ -80,6 +80,11 @@ interface StudioState {
    * was typed; another category keeps its own.
    */
   promptByCategory: Partial<Record<Category, string>>;
+  /**
+   * The reference pictures last attached in each category, shared the same
+   * way: attached in GPT Image, still there on switching to Nano Banana.
+   */
+  refsByCategory: Partial<Record<Category, string[]>>;
   valuesByModel: Record<string, Values>;
   runs: Run[];
   uploads: Upload[];
@@ -154,6 +159,74 @@ function sharedPrompt(state: StudioState, model: ModelDef, values: Values) {
   return { promptByCategory: { ...state.promptByCategory, [model.category]: prompt } };
 }
 
+/** Where a model takes reference pictures, for these values (never a mask). */
+function refField(model: ModelDef, values: Values) {
+  return activeFields(model, values).find(
+    (f) => f.placement === "input" && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
+  );
+}
+
+function refsIn(values: Values, key: string): string[] {
+  const value = values[key];
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === "string" && !!v);
+  return typeof value === "string" && value ? [value] : [];
+}
+
+/**
+ * The same values in another mode: keys the mode does not use go, a value
+ * it does not offer falls back to its default, and its defaults fill in.
+ */
+function inMode(model: ModelDef, current: Values, mode: string): Values {
+  const next: Values = { ...current, __mode: mode };
+  // A key can be declared by several fields (same option, different bounds
+  // per mode), so decide per key — not per field — whether it survives.
+  const active = model.fields.filter((f) => !f.when || f.when(next));
+  const activeKeys = new Set(active.map((f) => f.key));
+  for (const field of model.fields) {
+    if (!activeKeys.has(field.key)) delete next[field.key];
+  }
+  for (const field of active) {
+    const val = next[field.key];
+    if (val !== undefined && val !== "" && field.choices && !field.choices.some((c) => c.value === String(val))) {
+      delete next[field.key];
+    }
+    if (next[field.key] === undefined && field.default !== undefined) next[field.key] = field.default;
+  }
+  return next;
+}
+
+/**
+ * Put the category's reference pictures into a model. When they exist and
+ * the model's current mode takes none, `switchMode` lets it move to the
+ * first mode that does (Nano Banana from Generate to Edit), so the pictures
+ * are there to see rather than silently left behind.
+ */
+function withRefs(model: ModelDef, values: Values, refs: string[] | undefined, switchMode: boolean): Values {
+  if (refs === undefined) return values;
+  let next = values;
+  let field = refField(model, next);
+  if (!field && switchMode && refs.length > 0) {
+    const mode = model.modes?.find((m) => refField(model, { ...values, __mode: m.id }));
+    if (mode) {
+      next = inMode(model, values, mode.id);
+      field = refField(model, next);
+    }
+  }
+  if (!field) return next;
+  const value = field.kind === "images" ? refs.slice(0, field.maxItems ?? refs.length) : refs[0];
+  const same = JSON.stringify(next[field.key] ?? (field.kind === "images" ? [] : undefined)) === JSON.stringify(value);
+  return same ? next : { ...next, [field.key]: value };
+}
+
+/** Remember the reference pictures these values hold as their category's. */
+function sharedRefs(state: StudioState, model: ModelDef, values: Values) {
+  const field = refField(model, values);
+  if (!field) return {};
+  const refs = refsIn(values, field.key);
+  if (JSON.stringify(state.refsByCategory[model.category] ?? []) === JSON.stringify(refs)) return {};
+  return { refsByCategory: { ...state.refsByCategory, [model.category]: refs } };
+}
+
 function valuesFor(state: StudioState, id: string): Values {
   const existing = state.valuesByModel[id];
   if (existing) return existing;
@@ -207,6 +280,7 @@ export const useStudio = create<StudioState>()(
       createOpen: false,
       modelByCategory: {},
       promptByCategory: {},
+      refsByCategory: {},
       valuesByModel: {},
       runs: [],
       uploads: [],
@@ -256,7 +330,12 @@ export const useStudio = create<StudioState>()(
             modelId: id,
             valuesByModel: {
               ...state.valuesByModel,
-              [id]: withPrompt(model, valuesFor(state, id), state.promptByCategory[model.category]),
+              [id]: withRefs(
+                model,
+                withPrompt(model, valuesFor(state, id), state.promptByCategory[model.category]),
+                state.refsByCategory[model.category],
+                true,
+              ),
             },
           };
         }),
@@ -269,7 +348,12 @@ export const useStudio = create<StudioState>()(
           // in any model of the same kind. Text typed before a model was
           // chosen is newer than that, so it goes in instead.
           const draft = state.draft.trim() && promptKey(model, valuesFor(state, id)) ? state.draft : undefined;
-          const values = withPrompt(model, valuesFor(state, id), draft ?? state.promptByCategory[model.category]);
+          const values = withRefs(
+            model,
+            withPrompt(model, valuesFor(state, id), draft ?? state.promptByCategory[model.category]),
+            state.refsByCategory[model.category],
+            true,
+          );
           return {
             modelId: id,
             category: model.category,
@@ -304,6 +388,7 @@ export const useStudio = create<StudioState>()(
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
             ...(model && key === promptKey(model, next) ? sharedPrompt(state, model, next) : {}),
+            ...(model && key === refField(model, next)?.key ? sharedRefs(state, model, next) : {}),
           };
         }),
 
@@ -313,6 +398,7 @@ export const useStudio = create<StudioState>()(
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
             ...(model ? sharedPrompt(state, model, values) : {}),
+            ...(model ? sharedRefs(state, model, values) : {}),
           };
         }),
 
@@ -326,7 +412,11 @@ export const useStudio = create<StudioState>()(
           for (const field of model.fields) {
             if (field.placement === "input") next[field.key] = defaults[field.key];
           }
-          return { valuesByModel: { ...state.valuesByModel, [modelId]: next } };
+          // The sent pictures leave the whole category, not just this model.
+          return {
+            valuesByModel: { ...state.valuesByModel, [modelId]: next },
+            refsByCategory: { ...state.refsByCategory, [model.category]: [] },
+          };
         }),
 
       resetValues: () =>
@@ -338,7 +428,12 @@ export const useStudio = create<StudioState>()(
               ...state.valuesByModel,
               // The settings go back to their defaults; the prompt is not a
               // setting and stays.
-              [state.modelId]: withPrompt(model, defaultValues(model), state.promptByCategory[model.category]),
+              [state.modelId]: withRefs(
+                model,
+                withPrompt(model, defaultValues(model), state.promptByCategory[model.category]),
+                state.refsByCategory[model.category],
+                false,
+              ),
             },
           };
         }),
@@ -352,32 +447,17 @@ export const useStudio = create<StudioState>()(
         set((state) => {
           const model = getModel(state.modelId);
           if (!model) return {};
-          const current = valuesFor(state, state.modelId);
-          const next: Values = { ...current, __mode: mode };
-
-          // A key can be declared by several fields (same option, different
-          // bounds per mode), so decide per key — not per field — whether it
-          // survives the switch, then fill defaults from the active field.
-          const activeFields = model.fields.filter((f) => !f.when || f.when(next));
-          const activeKeys = new Set(activeFields.map((f) => f.key));
-          for (const field of model.fields) {
-            if (!activeKeys.has(field.key)) delete next[field.key];
-          }
-          for (const field of activeFields) {
-            // Same option, other choices: a value the new mode does not
-            // offer falls back to that mode's default.
-            const val = next[field.key];
-            if (val !== undefined && val !== "" && field.choices && !field.choices.some((c) => c.value === String(val))) {
-              delete next[field.key];
-            }
-            if (next[field.key] === undefined && field.default !== undefined) {
-              next[field.key] = field.default;
-            }
-          }
+          const next = inMode(model, valuesFor(state, state.modelId), mode);
           return {
             valuesByModel: {
               ...state.valuesByModel,
-              [state.modelId]: withPrompt(model, next, state.promptByCategory[model.category]),
+              // A mode that takes pictures picks up the category's.
+              [state.modelId]: withRefs(
+                model,
+                withPrompt(model, next, state.promptByCategory[model.category]),
+                state.refsByCategory[model.category],
+                false,
+              ),
             },
           };
         }),
@@ -444,6 +524,7 @@ export const useStudio = create<StudioState>()(
         batch: state.batch,
         modelByCategory: state.modelByCategory,
         promptByCategory: state.promptByCategory,
+        refsByCategory: state.refsByCategory,
         valuesByModel: state.valuesByModel,
         runs: state.runs,
         uploads: state.uploads,

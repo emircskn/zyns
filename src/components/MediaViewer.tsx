@@ -25,6 +25,7 @@ import {
 import { prefetchMedia, useSave } from "@/lib/download";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
+import { usePhone } from "@/lib/usePhone";
 import { useStudio, type Run } from "@/store/studio";
 
 /**
@@ -385,6 +386,7 @@ export function MediaViewer({
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const modelId = useStudio((s) => s.modelId);
   const saver = useSave();
+  const phone = usePhone();
   const resetSaver = saver.reset;
 
   useEffect(() => {
@@ -439,18 +441,28 @@ export function MediaViewer({
     useStudio.getState().selectModel(videoModel.id);
     attachReference(videoModel, shown);
     onClose();
+    readyToWrite();
   }
 
   function recreate() {
     if (!run) return;
     recreateRun(run);
     onClose();
+    readyToWrite();
   }
 
   function reference() {
     if (!shown) return;
     if (!sendReference(shown)) return;
     onClose();
+    readyToWrite();
+  }
+
+  // On a phone the prompt box is a card that opens into the composer: after
+  // handing it a run or a picture, open it, so it is ready to write in. A
+  // desktop's bar is always open.
+  function readyToWrite() {
+    if (phone) useStudio.getState().setComposer(true);
   }
 
   function remove() {
