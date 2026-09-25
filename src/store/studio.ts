@@ -362,7 +362,9 @@ export const useStudio = create<StudioState>()(
           return {
             modelId: id,
             category: model.category,
-            page: state.page === "home" ? state.page : model.category,
+            // Home and the library pages keep their place: their prompt bar
+            // takes the model where it is. A category page follows it.
+            page: state.page === "home" || state.page === "assets" || state.page === "favorites" ? state.page : model.category,
             modelByCategory: { ...state.modelByCategory, [model.category]: id },
             pickerOpen: false,
             draft: draft === undefined ? state.draft : "",

@@ -741,17 +741,8 @@ html {
 }
 
 /* Pages with no prompt bar still clear the bottom row. */
-.below-nav,
-.below-card {
+.below-nav {
   padding-bottom: calc(var(--nav-h) + 40px);
-}
-
-/* The library pages: no bar on a desktop, but a phone's prompt card over
-   the bottom row, so there they clear the card as a composing page does. */
-@media (max-width: 767px) {
-  .below-card {
-    padding-bottom: calc(var(--bar-h, 120px) + var(--nav-h) + 28px + env(safe-area-inset-bottom));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
