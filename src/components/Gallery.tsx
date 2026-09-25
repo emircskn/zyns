@@ -43,10 +43,15 @@ function StatusOverlay({ run }: { run: Run }) {
         <Icon name="alert" size={18} className="hidden shrink-0 text-[var(--danger)] @[140px]:block" />
         <button
           type="button"
-          onClick={() => setWhole(true)}
+          // Only a message the tile cuts short opens up; one that fits (a
+          // desktop's larger tile) is already whole.
+          onClick={(event) => {
+            const text = event.currentTarget;
+            if (text.scrollHeight > text.clientHeight + 1) setWhole(true);
+          }}
           title={run.error}
           aria-expanded={whole}
-          className="line-clamp-3 text-[11.5px] leading-snug text-[var(--danger)] @[140px]:line-clamp-4"
+          className="line-clamp-3 cursor-default text-[11.5px] leading-snug text-[var(--danger)] @[140px]:line-clamp-4"
         >
           {run.error ?? "Generation failed."}
         </button>

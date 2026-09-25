@@ -129,6 +129,7 @@ export function MediaPicker({
   const [preview, setPreview] = useState<string | null>(null);
   const urlField = useRef<HTMLInputElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const lastHeight = useRef<number | null>(null);
 
   const made = useMemo(
@@ -176,10 +177,19 @@ export function MediaPicker({
     lastHeight.current = next;
     if (previous === null || Math.abs(previous - next) < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    node.animate([{ height: `${previous}px` }, { height: `${next}px` }], {
+    // While it moves, the list is briefly taller than the sheet: its scroll
+    // bar would flash up and away, so scrolling waits for the sheet to land.
+    const list = scroller.current;
+    if (list) list.style.overflowY = "hidden";
+    const motion = node.animate([{ height: `${previous}px` }, { height: `${next}px` }], {
       duration: 320,
       easing: "cubic-bezier(0.32, 0.72, 0, 1)",
     });
+    const settle = () => {
+      if (list) list.style.overflowY = "";
+    };
+    motion.onfinish = settle;
+    motion.oncancel = settle;
   }, [shape, mounted]);
 
   if (!mounted || typeof document === "undefined") return null;
@@ -255,7 +265,7 @@ export function MediaPicker({
           />
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
+        <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
           {tab === "generated" && list.length === 0 ? (
             <p className="py-14 text-center text-[13px] text-t4">
               Nothing generated yet. Runs that produce {noun} show up here.
@@ -304,35 +314,39 @@ export function MediaPicker({
             </div>
           )}
 
-          {tab === "uploads" && (
-            <>
-              <div className="mt-3 flex items-center gap-2">
-                <input
-                  ref={urlField}
-                  value={url}
-                  onChange={(event) => setUrl(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      commitUrl();
-                    }
-                  }}
-                  placeholder="…or paste a public URL"
-                  className="min-w-0 flex-1 rounded-full bg-t1/[0.055] px-4 py-2.5 text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:ring-line-strong"
-                />
-                <button
-                  type="button"
-                  onClick={commitUrl}
-                  disabled={!url.trim()}
-                  className="cta shrink-0 rounded-full px-4 py-2.5 text-[12.5px] font-medium disabled:opacity-40"
-                >
-                  Add
-                </button>
-              </div>
-              {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
-            </>
-          )}
         </div>
+
+        {/* Pasting a link sits under the list, outside what scrolls, so it
+            is there from the first frame while the sheet grows around the
+            list rather than being uncovered last. */}
+        {tab === "uploads" && (
+          <div className="shrink-0 px-4 pb-4 sm:px-5 sm:pb-5">
+            <div className="flex items-center gap-2">
+              <input
+                ref={urlField}
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    commitUrl();
+                  }
+                }}
+                placeholder="…or paste a public URL"
+                className="min-w-0 flex-1 rounded-full bg-t1/[0.055] px-4 py-2.5 text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:ring-line-strong"
+              />
+              <button
+                type="button"
+                onClick={commitUrl}
+                disabled={!url.trim()}
+                className="cta shrink-0 rounded-full px-4 py-2.5 text-[12.5px] font-medium disabled:opacity-40"
+              >
+                Add
+              </button>
+            </div>
+            {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
+          </div>
+        )}
 
         {multiple && chosen.length > 0 && (
           <div className="flex items-center gap-3 border-t border-line px-4 py-3 sm:px-5">
