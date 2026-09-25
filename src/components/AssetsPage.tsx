@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
 import { DensityControl } from "@/components/DensityControl";
@@ -42,25 +42,14 @@ export function AssetsPage() {
     () => [...working, ...assets].filter((a) => matches(a, filter)).sort((a, b) => b.createdAt - a.createdAt),
     [working, assets, filter],
   );
-  const made = assets.filter((a) => a.source !== "upload").length;
-  const uploaded = assets.length - made;
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Assets</h2>
-        <p className="text-[13px] text-t3">
-          {assets.length + working.length === 0
-            ? "Everything you generate or upload collects here."
-            : [
-                `${made} generated`,
-                working.length > 0 ? `${working.length} in progress` : "",
-                uploaded > 0 ? `${uploaded} upload${uploaded === 1 ? "" : "s"}` : "",
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-        </p>
+        {/* What the page is, like every page's line: no running counts. */}
+        <p className="text-[13px] text-t3">What you make and upload</p>
         </div>
         {assets.length + working.length > 0 && <DensityControl />}
       </div>
@@ -76,8 +65,11 @@ export function AssetsPage() {
         {FILTERS.map((f) => {
           const on = f.id === filter;
           return (
+            <Fragment key={f.id}>
+            {/* Uploads are not something the studio made: a hairline sets
+                them apart from the outputs' filters, as All leaves them out. */}
+            {f.id === "upload" && <span aria-hidden className="mx-1 w-px shrink-0 self-stretch bg-line-strong" />}
             <button
-              key={f.id}
               type="button"
               role="tab"
               aria-selected={on}
@@ -89,6 +81,7 @@ export function AssetsPage() {
               <Icon name={f.icon} size={17} className={on ? "" : "text-t3"} />
               {f.label}
             </button>
+            </Fragment>
           );
         })}
       </div>

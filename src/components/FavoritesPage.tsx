@@ -21,11 +21,8 @@ export function FavoritesPage() {
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Favorites</h2>
-        <p className="text-[13px] text-t3">
-          {shown.length === 0
-            ? "The heart on any piece of media keeps it here."
-            : `${shown.length} kept · generated and uploaded`}
-        </p>
+        {/* What the page is, like every page's line: no running counts. */}
+        <p className="text-[13px] text-t3">What you keep with the heart</p>
         </div>
         {shown.length > 0 && <DensityControl />}
       </div>
