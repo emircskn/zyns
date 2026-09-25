@@ -13,7 +13,7 @@ import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
-import { PromptBar } from "@/components/PromptBar";
+import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SideRail } from "@/components/SideRail";
@@ -127,10 +127,13 @@ export function Shell() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  // Home carries the box in the middle of itself; every other page, the
-  // library ones included, docks it at the bottom, so what is being written
-  // stays at hand while looking through what was made.
-  const composing = page !== "home";
+  // Home carries the box in the middle of itself and the browsing pages have
+  // none at all; only a page that makes things docks one at the bottom.
+  const composing = page !== "assets" && page !== "favorites" && page !== "home";
+  // A phone keeps its prompt card on the library pages too, so the prompt it
+  // was writing does not vanish the moment it goes to look at something. The
+  // desktop bar has no business there; the card is phone-only already.
+  const browsing = page === "assets" || page === "favorites";
 
   return (
     <div className="flex min-h-dvh flex-col md:pl-[var(--rail-w)]">
@@ -140,7 +143,7 @@ export function Shell() {
       <PhoneBar />
       <main
         className={`relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
-          composing ? "below-bar" : "below-nav"
+          composing ? "below-bar" : browsing ? "below-card" : "below-nav"
         }`}
       >
         <PageSwap page={page}>
@@ -161,6 +164,7 @@ export function Shell() {
       </main>
 
       {composing && <PromptBar />}
+      {browsing && <PromptCard placement="docked" />}
       <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
       <PhoneComposer onKey={() => setKeyOpen(true)} />
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />

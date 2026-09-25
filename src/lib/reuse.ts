@@ -104,11 +104,11 @@ export function sendReference(url: string): boolean {
   const model = referenceModel();
   if (!model) return false;
   const store = useStudio.getState();
-  // The strip that takes it belongs to the bar. Home, Assets and Favorites
-  // carry a bar of their own and stay put; a category page for another kind
-  // of model moves to that model's page, where its bar is.
+  // The strip that takes it belongs to the bar, and the bar is on the model's
+  // own page: from Assets or Favorites there was nothing to see here, which
+  // is why this looked like it did nothing at all.
   if (store.modelId !== model.id) store.selectModel(model.id);
-  else if (store.page !== "home" && store.page !== "assets" && store.page !== "favorites" && store.page !== model.category) {
+  else if (store.page !== "home" && store.page !== model.category) {
     store.setPage(model.category);
   }
   return attachReference(model, url);
