@@ -13,19 +13,55 @@
  *   with its real type and a plain file name the URL can carry;
  * - anything else the browser can draw (HEIC, AVIF, GIF, BMP…) is redrawn
  *   as a JPEG, and so is a picture too big for the models (over 4096 px on
- *   a side or 15 MB), scaled down to fit.
+ *   a side or 15 MB), scaled down to fit;
+ * - a JPEG that carries more pictures inside it (MPO: an iPhone photo with
+ *   its depth or HDR map, an Ultra HDR photo) is redrawn as a plain JPEG.
+ *   It starts like any JPEG, but OpenAI's image models read it as "MPO"
+ *   and refuse it ("Invalid image file or unsupported format"), while
+ *   other models take it; the plain copy works everywhere.
  *
  * If the browser cannot draw it either, the file goes up as it came.
  */
 const MAX_SIDE = 4096;
 const MAX_BYTES = 15 * 1024 * 1024;
 
-type Kind = "jpeg" | "png" | "webp" | "other";
+type Kind = "jpeg" | "mpo" | "png" | "webp" | "other";
+
+/**
+ * Whether a JPEG holds a Multi-Picture (MPF) index, which is what makes it
+ * an MPO: an APP2 segment that begins "MPF\0", found by walking the
+ * segments ahead of the image data.
+ */
+function isMultiPicture(bytes: Uint8Array): boolean {
+  let at = 2;
+  while (at + 4 <= bytes.length && bytes[at] === 0xff) {
+    const marker = bytes[at + 1];
+    if (marker === 0xda || marker === 0xd9) break; // image data, or the end
+    const length = (bytes[at + 2] << 8) | bytes[at + 3];
+    if (length < 2) break;
+    if (
+      marker === 0xe2 &&
+      bytes[at + 4] === 0x4d && // M
+      bytes[at + 5] === 0x50 && // P
+      bytes[at + 6] === 0x46 && // F
+      bytes[at + 7] === 0x00
+    ) {
+      return true;
+    }
+    at += 2 + length;
+  }
+  return false;
+}
 
 async function sniff(file: File): Promise<Kind> {
   const head = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const ascii = (from: number, to: number) => String.fromCharCode(...head.slice(from, to));
-  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return "jpeg";
+  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) {
+    // The segments before the picture itself (EXIF, colour profile, MPF)
+    // sit in the first few hundred kilobytes.
+    const segments = new Uint8Array(await file.slice(0, 512 * 1024).arrayBuffer());
+    return isMultiPicture(segments) ? "mpo" : "jpeg";
+  }
   if (head[0] === 0x89 && ascii(1, 4) === "PNG") return "png";
   if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "webp";
   return "other";
@@ -69,7 +105,7 @@ export async function prepareImage(file: File): Promise<File> {
   if (!picture) return file;
   try {
     const big = Math.max(picture.width, picture.height) > MAX_SIDE || file.size > MAX_BYTES;
-    if (kind !== "other" && !big) {
+    if (kind !== "other" && kind !== "mpo" && !big) {
       const ext = kind === "jpeg" ? "jpg" : kind;
       return new File([file], plainName(file.name, ext), { type: `image/${kind}`, lastModified: file.lastModified });
     }

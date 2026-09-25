@@ -125,9 +125,7 @@ export function MediaPicker({
   const { pending, error, input, send, accept: mime } = useUploader(accept);
   const [tab, setTab] = useState<Tab>("generated");
   const [chosen, setChosen] = useState<string[]>([]);
-  const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
-  const urlField = useRef<HTMLInputElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const lastHeight = useRef<number | null>(null);
@@ -144,7 +142,6 @@ export function MediaPicker({
   useEffect(() => {
     if (!open) return;
     setChosen([]);
-    setUrl("");
     setPreview(null);
     setTab(made.length > 0 ? "generated" : "uploads");
     // Only when the dialog opens: the lists move as uploads land.
@@ -210,14 +207,6 @@ export function MediaPicker({
         ? current.filter((u) => u !== asset.url)
         : [...current, asset.url],
     );
-  }
-
-  function commitUrl() {
-    const value = url.trim();
-    if (!value) return;
-    onPick([value]);
-    setUrl("");
-    if (!multiple) onClose();
   }
 
   // The prompt bar filters its own backdrop, which makes it the containing
@@ -316,36 +305,9 @@ export function MediaPicker({
 
         </div>
 
-        {/* Pasting a link sits under the list, outside what scrolls, so it
-            is there from the first frame while the sheet grows around the
-            list rather than being uncovered last. */}
-        {tab === "uploads" && (
-          <div className="shrink-0 px-4 pb-4 sm:px-5 sm:pb-5">
-            <div className="flex items-center gap-2">
-              <input
-                ref={urlField}
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    commitUrl();
-                  }
-                }}
-                placeholder="…or paste a public URL"
-                className="min-w-0 flex-1 rounded-full bg-t1/[0.055] px-4 py-2.5 text-[13px] text-t1 outline-none ring-1 ring-inset ring-transparent transition-all duration-[120ms] placeholder:text-t4 focus:ring-line-strong"
-              />
-              <button
-                type="button"
-                onClick={commitUrl}
-                disabled={!url.trim()}
-                className="cta shrink-0 rounded-full px-4 py-2.5 text-[12.5px] font-medium disabled:opacity-40"
-              >
-                Add
-              </button>
-            </div>
-            {error && <p className="mt-2 text-[11.5px] text-[#ff8f8f]">{error}</p>}
-          </div>
+        {/* An upload that failed says so under the list. */}
+        {tab === "uploads" && error && (
+          <p className="shrink-0 px-4 pb-4 text-[11.5px] text-[#ff8f8f] sm:px-5 sm:pb-5">{error}</p>
         )}
 
         {multiple && chosen.length > 0 && (
