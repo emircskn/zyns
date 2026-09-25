@@ -327,16 +327,9 @@ export function MediaPicker({
           onChange={(event) => {
             const files = event.target.files;
             if (files?.length) {
-              // A fresh upload waits in Uploads to be chosen rather than
-              // going straight into the field: several can be uploaded and
-              // only some used. Where the field takes more than one, the new
-              // ones start out picked, so Add takes them in one tap.
-              void send(files, (urls) => {
-                setTab("uploads");
-                if (multiple) {
-                  setChosen((current) => [...current, ...urls.filter((u) => !current.includes(u) && !taken.includes(u))]);
-                }
-              });
+              // A fresh upload waits in Uploads, unpicked, to be chosen like
+              // any other: several can be uploaded and only some used.
+              void send(files, () => setTab("uploads"));
             }
             event.target.value = "";
           }}
