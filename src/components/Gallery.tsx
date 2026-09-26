@@ -234,6 +234,11 @@ export function Tile({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setLoading(true);
   }, [run.urls.length, run.state]);
+  // A made voice finishes with nothing to reveal: the loader has no file to
+  // wait for, so it steps aside.
+  useEffect(() => {
+    if (run.made && !run.urls.length) setLoading(false);
+  }, [run.made, run.urls.length]);
 
 
   return (
@@ -267,9 +272,20 @@ export function Tile({
           >
             <Media url={url} />
           </button>
+        ) : run.made ? (
+          // A voice has nothing to look at: the tile says what was made.
+          <div className="grid h-full w-full place-items-center bg-t1/[0.03] text-t3">
+            <Icon name="mic" size={26} />
+          </div>
         ) : (
           // What a restored or reduced-motion tile shows while it waits.
           <div className="pending-surface h-full w-full" />
+        )}
+        {run.made && (
+          <span className="pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-16px)] truncate rounded-full bg-black/60 px-2.5 py-1 text-[11.5px] text-white backdrop-blur-md">
+            {run.made.kind === "voice" ? "Voice" : "Character"}
+            {run.made.name ? ` · ${run.made.name}` : ""}
+          </span>
         )}
         {loading && (
           <GenerationLoader

@@ -8,7 +8,7 @@ import { activeFields } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
 
 /** Controls that already print their own help text under the widget. */
-const SELF_DESCRIBING = new Set(["media", "images", "shots", "elements", "clips", "records", "list"]);
+const SELF_DESCRIBING = new Set(["media", "images", "shots", "elements", "clips", "records", "list", "source"]);
 
 export function SettingsPanel() {
   const open = useStudio((s) => s.settingsOpen);

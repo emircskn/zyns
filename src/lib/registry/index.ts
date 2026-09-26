@@ -79,3 +79,13 @@ export function validateValues(model: ModelDef, values: Values): string | null {
   }
   return model.validate?.(values) ?? null;
 }
+
+/**
+ * The input fields the bar shows. A Suno track picker settles its song's
+ * task too, so the task field it would duplicate stays out of sight (and
+ * still goes out with the request).
+ */
+export function shownInputs(fields: Field[]): Field[] {
+  const track = fields.some((f) => f.kind === "source" && f.source?.of === "track");
+  return track ? fields.filter((f) => !(f.kind === "source" && f.source?.of === "task")) : fields;
+}

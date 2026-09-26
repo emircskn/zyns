@@ -5,7 +5,7 @@
  * stale id never ships silently.
  */
 import type { Family, ModeSpec } from "./auto";
-import type { Values } from "./types";
+import type { Field, Values } from "./types";
 
 const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = {}): ModeSpec => ({
   id,
@@ -26,6 +26,81 @@ function omniBudget(v: Values): string | null {
     ? `With a video, Gemini Omni takes up to ${Math.max(0, 5 - count("character_ids"))} images.`
     : "Gemini Omni takes up to 7 images and characters together.";
 }
+
+/**
+ * Wan 3.0 takes four kinds of input that cannot be mixed: references
+ * (pictures, clips and sound, named Image1, Video1… in the prompt), a first
+ * and last frame, a document, or a web page. Each is a mode of its own.
+ */
+const WAN_FRAMES = ["first_frame_url", "last_frame_url"];
+const WAN_REFS = ["reference_image_urls", "reference_video_urls", "reference_audio_urls"];
+const wanThreeModes = (model: string): ModeSpec[] => [
+  m("video", "Reference", model, {
+    hint: "Images, clips and sound as references",
+    hide: [...WAN_FRAMES, "reference_file_urls", "reference_link_urls"],
+  }),
+  m("frames", "Frames", model, {
+    hint: "First frame, optionally a last frame",
+    hide: [...WAN_REFS, "reference_file_urls", "reference_link_urls"],
+    require: ["first_frame_url"],
+  }),
+  m("document", "Document", model, {
+    hint: "A video from a document's link",
+    hide: [...WAN_FRAMES, ...WAN_REFS, "reference_link_urls"],
+    require: ["reference_file_urls"],
+  }),
+  m("link", "Web page", model, {
+    hint: "A video from a public web page",
+    hide: [...WAN_FRAMES, ...WAN_REFS, "reference_file_urls"],
+    require: ["reference_link_urls"],
+  }),
+];
+const WAN_THREE_FIELDS: Family["fields"] = {
+  reference_image_urls: { label: "Images" },
+  reference_video_urls: { label: "Videos" },
+  reference_audio_urls: { label: "Audio" },
+  reference_file_urls: {
+    kind: "list",
+    placement: "input",
+    label: "Document link",
+    placeholder: "https://…/brief.pdf",
+    accept: undefined,
+  },
+  reference_link_urls: { kind: "list", placement: "input", label: "Web page", placeholder: "https://…" },
+};
+
+/** Gemini Omni's preset voices, which a made voice starts from. */
+const OMNI_VOICES: [string, string][] = [
+  ["achernar", "Female · soft, high"], ["achird", "Male · friendly, mid"], ["algenib", "Male · raspy, low"],
+  ["algieba", "Male · easygoing, mid-low"], ["alnilam", "Male · steady, mid-low"], ["aoede", "Female · brisk, mid"],
+  ["autonoe", "Female · bright, mid"], ["callirrhoe", "Female · easygoing, mid"], ["charon", "Male · intellectual, low"],
+  ["despina", "Female · smooth, mid"], ["enceladus", "Male · breathy, low"], ["erinome", "Female · clear, mid"],
+  ["fenrir", "Male · lively, young"], ["gacrux", "Female · mature, mid"], ["iapetus", "Male · clear, mid-low"],
+  ["kore", "Female · capable, mid"], ["laomedeia", "Female · cheerful, mid-high"], ["leda", "Female · young, mid-high"],
+  ["orus", "Male · steady, mid-low"], ["puck", "Male · cheerful, mid"], ["pulcherrima", "Neutral · forward, mid-high"],
+  ["rasalgethi", "Male · intellectual, mid"], ["sadachbia", "Male · vivid, low"], ["sadaltager", "Male · knowledgeable, mid"],
+  ["schedar", "Male · smooth, mid-low"], ["sulafat", "Female · warm, mid"], ["umbriel", "Male · smooth, low"],
+  ["vindemiatrix", "Female · gentle, mid"], ["zephyr", "Female · bright, mid-high"], ["zubenelgenubi", "Male · casual, mid-low"],
+];
+const OMNI_FIELDS: Family["fields"] = {
+  audio_id: {
+    kind: "select",
+    placement: "bar",
+    label: "Base voice",
+    choices: OMNI_VOICES.map(([value, hint]) => ({ value, label: value[0].toUpperCase() + value.slice(1), hint })),
+    default: "achernar",
+  },
+  name: { label: "Voice name", placeholder: "Narrator" },
+  character_name: { placement: "input", label: "Character name", placeholder: "Jenny" },
+};
+
+/** One of a Suno song's tracks, picked from the songs made here. */
+const SUNO_TRACK: Partial<Field> = {
+  kind: "source",
+  placement: "input",
+  label: "Track",
+  source: { of: "track", models: ["suno-music"] },
+};
 
 /** Seedance 2.x share one schema; the three input styles are exclusive. */
 const seedanceModes = (model: string, refs = true): ModeSpec[] => [
@@ -859,7 +934,8 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "NEW",
     tagline: "All-purpose references: images, video, audio, even a document or a link.",
-    modes: [m("video", "Video", "wan/3-0-video")],
+    modes: wanThreeModes("wan/3-0-video"),
+    fields: WAN_THREE_FIELDS,
   },
   {
     id: "wan-3-prime",
@@ -869,7 +945,8 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "NEW",
     tagline: "The highest-quality Wan 3.0 tier, with the same references.",
-    modes: [m("video", "Video", "wan/3-0-video-prime")],
+    modes: wanThreeModes("wan/3-0-video-prime"),
+    fields: WAN_THREE_FIELDS,
   },
   {
     id: "wan-2-7",
@@ -1005,7 +1082,9 @@ export const FAMILIES: Family[] = [
     tagline: "Fast video with fun / normal / spicy styles, plus upscale and extend.",
     modes: [
       m("text-to-video", "Text to video", "grok-imagine/text-to-video"),
-      m("image-to-video", "Image to video", "grok-imagine/image-to-video"),
+      // Its task_id is another way to name the picture, and the two may not
+      // be sent together; the picture slot covers it.
+      m("image-to-video", "Image to video", "grok-imagine/image-to-video", { hide: ["task_id", "index"] }),
       m("upscale", "Upscale", "grok-imagine/upscale"),
       m("extend", "Extend", "grok-imagine/extend"),
     ],
@@ -1039,6 +1118,7 @@ export const FAMILIES: Family[] = [
     badge: "4K",
     tagline: "Reusable characters and voices across videos, up to 4K.",
     validate: omniBudget,
+    fields: OMNI_FIELDS,
     modes: [
       m("video", "Video", "gemini-omni-video"),
       m("character", "Create character", "gemini-omni-character", { hint: "Reusable identity" }),
@@ -1129,6 +1209,7 @@ export const FAMILIES: Family[] = [
     ],
     fields: {
       prompt: { label: "Prompt / lyrics", placeholder: "Describe the song, or paste lyrics in Custom mode…" },
+      audio_id: SUNO_TRACK,
     },
   },
   {
@@ -1153,6 +1234,11 @@ export const FAMILIES: Family[] = [
       m("persona", "Persona", "ai-music-api/generate-persona"),
       m("recover", "Recover audio", "ai-music-api/suno-recovery-audio"),
     ],
+    // Every tool here works on a song made with Suno Music.
+    fields: {
+      audio_id: SUNO_TRACK,
+      task_id: { source: { of: "task", models: ["suno-music"] } },
+    },
   },
   {
     id: "suno-voice",

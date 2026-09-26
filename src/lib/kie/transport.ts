@@ -9,9 +9,11 @@
  * and reuses the same normalisation code the routes use.
  */
 import { englishError } from "@/lib/kie/errors";
+import type { Made } from "@/lib/results";
 import {
   KIE_BASE,
   KIE_UPLOAD_BASE,
+  extractMade,
   extractTaskId,
   normaliseTask,
   type NormalisedTask,
@@ -63,13 +65,15 @@ export async function createTask(
   apiKey: string,
   endpoint: string,
   payload: unknown,
-): Promise<{ taskId: string }> {
+): Promise<{ taskId?: string; made?: Made }> {
   if (isDirect()) {
     const envelope = await direct(apiKey, `${KIE_BASE}${endpoint}`, {
       method: "POST",
       body: JSON.stringify(payload),
     });
     const taskId = extractTaskId(envelope);
+    const made = taskId ? undefined : extractMade(envelope);
+    if (made) return { made };
     if (!taskId) throw new Error(englishError(envelope.msg || "KIE accepted the request but returned no task ID."));
     return { taskId };
   }
@@ -78,7 +82,8 @@ export async function createTask(
     headers: { "Content-Type": "application/json", "x-kie-key": apiKey },
     body: JSON.stringify({ endpoint, payload }),
   });
-  const body = await readJson<{ taskId?: string; error?: string }>(res);
+  const body = await readJson<{ taskId?: string; made?: Made; error?: string }>(res);
+  if (res.ok && body.made) return { made: body.made };
   if (!res.ok || !body.taskId) throw new Error(englishError(body.error ?? `Request failed (HTTP ${res.status}).`));
   return { taskId: body.taskId };
 }

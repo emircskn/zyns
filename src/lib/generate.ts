@@ -53,8 +53,11 @@ export async function submitRun(): Promise<SubmitResult> {
   state.addRun(run);
 
   try {
-    const { taskId } = await createTask(state.apiKey, endpoint, payload);
-    useStudio.getState().patchRun(id, { taskId, state: "pending" });
+    const { taskId, made } = await createTask(state.apiKey, endpoint, payload);
+    // A character or voice is ready the moment it is made; there is nothing
+    // to poll.
+    if (made) useStudio.getState().patchRun(id, { state: "success", made, urls: made.image ? [made.image] : [] });
+    else useStudio.getState().patchRun(id, { taskId, state: "pending" });
     void refreshCredits();
     return { ok: true };
   } catch (error) {
@@ -107,6 +110,7 @@ export async function pollRun(run: Run): Promise<void> {
     patchRun(run.id, {
       state: task.state,
       urls: task.urls ? withoutInputs(task.urls, run.values) : run.urls,
+      ...(task.tracks ? { tracks: task.tracks } : {}),
       error: englishError(task.error),
       credits: task.credits ?? run.credits,
     });

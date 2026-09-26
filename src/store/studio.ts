@@ -5,6 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
+import type { Made, Track } from "@/lib/results";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
   activeFields,
@@ -33,6 +34,10 @@ export interface Run {
   values: Values;
   /** Credits KIE charged for the finished task, as it reported them. */
   credits?: number;
+  /** A song's tracks, for the Suno tools that work on one of them. */
+  tracks?: Track[];
+  /** A character or voice this run made, for later runs to use. */
+  made?: Made;
 }
 
 export type Theme = "dark" | "light";

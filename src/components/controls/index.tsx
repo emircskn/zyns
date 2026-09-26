@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
-import type { Field, ItemField, Values } from "@/lib/registry";
+import { activeFields, type Field, type ItemField, type Values } from "@/lib/registry";
 import { PillGroup } from "@/components/PillGroup";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { mediaKind } from "@/lib/upload";
 import { useUploader } from "@/lib/useUploader";
-import { useStudio } from "@/store/studio";
+import { useModel, useStudio, type Run } from "@/store/studio";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
 
 interface ControlProps {
@@ -184,6 +184,19 @@ export function NumberControl({ field, value, onChange }: ControlProps) {
       onChange={(event) => onChange(event.target.value === "" ? undefined : Number(event.target.value))}
       className={`${INPUT_CLASS} font-mono tabular-nums`}
     />
+  );
+}
+
+/**
+ * A plain value moved up to the bar next to the pictures (a voice's name, a
+ * song's title) has no picture to say what it is, so it carries its label.
+ */
+export function InputLabel({ field }: { field: Field }) {
+  if (!["text", "number", "select", "segmented", "slider", "textarea"].includes(field.kind)) return null;
+  return (
+    <div className="mb-1.5 truncate text-[12px] text-t2" title={field.help}>
+      {field.label}
+    </div>
   );
 }
 
@@ -657,6 +670,179 @@ export function ClipsControl({ field, value, onChange, roomy }: ControlProps) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Sources: earlier results a field points at by ID
+ * ------------------------------------------------------------------ */
+
+interface SourceItem {
+  /** The ID the field sends. */
+  id: string;
+  title: string;
+  /** A picture or clip to show, if the result has one. */
+  thumb?: string;
+  icon: "audio" | "mic" | "image";
+  run: Run;
+}
+
+/** What a source field can pick from, newest first. */
+function sourceItems(field: Field, runs: Run[], modelId: string): SourceItem[] {
+  const spec = field.source ?? { of: "task" as const };
+  const models = spec.models ?? [modelId];
+  const done = runs.filter((r) => r.state === "success");
+  const title = (r: Run) => r.prompt?.trim() || r.modelName;
+  switch (spec.of) {
+    case "task":
+      return done
+        .filter((r) => r.taskId && !r.made && models.includes(r.modelId))
+        .map((r) => ({ id: r.taskId!, title: title(r), thumb: r.urls.find((u) => mediaKind(u) !== "audio"), icon: "audio", run: r }));
+    case "track":
+      return done
+        .filter((r) => models.includes(r.modelId))
+        .flatMap((r) =>
+          (r.tracks ?? []).map((t, i) => ({
+            id: t.id,
+            title: t.title || `${title(r)} · ${i + 1}`,
+            thumb: t.image,
+            icon: "audio" as const,
+            run: r,
+          })),
+        );
+    case "character":
+    case "voice":
+      return done
+        .filter((r) => r.made?.kind === spec.of)
+        .map((r) => ({
+          id: r.made!.id,
+          title: r.made!.name || (spec.of === "character" ? "Character" : "Voice"),
+          thumb: r.made!.image,
+          icon: spec.of === "voice" ? "mic" : "image",
+          run: r,
+        }));
+  }
+}
+
+const SOURCE_EMPTY: Record<NonNullable<Field["source"]>["of"], string> = {
+  task: "Your finished runs with this model show up here to pick from.",
+  track: "Songs you make with Suno Music show up here to pick from.",
+  character: "Characters you make in Create character show up here.",
+  voice: "Voices you make in Create voice show up here.",
+};
+
+/**
+ * An earlier result, picked as a tile instead of typed as an ID: the run to
+ * extend or upscale, the track a Suno tool works on, the characters and
+ * voices a Gemini Omni video uses. The link button still takes a pasted ID,
+ * for things made outside the studio.
+ */
+export function SourceControl({ field, value, values, onChange, roomy }: ControlProps) {
+  const runs = useStudio((s) => s.runs);
+  const modelId = useStudio((s) => s.modelId);
+  const model = useModel();
+  const setValue = useStudio((s) => s.setValue);
+  const spec = field.source ?? { of: "task" as const };
+  const max = spec.max ?? 1;
+  const many = max > 1;
+  const picked = many
+    ? Array.isArray(value)
+      ? (value as unknown[]).map(String)
+      : []
+    : typeof value === "string" && value
+      ? [value]
+      : [];
+  const items = sourceItems(field, runs, modelId).slice(0, 24);
+  const strays = picked.filter((id) => !items.some((item) => item.id === id));
+
+  function toggle(item: SourceItem) {
+    const on = picked.includes(item.id);
+    if (many) {
+      if (on) onChange(picked.filter((id) => id !== item.id));
+      else if (picked.length < max) onChange([...picked, item.id]);
+      return;
+    }
+    onChange(on ? undefined : item.id);
+    // A track belongs to a task, and the tools that take one also ask for
+    // the other: picking the track settles both.
+    if (spec.of === "track" && model && activeFields(model, values).some((f) => f.key === "task_id")) {
+      setValue("task_id", on ? undefined : item.run.taskId);
+    }
+  }
+
+  const size = roomy ? "h-[88px] w-[88px] rounded-[20px]" : "h-14 w-14 rounded-chip";
+  return (
+    <div className="min-w-0">
+      <SlotHeader label={field.label} count={many ? `${picked.length}/${max}` : undefined} help={field.help}>
+        <UrlField
+          placeholder="Paste an ID, then Enter"
+          onCommit={(next) => {
+            if (!next) return;
+            if (many) {
+              if (!picked.includes(next) && picked.length < max) onChange([...picked, next]);
+            } else onChange(next);
+          }}
+        />
+      </SlotHeader>
+      {items.length === 0 && strays.length === 0 ? (
+        <p className="max-w-[260px] text-[11.5px] leading-snug text-t4">{SOURCE_EMPTY[spec.of]}</p>
+      ) : (
+        <div className="no-bar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-0.5 pt-0.5">
+          {strays.map((id) => (
+            <div
+              key={id}
+              className={`relative grid shrink-0 place-items-center bg-t1/[0.06] px-2 ring-2 ring-t1 ${size}`}
+              title={id}
+            >
+              <span className="line-clamp-3 break-all text-center font-mono text-[10px] leading-tight text-t2">{id}</span>
+              <button
+                type="button"
+                aria-label="Remove"
+                onClick={() => onChange(many ? picked.filter((p) => p !== id) : undefined)}
+                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
+              >
+                <Icon name="close" size={13} />
+              </button>
+            </div>
+          ))}
+          {items.map((item) => {
+            const on = picked.includes(item.id);
+            const kind = item.thumb ? mediaKind(item.thumb) : undefined;
+            return (
+              <button
+                key={`${item.run.id}:${item.id}`}
+                type="button"
+                onClick={() => toggle(item)}
+                title={item.title}
+                aria-pressed={on}
+                className={`group/src relative shrink-0 overflow-hidden bg-surface text-left transition-[box-shadow,opacity] duration-[150ms] ${size} ${
+                  on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-line opacity-80 hover:opacity-100"
+                }`}
+              >
+                {kind === "video" ? (
+                  <video src={item.thumb} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+                ) : kind === "image" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.thumb} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="grid h-full w-full place-items-center text-t3">
+                    <Icon name={item.icon} size={20} />
+                  </span>
+                )}
+                <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/75 to-transparent px-1.5 pb-1 pt-3 text-[10.5px] text-white">
+                  {item.title}
+                </span>
+                {on && (
+                  <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
+                    <Icon name="check" size={12} strokeWidth={2.4} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  * Generic editors for documented shapes the bespoke ones do not cover
  * ------------------------------------------------------------------ */
 
@@ -900,6 +1086,8 @@ export function Control(props: ControlProps) {
       return <ListControl {...props} />;
     case "json":
       return <JsonControl {...props} />;
+    case "source":
+      return <SourceControl {...props} />;
     default:
       return <TextControl {...props} />;
   }

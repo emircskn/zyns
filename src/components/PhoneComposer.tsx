@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Control } from "@/components/controls";
+import { Control, InputLabel } from "@/components/controls";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { MediaPicker } from "@/components/MediaPicker";
@@ -62,6 +62,7 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   if (!media || urls.length > 0) {
     return (
       <div className="rounded-panel border border-line bg-elevated p-3">
+        <InputLabel field={field} />
         <Control
           field={field}
           value={value}
@@ -109,6 +110,9 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
     </>
   );
 }
+
+/** The input kinds that sit two to a row in the phone composer. */
+const SLOT_KINDS = new Set(["images", "media", "clips"]);
 
 const SECTION_ICON: Record<Category, IconName> = {
   image: "image",
@@ -212,6 +216,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     blocker,
     hint,
     mentionable,
+    definedInPanel,
     names,
     firstPrompt,
     insertToken,
@@ -328,9 +333,16 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
             they pushed the prompt off a small phone's screen. */}
         {inputFields.length > 0 && (
           <div className={inputFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
-            {inputFields.map((field) => (
-              <UploadSlot key={field.key} field={field} half={inputFields.length > 1} />
-            ))}
+            {inputFields.map((field) => {
+              // Pictures and clips pair up; a list, a script or a picker of
+              // earlier results needs the whole width.
+              const wide = !SLOT_KINDS.has(field.kind) || inputFields.filter((f) => SLOT_KINDS.has(f.kind)).length < 2;
+              return (
+                <div key={field.key} className={`min-w-0 ${wide && inputFields.length > 1 ? "col-span-2" : ""}`}>
+                  <UploadSlot field={field} half={!wide} />
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -353,7 +365,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
                   names={names}
                   text={(values[firstPrompt.key] as string) ?? ""}
                   onInsert={insertToken}
-                  onDefine={() => toggleSettings(true)}
+                  onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
                 />
               )}
             </div>

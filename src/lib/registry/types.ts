@@ -27,7 +27,8 @@ export type FieldKind =
   | "clips"
   | "records"
   | "list"
-  | "json";
+  | "json"
+  | "source";
 
 /**
  * Where a control lives in the studio chrome:
@@ -81,6 +82,21 @@ export interface Field {
   autoFrom?: "input";
   /** For `records`: the simple columns each row has. */
   itemFields?: ItemField[];
+  /** For `source`: which earlier result the field points at. */
+  source?: SourceSpec;
+}
+
+/**
+ * Something an earlier run made that a field refers to by ID rather than by
+ * file: the run itself (to extend or upscale it), one of a song's tracks,
+ * or a character or voice made for reuse.
+ */
+export interface SourceSpec {
+  of: "task" | "track" | "character" | "voice";
+  /** Models whose runs qualify; the field's own model when left out. */
+  models?: string[];
+  /** How many may be picked; one when left out. */
+  max?: number;
 }
 
 /** One column of a `records` editor (array-of-objects parameters). */

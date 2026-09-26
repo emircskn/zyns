@@ -6,6 +6,7 @@
  * is written to disk or kept between requests.
  */
 
+import { collectTracks, madeFrom, type Made, type Track } from "@/lib/results";
 import { englishError } from "./errors";
 
 export const KIE_BASE = "https://api.kie.ai";
@@ -22,6 +23,8 @@ export interface NormalisedTask {
   progress?: string;
   /** What KIE charged for the task, once it says (jobs/* tasks report it). */
   credits?: number;
+  /** A song's tracks, each with the ID later Suno tools ask for. */
+  tracks?: Track[];
   raw: unknown;
 }
 
@@ -168,9 +171,13 @@ const REQUEST_ECHO = /^(param|paramJson|params|request|requestParam|input|callBa
 export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   const data = (envelope.data ?? {}) as Record<string, unknown>;
   const urls: string[] = [];
+  const found: Track[] = [];
   for (const [key, value] of Object.entries(data)) {
-    if (!REQUEST_ECHO.test(key)) collectUrls(value, key, urls);
+    if (REQUEST_ECHO.test(key)) continue;
+    collectUrls(value, key, urls);
+    collectTracks(value, found);
   }
+  const tracks = found.length > 0 ? found : undefined;
 
   const error = englishError(pick(data, "failMsg", "errorMessage", "error_message", "msg") as string | undefined);
   const failCode = pick(data, "failCode", "errorCode");
@@ -180,7 +187,7 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   // jobs/* uses a `state` string.
   const state = data.state as string | undefined;
   if (state) {
-    if (state === "success") return { state: "success", urls, credits, raw: envelope };
+    if (state === "success") return { state: "success", urls, credits, tracks, raw: envelope };
     if (state === "fail") return { state: "failed", urls, error: error || `Failed (${failCode ?? "unknown"})`, raw: envelope };
     return { state: state === "waiting" || state === "queuing" ? "pending" : "running", urls, progress: state, raw: envelope };
   }
@@ -188,10 +195,10 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   // Suno reports a lifecycle string.
   const status = data.status as string | undefined;
   if (status) {
-    if (status === "SUCCESS") return { state: "success", urls, raw: envelope };
+    if (status === "SUCCESS") return { state: "success", urls, tracks, raw: envelope };
     if (FAILED_SUNO.test(status)) return { state: "failed", urls, error: error || status, raw: envelope };
     // FIRST_SUCCESS / TEXT_SUCCESS already carry partial results.
-    return { state: urls.length > 0 ? "running" : "pending", urls, progress: status, raw: envelope };
+    return { state: urls.length > 0 ? "running" : "pending", urls, tracks, progress: status, raw: envelope };
   }
 
   // veo / mj / flux / aleph use a numeric successFlag.
@@ -206,6 +213,11 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   if (urls.length > 0) return { state: "success", urls, raw: envelope };
   if (error) return { state: "failed", urls, error, raw: envelope };
   return { state: "pending", urls, raw: envelope };
+}
+
+/** What a create call made on the spot, for endpoints that return no task. */
+export function extractMade(envelope: KieEnvelope): Made | undefined {
+  return madeFrom(envelope.data);
 }
 
 export function extractTaskId(envelope: KieEnvelope): string | undefined {

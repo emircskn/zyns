@@ -183,8 +183,8 @@ const LABELS: Record<string, string> = {
   task_id: "Task ID",
   taskId: "Task ID",
   audio_id: "Audio ID",
-  audio_ids: "Voice IDs",
-  character_ids: "Character IDs",
+  audio_ids: "Voices",
+  character_ids: "Characters",
   extension_task_id: "Continue from task",
   generation_type: "Generation type",
   multi_prompt: "Shots",
@@ -420,8 +420,22 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
       // A clip is a video like any other input: it sits with the pictures.
       placement = kind === "clips" ? "input" : "panel";
       if (kind === "clips") extra.accept = "video";
+    } else if (prop.items?.type === "object" && isMediaKey(key) && !/link/.test(key)) {
+      // Wan 3.0 documents its URL lists as lists of objects; its own
+      // examples send plain URLs.
+      kind = "images";
+      placement = "input";
+      extra.accept = acceptFor(key);
     } else if (prop.items?.type === "array" || prop.items?.type === "object") {
       kind = "json";
+    } else if (key === "character_ids") {
+      kind = "source";
+      placement = "input";
+      extra.source = { of: "character", max: 3 };
+    } else if (key === "audio_ids") {
+      kind = "source";
+      placement = "input";
+      extra.source = { of: "voice", max: 3 };
     } else if (/_ids$|_id_list$|mask_indexs/.test(key)) {
       kind = "list";
     } else if (isMediaKey(key) || prop.items?.format === "uri") {
@@ -494,6 +508,11 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
       extra.min = lo;
       extra.max = hi;
       extra.step = 1;
+    } else if (key === "task_id" || key === "taskId") {
+      // An earlier run, picked from the ones made here rather than typed.
+      kind = "source";
+      placement = "input";
+      extra.source = { of: "task" };
     } else if (prop.format === "uri" || (isMediaKey(key) && !/name|description|_id/.test(key))) {
       kind = "media";
       placement = "input";
@@ -630,6 +649,11 @@ export function familyToModel(family: Family): ModelDef {
       field.when = (v: Values) => allowed.has(v.__mode) && (!previous || previous(v));
     }
     field.required = required;
+    // What a run cannot go without belongs in view, not in the drawer.
+    if (required && field.placement === "panel" && field.default === undefined && !family.fields?.[key]?.placement) {
+      field.placement = "input";
+      field.group = undefined;
+    }
     fields.push(field);
   }
   // Prompt first, then media, then everything else in documented order: by

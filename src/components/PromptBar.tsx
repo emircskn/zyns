@@ -15,7 +15,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { BorderBeam } from "border-beam";
-import { Control, chipCaption } from "@/components/controls";
+import { Control, InputLabel, chipCaption } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
@@ -32,7 +32,7 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
-import { activeFields, validateValues, type Field } from "@/lib/registry";
+import { activeFields, shownInputs, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 
@@ -123,6 +123,7 @@ function InputStrip({ fields }: { fields: Field[] }) {
       >
         {fields.map((field) => (
           <div key={field.key} className={`shrink-0 sm:w-auto ${lane ? "w-full min-w-0" : "w-[168px]"}`}>
+            <InputLabel field={field} />
             <Control
               field={field}
               value={values[field.key]}
@@ -711,9 +712,11 @@ export function MentionStrip({
   names: string[];
   text: string;
   onInsert: (name: string) => void;
-  onDefine: () => void;
+  /** Where more are defined; left out when they are already in view above. */
+  onDefine?: () => void;
 }) {
   const used = usedMentions(text, names);
+  if (names.length === 0 && !onDefine) return null;
   return (
     <div className="anim-swap mb-2 flex flex-wrap items-center gap-1 px-0.5">
       <span className="mr-0.5 grid h-[26px] w-[26px] place-items-center text-t3" title="Reference an element with @name">
@@ -735,6 +738,7 @@ export function MentionStrip({
           </button>
         );
       })}
+      {onDefine && (
       <button
         type="button"
         onClick={onDefine}
@@ -743,6 +747,7 @@ export function MentionStrip({
         <Icon name="plus" size={14} />
         {names.length === 0 ? "Add an element to reference it with @" : "Element"}
       </button>
+      )}
     </div>
   );
 }
@@ -790,7 +795,7 @@ export function useComposer() {
 
   const fields = model ? activeFields(model, values) : [];
   const promptFields = fields.filter((f) => f.placement === "prompt");
-  const inputFields = fields.filter((f) => f.placement === "input");
+  const inputFields = shownInputs(fields.filter((f) => f.placement === "input"));
   const barFields = fields.filter((f) => f.placement === "bar");
   const panelFields = fields.filter((f) => f.placement === "panel");
 
@@ -806,7 +811,11 @@ export function useComposer() {
   const hint =
     model?.creditHint?.(values) ??
     (estimate !== undefined ? formatCredits(estimate * (batchable ? batch : 1)) : undefined);
-  const mentionable = !!model && mentionSources(model, values).length > 0;
+  const sources = model ? mentionSources(model, values) : [];
+  const mentionable = sources.length > 0;
+  // Named references that sit in the bar are defined right there; only
+  // those in the drawer need a way to it.
+  const definedInPanel = sources.some((s) => s.field.placement === "panel");
   const names = mentionable && model ? mentionNames(model, values) : [];
   const firstPrompt = promptFields[0];
 
@@ -864,6 +873,7 @@ export function useComposer() {
     blocker,
     hint,
     mentionable,
+    definedInPanel,
     names,
     firstPrompt,
     insertToken,
@@ -1163,6 +1173,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     blocker,
     hint,
     mentionable,
+    definedInPanel,
     names,
     firstPrompt,
     insertToken,
@@ -1267,7 +1278,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
                 names={names}
                 text={(values[firstPrompt.key] as string) ?? ""}
                 onInsert={insertToken}
-                onDefine={() => toggleSettings(true)}
+                onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
               />
             ) : null}
           </Reveal>

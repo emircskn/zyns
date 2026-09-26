@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { KieError, createTask, extractTaskId } from "@/lib/kie/client";
+import { KieError, createTask, extractMade, extractTaskId } from "@/lib/kie/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,6 +41,10 @@ export async function POST(request: Request) {
   try {
     const envelope = await createTask(apiKey, endpoint, payload ?? {});
     const taskId = extractTaskId(envelope);
+    // Gemini Omni's characters and voices are made on the spot: the reply is
+    // the thing itself, with no task to wait on.
+    const made = taskId ? undefined : extractMade(envelope);
+    if (made) return NextResponse.json({ made, raw: envelope });
     if (!taskId) {
       return NextResponse.json(
         { error: envelope.msg || "KIE accepted the request but returned no task ID.", raw: envelope },
