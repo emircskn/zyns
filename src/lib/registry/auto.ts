@@ -9,6 +9,7 @@ import catalog from "./generated/catalog.json";
 import type { Category, Choice, Field, FieldKind, ItemField, ModelDef, Placement, Values } from "./types";
 import { compact } from "./types";
 import { ratioNumber } from "@/lib/aspect";
+import { clipProblem, type Clip } from "@/lib/clips";
 
 /** The keys an aspect ratio travels under. */
 const RATIO_KEY = /^(aspect_ratio|aspectRatio|ratio|image_size|size)$/;
@@ -94,6 +95,8 @@ export interface Family {
   /** Per-key presentation overrides. */
   fields?: Record<string, Partial<Field>>;
   creditHint?: ModelDef["creditHint"];
+  /** A family's own rule on top of the documented ones. */
+  validate?: ModelDef["validate"];
   /** Shown on the home showcase. */
   featured?: boolean;
   /** One-tap starting prompts for the showcase and the empty bar. */
@@ -190,7 +193,7 @@ const LABELS: Record<string, string> = {
   prefer_multi_shots: "Prefer multi-shot",
   elements: "Elements",
   kling_elements: "Elements",
-  video_list: "Source clip",
+  video_list: "Video",
   image_references: "References",
   color_palette: "Colour palette",
   bbox_list: "Bounding boxes",
@@ -414,7 +417,9 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
         kind = "records";
         extra.itemFields = itemFieldsFor(itemProps);
       }
-      placement = "panel";
+      // A clip is a video like any other input: it sits with the pictures.
+      placement = kind === "clips" ? "input" : "panel";
+      if (kind === "clips") extra.accept = "video";
     } else if (prop.items?.type === "array" || prop.items?.type === "object") {
       kind = "json";
     } else if (/_ids$|_id_list$|mask_indexs/.test(key)) {
@@ -659,7 +664,15 @@ export function familyToModel(family: Family): ModelDef {
         const empty = Array.isArray(val) ? val.length === 0 : val === undefined || val === null || val === "";
         if (empty) return `Add ${humanize(key).toLowerCase()} to continue.`;
       }
-      return null;
+      for (const field of fields) {
+        if (field.kind !== "clips" || !mode.keys.includes(field.key)) continue;
+        const clips = Array.isArray(v[field.key]) ? (v[field.key] as Partial<Clip>[]) : [];
+        for (const clip of clips) {
+          const problem = clipProblem(clip);
+          if (problem) return problem;
+        }
+      }
+      return family.validate?.(v) ?? null;
     },
     build(v) {
       const mode = modes.find((m) => m.id === v.__mode) ?? modes[0];

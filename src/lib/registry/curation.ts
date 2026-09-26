@@ -5,6 +5,7 @@
  * stale id never ships silently.
  */
 import type { Family, ModeSpec } from "./auto";
+import type { Values } from "./types";
 
 const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = {}): ModeSpec => ({
   id,
@@ -12,6 +13,19 @@ const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = 
   model,
   ...extra,
 });
+
+/**
+ * Gemini Omni shares seven slots between its inputs: a picture takes one, a
+ * video two, a character one.
+ */
+function omniBudget(v: Values): string | null {
+  const count = (key: string) => (Array.isArray(v[key]) ? (v[key] as unknown[]).length : 0);
+  const used = count("image_urls") + 2 * count("video_list") + count("character_ids");
+  if (used <= 7) return null;
+  return count("video_list") > 0
+    ? `With a video, Gemini Omni takes up to ${Math.max(0, 5 - count("character_ids"))} images.`
+    : "Gemini Omni takes up to 7 images and characters together.";
+}
 
 /** Seedance 2.x share one schema; the three input styles are exclusive. */
 const seedanceModes = (model: string, refs = true): ModeSpec[] => [
@@ -1024,6 +1038,7 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "4K",
     tagline: "Reusable characters and voices across videos, up to 4K.",
+    validate: omniBudget,
     modes: [
       m("video", "Video", "gemini-omni-video"),
       m("character", "Create character", "gemini-omni-character", { hint: "Reusable identity" }),
@@ -1037,7 +1052,20 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     tagline: "The Flash generation of Omni video, with the same characters and voices.",
-    modes: [m("video", "Video", "google/gemini-omni-flash-1-1")],
+    validate: omniBudget,
+    // A first frame rules out every reference input, so the two ways in are
+    // modes of their own rather than one bar that sends a clash.
+    modes: [
+      m("video", "Reference", "google/gemini-omni-flash-1-1", {
+        hint: "Images, a video, characters and voices",
+        hide: ["first_frame_url", "last_frame_url"],
+      }),
+      m("frames", "Frames", "google/gemini-omni-flash-1-1", {
+        hint: "First frame, optionally a last frame",
+        hide: ["image_urls", "video_list", "audio_ids", "character_ids"],
+        require: ["first_frame_url"],
+      }),
+    ],
   },
   {
     id: "runway",

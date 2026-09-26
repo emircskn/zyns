@@ -9,6 +9,7 @@ import { MediaPicker } from "@/components/MediaPicker";
 import { mediaKind } from "@/lib/upload";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio } from "@/store/studio";
+import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
 
 interface ControlProps {
   field: Field;
@@ -600,42 +601,55 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
   );
 }
 
-interface Clip {
-  url: string;
-  start: number;
-  ends: number;
-}
-
-export function ClipsControl({ field, value, onChange }: ControlProps) {
+export function ClipsControl({ field, value, onChange, roomy }: ControlProps) {
   const clips = (Array.isArray(value) ? value : []) as Clip[];
   const clip = clips[0];
   const set = (patch: Partial<Clip>) =>
-    onChange([{ url: clip?.url ?? "", start: clip?.start ?? 0, ends: clip?.ends ?? 4, ...patch }]);
+    onChange([{ url: clip?.url ?? "", start: clip?.start ?? 0, ends: clip?.ends ?? CLIP_MAX_SECONDS, ...patch }]);
+
+  // A new video is trimmed to its opening stretch at once, then to its real
+  // length once that is known. A video swapped or removed meanwhile wins.
+  const current = useRef<string | undefined>(clip?.url);
+  current.current = clip?.url;
+  function choose(url: string) {
+    onChange([openingClip(url, null)]);
+    void videoDuration(url).then((seconds) => {
+      if (seconds && current.current === url) onChange([openingClip(url, seconds)]);
+    });
+  }
+
+  const span = clip ? Number(clip.ends) - Number(clip.start) : 0;
+  const problem = clip ? clipProblem(clip) : null;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <MediaControl
         field={{ ...field, kind: "media", accept: "video", label: field.label }}
         values={{}}
         compact
+        roomy={roomy}
         value={clip?.url}
-        onChange={(url) => (url ? set({ url: url as string }) : onChange([]))}
+        onChange={(url) => (url ? choose(url as string) : onChange([]))}
       />
       {clip?.url && (
-        <div className="anim-fade flex items-center gap-2">
-          {(["start", "ends"] as const).map((key) => (
-            <label key={key} className="flex flex-1 items-center gap-1.5 text-[11.5px] text-t4">
-              {key === "start" ? "Start" : "End"}
+        <div className="anim-fade flex items-center gap-1.5 text-[11.5px] text-t4" title={`Up to ${CLIP_MAX_SECONDS} seconds of the video are used`}>
+          {(["start", "ends"] as const).map((key, i) => (
+            <label key={key} className="flex items-center gap-1">
+              {i === 1 && <span aria-hidden>–</span>}
+              <span className="sr-only">{key === "start" ? "Start" : "End"}</span>
               <input
                 type="number"
                 min={0}
                 step={0.1}
                 value={clip[key]}
                 onChange={(event) => set({ [key]: Number(event.target.value) })}
-                className="w-full rounded-chip bg-t1/[0.055] px-2 py-1 font-mono text-[12.5px] tabular-nums text-t1 outline-none"
+                className={`w-[52px] rounded-chip bg-t1/[0.055] px-1.5 py-1 text-center font-mono text-[12px] tabular-nums outline-none ${
+                  problem ? "text-[var(--danger)]" : "text-t1"
+                }`}
               />
             </label>
           ))}
+          <span className="font-mono tabular-nums">{span > 0 ? `${Math.round(span * 10) / 10}s` : "s"}</span>
         </div>
       )}
     </div>

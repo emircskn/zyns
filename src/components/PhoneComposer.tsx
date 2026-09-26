@@ -17,6 +17,7 @@ import {
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, MODELS, getModel, type Category, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
+import { openingClip, videoDuration } from "@/lib/clips";
 import { useStudio, useValues } from "@/store/studio";
 
 /**
@@ -30,8 +31,31 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   const [picking, setPicking] = useState(false);
   const value = values[field.key];
   const many = field.kind === "images";
-  const urls = many ? (Array.isArray(value) ? (value as string[]) : []) : value ? [value as string] : [];
-  const media = field.kind === "images" || field.kind === "media";
+  const clip = field.kind === "clips";
+  const first = Array.isArray(value) ? (value[0] as { url?: string } | undefined) : undefined;
+  const urls = clip
+    ? first?.url
+      ? [first.url]
+      : []
+    : many
+      ? Array.isArray(value)
+        ? (value as string[])
+        : []
+      : value
+        ? [value as string]
+        : [];
+  const media = many || clip || field.kind === "media";
+
+  // A clip starts as the video's opening stretch, measured once it loads.
+  function chooseClip(url: string) {
+    setValue(field.key, [openingClip(url, null)]);
+    void videoDuration(url).then((seconds) => {
+      const state = useStudio.getState();
+      const now = state.valuesByModel[state.modelId]?.[field.key];
+      const same = Array.isArray(now) && (now[0] as { url?: string } | undefined)?.url === url;
+      if (seconds && same) state.setValue(field.key, [openingClip(url, seconds)]);
+    });
+  }
   const kind = field.accept ?? "image";
   const noun = kind === "image" ? (many ? "images" : "an image") : kind === "video" ? "a video" : "audio";
 
@@ -66,7 +90,7 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
           <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={half ? 16 : 18} />
         </span>
         <span className={`text-t3 ${half ? "text-[13px] leading-snug" : "text-[14px]"}`}>
-          {field.label && field.label.toLowerCase() !== "images" && field.label.toLowerCase() !== "image"
+          {field.label && !["images", "image", "video"].includes(field.label.toLowerCase())
             ? field.label
             : `Choose ${noun} to upload`}
           {many && field.maxItems ? <span className="text-t4"> (up to {field.maxItems})</span> : null}
@@ -77,7 +101,9 @@ function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         accept={kind}
         multiple={many}
         taken={urls}
-        onPick={(picked) => setValue(field.key, many ? [...urls, ...picked] : picked[0])}
+        onPick={(picked) =>
+          clip ? chooseClip(picked[0]) : setValue(field.key, many ? [...urls, ...picked] : picked[0])
+        }
         onClose={() => setPicking(false)}
       />
     </>
