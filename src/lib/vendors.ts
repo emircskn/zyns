@@ -8,6 +8,7 @@ import type { Brand } from "@/lib/brandIcons";
  * starts another.
  */
 const BRAND_BY_LINE: Array<[RegExp, Brand]> = [
+  [/^(soul|cinema-studio|genjutsu|marketing-studio)/, "higgsfield"],
   [/^(nano-banana|imagen|veo|gemini)/, "google"],
   [/^(seedream|seedance)/, "bytedance"],
   [/^(gpt-image|4o-image)/, "openai"],
@@ -17,7 +18,8 @@ const BRAND_BY_LINE: Array<[RegExp, Brand]> = [
   [/^(qwen|wan|z-image)/, "qwen"],
   [/^kling/, "kling"],
   [/^(hailuo|minimax)/, "minimax"],
-  [/^happyhorse/, "alibaba"],
+  [/^happy-?horse/, "alibaba"],
+  [/^ltx/, "lightricks"],
   [/^pixverse/, "pixverse"],
   [/^runway/, "runway"],
   [/^suno/, "suno"],
@@ -27,7 +29,9 @@ const BRAND_BY_LINE: Array<[RegExp, Brand]> = [
 ];
 
 export function brandOf(modelId: string): Brand | undefined {
-  return BRAND_BY_LINE.find(([line]) => line.test(modelId))?.[1];
+  // Higgsfield's models carry a prefix (see HF_PREFIX); the line comes after it.
+  const line = modelId.replace(/^hf-/, "");
+  return BRAND_BY_LINE.find(([pattern]) => pattern.test(line))?.[1];
 }
 
 /**
@@ -35,6 +39,8 @@ export function brandOf(modelId: string): Brand | undefined {
  * two letters on the same tile, so an unmapped model still fits the row.
  */
 export const VENDORS: Record<string, string> = {
+  Higgsfield: "Hf",
+  Lightricks: "Lt",
   Google: "G",
   "Google DeepMind": "DM",
   ByteDance: "BD",

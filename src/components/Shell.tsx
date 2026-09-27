@@ -18,7 +18,7 @@ import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SideRail } from "@/components/SideRail";
 import { ThemeSync } from "@/components/ThemeSync";
-import { openPickerHere, useStudio, type Page } from "@/store/studio";
+import { activeKey, openPickerHere, useStudio, type Page } from "@/store/studio";
 
 /**
  * A phone has no rail, so the mark and the theme sit in a thin strip at the
@@ -31,7 +31,7 @@ function PhoneBar() {
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
   const clearDemo = useStudio((s) => s.clearDemo);
-  const apiKey = useStudio((s) => s.apiKey);
+  const apiKey = useStudio(activeKey);
   const hydrated = useStudio((s) => s.hydrated);
 
   const demo = runs.some((r) => r.id.startsWith("demo-"));

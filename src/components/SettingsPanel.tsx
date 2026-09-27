@@ -155,7 +155,7 @@ export function SettingsPanel() {
               rel="noreferrer"
               className="flex items-center gap-1.5 text-[12.5px] text-t4 transition-colors hover:text-t1"
             >
-              <Icon name="link" size={16} /> KIE documentation
+              <Icon name="link" size={16} /> {model.provider === "higgsfield" ? "Higgsfield" : "KIE"} documentation
             </a>
           </footer>
         )}

@@ -8,13 +8,36 @@ import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
 import type { Made, Track } from "@/lib/results";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
+  TIER_KEY,
   activeFields,
   defaultValues,
   getModel,
+  modelsFor,
+  providerOf,
   type Category,
   type ModelDef,
+  type Provider,
   type Values,
 } from "@/lib/registry";
+
+/**
+ * Where a page's last model is remembered. Each provider keeps its own, so
+ * switching back finds the KIE model you left, and the Higgsfield one too.
+ * KIE's keys are the bare category, as they were before Higgsfield came in.
+ */
+export function memoryKey(provider: Provider, category: Category): string {
+  return provider === "higgsfield" ? `hf-${category}` : category;
+}
+
+/** The key for the provider in use: KIE's, or Higgsfield's "ID:secret". */
+export function activeKey(state: { provider: Provider; apiKey: string; hfKey: string }): string {
+  return state.provider === "higgsfield" ? state.hfKey : state.apiKey;
+}
+
+/** The key a run's own provider needs, for following it up. */
+export function keyFor(state: { apiKey: string; hfKey: string }, provider: Provider | undefined): string {
+  return provider === "higgsfield" ? state.hfKey : state.apiKey;
+}
 
 export interface Run {
   id: string;
@@ -22,7 +45,10 @@ export interface Run {
   modelId: string;
   modelName: string;
   mode?: string;
-  poll: string;
+  /** KIE only: which status endpoint reports on the task. */
+  poll?: string;
+  /** Whose task this is, and so whose key follows it up. KIE when left out. */
+  provider?: Provider;
   prompt: string;
   /** Aspect ratio as a CSS value, so tiles reserve the right space while loading. */
   ratio: string;
@@ -55,7 +81,12 @@ export interface Upload {
 }
 
 interface StudioState {
+  /** The KIE key. */
   apiKey: string;
+  /** The Higgsfield key, as "KEY_ID:KEY_SECRET". */
+  hfKey: string;
+  /** Which service the studio makes things with: its models, its key. */
+  provider: Provider;
   theme: Theme;
   credits: number | null;
   category: Category;
@@ -79,7 +110,8 @@ interface StudioState {
   /** A phone's catalogue of covers, opened by its Create button. */
   createOpen: boolean;
   /** The model each category was last used with, so pages remember. */
-  modelByCategory: Partial<Record<Category, string>>;
+  /** The model last used on each page, per provider (see `memoryKey`). */
+  modelByCategory: Partial<Record<string, string>>;
   /**
    * The prompt last written in each category. Every model of a category
    * shows it, so switching Nano Banana for another image model keeps what
@@ -104,6 +136,8 @@ interface StudioState {
   hydrated: boolean;
 
   setApiKey: (key: string) => void;
+  setHfKey: (key: string) => void;
+  setProvider: (provider: Provider) => void;
   setTheme: (theme: Theme) => void;
   setCredits: (credits: number | null) => void;
   setCategory: (category: Category) => void;
@@ -276,6 +310,8 @@ export const useStudio = create<StudioState>()(
   persist(
     (set, get) => ({
       apiKey: "",
+      hfKey: "",
+      provider: "kie",
       theme: "dark",
       credits: null,
       category: "image",
@@ -316,6 +352,36 @@ export const useStudio = create<StudioState>()(
               }
             : { apiKey, credits: null },
         ),
+      setHfKey: (hfKey) =>
+        set((state) =>
+          hfKey
+            ? {
+                hfKey,
+                runs: state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX)),
+                uploads: state.uploads.filter((u) => !u.id.startsWith(DEMO_PREFIX)),
+              }
+            : { hfKey },
+        ),
+
+      /**
+       * Switching service swaps the catalogue: each page comes back with the
+       * model last used there on that service (or none yet), while prompts
+       * and reference pictures carry across. A page the service has no
+       * models for (Higgsfield has no audio) falls back to Home.
+       */
+      setProvider: (provider) => {
+        const state = get();
+        if (state.provider === provider) return;
+        const page = state.page;
+        const onCategory = page !== "assets" && page !== "favorites" && page !== "home";
+        const offered = modelsFor(provider).some((m) => m.category === (onCategory ? page : state.category));
+        set({
+          provider,
+          modelId: state.modelByCategory[memoryKey(provider, state.category)] ?? "",
+          ...(onCategory && !offered ? { page: "home" as Page } : {}),
+        });
+        if (onCategory && offered) get().setPage(page);
+      },
       setTheme: (theme) => set({ theme }),
       setCredits: (credits) => set({ credits }),
       setCategory: (category) => set({ category }),
@@ -331,7 +397,7 @@ export const useStudio = create<StudioState>()(
           if (page === "assets" || page === "favorites" || page === "home") return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
-          const id = state.modelByCategory[page] ?? "";
+          const id = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
           const model = getModel(id);
           if (!id || !model) return { page, category: page, modelId: "", selectMode: false };
           return {
@@ -367,9 +433,12 @@ export const useStudio = create<StudioState>()(
           );
           return {
             modelId: id,
+            // A model belongs to one service; choosing it (a Recreate of a
+            // Higgsfield run, say) brings that service along.
+            provider: providerOf(model),
             category: model.category,
             page: state.page === "home" ? state.page : model.category,
-            modelByCategory: { ...state.modelByCategory, [model.category]: id },
+            modelByCategory: { ...state.modelByCategory, [memoryKey(providerOf(model), model.category)]: id },
             pickerOpen: false,
             draft: draft === undefined ? state.draft : "",
             valuesByModel: { ...state.valuesByModel, [id]: values },
@@ -394,8 +463,20 @@ export const useStudio = create<StudioState>()(
       setValue: (key, value) =>
         set((state) => {
           const current = valuesFor(state, state.modelId);
-          const next = { ...current, [key]: value };
+          const next: Values = { ...current, [key]: value };
           const model = getModel(state.modelId);
+          // A tier is its own endpoint with its own options (Higgsfield's
+          // Kling Pro stops at 1080p where 4K goes further). Carry over what
+          // still fits, and let the rest fall back to the new tier's defaults.
+          if (model && key === TIER_KEY) {
+            for (const field of activeFields(model, next)) {
+              const val = next[field.key];
+              const fits =
+                val === undefined || val === "" || !field.choices || field.choices.some((c) => c.value === String(val));
+              if (!fits) delete next[field.key];
+              if (next[field.key] === undefined && field.default !== undefined) next[field.key] = field.default;
+            }
+          }
           // Taking a picture out moves the prompt's `@Image N` with the rest.
           const prompt = model && promptKey(model, next);
           if (model && prompt && typeof next[prompt] === "string" && imageFields(model, next).some((f) => f.key === key)) {
@@ -530,6 +611,8 @@ export const useStudio = create<StudioState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         apiKey: state.apiKey,
+        hfKey: state.hfKey,
+        provider: state.provider,
         theme: state.theme,
         category: state.category,
         page: state.page,

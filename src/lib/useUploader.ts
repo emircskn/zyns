@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { uploadFile } from "@/lib/upload";
-import { useStudio } from "@/store/studio";
+import { PROVIDER_NAME } from "@/lib/generate";
+import { activeKey, useStudio } from "@/store/studio";
 
 export const ACCEPT: Record<string, string> = {
   image: "image/*",
@@ -13,11 +14,12 @@ export const ACCEPT: Record<string, string> = {
 type Kind = "image" | "video" | "audio";
 
 /**
- * Sends files to KIE's file host and remembers each one, so an upload can be
+ * Sends files to the chosen service's file host and remembers each one, so an upload can be
  * picked again later as a reference instead of being uploaded twice.
  */
 export function useUploader(accept: Kind | undefined) {
-  const apiKey = useStudio((s) => s.apiKey);
+  const apiKey = useStudio(activeKey);
+  const provider = useStudio((s) => s.provider);
   const addUpload = useStudio((s) => s.addUpload);
   // How many files are on their way up, so each can hold a place of its own
   // while it goes; busy while any are.
@@ -28,7 +30,7 @@ export function useUploader(accept: Kind | undefined) {
 
   async function send(files: FileList | File[], onDone: (urls: string[]) => void) {
     if (!apiKey) {
-      setError("Add your API key first. Uploads go through your KIE account.");
+      setError(`Add your API key first. Uploads go through your ${PROVIDER_NAME[provider]} account.`);
       return;
     }
     const list = Array.from(files);
@@ -39,7 +41,7 @@ export function useUploader(accept: Kind | undefined) {
     const results = await Promise.all(
       list.map(async (file, index) => {
         try {
-          const url = await uploadFile(file, apiKey);
+          const url = await uploadFile(file, apiKey, provider);
           addUpload({
             id: `up-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
             url,

@@ -32,9 +32,10 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
-import { activeFields, shownInputs, validateValues, type Field } from "@/lib/registry";
+import { activeFields, providerOf, shownInputs, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
-import { openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
+import { useEstimate } from "@/lib/useEstimate";
+import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 
 export function ModeStrip({ flush }: { flush?: boolean }) {
   const model = useModel();
@@ -811,15 +812,22 @@ export function useComposer() {
   // A picture at a time, and nothing in the request that asks for more: then
   // the count is ours to send. Models with their own count keep it.
   const batchable =
-    !!model && model.output === "image" && !fields.some((f) => /^num_images$|^n$/.test(f.key));
+    !!model && model.output === "image" && !fields.some((f) => /^num_images$|^n$|^batch_size$/.test(f.key));
   const blocker = model ? validateValues(model, values) : "Choose a model to start";
-  // What the send will cost, from KIE's price list: every copy of a batch
-  // is a run of its own.
+  // What the send will cost: a KIE model from KIE's price list, where every
+  // copy of a batch is a run of its own; a Higgsfield model from Higgsfield's
+  // own estimate, asked as the settings change.
   const batch = useStudio((s) => s.batch);
-  const estimate = useMemo(() => (model ? estimateCredits(model, values) : undefined), [model, values]);
-  const hint =
-    model?.creditHint?.(values) ??
-    (estimate !== undefined ? formatCredits(estimate * (batchable ? batch : 1)) : undefined);
+  const higgsfield = providerOf(model) === "higgsfield";
+  const estimate = useMemo(
+    () => (model && !higgsfield ? estimateCredits(model, values) : undefined),
+    [model, values, higgsfield],
+  );
+  const quoted = useEstimate(higgsfield ? model : undefined, values, blocker);
+  const hint = higgsfield
+    ? (quoted ?? model?.creditHint?.(values))
+    : (model?.creditHint?.(values) ??
+      (estimate !== undefined ? formatCredits(estimate * (batchable ? batch : 1)) : undefined));
   const sources = model ? mentionSources(model, values) : [];
   const mentionable = sources.length > 0;
   // Named references that sit in the bar are defined right there; only
@@ -1191,7 +1199,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
   const selectMode = useStudio((s) => s.selectMode);
-  const apiKey = useStudio((s) => s.apiKey);
+  const apiKey = useStudio(activeKey);
   const wrapper = useRef<HTMLDivElement>(null);
 
   const centered = placement === "center";

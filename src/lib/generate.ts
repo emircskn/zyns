@@ -4,9 +4,10 @@ import { aspectFromValues } from "@/lib/aspect";
 import { resolveAutoRatio } from "@/lib/autoRatio";
 import { withImageMentions } from "@/lib/mentions";
 import { createTask, getCredits, getTask } from "@/lib/kie/transport";
+import * as hf from "@/lib/higgsfield/transport";
 import type { PollKind } from "@/lib/kie/client";
-import { getModel, validateValues, type Values } from "@/lib/registry";
-import { useStudio, type Run } from "@/store/studio";
+import { getModel, providerOf, validateValues, type Provider, type Values } from "@/lib/registry";
+import { keyFor, useStudio, type Run } from "@/store/studio";
 import { withoutInputs } from "@/lib/runInputs";
 import { englishError } from "@/lib/kie/errors";
 
@@ -23,7 +24,10 @@ export async function submitRun(): Promise<SubmitResult> {
   const state = useStudio.getState();
   const model = getModel(state.modelId);
   if (!model) return { ok: false, error: "Pick a model first." };
-  if (!state.apiKey) return { ok: false, error: "Add your KIE API key first." };
+  // A model runs on its own service, with that service's key.
+  const provider = providerOf(model);
+  const key = keyFor(state, provider);
+  if (!key) return { ok: false, error: `Add your ${PROVIDER_NAME[provider]} API key first.` };
 
   const values: Values = state.valuesByModel[state.modelId] ?? {};
   const problem = validateValues(model, values);
@@ -42,6 +46,7 @@ export async function submitRun(): Promise<SubmitResult> {
     modelName: model.name,
     mode: values.__mode,
     poll,
+    provider,
     prompt: (values.prompt as string) || (values.text as string) || (values.descriptions as string) || "",
     ratio: aspectFromValues(sent, model.output === "audio" ? "3 / 1" : "16 / 9"),
     output: model.output,
@@ -53,7 +58,8 @@ export async function submitRun(): Promise<SubmitResult> {
   state.addRun(run);
 
   try {
-    const { taskId, made } = await createTask(state.apiKey, endpoint, payload);
+    const { taskId, made }: { taskId?: string; made?: Run["made"] } =
+      provider === "higgsfield" ? await hf.createTask(key, endpoint, payload) : await createTask(key, endpoint, payload);
     // A character or voice is ready the moment it is made; there is nothing
     // to poll.
     if (made) useStudio.getState().patchRun(id, { state: "success", made, urls: made.image ? [made.image] : [] });
@@ -66,6 +72,11 @@ export async function submitRun(): Promise<SubmitResult> {
     return { ok: false, error: message };
   }
 }
+
+export const PROVIDER_NAME: Record<Provider, string> = { kie: "KIE", higgsfield: "Higgsfield" };
+
+/** Runs already let go, so overlapping polls cancel each one only once. */
+const stopping = new Set<string>();
 
 export async function refreshCredits(): Promise<void> {
   const { apiKey, setCredits } = useStudio.getState();
@@ -92,38 +103,50 @@ export const TIME_LIMIT: Record<Run["output"], { ms: number; label: string }> = 
 };
 
 export async function pollRun(run: Run): Promise<void> {
-  const { apiKey, patchRun } = useStudio.getState();
+  const state = useStudio.getState();
+  const { patchRun } = state;
+  // A run is followed up with its own service's key, whichever is in use now.
+  const higgsfield = run.provider === "higgsfield";
+  const apiKey = keyFor(state, run.provider);
+  const name = PROVIDER_NAME[run.provider ?? "kie"];
   if (!apiKey || !run.taskId) return;
   const limit = TIME_LIMIT[run.output] ?? TIME_LIMIT.video;
   const late = Date.now() - run.createdAt > limit.ms;
   try {
-    const task = await getTask(apiKey, run.taskId, run.poll as PollKind);
+    const task = higgsfield
+      ? await hf.getTask(apiKey, run.taskId)
+      : await getTask(apiKey, run.taskId, run.poll as PollKind);
     // Asked once more at the limit: a run that finished meanwhile still
-    // lands; one that has not is let go.
+    // lands; one that has not is let go (and on Higgsfield cancelled, where a
+    // request still queued allows it, so it cannot start and charge later).
     if (late && task.state !== "success" && task.state !== "failed") {
+      if (stopping.has(run.id)) return;
+      stopping.add(run.id);
+      if (higgsfield) await hf.cancelTask(apiKey, run.taskId).catch(() => {});
       patchRun(run.id, {
         state: "failed",
-        error: `Timed out: no result from KIE after ${limit.label}.`,
+        error: `Timed out: no result from ${name} after ${limit.label}.`,
       });
       return;
     }
     patchRun(run.id, {
       state: task.state,
-      urls: task.urls ? withoutInputs(task.urls, run.values) : run.urls,
-      ...(task.tracks ? { tracks: task.tracks } : {}),
-      error: englishError(task.error),
-      credits: task.credits ?? run.credits,
+      // What the run was sent (references, first frames) is never its output.
+      urls: task.urls && task.urls.length > 0 ? withoutInputs(task.urls, run.values) : run.urls,
+      ...("tracks" in task && task.tracks ? { tracks: task.tracks as Run["tracks"] } : {}),
+      error: higgsfield ? task.error : englishError(task.error),
+      credits: ("credits" in task ? (task.credits as number | undefined) : undefined) ?? run.credits,
     });
-    if (task.state === "success" || task.state === "failed") void refreshCredits();
+    if (!higgsfield && (task.state === "success" || task.state === "failed")) void refreshCredits();
   } catch (error) {
     // A definitive rejection (bad key, unknown task) should surface; a
     // transient network error is simply retried on the next tick.
-    if (error instanceof Error && /unauthori|not found|invalid/i.test(error.message)) {
+    if (error instanceof Error && /unauthori|not found|invalid|credentials/i.test(error.message)) {
       patchRun(run.id, { state: "failed", error: englishError(error.message) });
     } else if (late) {
       patchRun(run.id, {
         state: "failed",
-        error: `Timed out: KIE stopped answering after ${limit.label}.`,
+        error: `Timed out: ${name} stopped answering after ${limit.label}.`,
       });
     }
   }

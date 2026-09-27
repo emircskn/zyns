@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, MODELS, searchModels, type Category, type ModelDef } from "@/lib/registry";
+import { CATEGORIES, modelsFor, searchModels, type Category, type ModelDef } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
 
@@ -93,16 +93,18 @@ export function ModelPicker() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open, togglePicker]);
 
-  // A search stays inside the page's kind of work too.
+  // A search stays inside the page's kind of work too, and inside the
+  // service in use.
+  const provider = useStudio((s) => s.provider);
   const groups = useMemo(() => {
     const searching = query.trim().length > 0;
-    const found = searching ? searchModels(query) : MODELS;
+    const found = searching ? searchModels(query, provider) : modelsFor(provider);
     const scoped = scope === "all" ? found : found.filter((m) => m.category === scope);
     return CATEGORIES.map((category) => ({
       id: category.id,
       models: scoped.filter((m) => m.category === category.id),
     })).filter((group) => group.models.length > 0);
-  }, [query, scope]);
+  }, [query, scope, provider]);
 
   if (!mounted) return null;
 

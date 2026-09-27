@@ -5,7 +5,7 @@ import { AssetBrowser } from "@/components/AssetBrowser";
 import { Icon } from "@/components/Icon";
 import { PromptBar } from "@/components/PromptBar";
 import { useAssets } from "@/lib/assets";
-import { useStudio } from "@/store/studio";
+import { activeKey, useStudio } from "@/store/studio";
 
 /**
  * One verb, four things it can end in, rolling one into the next: the
@@ -83,7 +83,7 @@ function Rolling() {
  */
 export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
   const assets = useAssets();
-  const apiKey = useStudio((s) => s.apiKey);
+  const apiKey = useStudio(activeKey);
   const hydrated = useStudio((s) => s.hydrated);
   const setPage = useStudio((s) => s.setPage);
   const loadDemo = useStudio((s) => s.loadDemo);

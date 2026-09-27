@@ -124,14 +124,20 @@ export interface Mode {
 export type PollKind = "jobs" | "veo" | "suno" | "mj" | "flux" | "aleph";
 
 export interface BuildResult {
-  /** Path relative to https://api.kie.ai */
+  /** Path relative to the provider's API: https://api.kie.ai or https://api.higgsfield.ai */
   endpoint: string;
   payload: Record<string, unknown>;
-  poll: PollKind;
+  /** KIE only: which status endpoint reports on the task. */
+  poll?: PollKind;
 }
+
+/** Where a model runs, and whose key pays for it. */
+export type Provider = "kie" | "higgsfield";
 
 export interface ModelDef {
   id: string;
+  /** KIE when left out. */
+  provider?: Provider;
   name: string;
   vendor: string;
   category: Category;
@@ -174,3 +180,6 @@ export function compact(obj: Record<string, unknown>): Record<string, unknown> {
 export function has(v: unknown): boolean {
   return Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== "";
 }
+
+/** A model's quality tier, when each tier is its own endpoint (Kling 3.0 Standard / Pro / 4K). */
+export const TIER_KEY = "__tier";

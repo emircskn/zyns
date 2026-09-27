@@ -1,16 +1,20 @@
 "use client";
 
-import { uploadFile as transportUpload } from "@/lib/kie/transport";
+import { uploadFile as kieUpload } from "@/lib/kie/transport";
+import { uploadFile as hfUpload } from "@/lib/higgsfield/transport";
+import type { Provider } from "@/lib/registry";
 import { prepareImage } from "@/lib/prepareImage";
 
 /**
- * Uploads a browser file to KIE's file host and returns its public URL.
+ * Uploads a browser file to the chosen service's file host (KIE's, or
+ * Higgsfield's storage) and returns its public URL. Either URL is public, so
+ * a file uploaded for one service can still be used with the other.
  * Pictures are first checked and, where needed, converted or scaled so every
  * model can read them (see prepareImage).
  */
-export async function uploadFile(file: File, apiKey: string): Promise<string> {
+export async function uploadFile(file: File, apiKey: string, provider: Provider = "kie"): Promise<string> {
   const ready = looksLikeImage(file) ? await prepareImage(file).catch(() => file) : file;
-  return transportUpload(apiKey, ready);
+  return provider === "higgsfield" ? hfUpload(apiKey, ready) : kieUpload(apiKey, ready);
 }
 
 /** A picture by its type, or, when a phone gives no type, by its name. */

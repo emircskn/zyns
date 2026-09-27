@@ -1,14 +1,15 @@
 "use client";
 
 import {
-  MODELS,
+  modelsFor,
+  providerOf,
   activeFields,
   defaultValues,
   getModel,
   type Field,
   type ModelDef,
 } from "@/lib/registry";
-import { useStudio, type Run } from "@/store/studio";
+import { memoryKey, useStudio, type Run } from "@/store/studio";
 
 /**
  * Putting a finished piece of media back into the bar: the two things you do
@@ -81,11 +82,11 @@ export function attachReference(model: ModelDef, url: string): boolean {
 export function referenceModel(): ModelDef | undefined {
   const store = useStudio.getState();
   const active = getModel(store.modelId);
-  if (active && imageInput(active)) return active;
-  const last = store.modelByCategory.image;
+  if (active && imageInput(active) && providerOf(active) === store.provider) return active;
+  const last = store.modelByCategory[memoryKey(store.provider, "image")];
   const preferred = last ? getModel(last) : undefined;
   if (preferred && imageInput(preferred)) return preferred;
-  return MODELS.find((m) => m.category === "image" && imageInput(m));
+  return modelsFor(store.provider).find((m) => m.category === "image" && imageInput(m));
 }
 
 /**
@@ -93,10 +94,11 @@ export function referenceModel(): ModelDef | undefined {
  * video page was last on when it takes one, or the first one that does.
  */
 export function firstFrameModel(): ModelDef | undefined {
-  const last = useStudio.getState().modelByCategory.video;
+  const { provider, modelByCategory } = useStudio.getState();
+  const last = modelByCategory[memoryKey(provider, "video")];
   const preferred = last ? getModel(last) : undefined;
   if (preferred && imageInput(preferred)) return preferred;
-  return MODELS.find((m) => m.category === "video" && imageInput(m));
+  return modelsFor(provider).find((m) => m.category === "video" && imageInput(m));
 }
 
 /** Hand a picture to that model as a reference. Returns false if none takes one. */

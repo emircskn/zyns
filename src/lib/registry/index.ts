@@ -1,37 +1,75 @@
 import { familyToModel, allSpecs } from "./auto";
 import { FAMILIES } from "./curation";
-import type { Category, Field, ModelDef, Values } from "./types";
+import { familyToModel as hfFamilyToModel } from "./hf/auto";
+import { FAMILIES as HF_FAMILIES } from "./hf/curation";
+import type { Category, Field, ModelDef, Provider, Values } from "./types";
 
 export * from "./types";
 export { FAMILIES } from "./curation";
 export { getSpec } from "./auto";
 
-/** Every family, rendered into a ModelDef from the documented schemas. */
-export const MODELS: ModelDef[] = FAMILIES.map(familyToModel);
+/** Every KIE family, rendered into a ModelDef from the documented schemas. */
+export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel).map((m) => ({ ...m, provider: "kie" as const }));
+
+/**
+ * Every Higgsfield family, from Higgsfield's own schemas. Both catalogues
+ * name some models alike (Kling 3.0, Wan 3.0), so these ids carry a prefix
+ * and a model's values, gallery and memory never mix with its KIE twin.
+ */
+export const HF_PREFIX = "hf-";
+export const HF_MODELS: ModelDef[] = HF_FAMILIES.map(hfFamilyToModel).map((m) => ({
+  ...m,
+  id: HF_PREFIX + m.id,
+  provider: "higgsfield" as const,
+}));
+
+/** Both catalogues; a model is found by id whichever provider is chosen. */
+export const ALL_MODELS: ModelDef[] = [...KIE_MODELS, ...HF_MODELS];
+
+/** The chosen provider's models. */
+export function modelsFor(provider: Provider): ModelDef[] {
+  return provider === "higgsfield" ? HF_MODELS : KIE_MODELS;
+}
+
+/** KIE's, for code that has no provider in hand. */
+export const MODELS: ModelDef[] = KIE_MODELS;
 
 /** Documented endpoints, for reporting what the studio covers. */
 export const SPEC_COUNT = allSpecs().length;
 
-export const CATEGORIES: Array<{ id: Category; label: string; blurb: string }> = [
+export type CategoryInfo = { id: Category; label: string; blurb: string };
+
+export const CATEGORIES: CategoryInfo[] = [
   { id: "image", label: "Image", blurb: "Generate and edit stills" },
   { id: "video", label: "Video", blurb: "Motion, avatars and editing" },
   { id: "audio", label: "Audio", blurb: "Music, speech and effects" },
   { id: "tool", label: "Tools", blurb: "Upscale, isolate, cut out" },
 ];
 
+/** The sections a provider has models for: Higgsfield has no audio. */
+export function categoriesFor(provider: Provider): CategoryInfo[] {
+  const models = modelsFor(provider);
+  return CATEGORIES.filter((c) => models.some((m) => m.category === c.id));
+}
+
 export function getModel(id: string): ModelDef | undefined {
-  return MODELS.find((m) => m.id === id);
+  return ALL_MODELS.find((m) => m.id === id);
 }
 
-export function modelsByCategory(category: Category): ModelDef[] {
-  return MODELS.filter((m) => m.category === category);
+export function providerOf(model: ModelDef | undefined): Provider {
+  return model?.provider ?? "kie";
 }
 
-export function searchModels(query: string): ModelDef[] {
+export function modelsByCategory(category: Category, provider: Provider = "kie"): ModelDef[] {
+  return modelsFor(provider).filter((m) => m.category === category);
+}
+
+export function searchModels(query: string, provider: Provider = "kie"): ModelDef[] {
+  const models = modelsFor(provider);
   const q = query.trim().toLowerCase();
-  if (!q) return MODELS;
+  if (!q) return models;
   const terms = q.split(/\s+/);
-  return MODELS.filter((m) => {
+  return models.filter((m) => {
     const haystack = [m.name, m.vendor, m.tagline, ...m.tags, ...(m.modes ?? []).map((x) => x.label)]
       .join(" ")
       .toLowerCase();

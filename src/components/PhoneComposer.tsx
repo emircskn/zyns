@@ -15,10 +15,10 @@ import {
   useComposer,
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, MODELS, getModel, type Category, type Field } from "@/lib/registry";
+import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { openingClip, videoDuration } from "@/lib/clips";
-import { useStudio, useValues } from "@/store/studio";
+import { activeKey, memoryKey, useStudio, useValues } from "@/store/studio";
 
 /**
  * A reference slot before anything is in it: the whole width to aim a thumb
@@ -126,9 +126,10 @@ const SECTION_ICON: Record<Category, IconName> = {
  * the catalogue features, or else simply its first.
  */
 function modelFor(category: Category): string | undefined {
-  const remembered = useStudio.getState().modelByCategory[category];
+  const { provider, modelByCategory } = useStudio.getState();
+  const remembered = modelByCategory[memoryKey(provider, category)];
   if (remembered && getModel(remembered)) return remembered;
-  const own = MODELS.filter((m) => m.category === category);
+  const own = modelsFor(provider).filter((m) => m.category === category);
   return (own.find((m) => m.featured) ?? own[0])?.id;
 }
 
@@ -145,6 +146,7 @@ function SectionMenu({
   onPick: (category: Category) => void;
   onClose: () => void;
 }) {
+  const provider = useStudio((s) => s.provider);
   return (
     <>
       <button
@@ -160,7 +162,7 @@ function SectionMenu({
         style={{ boxShadow: "var(--shadow-pop)", transformOrigin: "top left" }}
       >
         <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-t4">Create</p>
-        {CATEGORIES.map((category) => {
+        {categoriesFor(provider).map((category) => {
           const on = category.id === current;
           return (
             <button
@@ -199,7 +201,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   menuOpen.current = menu;
   const togglePicker = useStudio((s) => s.togglePicker);
   const toggleSettings = useStudio((s) => s.toggleSettings);
-  const apiKey = useStudio((s) => s.apiKey);
+  const apiKey = useStudio(activeKey);
   const { mounted, exiting } = usePresence(open, 300);
   const {
     model,

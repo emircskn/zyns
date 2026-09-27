@@ -10,6 +10,10 @@ const INTERVAL_MS = 3500;
 export function RunPoller() {
   const runs = useStudio((s) => s.runs);
   const apiKey = useStudio((s) => s.apiKey);
+  const hfKey = useStudio((s) => s.hfKey);
+  // Each run is followed up with its own service's key; either one will do
+  // to start the loop, and pollRun skips a run whose key is missing.
+  const anyKey = apiKey || hfKey;
 
   const pending = runs.filter(
     (run) => run.taskId && (run.state === "pending" || run.state === "running"),
@@ -17,7 +21,7 @@ export function RunPoller() {
   const signature = pending.map((run) => run.taskId).join(",");
 
   useEffect(() => {
-    if (!apiKey || !signature) return;
+    if (!anyKey || !signature) return;
     let cancelled = false;
 
     async function tick() {
@@ -36,7 +40,7 @@ export function RunPoller() {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [apiKey, signature]);
+  }, [anyKey, signature]);
 
   useEffect(() => {
     if (apiKey) void refreshCredits();

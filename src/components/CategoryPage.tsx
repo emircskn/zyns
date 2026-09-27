@@ -5,7 +5,7 @@ import { DensityControl } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, MODELS, type Category } from "@/lib/registry";
+import { CATEGORIES, getModel, type Category } from "@/lib/registry";
 import { useModel, useStudio } from "@/store/studio";
 
 const NOUN: Record<Category, string> = {
@@ -31,7 +31,7 @@ export function CategoryPage({ category }: { category: Category }) {
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
   const meta = CATEGORIES.find((c) => c.id === category);
-  const mine = runs.filter((run) => MODELS.find((m) => m.id === run.modelId)?.category === category);
+  const mine = runs.filter((run) => getModel(run.modelId)?.category === category);
 
   return (
     <div className="anim-fade flex flex-1 flex-col">

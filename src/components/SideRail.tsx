@@ -2,8 +2,9 @@
 
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
-import { CATEGORIES, type Category } from "@/lib/registry";
-import { useStudio, type Page } from "@/store/studio";
+import { categoriesFor, type Category, type Provider } from "@/lib/registry";
+import { ProviderSwitch } from "@/components/ProviderSwitch";
+import { activeKey, useStudio, type Page } from "@/store/studio";
 
 const CATEGORY_ICON: Record<Category, IconName> = {
   image: "image",
@@ -13,11 +14,9 @@ const CATEGORY_ICON: Record<Category, IconName> = {
 };
 
 /** The pages that make something, and the pages that hold what was made. */
-const MAKE: { id: Page; label: string; icon: IconName }[] = CATEGORIES.map((c) => ({
-  id: c.id as Page,
-  label: c.label,
-  icon: CATEGORY_ICON[c.id],
-}));
+function makeFor(provider: Provider): { id: Page; label: string; icon: IconName }[] {
+  return categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label, icon: CATEGORY_ICON[c.id] }));
+}
 
 const KEEP: { id: Page; label: string; icon: IconName }[] = [
   { id: "assets" as Page, label: "Assets", icon: "folder" },
@@ -83,8 +82,10 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
-  const apiKey = useStudio((s) => s.apiKey);
-  const credits = useStudio((s) => s.credits);
+  const apiKey = useStudio(activeKey);
+  const provider = useStudio((s) => s.provider);
+  // KIE reports a balance; Higgsfield prices each run as it is set up.
+  const credits = useStudio((s) => (s.provider === "kie" ? s.credits : null));
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
   const clearDemo = useStudio((s) => s.clearDemo);
@@ -108,7 +109,7 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
       </button>
 
       <nav className="flex w-full flex-col gap-0.5">
-        {MAKE.map((item) => (
+        {makeFor(provider).map((item) => (
           <NavRow
             key={item.id}
             label={item.label}
@@ -156,6 +157,9 @@ export function SideRail({ onKeyClick }: { onKeyClick: () => void }) {
         )}
 
         <GroupLabel>Account</GroupLabel>
+        <div className="mb-1.5 px-1">
+          <ProviderSwitch />
+        </div>
         {/* What the key has left, and the key itself where the screenshot put
             its overflow menu: on this studio there is nothing else to keep in
             a menu, and the key is what an account here amounts to. */}

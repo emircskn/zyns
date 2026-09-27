@@ -28,6 +28,26 @@ export async function resolveAutoRatio(model: ModelDef, values: Values): Promise
   return next;
 }
 
+/**
+ * The same, without waiting: for the price estimate, which is asked on every
+ * change. Uses the reference's shape if it has already been measured, and
+ * otherwise leaves the ratio out rather than sending "auto".
+ */
+export function resolveAutoRatioNow(model: ModelDef, values: Values): Values {
+  const fields = activeFields(model, values);
+  const autos = fields.filter((f) => f.autoFrom === "input" && values[f.key] === "auto");
+  if (autos.length === 0) return values;
+  const url = firstReference(fields, values);
+  const shape = url ? ratioOf(url) : undefined;
+  const next: Values = { ...values };
+  for (const field of autos) {
+    const best = shape === undefined ? undefined : nearest(field.choices?.map((c) => c.value) ?? [], shape);
+    const fallback = field.required ? fallbackRatio(field) : undefined;
+    if (best ?? fallback) next[field.key] = best ?? fallback;
+    else delete next[field.key];
+  }
+  return next;
+}
 /** A ratio the API will take when the reference's shape is unknown. */
 function fallbackRatio(field: ReturnType<typeof activeFields>[number]): string | undefined {
   const fallback = typeof field.default === "string" && field.default !== "auto" ? field.default : undefined;

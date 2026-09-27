@@ -5,16 +5,18 @@ import { CoverArt } from "@/components/CoverArt";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
-import { CATEGORIES, MODELS, type Category, type ModelDef } from "@/lib/registry";
+import { categoriesFor, modelsFor, type Category, type ModelDef, type Provider } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
 
 type Tab = "all" | Category;
 
-const TABS: Array<{ id: Tab; label: string }> = [
-  { id: "all", label: "All" },
-  ...CATEGORIES.map((category) => ({ id: category.id as Tab, label: category.label })),
-];
+function tabsFor(provider: Provider): Array<{ id: Tab; label: string }> {
+  return [
+    { id: "all", label: "All" },
+    ...categoriesFor(provider).map((category) => ({ id: category.id as Tab, label: category.label })),
+  ];
+}
 
 function ModelCard({
   model,
@@ -85,10 +87,12 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const shown = useMemo(
-    () => (tab === "all" ? MODELS : MODELS.filter((model) => model.category === tab)),
-    [tab],
-  );
+  const provider = useStudio((s) => s.provider);
+  const TABS = tabsFor(provider);
+  const shown = useMemo(() => {
+    const models = modelsFor(provider);
+    return tab === "all" ? models : models.filter((model) => model.category === tab);
+  }, [tab, provider]);
 
   if (!mounted) return null;
 
