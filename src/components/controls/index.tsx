@@ -684,7 +684,7 @@ interface SourceItem {
 }
 
 /** What a source field can pick from, newest first. */
-function sourceItems(field: Field, runs: Run[], modelId: string): SourceItem[] {
+export function sourceItems(field: Field, runs: Run[], modelId: string): SourceItem[] {
   const spec = field.source ?? { of: "task" as const };
   const models = spec.models ?? [modelId];
   const done = runs.filter((r) => r.state === "success");

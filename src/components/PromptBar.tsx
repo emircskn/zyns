@@ -15,7 +15,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { BorderBeam } from "border-beam";
-import { Control, InputLabel, chipCaption } from "@/components/controls";
+import { Control, InputLabel, chipCaption, sourceItems } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
@@ -795,7 +795,16 @@ export function useComposer() {
 
   const fields = model ? activeFields(model, values) : [];
   const promptFields = fields.filter((f) => f.placement === "prompt");
-  const inputFields = shownInputs(fields.filter((f) => f.placement === "input"));
+  // An optional picker of earlier results with nothing to pick (no
+  // characters made yet, say) is only a note taking room from the prompt;
+  // the mode that makes them is a tap away above.
+  const runs = useStudio((s) => s.runs);
+  const inputFields = shownInputs(fields.filter((f) => f.placement === "input")).filter((f) => {
+    if (f.kind !== "source" || f.required || !model) return true;
+    const value = values[f.key];
+    const picked = Array.isArray(value) ? value.length > 0 : !!value;
+    return picked || sourceItems(f, runs, model.id).length > 0;
+  });
   const barFields = fields.filter((f) => f.placement === "bar");
   const panelFields = fields.filter((f) => f.placement === "panel");
 

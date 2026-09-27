@@ -87,5 +87,9 @@ export function validateValues(model: ModelDef, values: Values): string | null {
  */
 export function shownInputs(fields: Field[]): Field[] {
   const track = fields.some((f) => f.kind === "source" && f.source?.of === "track");
-  return track ? fields.filter((f) => !(f.kind === "source" && f.source?.of === "task")) : fields;
+  const shown = track ? fields.filter((f) => !(f.kind === "source" && f.source?.of === "task")) : fields;
+  // Files first, so pictures and clips sit side by side; lists and pickers
+  // of earlier results follow on rows of their own.
+  const file = (f: Field) => (f.kind === "images" || f.kind === "media" || f.kind === "clips" ? 0 : 1);
+  return [...shown].sort((a, b) => file(a) - file(b));
 }
