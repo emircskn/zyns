@@ -15,6 +15,7 @@ import {
   useComposer,
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
+import { ProviderSwitch } from "@/components/ProviderSwitch";
 import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category, type Field } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { openingClip, videoDuration } from "@/lib/clips";
@@ -316,11 +317,28 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
             style={{ transform: menu ? "rotate(180deg)" : "none" }}
           />
         </button>
+        {/* Switching service here keeps the composer open on the same kind
+            of work, with that service's model for it (or the page's first). */}
+        <span className="ml-auto shrink-0">
+          <ProviderSwitch
+            size="xs"
+            onSwitched={() => {
+              const kind = modelsFor(useStudio.getState().provider).some((m) => m.category === model.category)
+                ? model.category
+                : "image";
+              const id = modelFor(kind);
+              if (id) {
+                selectModel(id);
+                setPage(kind);
+              }
+            }}
+          />
+        </span>
         <button
           type="button"
           onClick={close}
           aria-label="Close"
-          className="ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
         >
           <Icon name="close" size={18} />
         </button>

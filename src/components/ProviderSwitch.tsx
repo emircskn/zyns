@@ -3,9 +3,9 @@
 import type { Provider } from "@/lib/registry";
 import { useStudio } from "@/store/studio";
 
-const OPTIONS: Array<{ id: Provider; label: string }> = [
-  { id: "kie", label: "KIE AI" },
-  { id: "higgsfield", label: "Higgsfield" },
+const OPTIONS: Array<{ id: Provider; label: string; short: string }> = [
+  { id: "kie", label: "KIE AI", short: "KIE" },
+  { id: "higgsfield", label: "Higgsfield", short: "Higgsfield" },
 ];
 
 /**
@@ -13,7 +13,15 @@ const OPTIONS: Array<{ id: Provider; label: string }> = [
  * offer and the key that pays; each keeps its own key, its own last-used
  * models, and runs already sent carry on with the service they went to.
  */
-export function ProviderSwitch({ size = "sm" }: { size?: "sm" | "lg" }) {
+export function ProviderSwitch({
+  size = "sm",
+  onSwitched,
+}: {
+  /** `xs` is the phone composer's: a header shared with the section's name. */
+  size?: "xs" | "sm" | "lg";
+  /** After a switch: the phone composer uses it to land on a model at once. */
+  onSwitched?: (provider: Provider) => void;
+}) {
   const provider = useStudio((s) => s.provider);
   const setProvider = useStudio((s) => s.setProvider);
   const apiKey = useStudio((s) => s.apiKey);
@@ -23,7 +31,7 @@ export function ProviderSwitch({ size = "sm" }: { size?: "sm" | "lg" }) {
     <div
       role="radiogroup"
       aria-label="Service"
-      className={`grid grid-cols-2 gap-0.5 rounded-full bg-t1/[0.06] p-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-full bg-t1/[0.06] p-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {OPTIONS.map((option) => {
         const on = provider === option.id;
@@ -33,17 +41,24 @@ export function ProviderSwitch({ size = "sm" }: { size?: "sm" | "lg" }) {
             type="button"
             role="radio"
             aria-checked={on}
-            onClick={() => setProvider(option.id)}
+            onClick={() => {
+              if (on) return;
+              setProvider(option.id);
+              onSwitched?.(option.id);
+            }}
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
             className={`flex items-center justify-center gap-1.5 rounded-full font-medium transition-colors duration-[150ms] ${
-              size === "lg" ? "h-9 px-3" : "h-7 px-2.5"
+              size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3" : "h-7 px-2.5"
             } ${on ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"}`}
           >
-            {option.label}
-            <span
-              aria-hidden
-              className={`h-1.5 w-1.5 rounded-full ${has[option.id] ? (on ? "bg-canvas" : "bg-t2") : on ? "bg-canvas/35" : "bg-t4/60"}`}
-            />
+            {size === "xs" ? option.short : option.label}
+            {/* Whether the service has a key yet: left out where room is short. */}
+            {size !== "xs" && (
+              <span
+                aria-hidden
+                className={`h-1.5 w-1.5 rounded-full ${has[option.id] ? (on ? "bg-canvas" : "bg-t2") : on ? "bg-canvas/35" : "bg-t4/60"}`}
+              />
+            )}
           </button>
         );
       })}

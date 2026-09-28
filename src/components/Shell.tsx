@@ -19,6 +19,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { SideRail } from "@/components/SideRail";
 import { ThemeSync } from "@/components/ThemeSync";
 import { activeKey, openPickerHere, useStudio, type Page } from "@/store/studio";
+import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 /**
  * A phone has no rail, so the mark and the theme sit in a thin strip at the
@@ -48,6 +49,8 @@ function PhoneBar() {
       >
         <ZynsMark size={32} />
       </button>
+      {/* The service to make with, in reach on every phone page. */}
+      <ProviderSwitch />
       <div className="flex items-center gap-1">
         {/* The rail's samples button, for a phone that has no rail, and only
             while there is no key: it sits left of the theme switch, so the
