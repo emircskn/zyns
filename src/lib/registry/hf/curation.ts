@@ -593,10 +593,10 @@ export const FAMILIES: Family[] = [
     output: "video",
     tagline: "Move a character with a clip's motion, or swap an object inside a video.",
     modes: [
-      m("motion-transfer", "Motion transfer", "higgsfiled/genjutsu/motion-transfer/v1.0", {
+      m("motion-transfer", "Motion transfer", "higgsfield/genjutsu/motion-transfer/v1.0", {
         hint: "A 4 s+ clip drives your images",
       }),
-      m("object-swap", "Object swap", "higgsfiled/genjutsu/object-swap/v1.0", { hint: "Replace an object in a clip" }),
+      m("object-swap", "Object swap", "higgsfield/genjutsu/object-swap/v1.0", { hint: "Replace an object in a clip" }),
     ],
     fields: {
       video_url: { label: "Source video" },
