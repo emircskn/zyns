@@ -77,7 +77,7 @@ const IMAGE_TOKEN = /@Image (\d+)(?!\d)/g;
 export function imageFields(model: ModelDef, values: Values): Field[] {
   if (mentionSources(model, values).length > 0) return [];
   return activeFields(model, values).filter(
-    (f) => f.placement === "input" && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
+    (f) => f.placement === "input" && (f.kind === "images" || f.kind === "media") && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
   );
 }
 

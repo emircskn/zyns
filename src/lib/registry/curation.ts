@@ -1290,6 +1290,19 @@ export const FAMILIES: Family[] = [
     modes: [m("dialogue", "Dialogue", "elevenlabs/text-to-dialogue-v3")],
   },
   {
+    id: "gemini-tts-3-8",
+    name: "Gemini 3.8 Flash TTS",
+    vendor: "Google",
+    category: "audio",
+    output: "audio",
+    badge: "NEW",
+    tagline: "The newest Gemini speech: multi-speaker dialogue with voices, accents and styles.",
+    modes: [
+      m("flash", "Flash", "google/gemini-3-8-flash-tts"),
+      m("lite", "Flash Lite", "google/gemini-3-8-flash-lite-tts", { hint: "Lighter and quicker" }),
+    ],
+  },
+  {
     id: "gemini-tts",
     name: "Gemini 3.1 Flash TTS",
     vendor: "Google",

@@ -29,6 +29,9 @@ export function memoryKey(provider: Provider, category: Category): string {
   return provider === "higgsfield" ? `hf-${category}` : category;
 }
 
+/** The inputs a sent run takes with it: its reference files. */
+const SENT_KINDS = new Set(["images", "media", "clips"]);
+
 /** The key for the provider in use: KIE's, or Higgsfield's "ID:secret". */
 export function activeKey(state: { provider: Provider; apiKey: string; hfKey: string }): string {
   return state.provider === "higgsfield" ? state.hfKey : state.apiKey;
@@ -202,7 +205,7 @@ function sharedPrompt(state: StudioState, model: ModelDef, values: Values) {
 /** Where a model takes reference pictures, for these values (never a mask). */
 function refField(model: ModelDef, values: Values) {
   return activeFields(model, values).find(
-    (f) => f.placement === "input" && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
+    (f) => f.placement === "input" && (f.kind === "images" || f.kind === "media") && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
   );
 }
 
@@ -506,8 +509,10 @@ export const useStudio = create<StudioState>()(
           if (!model || !current) return {};
           const next = { ...current };
           const defaults = defaultValues(model);
+          // Only the files go: a dialogue's lines, a song's title or a
+          // picked character sit in the bar too, and are meant to stay.
           for (const field of model.fields) {
-            if (field.placement === "input") next[field.key] = defaults[field.key];
+            if (field.placement === "input" && SENT_KINDS.has(field.kind)) next[field.key] = defaults[field.key];
           }
           // The sent pictures leave the whole category, not just this model.
           return {
