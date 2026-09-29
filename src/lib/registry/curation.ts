@@ -278,6 +278,22 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
+    id: "seedream-5-flash",
+    name: "Seedream 5 Flash",
+    vendor: "ByteDance",
+    category: "image",
+    output: "image",
+    badge: "NEW",
+    tagline: "The quickest Seedream 5: 1K or 2K stills, edits and layer decomposition.",
+    modes: [
+      m("generate", "Generate", "seedream/5-flash-text-to-image"),
+      m("edit", "Edit", "seedream/5-flash-image-to-image", { hint: "Up to 10 references" }),
+      m("layers", "Layer decomposition", "seedream/5-flash-layer-decomposition", {
+        hint: "Split an image into editable layers",
+      }),
+    ],
+  },
+  {
     id: "seedream-5-lite",
     name: "Seedream 5 Lite",
     vendor: "ByteDance",

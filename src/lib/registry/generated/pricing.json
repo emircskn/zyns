@@ -1,4 +1,8 @@
 [
+{"m": "gemini 3.8 flash lite tts", "d": "text to speech input", "c": 70, "u": "per million tokens"},
+{"m": "gemini 3.8 flash lite tts", "d": "text to speech audio output", "c": 840, "u": "per million tokens"},
+{"m": "gemini 3.8 flash tts", "d": "text to speech input", "c": 70, "u": "per million tokens"},
+{"m": "gemini 3.8 flash tts", "d": "text to speech audio output", "c": 1260, "u": "per million tokens"},
 {"m": "qwen image 2.1", "d": "image to image 2k", "c": 8, "u": "per image"},
 {"m": "qwen image 2.1", "d": "image to image 1k", "c": 4, "u": "per image"},
 {"m": "qwen image 2.1", "d": "text to image 2k", "c": 8, "u": "per image"},
