@@ -45,11 +45,18 @@ export function AssetsPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="mb-4 flex items-start justify-between gap-3">
+      {/* A slim strip over the wall, as on the pages that make things: the
+          header names the page on a desktop, so there it says how much is
+          here; a phone keeps the name. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
-        <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Assets</h2>
-        {/* What the page is, like every page's line: no running counts. */}
-        <p className="text-[13px] text-t3">What you make and upload</p>
+          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">Assets</h2>
+          <p className="text-[13px] text-t3">
+            <span className="md:hidden">What you make and upload</span>
+            <span className="hidden md:inline">
+              {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : "What you make and upload"}
+            </span>
+          </p>
         </div>
         {assets.length + working.length > 0 && <DensityControl />}
       </div>
@@ -60,7 +67,7 @@ export function AssetsPage() {
       <div
         role="tablist"
         aria-label="Filter assets"
-        className="no-bar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:px-0"
+        className="no-bar mb-3 flex gap-2 overflow-x-auto px-4"
       >
         {FILTERS.map((f) => {
           const on = f.id === filter;
@@ -87,7 +94,7 @@ export function AssetsPage() {
       </div>
 
       {shown.length === 0 ? (
-        <div className="grid flex-1 place-items-center py-16 text-center">
+        <div className="grid flex-1 place-items-center px-4 py-16 text-center">
           <Stagger>
             <p className="t-stagger-line text-[14px] text-t2">Nothing here yet</p>
             <p className="t-stagger-line t-stagger-line--2 mt-1 text-[12.5px] text-t4">

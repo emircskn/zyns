@@ -99,7 +99,7 @@ function AssetTile({
       className={`${
         leaving ? "tile-leave" : "anim-tile"
       } card-lazy group relative shrink-0 overflow-hidden bg-surface ${
-        box ? "transition-[width,height] duration-[200ms]" : "rounded-card ring-1 ring-inset ring-line transition-shadow duration-[150ms]"
+        box ? "transition-[width,height] duration-[200ms]" : ""
       }`}
       style={{
         animationDelay: `${Math.min(index, 12) * 24}ms`,
@@ -141,7 +141,7 @@ function AssetTile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className={`pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1 ${box ? "" : "rounded-card"}`} />
+        <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
       )}
 
       <button
@@ -309,23 +309,24 @@ export function AssetBrowser({
 
   return (
     <>
-      {/* A heading for each day, newest first, under one container so a tile
+      {/* A desktop lays everything out as one wall, edge to edge; a phone
+          keeps a heading for each day. One container either way, so a tile
           moving into the day above still slides there. */}
-      <div ref={grid} className="no-text-select -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
-        {(byDate
+      <div ref={grid} className="no-text-select flex flex-col gap-6">
+        {(byDate && phone
           ? byDay(tiles, (asset) => asset.createdAt)
           : [{ key: "all", label: "", items: tiles }]
         ).map((day) => (
           <section key={day.key}>
-            {byDate && (
-            <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
+            {byDate && phone && (
+            <h3 className="mb-2.5 px-4 text-[15px] font-semibold tracking-[-0.01em] text-t1">
               {day.label}
             </h3>
             )}
             {/* Phone: a grid of three squares, or one at a time. Desktop:
                 justified rows, each piece as wide as its shape. */}
             {phone ? (
-              <div className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+              <div className={`grid gap-[2px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
                 {day.items.map((asset) => tile(asset))}
               </div>
             ) : (

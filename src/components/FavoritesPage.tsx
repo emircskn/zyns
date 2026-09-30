@@ -18,17 +18,22 @@ export function FavoritesPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="mb-4 flex items-start justify-between gap-3">
+      {/* A slim strip over the wall, as on the pages that make things. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
-        <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">Favorites</h2>
-        {/* What the page is, like every page's line: no running counts. */}
-        <p className="text-[13px] text-t3">What you keep with the heart</p>
+          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">Favorites</h2>
+          <p className="text-[13px] text-t3">
+            <span className="md:hidden">What you keep with the heart</span>
+            <span className="hidden md:inline">
+              {shown.length > 0 ? `${shown.length.toLocaleString()} kept` : "What you keep with the heart"}
+            </span>
+          </p>
         </div>
         {shown.length > 0 && <DensityControl />}
       </div>
 
       {shown.length === 0 ? (
-        <div className="grid flex-1 place-items-center py-20 text-center">
+        <div className="grid flex-1 place-items-center px-4 py-20 text-center">
           <Stagger className="max-w-[560px]">
             <p className="t-stagger-line text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">
               Nothing kept yet.
