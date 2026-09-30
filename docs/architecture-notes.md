@@ -174,5 +174,5 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
    - Emir'in Faz 1'de yapacağı: Cloudflare hesabı + R2'yi etkinleştirme, bucket oluşturma, bucket'a yazma yetkili bir API token alma, değerleri Vercel'e ortam değişkeni olarak girme.
 2. **Standalone artifact → Karar:** Sunucu isteyen özellikler (R2, `api/hf-catalog`, recipe'ler) tek dosyalık `dist/zyns.html`'de gizlenir; canlı site tam çalışır.
 3. **Zorvyn → Karar:** Zorvyn kapsam dışı. Faz 1–5 sadece Zyns'e yapılır; Zorvyn'e taşıma yok.
-4. **`text-to-video` → Karar:** Eklendi. Spec'teki `Capability` tipine `'text-to-video'` üyesi eklenecek (spec'ten bilinçli sapma). Tabloda adı "Text to video" / "Multi-shot" olan modlara verildi.
+4. **`text-to-video` → Karar:** Eklenmiyor. Spec'teki `Capability` listesi aynen kalır (Higgsfield'daki gibi); recipe adımlarında video bir görselden başlar. Normal Video sayfasındaki text-to-video modları etkilenmez.
 5. **Capability'nin birimi → Karar:** Mod bazında.
