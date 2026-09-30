@@ -64,21 +64,23 @@ export function DensityControl() {
     {/* A slider rather than a stepper: the tiles resize under the thumb as
         it moves, so the size is chosen by looking rather than by counting. */}
     <label className="hidden items-center gap-2.5 rounded-full bg-t1/[0.07] py-1.5 pl-3 pr-3.5 md:flex">
-      <Icon name="expand" size={14} className="shrink-0 text-t4" />
+      <Icon name="grid" size={14} className="shrink-0 text-t4" />
       <input
         type="range"
         min={STEPS[0]}
         max={STEPS[STEPS.length - 1]}
         step={1}
-        value={density}
+        // Read backwards: the most across at the left, the fewest (and so
+        // the biggest tiles) at the right.
+        value={STEPS[0] + STEPS[STEPS.length - 1] - density}
         aria-label="Tile size"
         title={`${density} across`}
-        // Bigger tiles to the left, more of them to the right, which is the
+        // More tiles to the left, bigger ones to the right, which is the
         // way the two icons either side of it read.
-        onChange={(event) => setDensity(Number(event.target.value))}
+        onChange={(event) => setDensity(STEPS[0] + STEPS[STEPS.length - 1] - Number(event.target.value))}
         className="density-range h-1 w-[96px] cursor-ew-resize appearance-none rounded-full bg-t1/[0.18]"
       />
-      <Icon name="grid" size={14} className="shrink-0 text-t4" />
+      <Icon name="expand" size={14} className="shrink-0 text-t4" />
     </label>
     </>
   );
