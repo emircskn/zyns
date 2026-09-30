@@ -44,6 +44,7 @@ export type IconName =
   | "at"
   | "ai-brain"
   | "coin"
+  | "pause"
   | "list"
   | "user";
 
@@ -219,6 +220,12 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <rect x="3.5" y="4.5" width="17" height="6" rx="1.5" />
       <rect x="3.5" y="13.5" width="17" height="6" rx="1.5" />
+    </>
+  ),
+  pause: (
+    <>
+      <rect x="6.5" y="5" width="3.5" height="14" rx="1" />
+      <rect x="14" y="5" width="3.5" height="14" rx="1" />
     </>
   ),
   coin: (

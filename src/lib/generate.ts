@@ -48,7 +48,7 @@ export async function submitRun(): Promise<SubmitResult> {
     poll,
     provider,
     prompt: (values.prompt as string) || (values.text as string) || (values.descriptions as string) || "",
-    ratio: aspectFromValues(sent, model.output === "audio" ? "3 / 1" : "16 / 9"),
+    ratio: aspectFromValues(sent, model.output === "audio" ? "1 / 1" : "16 / 9"),
     output: model.output,
     state: "queued",
     urls: [],

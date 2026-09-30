@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { Icon } from "@/components/Icon";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
@@ -131,11 +132,24 @@ function AssetTile({
             className={`no-lift w-full ${box || square ? "h-full object-cover" : "h-auto"}`}
           />
         ) : (
-          <span className={`pending-surface grid w-full place-items-center ${box || square ? "h-full" : "aspect-square"}`}>
-            <Icon name="audio" size={22} className="relative z-10 text-t2" />
+          <span className={`block w-full ${box || square ? "h-full" : "aspect-square"}`}>
+            <AudioFace
+              title={asset.source === "upload" ? asset.label : audioTitle(run, asset.url, asset.label)}
+              source={asset.source === "upload" ? "Upload" : asset.label}
+              compact={square}
+            />
           </span>
         )}
       </button>
+
+      {asset.kind === "audio" && !picking && (
+        <AudioPlay
+          key={asset.url}
+          url={asset.url}
+          compact={square}
+          className={`absolute z-10 ${square ? "bottom-2 left-2" : "bottom-3 left-3"}`}
+        />
+      )}
 
       {/* The frame that says it is picked, over the picture rather than under
           it: an inset ring on the tile itself is painted beneath the media and
@@ -334,6 +348,8 @@ export function AssetBrowser({
                 items={day.items}
                 keyOf={(asset) => asset.id}
                 ratioOf={(asset) =>
+                  // Sound is a square tile, not a banner across the row.
+                  (asset.kind === "audio" ? 1 : undefined) ??
                   (asset.run ? parseRatio(asset.run.ratio) : ratioOf(asset.url)) ??
                   (asset.source === "run" ? parseRatio(runs.find((r) => r.urls.includes(asset.url))?.ratio) : undefined)
                 }

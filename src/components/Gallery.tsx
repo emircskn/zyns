@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
+import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer, inputMedia } from "@/components/MediaViewer";
 import { chipCaption } from "@/components/controls";
@@ -106,7 +107,7 @@ function StatusOverlay({ run }: { run: Run }) {
   );
 }
 
-function Media({ url }: { url: string }) {
+function Media({ url, run, small, compact }: { url: string; run?: Run; small?: boolean; compact?: boolean }) {
   const kind = mediaKind(url);
   if (kind === "video") {
     return (
@@ -124,12 +125,15 @@ function Media({ url }: { url: string }) {
     );
   }
   if (kind === "audio") {
-    return (
-      <div className="pending-surface flex h-full w-full flex-col items-center justify-center gap-3 p-5">
-        <Icon name="audio" size={22} className="relative z-10 text-t2" />
-        <audio src={url} controls className="relative z-10 w-full max-w-[280px]" />
-      </div>
-    );
+    // Named for what it is; the tile lays its own play button over this.
+    if (small) {
+      return (
+        <span className="pending-surface grid h-full w-full place-items-center">
+          <Icon name="audio" size={16} className="relative z-10 text-t2" />
+        </span>
+      );
+    }
+    return <AudioFace title={audioTitle(run, url)} source={run?.modelName} compact={compact} />;
   }
   // eslint-disable-next-line @next/next/no-img-element
   return (
@@ -261,7 +265,11 @@ export function Tile({
           grows into the shape of the media as the model starts on it, and
           the same transition carries the tile between grid sizes. */}
       <div
-        style={box || square ? undefined : { aspectRatio: run.state === "queued" ? "5 / 2" : run.ratio }}
+        style={
+          box || square
+            ? undefined
+            : { aspectRatio: run.output === "audio" ? "1 / 1" : run.state === "queued" ? "5 / 2" : run.ratio }
+        }
         className={`t-resize relative w-full ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {url ? (
@@ -270,7 +278,7 @@ export function Tile({
             onClick={() => (picking ? onPick() : onOpen(url))}
             className="block h-full w-full cursor-zoom-in"
           >
-            <Media url={url} />
+            <Media url={url} run={run} compact={square} />
           </button>
         ) : run.made ? (
           // A voice has nothing to look at: the tile says what was made.
@@ -296,9 +304,13 @@ export function Tile({
           />
         )}
         <StatusOverlay run={run} />
+        {url && mediaKind(url) === "audio" && !picking && (
+          <AudioPlay key={url} url={url} compact={square} className={`absolute z-10 ${square ? "bottom-2 left-2" : "bottom-3 left-3"}`} />
+        )}
       </div>
 
-      {run.urls.length > 1 && (
+      {/* A phone's grid of squares has no room under a tile: the rest are in the enlarged view. */}
+      {run.urls.length > 1 && !square && (
         <div className="no-bar flex gap-1.5 overflow-x-auto p-2">
           {run.urls.slice(1).map((extra) => (
             <button
@@ -307,7 +319,7 @@ export function Tile({
               onClick={() => onOpen(extra)}
               className="h-12 w-12 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line transition-transform duration-[120ms] hover:scale-105"
             >
-              <Media url={extra} />
+              <Media url={extra} run={run} small />
             </button>
           ))}
         </div>
@@ -572,7 +584,7 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
           // Higgsfield's history: each run a row, the media on the left at
           // its own shape and the details on the right.
           tiles.map((run) => {
-            const ratio = ratioOf(run.urls[0]) ?? parseRatio(run.ratio) ?? 16 / 9;
+            const ratio = run.output === "audio" ? 1 : (ratioOf(run.urls[0]) ?? parseRatio(run.ratio) ?? 16 / 9);
             return (
               <article key={run.id} className="grid grid-cols-[minmax(0,5fr)_minmax(0,6fr)] gap-3">
                 <div className="flex min-h-[260px] items-center justify-center rounded-panel bg-t1/[0.03] p-3">
@@ -599,7 +611,9 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
           <JustifiedRows
             items={tiles}
             keyOf={(run) => run.id}
-            ratioOf={(run) => ratioOf(run.urls[0]) ?? parseRatio(run.ratio)}
+            // Sound has no shape of its own: a square, so a song is a tile
+            // among the others rather than a banner across the row.
+            ratioOf={(run) => (run.output === "audio" ? 1 : (ratioOf(run.urls[0]) ?? parseRatio(run.ratio)))}
             render={(run, box) => tile(run, box)}
           />
         )}
