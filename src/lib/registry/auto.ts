@@ -600,6 +600,20 @@ function coerce(value: unknown, prop: SpecProp | undefined, kind: FieldKind): un
   return value;
 }
 
+/**
+ * Where a required choice starts when the docs give no default: the API's
+ * own "auto" if it has one, the common frame for a ratio, 720p for a
+ * quality, and otherwise the first listed, which for a length or a count is
+ * the shortest and cheapest.
+ */
+function startingChoice(field: Field): string {
+  const values = field.choices!.map((c) => c.value);
+  const pick = (...wanted: string[]) => wanted.find((w) => values.includes(w));
+  if (field.kind === "ratio" || RATIO_KEY.test(field.key)) return pick("auto", "16:9", "1:1") ?? values[0];
+  if (/resolution|quality/.test(field.key)) return pick("720p") ?? values[0];
+  return pick("auto") ?? values[0];
+}
+
 export function familyToModel(family: Family): ModelDef {
   const modes = family.modes.map((m) => resolveMode(m, family.id));
 
@@ -649,6 +663,11 @@ export function familyToModel(family: Family): ModelDef {
       field.when = (v: Values) => allowed.has(v.__mode) && (!previous || previous(v));
     }
     field.required = required;
+    // A choice the request cannot go without starts chosen: left empty, the
+    // chip read as set while the bar refused to send ("Add duration").
+    if (required && field.default === undefined && field.choices?.length && field.placement !== "input") {
+      field.default = startingChoice(field);
+    }
     // What a run cannot go without belongs in view, not in the drawer.
     if (required && field.placement === "panel" && field.default === undefined && !family.fields?.[key]?.placement) {
       field.placement = "input";

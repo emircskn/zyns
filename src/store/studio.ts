@@ -662,7 +662,22 @@ if (typeof window !== "undefined") {
   // leave the prompt bar offering the wrong thing. setPage reconciles them.
   const settle = () => {
     const state = useStudio.getState();
-    useStudio.setState({ hydrated: true });
+    // Saved settings from before a model's required choice had a starting
+    // value (Gemini Omni's duration) would still refuse to send: give each
+    // one the default of every field it shows and has nothing in.
+    let filled = false;
+    const valuesByModel = { ...state.valuesByModel };
+    for (const [id, values] of Object.entries(valuesByModel)) {
+      const model = getModel(id);
+      if (!model) continue;
+      const missing = activeFields(model, values).filter(
+        (f) => f.required && f.default !== undefined && (values[f.key] === undefined || values[f.key] === ""),
+      );
+      if (missing.length === 0) continue;
+      valuesByModel[id] = { ...values, ...Object.fromEntries(missing.map((f) => [f.key, f.default])) };
+      filled = true;
+    }
+    useStudio.setState(filled ? { hydrated: true, valuesByModel } : { hydrated: true });
     // A run still "Submitting" when the page opens was being sent by a page
     // that has since closed or reloaded: nothing here is sending it, and it
     // never got a task id to poll, so it would sit there for good. Say what
