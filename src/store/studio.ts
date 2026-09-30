@@ -668,16 +668,20 @@ if (typeof window !== "undefined") {
   // leave the prompt bar offering the wrong thing. setPage reconciles them.
   const settle = () => {
     const state = useStudio.getState();
-    // Saved settings from before a model's required choice had a starting
-    // value (Gemini Omni's duration) would still refuse to send: give each
-    // one the default of every field it shows and has nothing in.
+    // Saved settings from before a choice had a starting value (Gemini
+    // Omni's duration, a ratio chip that only showed its name) would still
+    // refuse to send or read as unset: give each the defaults it lacks.
     let filled = false;
     const valuesByModel = { ...state.valuesByModel };
     for (const [id, values] of Object.entries(valuesByModel)) {
       const model = getModel(id);
       if (!model) continue;
+      // Required ones even when blank; the rest only where nothing was ever
+      // stored, so an option someone cleared stays cleared.
       const missing = activeFields(model, values).filter(
-        (f) => f.required && f.default !== undefined && (values[f.key] === undefined || values[f.key] === ""),
+        (f) =>
+          f.default !== undefined &&
+          (values[f.key] === undefined || (f.required && values[f.key] === "")),
       );
       if (missing.length === 0) continue;
       valuesByModel[id] = { ...values, ...Object.fromEntries(missing.map((f) => [f.key, f.default])) };

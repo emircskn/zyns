@@ -1058,8 +1058,9 @@ export function chipCaption(field: Field, value: unknown, values: Values): strin
     return n === 0 ? field.label : `${n} ${field.label.toLowerCase()}`;
   }
   const empty = value === undefined || value === null || value === "";
-  // A chip with nothing chosen should say what it is, not "Auto".
-  if (empty) return field.label;
+  // A chip with nothing chosen should say what it is, not "Auto" — unless
+  // the list itself names the empty choice (Higgsfield's "" is its Auto).
+  if (empty) return field.choices?.find((c) => c.value === "")?.label || field.label;
   const choice = field.choices?.find((c) => c.value === String(value));
   if (choice) return choice.label;
   const text = String(value);

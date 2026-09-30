@@ -144,7 +144,7 @@ const LABELS: Record<string, string> = {
   multi_prompt: "Shots",
   multi_shots: "Multi-shot",
   shot_type: "Shot planning",
-  elements: "Element IDs",
+  elements: "Elements",
   color_palette: "Colour palette",
   colors: "Colours",
   background_color: "Background colour",
@@ -219,7 +219,23 @@ function rangeFromText(desc: string): [number, number] | undefined {
 }
 
 function humanize(key: string): string {
-  return LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  if (LABELS[key]) return LABELS[key];
+  // Sentence case, as the curated labels are, and without the transport's
+  // "url" and "id": a person adds audio, not "Audio Urls".
+  const words = key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+  let plural = false;
+  while (words.length > 1 && /^(url|urls|id|ids)$/.test(words[words.length - 1])) {
+    plural = plural || /s$/.test(words.pop()!);
+  }
+  const last = words.length - 1;
+  if (plural && !/(s|audio|media)$/.test(words[last])) words[last] += "s";
+  const text = words.join(" ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function isRatioEnum(values: unknown[]): boolean {
@@ -472,12 +488,20 @@ interface Unit {
 
 const unitId = (mode: string, tier: string) => `${mode}|${tier}`;
 
+/**
+ * A parameter its own docs retire ("replaced by aspect_ratio", "deprecated")
+ * is left out unless the request still requires it: Nano Banana documents
+ * both image_size and its replacement, and the bar showed two ratio chips.
+ */
+const RETIRED = /deprecated|has been replaced by|replaced by the|no longer (supported|used|recommended)|legacy parameter/i;
+
 function resolveUnit(mode: ModeSpec, tier: string, endpointId: string, familyId: string): Unit {
   const spec = SPECS[endpointId];
   if (!spec) throw new Error(`[registry] ${familyId}/${mode.id}: no catalogue entry for ${endpointId}`);
   const props = spec.top;
   let keys = Object.keys(props);
   const required = new Set(keys.filter((k) => props[k].required));
+  keys = keys.filter((k) => required.has(k) || !RETIRED.test(props[k]?.desc ?? ""));
   if (mode.only) keys = keys.filter((k) => mode.only!.includes(k));
   if (mode.hide) keys = keys.filter((k) => !mode.hide!.includes(k));
   if (mode.fixed) keys = keys.filter((k) => !(k in mode.fixed!));

@@ -1296,6 +1296,8 @@ export const FAMILIES: Family[] = [
       m("create", "Create voice", "ai-music-api/create-voice"),
       m("check", "Check availability", "ai-music-api/check-voice"),
     ],
+    // The run these steps work on is the verification phrase, not a song.
+    fields: { task_id: { label: "Verification" } },
   },
   {
     id: "elevenlabs-speech",

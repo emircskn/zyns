@@ -145,7 +145,7 @@ const LABELS: Record<string, string> = {
   style_weight: "Style adherence",
   weirdness_constraint: "Experimentation",
   audio_weight: "Audio weight",
-  persona_id: "Persona ID",
+  persona_id: "Persona",
   persona_model: "Persona type",
   voice: "Voice",
   stability: "Stability",
@@ -209,7 +209,7 @@ const LABELS: Record<string, string> = {
   prompt_upsampling: "Prompt upsampling",
   enable_translation: "Auto-translate prompt",
   enable_fallback: "Content-policy fallback",
-  num_images: "Images",
+  num_images: "Count",
   max_images: "Batch size",
   n: "Images",
   num_inference_steps: "Steps",
@@ -318,7 +318,23 @@ function rangeFromText(desc: string): [number, number] | undefined {
 }
 
 function humanize(key: string): string {
-  return LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  if (LABELS[key]) return LABELS[key];
+  // Sentence case, as the curated labels are, and without the transport's
+  // "url" and "id": a person adds audio, not "Audio Urls".
+  const words = key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+  let plural = false;
+  while (words.length > 1 && /^(url|urls|id|ids)$/.test(words[words.length - 1])) {
+    plural = plural || /s$/.test(words.pop()!);
+  }
+  const last = words.length - 1;
+  if (plural && !/(s|audio|media)$/.test(words[last])) words[last] += "s";
+  const text = words.join(" ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function isRatioEnum(values: unknown[]): boolean {
@@ -561,6 +577,13 @@ interface ResolvedMode extends ModeSpec {
   props: Record<string, SpecProp>;
 }
 
+/**
+ * A parameter its own docs retire ("replaced by aspect_ratio", "deprecated")
+ * is left out unless the request still requires it: Nano Banana documents
+ * both image_size and its replacement, and the bar showed two ratio chips.
+ */
+const RETIRED = /deprecated|has been replaced by|replaced by the|no longer (supported|used|recommended)|legacy parameter/i;
+
 function resolveMode(mode: ModeSpec, familyId: string): ResolvedMode {
   const spec = SPECS[mode.schemaFrom ?? mode.model] ?? SPECS[mode.model];
   if (!spec) throw new Error(`[registry] ${familyId}/${mode.id}: no catalogue entry for ${mode.model}`);
@@ -573,6 +596,7 @@ function resolveMode(mode: ModeSpec, familyId: string): ResolvedMode {
     keys = variant.keys;
     required = new Set(variant.required);
   }
+  keys = keys.filter((k) => required.has(k) || !RETIRED.test(props[k]?.desc ?? ""));
   if (mode.only) keys = keys.filter((k) => mode.only!.includes(k));
   if (mode.hide) keys = keys.filter((k) => !mode.hide!.includes(k));
   if (mode.fixed) keys = keys.filter((k) => !(k in mode.fixed!));
@@ -608,13 +632,28 @@ function coerce(value: unknown, prop: SpecProp | undefined, kind: FieldKind): un
  * quality, and otherwise the first listed, which for a length or a count is
  * the shortest and cheapest.
  */
-function startingChoice(field: Field): string {
+function startingChoice(field: Field, output: Family["output"]): string {
   const values = field.choices!.map((c) => c.value);
   const pick = (...wanted: string[]) => wanted.find((w) => values.includes(w));
-  if (field.kind === "ratio" || RATIO_KEY.test(field.key)) return pick("auto", "16:9", "1:1") ?? values[0];
-  if (/resolution|quality/.test(field.key)) return pick("720p") ?? values[0];
-  return pick("auto") ?? values[0];
+  const auto = values.find((v) => v.toLowerCase() === "auto");
+  if (field.kind === "ratio" || RATIO_KEY.test(field.key)) {
+    return auto ?? (output === "image" ? pick("1:1", "16:9") : pick("16:9", "1:1")) ?? values[0];
+  }
+  if (/resolution|quality/.test(field.key)) return auto ?? pick("720p", "1K") ?? values[0];
+  return auto ?? values[0];
 }
+
+/**
+ * An optional option chip that is a setting, not a pick (a ratio, a size, a
+ * resolution), starts on a value too, so the chip says what will be sent
+ * rather than just its own name. Picks stay empty: an effect template, a
+ * style, a voice or a language is only there when chosen.
+ */
+const SETTING_KEY = /aspect_ratio|^ratio$|image_size|^size$|resolution|quality|background|rendering_speed|orientation|^mode$/;
+const PICK_KEY = /template|voice|persona|language|genre|speaker/;
+
+/** What an earlier run is called where a tool asks for one: the thing it made. */
+const MADE_NOUN: Record<Family["output"], string> = { video: "Video", audio: "Song", image: "Image" };
 
 export function familyToModel(family: Family): ModelDef {
   const modes = family.modes.map((m) => resolveMode(m, family.id));
@@ -668,7 +707,22 @@ export function familyToModel(family: Family): ModelDef {
     // A choice the request cannot go without starts chosen: left empty, the
     // chip read as set while the bar refused to send ("Add duration").
     if (required && field.default === undefined && field.choices?.length && field.placement !== "input") {
-      field.default = startingChoice(field);
+      field.default = startingChoice(field, family.output);
+    } else if (required && field.default === undefined && (field.kind === "slider" || field.kind === "number") && field.min !== undefined) {
+      field.default = field.min;
+    } else if (
+      !required &&
+      field.default === undefined &&
+      field.placement === "bar" &&
+      field.choices?.length &&
+      !PICK_KEY.test(field.key) &&
+      // A style or the like starts on its own Auto, never on a named look.
+      (SETTING_KEY.test(field.key) || field.choices.some((c) => c.value.toLowerCase() === "auto"))
+    ) {
+      field.default = startingChoice(field, family.output);
+    }
+    if (field.kind === "source" && (field.source?.of ?? "task") === "task" && !family.fields?.[key]?.label) {
+      field.label = MADE_NOUN[family.output];
     }
     // What a run cannot go without belongs in view, not in the drawer.
     if (required && field.placement === "panel" && field.default === undefined && !family.fields?.[key]?.placement) {

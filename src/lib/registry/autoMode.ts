@@ -67,15 +67,20 @@ export function withAutoMode(model: ModelDef): ModelDef {
   const auto: AutoMode = { text: text.id, image: image.id, field: slot.key };
   const pair = new Set([text.id, image.id]);
   const imageId = image.id;
-  const fields = model.fields.map((f) => {
-    if (f !== slot) return f;
+  // The pair's copy of the slot is optional (an empty slot is the text
+  // mode, not a gap); any other mode that shows the same field (Veo's
+  // Reference) keeps its own, required as it was.
+  const elsewhere = modes.some((m) => !pair.has(m.id) && shownIn(slot!, {}, m.id));
+  const fields = model.fields.flatMap((f) => {
+    if (f !== slot) return [f];
     const when = f.when;
-    // Optional in the tab: an empty slot is the text mode, not a gap.
-    return {
+    const folded: Field = {
       ...f,
       required: false,
       when: (v: Values) => pair.has(v.__mode) && (!when || when({ ...v, __mode: imageId })),
     };
+    if (!elsewhere) return [folded];
+    return [folded, { ...f, when: (v: Values) => !pair.has(v.__mode) && (!when || when(v)) }];
   });
   // Sending reads the slot too, so a run never goes out in the mode its
   // picture contradicts, whatever a stale saved mode says.
