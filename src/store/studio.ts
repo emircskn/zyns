@@ -149,6 +149,9 @@ interface StudioState {
   /** How many columns the galleries pack at the widest breakpoint. */
   density: number;
   setDensity: (density: number) => void;
+  /** How each page lays out its history on a desktop: a wall, or a list with details. */
+  views: Partial<Record<Category, "list" | "grid">>;
+  setView: (category: Category, view: "list" | "grid") => void;
   /** A phone has two: a grid of squares, or one piece of media at a time. */
   phoneGrid: boolean;
   setPhoneGrid: (grid: boolean) => void;
@@ -334,6 +337,7 @@ export const useStudio = create<StudioState>()(
       category: "image",
       page: "home",
       density: 6,
+      views: {},
       phoneGrid: true,
       modelId: "",
       draft: "",
@@ -408,6 +412,7 @@ export const useStudio = create<StudioState>()(
        * video model you last used there rather than whatever ran last.
        */
       setDensity: (density) => set({ density }),
+      setView: (category, view) => set((state) => ({ views: { ...state.views, [category]: view } })),
       setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
@@ -638,6 +643,7 @@ export const useStudio = create<StudioState>()(
         category: state.category,
         page: state.page,
         density: state.density,
+        views: state.views,
         phoneGrid: state.phoneGrid,
         modelId: state.modelId,
         draft: state.draft,

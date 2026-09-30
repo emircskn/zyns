@@ -156,7 +156,7 @@ function MoreMenu({
 }
 
 /** The pictures a run was given to work from, in the order it got them. */
-function inputMedia(run: Run): string[] {
+export function inputMedia(run: Run): string[] {
   const model = getModel(run.modelId);
   if (!model) return [];
   const urls: string[] = [];

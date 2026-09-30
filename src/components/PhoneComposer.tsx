@@ -1,122 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Control, InputLabel } from "@/components/controls";
+import { ComposerBody, GenerateButton } from "@/components/ComposerPanel";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
-import { MediaPicker } from "@/components/MediaPicker";
-import {
-  BatchChip,
-  FieldChip,
-  LargeChips,
-  MentionStrip,
-  ModeStrip,
-  PromptField,
-  PromptFolds,
-  useComposer,
-  useFoldedPrompts,
-} from "@/components/PromptBar";
-import { AttachPanel } from "@/components/Attachments";
-import { VendorBadge } from "@/components/VendorMark";
+import { useComposer } from "@/components/PromptBar";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
-import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category, type Field } from "@/lib/registry";
+import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
-import { openingClip, videoDuration } from "@/lib/clips";
-import { activeKey, memoryKey, useStudio, useValues } from "@/store/studio";
-
-/**
- * A reference slot before anything is in it: the whole width to aim a thumb
- * at, rather than the bar's small tile. Once it holds something it becomes
- * the ordinary control, which shows the thumbs and takes more.
- */
-function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
-  const values = useValues();
-  const setValue = useStudio((s) => s.setValue);
-  const [picking, setPicking] = useState(false);
-  const value = values[field.key];
-  const many = field.kind === "images";
-  const clip = field.kind === "clips";
-  const first = Array.isArray(value) ? (value[0] as { url?: string } | undefined) : undefined;
-  const urls = clip
-    ? first?.url
-      ? [first.url]
-      : []
-    : many
-      ? Array.isArray(value)
-        ? (value as string[])
-        : []
-      : value
-        ? [value as string]
-        : [];
-  const media = many || clip || field.kind === "media";
-
-  // A clip starts as the video's opening stretch, measured once it loads.
-  function chooseClip(url: string) {
-    setValue(field.key, [openingClip(url, null)]);
-    void videoDuration(url).then((seconds) => {
-      const state = useStudio.getState();
-      const now = state.valuesByModel[state.modelId]?.[field.key];
-      const same = Array.isArray(now) && (now[0] as { url?: string } | undefined)?.url === url;
-      if (seconds && same) state.setValue(field.key, [openingClip(url, seconds)]);
-    });
-  }
-  const kind = field.accept ?? "image";
-  const noun = kind === "image" ? (many ? "images" : "an image") : kind === "video" ? "a video" : "audio";
-
-  if (!media || urls.length > 0) {
-    return (
-      <div className="rounded-panel border border-line bg-elevated p-3">
-        <InputLabel field={field} />
-        <Control
-          field={field}
-          value={value}
-          values={values}
-          compact
-          lane
-          roomy
-          onChange={(next) => setValue(field.key, next)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setPicking(true)}
-        className={`flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
-          half ? "h-full min-h-[100px] gap-2 py-3.5" : "gap-2.5 py-5"
-        }`}
-      >
-        <span
-          className={`grid place-items-center rounded-full bg-t1/[0.08] text-t2 ${half ? "h-9 w-9" : "h-10 w-10"}`}
-        >
-          <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={half ? 16 : 18} />
-        </span>
-        <span className={`text-t3 ${half ? "text-[13px] leading-snug" : "text-[14px]"}`}>
-          {field.label && !["images", "image", "video"].includes(field.label.toLowerCase())
-            ? field.label
-            : `Choose ${noun} to upload`}
-          {many && field.maxItems ? <span className="text-t4"> (up to {field.maxItems})</span> : null}
-        </span>
-      </button>
-      <MediaPicker
-        open={picking}
-        accept={kind}
-        multiple={many}
-        taken={urls}
-        onPick={(picked) =>
-          clip ? chooseClip(picked[0]) : setValue(field.key, many ? [...urls, ...picked] : picked[0])
-        }
-        onClose={() => setPicking(false)}
-      />
-    </>
-  );
-}
-
-/** The input kinds that sit two to a row in the phone composer. */
-const SLOT_KINDS = new Set(["images", "media", "clips"]);
+import { activeKey, memoryKey, useStudio } from "@/store/studio";
 
 const SECTION_ICON: Record<Category, IconName> = {
   image: "image",
@@ -203,33 +95,10 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   const [menu, setMenu] = useState(false);
   const menuOpen = useRef(false);
   menuOpen.current = menu;
-  const togglePicker = useStudio((s) => s.togglePicker);
-  const toggleSettings = useStudio((s) => s.toggleSettings);
   const apiKey = useStudio(activeKey);
   const { mounted, exiting } = usePresence(open, 300);
-  const {
-    model,
-    values,
-    busy,
-    error,
-    setError,
-    promptRef,
-    promptFields,
-    attachFields,
-    stripFields,
-    barFields,
-    panelFields,
-    batchable,
-    blocker,
-    hint,
-    mentionable,
-    definedInPanel,
-    names,
-    firstPrompt,
-    insertToken,
-    run,
-  } = useComposer();
-  const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
+  const composer = useComposer();
+  const { model, busy, blocker, run } = composer;
 
   const close = () => setComposer(false);
 
@@ -290,7 +159,6 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
   }
 
   // Without a key the button is still the way forward: it asks for one.
-  const disabled = !!apiKey && (busy || !!blocker);
   const why = apiKey ? blocker : null;
 
   return (
@@ -352,135 +220,12 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
       {menu && <SectionMenu current={model.category} onPick={switchTo} onClose={() => setMenu(false)} />}
 
       <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-4 pb-3 pt-1 [&>*]:shrink-0">
-        <ModeStrip flush />
-
-        {/* Two slots, a first and a last frame say, share a row: stacked,
-            they pushed the prompt off a small phone's screen. */}
-        {/* Every file the model takes goes through one area; the rest of the
-            inputs (lines, pickers, a trimmed clip) keep slots of their own. */}
-        <AttachPanel fields={attachFields} />
-        {stripFields.length > 0 && (
-          <div className={stripFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
-            {stripFields.map((field) => {
-              // Clips pair up; a list, a script or a picker of earlier
-              // results needs the whole width.
-              const wide = !SLOT_KINDS.has(field.kind) || stripFields.filter((f) => SLOT_KINDS.has(f.kind)).length < 2;
-              return (
-                <div key={field.key} className={`min-w-0 ${wide && stripFields.length > 1 ? "col-span-2" : ""}`}>
-                  <UploadSlot field={field} half={!wide} />
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="rounded-panel border border-line bg-elevated">
-          {promptFields.length > 0 && (
-            <div className="px-4 pb-1.5 pt-3.5">
-              {prompts.shown.map((field, index) => (
-                <PromptField
-                  key={field.key}
-                  field={field}
-                  index={index}
-                  names={names}
-                  large
-                  onSubmit={() => void generate()}
-                  inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
-                />
-              ))}
-              <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
-              {mentionable && firstPrompt && (
-                <MentionStrip
-                  names={names}
-                  text={(values[firstPrompt.key] as string) ?? ""}
-                  onInsert={insertToken}
-                  onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
-                />
-              )}
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={() => togglePicker(true, model.category, true)}
-            className={`flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors duration-[120ms] active:bg-t1/[0.04] ${
-              promptFields.length > 0 ? "border-t border-line" : ""
-            }`}
-          >
-            <Icon name="ai-brain" size={18} className="shrink-0 text-t3" />
-            <span className="text-[13.5px] text-t3">Model</span>
-            <span className="ml-auto flex min-w-0 items-center gap-2 text-[14px] text-t1">
-              <VendorBadge model={model} size={17} bare />
-              <span className="truncate">{model.name}</span>
-              <Icon name="chevron" size={15} className="shrink-0 text-t3" />
-            </span>
-          </button>
-        </div>
-
-        {error && (
-          <div className="anim-pop flex items-start gap-2 rounded-card bg-[#ff6b6b]/10 px-3.5 py-2.5 text-[13px] text-[#ff8f8f] ring-1 ring-inset ring-[#ff6b6b]/25">
-            <Icon name="alert" size={16} className="mt-px shrink-0" />
-            <span className="min-w-0 flex-1">{error}</span>
-            <button type="button" onClick={() => setError(null)} aria-label="Dismiss">
-              <Icon name="close" size={15} />
-            </button>
-          </div>
-        )}
+        <ComposerBody composer={composer} variant="phone" onSubmit={() => void generate()} />
       </div>
 
       <footer className="shrink-0 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-        {(barFields.length > 0 || batchable || panelFields.length > 0) && (
-          <LargeChips.Provider value>
-            {/* One row that scrolls sideways, as a phone's filter row does,
-                rather than two that eat into the prompt. */}
-            <div className="no-bar -mx-4 mb-2.5 flex items-center gap-2 overflow-x-auto px-4">
-              {barFields.map((field) => (
-                <span key={field.key} className="shrink-0">
-                  <FieldChip field={field} />
-                </span>
-              ))}
-              {batchable && (
-                <span className="shrink-0">
-                  <BatchChip />
-                </span>
-              )}
-              {panelFields.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => toggleSettings(true)}
-                  aria-label="Advanced settings"
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] active:bg-t1/[0.12]"
-                >
-                  <Icon name="sliders" size={17} />
-                </button>
-              )}
-            </div>
-          </LargeChips.Provider>
-        )}
-
-        <button
-          type="button"
-          onClick={() => void generate()}
-          disabled={disabled}
-          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
-        >
-          {busy ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          ) : (
-            !apiKey ? (
-              <>
-                <Icon name="key" size={17} />
-                Add your API key
-              </>
-            ) : (
-            <>
-              Generate
-              <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
-              {hint && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{hint}</span>}
-            </>
-            )
-          )}
-        </button>
-        {why && <p className="mt-1.5 text-center text-[12px] text-t4">{why}</p>}
+        <GenerateButton composer={composer} onClick={() => void generate()} />
+        {why && <p className="mt-2 text-center text-[12.5px] text-t4">{why}</p>}
       </footer>
     </div>
   );

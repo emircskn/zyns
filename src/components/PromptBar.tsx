@@ -21,6 +21,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
 import { Popover } from "@/components/Popover";
 import { submitRun } from "@/lib/generate";
+import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import {
   imageName,
   imageRefs,
@@ -77,7 +78,8 @@ export function PromptFolds({ folded, onOpen }: { folded: Field[]; onOpen: (fiel
 /** Past this many tabs, the rest of a desktop's strip waits behind More. */
 const STRIP_TABS = 4;
 
-export function ModeStrip({ flush }: { flush?: boolean }) {
+/** The modes a model offers as tabs, and how each is named. */
+function useModeTabs() {
   const model = useModel();
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
@@ -86,17 +88,67 @@ export function ModeStrip({ flush }: { flush?: boolean }) {
   // one that works on an earlier result is offered on that result; it shows
   // here only while it is the one in use, so the bar says what it will do.
   const tabs = model?.modes?.filter((mode) => !mode.hidden && (!mode.action || mode.id === current)) ?? [];
-  // A single mode is not a choice — the strip only earns its place from two.
-  if (!model || tabs.length < 2) return null;
-
   // The folded tab makes from text or from a picture, so it is named for
   // neither: "Text to video" beside "Reference" said the picture slot under
   // it was not for pictures.
   const item = (mode: (typeof tabs)[number]) => ({
     id: mode.id,
-    label: mode.id === model.autoMode?.text ? "Generate" : mode.label,
-    hint: mode.id === model.autoMode?.text ? undefined : mode.hint,
+    label: mode.id === model?.autoMode?.text ? "Generate" : mode.label,
+    hint: mode.id === model?.autoMode?.text ? undefined : mode.hint,
   });
+  return { model, tabs, current, item, setMode };
+}
+
+/**
+ * The side composer's modes: words with a line under the one in use, as a
+ * page's own sections read, scrolling sideways when there are many.
+ */
+export function ModeTabs() {
+  const { model, tabs, current, item, setMode } = useModeTabs();
+  const root = useRef<HTMLDivElement>(null);
+  const { box, settled } = useGlide(root, current, [model?.id, tabs.length]);
+  if (!model || tabs.length < 2) return null;
+  return (
+    <div ref={root} role="tablist" className="no-bar relative -mx-1 flex shrink-0 gap-4 overflow-x-auto px-1 pb-2">
+      {tabs.map((mode) => {
+        const on = mode.id === current;
+        return (
+          <button
+            key={mode.id}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            data-pill={mode.id}
+            title={item(mode).hint}
+            onClick={() => setMode(mode.id)}
+            className={`shrink-0 whitespace-nowrap pb-1.5 text-[14px] transition-colors duration-[150ms] ${
+              on ? "font-semibold text-t1" : "text-t3 hover:text-t1"
+            }`}
+          >
+            {item(mode).label}
+          </button>
+        );
+      })}
+      {box && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-[2px] rounded-full bg-t1"
+          style={{
+            top: box.y + box.h - 2,
+            width: box.w,
+            transform: `translateX(${box.x}px)`,
+            transition: settled ? GLIDE_TRANSITION : "none",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) {
+  const { model, tabs, current, item, setMode } = useModeTabs();
+  // A single mode is not a choice — the strip only earns its place from two.
+  if (!model || tabs.length < 2) return null;
   // A phone's strip scrolls sideways under the thumb; a desktop's keeps its
   // first few and the tab in use, and lists the rest behind More.
   let shown = tabs;
@@ -111,7 +163,8 @@ export function ModeStrip({ flush }: { flush?: boolean }) {
   return (
     <div key={model.id} className={`anim-swap flex items-center justify-start gap-1.5 ${flush ? "" : "mb-2"}`}>
       <PillGroup
-        className="!bg-elevated ring-1 ring-inset ring-line"
+        className={`!bg-elevated ring-1 ring-inset ring-line ${fill && shown.length <= 3 ? "w-full" : ""}`}
+        fill={fill && shown.length <= 3}
         value={current}
         onChange={setMode}
         items={shown.map(item)}
@@ -286,6 +339,12 @@ function chipIcon(field: Field, value: unknown): ReactNode {
  */
 export const LargeChips = createContext(false);
 
+/**
+ * The side composer's options sit in a grid of equal tiles rather than a row
+ * of pills: each chip fills its cell and reads left to right.
+ */
+export const TileChips = createContext(false);
+
 export function Chip({
   icon,
   value,
@@ -296,6 +355,19 @@ export function Chip({
   active?: boolean;
 }) {
   const large = useContext(LargeChips);
+  const tile = useContext(TileChips);
+  if (tile) {
+    return (
+      <span
+        className={`flex h-11 w-full min-w-0 select-none items-center gap-2 rounded-card px-3 text-[14px] transition-colors duration-[120ms] ${
+          active ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t1 hover:bg-t1/[0.1]"
+        }`}
+      >
+        <span className={`shrink-0 ${active ? "" : "text-t2"}`}>{icon}</span>
+        <span className="min-w-0 truncate">{value}</span>
+      </span>
+    );
+  }
   return (
     <span
       className={`flex select-none items-center whitespace-nowrap rounded-full transition-all duration-[120ms] ${
@@ -368,6 +440,7 @@ export function BatchChip() {
   const batch = useStudio((s) => s.batch);
   const setBatch = useStudio((s) => s.setBatch);
   const large = useContext(LargeChips);
+  const tile = useContext(TileChips);
   const step = (by: number) => (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setBatch(batch + by);
@@ -375,8 +448,12 @@ export function BatchChip() {
   return (
     <span
       title="How many to make"
-      className={`flex select-none items-center gap-1 rounded-full bg-t1/[0.07] text-t2 ${
-        large ? "h-10 px-1.5 text-[14px]" : "h-8 pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
+      className={`flex select-none items-center gap-1 text-t2 ${
+        tile
+          ? "h-11 w-full justify-between rounded-card bg-t1/[0.06] px-1.5 text-[14px] text-t1"
+          : large
+            ? "h-10 rounded-full bg-t1/[0.07] px-1.5 text-[14px]"
+            : "h-8 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
       }`}
     >
       <button
@@ -417,10 +494,12 @@ export function FieldChip({ field }: { field: Field }) {
   }
 
   const width = field.kind === "ratio" ? 296 : field.kind === "slider" ? 236 : 248;
+  const tile = useContext(TileChips);
 
   return (
     <Popover
       width={width}
+      full={tile}
       title={field.label}
       trigger={(open) => (
         <Chip icon={chipIcon(field, value)} value={chipCaption(field, value, values)} active={open} />
@@ -1276,7 +1355,14 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
   );
 }
 
-export function PromptBar({ placement = "docked" }: { placement?: "docked" | "center" }) {
+export function PromptBar({
+  placement = "docked",
+  desktop = true,
+}: {
+  placement?: "docked" | "center";
+  /** False where the page has its own composer on a desktop (the video page's side panel). */
+  desktop?: boolean;
+}) {
   const {
     model,
     values,
@@ -1335,6 +1421,8 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
       </button>
     </MetalButton>
   );
+
+  if (!desktop) return <PromptCard placement={placement} />;
 
   return (
     <>

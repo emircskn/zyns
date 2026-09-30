@@ -17,6 +17,7 @@ import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
+import { SIDE_PAGES } from "@/lib/layout";
 import { openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
@@ -117,7 +118,7 @@ export function Shell() {
         className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
           composing ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
         } ${
-          composing ? "below-bar" : browsing ? "below-card" : "below-nav"
+          composing ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}` : browsing ? "below-card" : "below-nav"
         }`}
       >
         <PageSwap page={page}>
@@ -131,13 +132,13 @@ export function Shell() {
             ) : (
               // Keyed by page: without it React reuses this element between
               // categories and the empty state's reveal never runs again.
-              <CategoryPage key={shown} category={shown} />
+              <CategoryPage key={shown} category={shown} onKeyClick={() => setKeyOpen(true)} />
             )
           }
         </PageSwap>
       </main>
 
-      {composing && <PromptBar />}
+      {composing && <PromptBar desktop={!SIDE_PAGES.has(page)} />}
       {browsing && <PromptCard placement="docked" />}
       <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
       <PhoneComposer onKey={() => setKeyOpen(true)} />

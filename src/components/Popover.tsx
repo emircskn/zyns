@@ -12,6 +12,8 @@ interface Props {
   /** Panel width in pixels; defaults to a comfortable option list. */
   width?: number;
   title?: string;
+  /** The trigger fills its cell, as the side composer's option tiles do. */
+  full?: boolean;
 }
 
 interface Placement {
@@ -20,7 +22,7 @@ interface Placement {
   width: number;
 }
 
-export function Popover({ trigger, children, align = "start", width = 264, title }: Props) {
+export function Popover({ trigger, children, align = "start", width = 264, title, full }: Props) {
   const [open, setOpen] = useState(false);
   const { mounted, exiting } = usePresence(open, 140);
   const [place, setPlace] = useState<Placement | null>(null);
@@ -83,8 +85,8 @@ export function Popover({ trigger, children, align = "start", width = 264, title
   }, [mounted, align, width]);
 
   return (
-    <div className="relative" ref={root}>
-      <button ref={button} type="button" onClick={() => setOpen((v) => !v)} className="block">
+    <div className={full ? "relative w-full" : "relative"} ref={root}>
+      <button ref={button} type="button" onClick={() => setOpen((v) => !v)} className={full ? "block w-full text-left" : "block"}>
         {trigger(open)}
       </button>
       {mounted &&

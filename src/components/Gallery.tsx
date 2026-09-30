@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { LikeHeart } from "@/components/LikeHeart";
-import { MediaViewer } from "@/components/MediaViewer";
+import { MediaViewer, inputMedia } from "@/components/MediaViewer";
+import { chipCaption } from "@/components/controls";
+import { VendorBadge } from "@/components/VendorMark";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
 import { Icon } from "@/components/Icon";
 import { saveMedia, useSave } from "@/lib/download";
@@ -399,8 +401,102 @@ export function Tile({
   );
 }
 
+/** How tall the list view lets a piece of media stand. */
+const LIST_MEDIA_H = 440;
+
+/**
+ * A run in the list view's words: its model, the prompt, what it was given,
+ * the options that shaped it and when, beside the media itself.
+ */
+function RunDetails({ run }: { run: Run }) {
+  const model = getModel(run.modelId);
+  const removeRun = useStudio((s) => s.removeRun);
+  const [copied, setCopied] = useState(false);
+  const inputs = inputMedia(run);
+  const chips = model
+    ? model.fields
+        .filter((f) => f.placement === "bar" && f.kind !== "toggle")
+        .map((f) => ({ field: f, value: run.values[f.key] }))
+        .filter(({ value }) => value !== undefined && value !== null && value !== "" && typeof value !== "object")
+        .filter(({ field }, i, all) => all.findIndex((x) => x.field.key === field.key) === i)
+        .slice(0, 4)
+        .map(({ field, value }) => chipCaption(field, value, run.values))
+    : [];
+  const button =
+    "grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1";
+  return (
+    <div className="flex min-w-0 flex-col rounded-panel border border-line bg-elevated p-4">
+      <span className="flex w-fit items-center gap-1.5 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[12px] font-medium text-t1">
+        {model && <VendorBadge model={model} size={14} bare />}
+        {run.modelName}
+      </span>
+      {run.prompt && (
+        <p className="mt-3 line-clamp-6 whitespace-pre-line text-[13.5px] leading-relaxed text-t2">{run.prompt}</p>
+      )}
+      {inputs.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {inputs.slice(0, 8).map((url) => (
+            <span key={url} className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line">
+              {mediaKind(url) === "image" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="grid h-full w-full place-items-center text-t3">
+                  <Icon name={mediaKind(url) === "video" ? "video" : "audio"} size={15} />
+                </span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+      {chips.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {chips.map((chip) => (
+            <span key={chip} className="rounded-full border border-line px-2.5 py-1 text-[12px] text-t2">
+              {chip}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-auto flex items-center gap-1 pt-4">
+        <span className="flex-1 text-[12px] text-t4">
+          {new Date(run.createdAt).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+        </span>
+        {run.prompt && (
+          <button
+            type="button"
+            title={copied ? "Copied" : "Copy prompt"}
+            aria-label="Copy prompt"
+            onClick={() => {
+              void navigator.clipboard?.writeText(run.prompt).then(() => {
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 1400);
+              });
+            }}
+            className={button}
+          >
+            <Icon name={copied ? "check" : "copy"} size={15} />
+          </button>
+        )}
+        <button type="button" title="Recreate" aria-label="Recreate" onClick={() => recreateRun(run)} className={button}>
+          <Icon name="refresh" size={15} />
+        </button>
+        <button
+          type="button"
+          title="Remove from gallery"
+          aria-label="Remove"
+          onClick={() => removeRun(run.id)}
+          className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+        >
+          <Icon name="trash" size={15} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** The runs of one category, newest first. */
-export function Gallery({ category }: { category?: Category }) {
+export function Gallery({ category, view = "grid" }: { category?: Category; view?: "list" | "grid" }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const phoneGrid = useStudio((s) => s.phoneGrid);
@@ -471,8 +567,22 @@ export function Gallery({ category }: { category?: Category }) {
           first; a phone keeps a heading for each day the media was made on.
           Either way one container holds every tile, so a tile that moves
           still slides there rather than jumping. */}
-      <div ref={grid} className="no-text-select flex flex-col gap-6">
-        {phone ? (
+      <div ref={grid} className={`no-text-select flex flex-col ${view === "list" && !phone ? "gap-3" : "gap-6"}`}>
+        {view === "list" && !phone ? (
+          // Higgsfield's history: each run a row, the media on the left at
+          // its own shape and the details on the right.
+          tiles.map((run) => {
+            const ratio = ratioOf(run.urls[0]) ?? parseRatio(run.ratio) ?? 16 / 9;
+            return (
+              <article key={run.id} className="grid grid-cols-[minmax(0,5fr)_minmax(0,6fr)] gap-3">
+                <div className="flex min-h-[260px] items-center justify-center rounded-panel bg-t1/[0.03] p-3">
+                  <div style={{ width: `min(100%, ${Math.round(LIST_MEDIA_H * ratio)}px)` }}>{tile(run)}</div>
+                </div>
+                <RunDetails run={run} />
+              </article>
+            );
+          })
+        ) : phone ? (
           byDay(tiles, (run) => run.createdAt).map((day) => (
             <section key={day.key}>
               <h3 className="mb-2.5 px-4 text-[15px] font-semibold tracking-[-0.01em] text-t1">{day.label}</h3>

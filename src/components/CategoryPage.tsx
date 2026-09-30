@@ -1,6 +1,8 @@
 "use client";
 
 import { Gallery } from "@/components/Gallery";
+import { SideComposer } from "@/components/ComposerPanel";
+import { SIDE_PAGES } from "@/lib/layout";
 import { DensityControl } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
@@ -33,19 +35,51 @@ const BLURB: Record<Category, string> = {
  * One page per kind of work: the models for it, and the things it has made.
  * Nothing from another category appears here.
  */
-export function CategoryPage({ category }: { category: Category }) {
+/** List or wall, for a desktop's history. */
+function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (view: "list" | "grid") => void }) {
+  const item = (id: "list" | "grid", label: string) => (
+    <button
+      type="button"
+      onClick={() => onChange(id)}
+      aria-pressed={view === id}
+      className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors duration-[120ms] ${
+        view === id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
+      }`}
+    >
+      <Icon name={id} size={15} />
+      {label}
+    </button>
+  );
+  return (
+    <div className="hidden items-center gap-0.5 rounded-full bg-t1/[0.05] p-0.5 md:flex">
+      {item("list", "List")}
+      {item("grid", "Grid")}
+    </div>
+  );
+}
+
+export function CategoryPage({ category, onKeyClick }: { category: Category; onKeyClick: () => void }) {
   const model = useModel();
+  const side = SIDE_PAGES.has(category);
+  const view = useStudio((s) => s.views[category]) ?? (side ? "list" : "grid");
+  const setView = useStudio((s) => s.setView);
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
   const meta = CATEGORIES.find((c) => c.id === category);
   const mine = runs.filter((run) => getModel(run.modelId)?.category === category);
 
   return (
-    <div className="anim-fade flex flex-1 flex-col">
+    <div className={`anim-fade flex flex-1 ${side ? "md:gap-4 md:px-4 md:pt-4" : ""}`}>
+      {side && <SideComposer onKey={onKeyClick} />}
+      <div className="flex min-w-0 flex-1 flex-col">
       {/* A slim strip over the wall: the page is already named in the header
           on a desktop, so there it says how much is here; a phone, which has
           no header nav, keeps the name. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5 ${
+          side ? "md:px-1 md:pt-0" : ""
+        }`}
+      >
         <div>
           <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">
             {meta?.label ?? category}
@@ -60,7 +94,9 @@ export function CategoryPage({ category }: { category: Category }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-        {mine.length > 0 && <DensityControl />}
+        {mine.length > 0 && view === "grid" && <DensityControl />}
+        {mine.length > 0 && <ViewToggle view={view} onChange={(next) => setView(category, next)} />}
+        {!side && (
         <button
           type="button"
           onClick={() => togglePicker(true, category, true)}
@@ -83,6 +119,7 @@ export function CategoryPage({ category }: { category: Category }) {
           )}
           <Icon name="chevron" size={16} className="-rotate-90 opacity-70" />
         </button>
+        )}
         </div>
       </div>
 
@@ -112,8 +149,11 @@ export function CategoryPage({ category }: { category: Category }) {
           </Stagger>
         </div>
       ) : (
-        <Gallery category={category} />
+        <div className={view === "list" && !side ? "md:px-4" : ""}>
+          <Gallery category={category} view={view} />
+        </div>
       )}
+      </div>
     </div>
   );
 }
