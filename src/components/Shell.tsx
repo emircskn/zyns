@@ -112,7 +112,11 @@ export function Shell() {
       <TopBar onKeyClick={() => setKeyOpen(true)} />
       <PhoneBar onKeyClick={() => setKeyOpen(true)} />
       <main
-        className={`relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
+        // A page that makes things is a wall of its media, edge to edge; it
+        // pads its own toolbar and empty state.
+        className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
+          composing ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
+        } ${
           composing ? "below-bar" : browsing ? "below-card" : "below-nav"
         }`}
       >

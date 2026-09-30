@@ -248,9 +248,7 @@ export function Tile({
       className={`${
         leaving ? "tile-leave" : "anim-tile"
       } group relative shrink-0 overflow-hidden bg-surface transition-all duration-[200ms] ${
-        box ? "" : `rounded-card ring-1 ring-inset ${square ? "" : "mb-2.5 break-inside-avoid"}`
-      } ${
-        box ? "" : picked ? "ring-line" : "ring-line hover:ring-line-strong"
+        box || square ? "" : "break-inside-avoid"
       }`}
       style={{
         animationDelay: `${Math.min(index, 10) * 30}ms`,
@@ -317,7 +315,7 @@ export function Tile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className={`pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1 ${box ? "" : "rounded-card"}`} />
+        <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
       )}
 
       {url && (
@@ -469,32 +467,32 @@ export function Gallery({ category }: { category?: Category }) {
 
   return (
     <>
-      {/* A heading for each day the media was made on, newest first. One
-          container holds every day, so a tile that moves up into the day
-          above still slides there rather than jumping. */}
-      <div ref={grid} className="no-text-select -mx-1.5 flex flex-col gap-6 md:mx-0 md:gap-8">
-        {byDay(tiles, (run) => run.createdAt).map((day) => (
-          <section key={day.key}>
-            <h3 className="mb-2.5 px-1.5 text-[15px] font-semibold tracking-[-0.01em] text-t1 md:mb-3 md:px-0 md:text-[16px]">
-              {day.label}
-            </h3>
-            {/* Phone: everything the same size in a grid of three, or one
-                piece of media at a time. Desktop: justified rows, as tall as
-                the density step asks, each tile as wide as its shape. */}
-            {phone ? (
-              <div className={`grid gap-1.5 ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+      {/* A desktop lays everything out as one wall, edge to edge, newest
+          first; a phone keeps a heading for each day the media was made on.
+          Either way one container holds every tile, so a tile that moves
+          still slides there rather than jumping. */}
+      <div ref={grid} className="no-text-select flex flex-col gap-6">
+        {phone ? (
+          byDay(tiles, (run) => run.createdAt).map((day) => (
+            <section key={day.key}>
+              <h3 className="mb-2.5 px-4 text-[15px] font-semibold tracking-[-0.01em] text-t1">{day.label}</h3>
+              {/* Everything the same size in a grid of three, or one piece
+                  of media at a time, meeting almost edge to edge. */}
+              <div className={`grid gap-[2px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
                 {day.items.map((run) => tile(run))}
               </div>
-            ) : (
-              <JustifiedRows
-                items={day.items}
-                keyOf={(run) => run.id}
-                ratioOf={(run) => ratioOf(run.urls[0]) ?? parseRatio(run.ratio)}
-                render={(run, box) => tile(run, box)}
-              />
-            )}
-          </section>
-        ))}
+            </section>
+          ))
+        ) : (
+          // Justified rows, as tall as the density step asks, each tile as
+          // wide as its shape.
+          <JustifiedRows
+            items={tiles}
+            keyOf={(run) => run.id}
+            ratioOf={(run) => ratioOf(run.urls[0]) ?? parseRatio(run.ratio)}
+            render={(run, box) => tile(run, box)}
+          />
+        )}
       </div>
 
       <SelectionBar

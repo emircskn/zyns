@@ -15,6 +15,13 @@ const NOUN: Record<Category, string> = {
   tool: "results",
 };
 
+const NOUN_ONE: Record<Category, string> = {
+  image: "image",
+  video: "video",
+  audio: "audio",
+  tool: "result",
+};
+
 const BLURB: Record<Category, string> = {
   image: "Stills you generate and edit",
   video: "Motion, avatars and editing",
@@ -35,13 +42,21 @@ export function CategoryPage({ category }: { category: Category }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+      {/* A slim strip over the wall: the page is already named in the header
+          on a desktop, so there it says how much is here; a phone, which has
+          no header nav, keeps the name. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
-          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:text-[26px]">
+          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">
             {meta?.label ?? category}
           </h2>
           <p className="text-[13px] text-t3">
-            {BLURB[category]}
+            <span className="md:hidden">{BLURB[category]}</span>
+            <span className="hidden md:inline">
+              {mine.length > 0
+                ? `${mine.length.toLocaleString()} ${mine.length === 1 ? NOUN_ONE[category] : NOUN[category]}`
+                : BLURB[category]}
+            </span>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +87,7 @@ export function CategoryPage({ category }: { category: Category }) {
       </div>
 
       {mine.length === 0 ? (
-        <div className="grid flex-1 place-items-center py-8 text-center md:py-16">
+        <div className="grid flex-1 place-items-center px-4 py-8 text-center md:py-16">
           <Stagger className="max-w-[560px]">
             {/* Said large, because an empty page should read as a state and
                 not as a page that failed to load. */}
