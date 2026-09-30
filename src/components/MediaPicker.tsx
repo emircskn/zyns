@@ -8,9 +8,10 @@ import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
+import { useStudio } from "@/store/studio";
 
 type Kind = "image" | "video" | "audio";
-type Tab = "generated" | "uploads";
+type Tab = "generated" | "uploads" | "liked";
 
 function TileAction({
   icon,
@@ -114,10 +115,12 @@ export function MediaPicker({
   onClose,
 }: {
   open: boolean;
-  accept?: Kind;
+  /** One kind, or several for the bar's "+", which files each where it goes. */
+  accept?: Kind | Kind[];
   multiple?: boolean;
   taken?: string[];
-  onPick: (urls: string[]) => void;
+  /** The picked urls, and the kind of each. */
+  onPick: (urls: string[], kinds: Kind[]) => void;
   onClose: () => void;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
@@ -130,13 +133,19 @@ export function MediaPicker({
   const scroller = useRef<HTMLDivElement>(null);
   const lastHeight = useRef<number | null>(null);
 
+  const kinds = useMemo(() => (Array.isArray(accept) ? accept : [accept]), [accept]);
+  const favorites = useStudio((s) => s.favorites);
   const made = useMemo(
-    () => assets.filter((a) => a.source === "run" && a.kind === accept),
-    [assets, accept],
+    () => assets.filter((a) => a.source === "run" && kinds.includes(a.kind)),
+    [assets, kinds],
   );
   const uploaded = useMemo(
-    () => assets.filter((a) => a.source === "upload" && a.kind === accept),
-    [assets, accept],
+    () => assets.filter((a) => a.source === "upload" && kinds.includes(a.kind)),
+    [assets, kinds],
+  );
+  const liked = useMemo(
+    () => made.filter((a) => favorites.includes(a.url)),
+    [made, favorites],
   );
 
   useEffect(() => {
@@ -161,7 +170,7 @@ export function MediaPicker({
   // The sheet is as tall as what it holds, so switching tabs, or a list
   // growing, changes its height. It moves there rather than jumping: the
   // old height is kept for a moment and eased into the new one.
-  const list = tab === "generated" ? made : uploaded;
+  const list = tab === "generated" ? made : tab === "liked" ? liked : uploaded;
   const shape = `${tab}:${list.length}:${pending}:${chosen.length > 0}:${!!error}`;
   useLayoutEffect(() => {
     const node = sheet.current;
@@ -191,14 +200,16 @@ export function MediaPicker({
 
   if (!mounted || typeof document === "undefined") return null;
 
-  const noun = accept === "video" ? "clips" : accept === "audio" ? "audio" : "images";
+  const noun =
+    kinds.length > 1 ? "media" : kinds[0] === "video" ? "clips" : kinds[0] === "audio" ? "audio" : "images";
+  const kindOf = (url: string) => assets.find((a) => a.url === url)?.kind ?? kinds[0];
 
   function choose(asset: Asset) {
     // What is already in the field stays there; picking it again would only
     // add it a second time.
     if (taken.includes(asset.url)) return;
     if (!multiple) {
-      onPick([asset.url]);
+      onPick([asset.url], [asset.kind]);
       onClose();
       return;
     }
@@ -231,7 +242,9 @@ export function MediaPicker({
       >
         <header className="flex items-center gap-2 px-4 pt-4 sm:px-5">
           <h2 className="flex-1 text-[17px] font-semibold tracking-[-0.02em] text-t1">
-            Add {accept === "image" ? "an image" : accept === "video" ? "a clip" : "audio"}
+            {kinds.length > 1
+              ? "Add media"
+              : `Add ${kinds[0] === "image" ? "an image" : kinds[0] === "video" ? "a clip" : "audio"}`}
           </h2>
           <button
             type="button"
@@ -250,14 +263,17 @@ export function MediaPicker({
             items={[
               { id: "generated", label: "Generated" },
               { id: "uploads", label: "Uploads" },
+              { id: "liked", label: "Liked" },
             ]}
           />
         </div>
 
         <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
-          {tab === "generated" && list.length === 0 ? (
+          {tab !== "uploads" && list.length === 0 ? (
             <p className="py-14 text-center text-[13px] text-t4">
-              Nothing generated yet. Runs that produce {noun} show up here.
+              {tab === "liked"
+                ? `Nothing liked yet. ${noun[0].toUpperCase() + noun.slice(1)} you heart show up here.`
+                : `Nothing generated yet. Runs that produce ${noun} show up here.`}
             </p>
           ) : (
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -316,7 +332,7 @@ export function MediaPicker({
             <button
               type="button"
               onClick={() => {
-                onPick(chosen);
+                onPick(chosen, chosen.map(kindOf));
                 onClose();
               }}
               className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"

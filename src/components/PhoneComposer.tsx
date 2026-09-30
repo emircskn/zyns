@@ -14,6 +14,7 @@ import {
   PromptField,
   useComposer,
 } from "@/components/PromptBar";
+import { AttachPanel } from "@/components/Attachments";
 import { VendorBadge } from "@/components/VendorMark";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category, type Field } from "@/lib/registry";
@@ -212,7 +213,8 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     setError,
     promptRef,
     promptFields,
-    inputFields,
+    attachFields,
+    stripFields,
     barFields,
     panelFields,
     batchable,
@@ -351,14 +353,17 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
 
         {/* Two slots, a first and a last frame say, share a row: stacked,
             they pushed the prompt off a small phone's screen. */}
-        {inputFields.length > 0 && (
-          <div className={inputFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
-            {inputFields.map((field) => {
-              // Pictures and clips pair up; a list, a script or a picker of
-              // earlier results needs the whole width.
-              const wide = !SLOT_KINDS.has(field.kind) || inputFields.filter((f) => SLOT_KINDS.has(f.kind)).length < 2;
+        {/* Every file the model takes goes through one area; the rest of the
+            inputs (lines, pickers, a trimmed clip) keep slots of their own. */}
+        <AttachPanel fields={attachFields} />
+        {stripFields.length > 0 && (
+          <div className={stripFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
+            {stripFields.map((field) => {
+              // Clips pair up; a list, a script or a picker of earlier
+              // results needs the whole width.
+              const wide = !SLOT_KINDS.has(field.kind) || stripFields.filter((f) => SLOT_KINDS.has(f.kind)).length < 2;
               return (
-                <div key={field.key} className={`min-w-0 ${wide && inputFields.length > 1 ? "col-span-2" : ""}`}>
+                <div key={field.key} className={`min-w-0 ${wide && stripFields.length > 1 ? "col-span-2" : ""}`}>
                   <UploadSlot field={field} half={!wide} />
                 </div>
               );

@@ -32,6 +32,8 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
+import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
+import { isAttachField } from "@/lib/attach";
 import { activeFields, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
@@ -815,6 +817,10 @@ export function useComposer() {
     const picked = Array.isArray(value) ? value.length > 0 : !!value;
     return picked || sourceItems(f, runs, model.id).length > 0;
   });
+  // Files go through the one "+" and sit as thumbs over the prompt; the
+  // rest of the inputs (lines, pickers, trimmed clips) keep their slots.
+  const attachFields = inputFields.filter(isAttachField);
+  const stripFields = inputFields.filter((f) => !isAttachField(f));
   const barFields = fields.filter((f) => f.placement === "bar");
   const panelFields = fields.filter((f) => f.placement === "panel");
 
@@ -893,6 +899,8 @@ export function useComposer() {
     promptRef,
     promptFields,
     inputFields,
+    attachFields,
+    stripFields,
     barFields,
     panelFields,
     batchable,
@@ -1192,7 +1200,8 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     setError,
     promptRef,
     promptFields,
-    inputFields,
+    attachFields,
+    stripFields,
     barFields,
     panelFields,
     batchable,
@@ -1205,6 +1214,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     insertToken,
     run,
   } = useComposer();
+  const attach = useAttach(attachFields);
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
   const selectMode = useStudio((s) => s.selectMode);
@@ -1277,8 +1287,10 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
           <Reveal>
-            <InputStrip fields={inputFields} />
+            <InputStrip fields={stripFields} />
+            <AttachRow fields={attachFields} onAdd={attach.open} canAdd={attach.canAdd} />
           </Reveal>
+          {attach.picker}
 
           {!model && (
             <DraftField trailing={send} onSubmit={openPickerHere} />
@@ -1310,6 +1322,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
           </Reveal>
 
           <div className="flex flex-wrap items-center gap-1">
+            {attachFields.length > 0 && attach.canAdd && <AddChip onClick={attach.open} needed={attach.needed} />}
             <button
               type="button"
               onClick={openPickerHere}

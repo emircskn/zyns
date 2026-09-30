@@ -250,7 +250,7 @@ function Spinner({ size = 12 }: { size?: number }) {
   );
 }
 
-function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: () => void; roomy?: boolean }) {
+export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: () => void; roomy?: boolean }) {
   const kind = mediaKind(url);
   return (
     <div

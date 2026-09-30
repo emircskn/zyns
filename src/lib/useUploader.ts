@@ -13,11 +13,19 @@ export const ACCEPT: Record<string, string> = {
 
 type Kind = "image" | "video" | "audio";
 
+function kindOfFile(file: File, fallback: Kind): Kind {
+  if (file.type.startsWith("video/")) return "video";
+  if (file.type.startsWith("audio/")) return "audio";
+  if (file.type.startsWith("image/")) return "image";
+  return fallback;
+}
+
 /**
  * Sends files to the chosen service's file host and remembers each one, so an upload can be
  * picked again later as a reference instead of being uploaded twice.
  */
-export function useUploader(accept: Kind | undefined) {
+export function useUploader(accept: Kind | Kind[] | undefined) {
+  const kinds: Kind[] = Array.isArray(accept) ? accept : [accept ?? "image"];
   const apiKey = useStudio(activeKey);
   const provider = useStudio((s) => s.provider);
   const addUpload = useStudio((s) => s.addUpload);
@@ -45,7 +53,8 @@ export function useUploader(accept: Kind | undefined) {
           addUpload({
             id: `up-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
             url,
-            kind: accept ?? "image",
+            // A picker that takes several kinds files each by what it is.
+            kind: kinds.length === 1 ? kinds[0] : kindOfFile(file, kinds[0]),
             name: file.name,
             createdAt: Date.now(),
           });
@@ -62,5 +71,5 @@ export function useUploader(accept: Kind | undefined) {
     if (urls.length > 0) onDone(urls);
   }
 
-  return { busy, pending, error, setError, input, send, accept: ACCEPT[accept ?? "image"] };
+  return { busy, pending, error, setError, input, send, accept: kinds.map((k) => ACCEPT[k]).join(",") };
 }
