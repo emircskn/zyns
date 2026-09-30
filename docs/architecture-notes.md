@@ -81,7 +81,7 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
 - `src/lib/assets.ts` bu ikisinden `Asset {id,url,kind,source:'run'|'upload'|'pending',category,label,prompt,createdAt,run}` listesini türetir.
 - Beğeniler de store'da.
 
-**Önemli:** Zyns'in kendi kalıcı deposu yok. Saklanan şey sağlayıcının URL'i; KIE upload'ları birkaç günde, HF çıktıları ~7 gün sonra silinebilir. Spec'teki "Assets'e kalıcı kopya" (`MediaRef.storageUrl`) için bir depolama katmanı seçilmesi gerekiyor (açık soru 1).
+**Önemli:** Zyns'in kendi kalıcı deposu yok. Saklanan şey sağlayıcının URL'i; KIE upload'ları birkaç günde, HF çıktıları ~7 gün sonra silinebilir. Spec'teki "Assets'e kalıcı kopya" (`MediaRef.storageUrl`) için Cloudflare R2 seçildi (bkz. açık sorular, madde 1).
 
 `src/app/api/media/route.ts` yalnızca indirme/paylaşım için medyayı kendi origin'den geri veren bir geçittir; depolama değildir.
 
@@ -130,7 +130,7 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
 - `Capability` tipi ve `ModelDef` (veya `Mode`) üzerinde `capabilities` alanı. Capability mod bazında olmalı: aynı model bir modda T2I, başka modda edit.
 - `paramMap` (ortak isim → modelin alan adı). Mod bazında olmalı; KIE'de aynı modelin modları farklı alan adları kullanıyor (ör. Seedance 2 `first_frame_url` vs `reference_image_urls`).
 - `MediaRef` ve `remoteUrls` cache'i, `ensureRemoteUrl`.
-- Kalıcı depolama (bkz. açık soru 1).
+- Kalıcı depolama: Cloudflare R2 (bkz. açık sorular, madde 1).
 - `Element` (kütüphane), Elements sayfası, Assets'te "Element yap".
 - `Recipe`, `Slot`, `Step`, `RecipeRun`, `runRecipe`, `lastModelByStep`.
 - `Project` ve asset'lerde `projectId`.
@@ -167,7 +167,11 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
 
 ## Açık sorular
 
-1. **Kalıcı depolama:** "Assets'e kalıcı kopya" ve `MediaRef.storageUrl` için nereye yazılacak? Seçenekler: Vercel Blob (en az iş, Vercel'de zaten), tarayıcıda IndexedDB (sunucusuz, ama sadece o cihazda; büyük videolarda kota), ya da hiç kopya almayıp süresi dolmadan yeniden yükleme. Faz 1 §1.4 buna bağlı.
+1. ~~**Kalıcı depolama**~~ **Karar (2026-09-30): Cloudflare R2.** Ücretsiz katmanda 10 GB depolama, aylık 1M yazma / 10M okuma işlemi; indirme trafiği her zaman ücretsiz. Aşımda sadece aşan kısım ücretlenir (~$0.015/GB-ay), erişim kesilmez. Vercel Blob Hobby'de 1 GB'ta kalıyor ve aşımda 30 gün kapanıyordu.
+   - Faz 1 §1.4 planı: tek bir R2 bucket, S3 uyumlu API. Sunucu tarafında `src/app/api/storage/` route'u presigned PUT URL'i imzalar; tarayıcı dosyayı doğrudan R2'ye yükler. Okuma, bucket'ın public adresinden (r2.dev ya da özel alan adı) yapılır. Nesne adları tahmin edilemez UUID olur.
+   - Kimlik bilgileri yalnızca Vercel ortam değişkenlerinde durur (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_URL`); repoya ya da tarayıcıya girmez.
+   - Kopyalanacaklar: yüklenen dosyalar, Element görselleri, beğenilenler, recipe çıktıları. Her üretimin otomatik kopyalanması şart değil; alan dolmasın diye seçici tutulur.
+   - Emir'in Faz 1'de yapacağı: Cloudflare hesabı + R2'yi etkinleştirme, bucket oluşturma, bucket'a yazma yetkili bir API token alma, değerleri Vercel'e ortam değişkeni olarak girme.
 2. **Standalone artifact:** Recipe/Elements/katalog route'u gibi sunucu isteyen parçalar tek dosyalık `dist/zyns.html`'de çalışmaz (`api/hf-catalog`, Blob). Standalone'da bu özellikler gizlensin mi, yoksa standalone artık bırakılsın mı?
 3. **Zorvyn:** Faz 1–5 Zorvyn'e de taşınacak mı, sadece Zyns mi?
 4. **`text-to-video` capability'si listede yok.** Recipe adımları için gerekmiyorsa sorun değil; tablo bu yüzden text-to-video'yu ayrıca işaretlemiyor.
