@@ -165,14 +165,14 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
 
 ---
 
-## Açık sorular
+## Açık sorular (hepsi 2026-09-30'da Emir tarafından cevaplandı)
 
 1. ~~**Kalıcı depolama**~~ **Karar (2026-09-30): Cloudflare R2.** Ücretsiz katmanda 10 GB depolama, aylık 1M yazma / 10M okuma işlemi; indirme trafiği her zaman ücretsiz. Aşımda sadece aşan kısım ücretlenir (~$0.015/GB-ay), erişim kesilmez. Vercel Blob Hobby'de 1 GB'ta kalıyor ve aşımda 30 gün kapanıyordu.
    - Faz 1 §1.4 planı: tek bir R2 bucket, S3 uyumlu API. Sunucu tarafında `src/app/api/storage/` route'u presigned PUT URL'i imzalar; tarayıcı dosyayı doğrudan R2'ye yükler. Okuma, bucket'ın public adresinden (r2.dev ya da özel alan adı) yapılır. Nesne adları tahmin edilemez UUID olur.
    - Kimlik bilgileri yalnızca Vercel ortam değişkenlerinde durur (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_PUBLIC_URL`); repoya ya da tarayıcıya girmez.
    - Kopyalanacaklar: yüklenen dosyalar, Element görselleri, beğenilenler, recipe çıktıları. Her üretimin otomatik kopyalanması şart değil; alan dolmasın diye seçici tutulur.
    - Emir'in Faz 1'de yapacağı: Cloudflare hesabı + R2'yi etkinleştirme, bucket oluşturma, bucket'a yazma yetkili bir API token alma, değerleri Vercel'e ortam değişkeni olarak girme.
-2. **Standalone artifact:** Recipe/Elements/katalog route'u gibi sunucu isteyen parçalar tek dosyalık `dist/zyns.html`'de çalışmaz (`api/hf-catalog`, Blob). Standalone'da bu özellikler gizlensin mi, yoksa standalone artık bırakılsın mı?
-3. **Zorvyn:** Faz 1–5 Zorvyn'e de taşınacak mı, sadece Zyns mi?
-4. **`text-to-video` capability'si listede yok.** Recipe adımları için gerekmiyorsa sorun değil; tablo bu yüzden text-to-video'yu ayrıca işaretlemiyor.
-5. **Capability'nin birimi:** Mod bazında öneriyorum (tablo da mod bazında). Model bazında isteniyorsa tablo birleştirilir.
+2. **Standalone artifact → Karar:** Sunucu isteyen özellikler (R2, `api/hf-catalog`, recipe'ler) tek dosyalık `dist/zyns.html`'de gizlenir; canlı site tam çalışır.
+3. **Zorvyn → Karar:** Zorvyn kapsam dışı. Faz 1–5 sadece Zyns'e yapılır; Zorvyn'e taşıma yok.
+4. **`text-to-video` → Karar:** Eklendi. Spec'teki `Capability` tipine `'text-to-video'` üyesi eklenecek (spec'ten bilinçli sapma). Tabloda adı "Text to video" / "Multi-shot" olan modlara verildi.
+5. **Capability'nin birimi → Karar:** Mod bazında.
