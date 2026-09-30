@@ -2,14 +2,18 @@ import { familyToModel, allSpecs } from "./auto";
 import { FAMILIES } from "./curation";
 import { familyToModel as hfFamilyToModel } from "./hf/auto";
 import { FAMILIES as HF_FAMILIES } from "./hf/curation";
+import { withAutoMode } from "./autoMode";
 import type { Category, Field, ModelDef, Provider, Values } from "./types";
 
 export * from "./types";
 export { FAMILIES } from "./curation";
 export { getSpec } from "./auto";
+export { hasPicture, tabOf } from "./autoMode";
 
 /** Every KIE family, rendered into a ModelDef from the documented schemas. */
-export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel).map((m) => ({ ...m, provider: "kie" as const }));
+export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
+  .map(withAutoMode)
+  .map((m) => ({ ...m, provider: "kie" as const }));
 
 /**
  * Every Higgsfield family, from Higgsfield's own schemas. Both catalogues
@@ -17,7 +21,9 @@ export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel).map((m) => ({ 
  * and a model's values, gallery and memory never mix with its KIE twin.
  */
 export const HF_PREFIX = "hf-";
-export const HF_MODELS: ModelDef[] = HF_FAMILIES.map(hfFamilyToModel).map((m) => ({
+export const HF_MODELS: ModelDef[] = HF_FAMILIES.map(hfFamilyToModel)
+  .map(withAutoMode)
+  .map((m) => ({
   ...m,
   id: HF_PREFIX + m.id,
   provider: "higgsfield" as const,

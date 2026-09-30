@@ -15,6 +15,7 @@ import {
   modelsFor,
   providerOf,
   type Category,
+  hasPicture,
   type ModelDef,
   type Provider,
   type Values,
@@ -239,13 +240,26 @@ function inMode(model: ModelDef, current: Values, mode: string): Values {
 }
 
 /**
+ * Where a model folds "from text" and "from a picture" into one tab, the mode
+ * follows the slot: a picture in it means the image mode, an empty one the
+ * text mode. Moving goes through inMode, so each side's own options (an Auto
+ * ratio that only exists with a picture) come and go with it.
+ */
+function settleMode(model: ModelDef, values: Values): Values {
+  const auto = model.autoMode;
+  if (!auto || (values.__mode !== auto.text && values.__mode !== auto.image)) return values;
+  const mode = hasPicture(values[auto.field]) ? auto.image : auto.text;
+  return mode === values.__mode ? values : inMode(model, values, mode);
+}
+
+/**
  * Put the category's reference pictures into a model. When they exist and
  * the model's current mode takes none, `switchMode` lets it move to the
  * first mode that does (Nano Banana from Generate to Edit), so the pictures
  * are there to see rather than silently left behind.
  */
 function withRefs(model: ModelDef, values: Values, refs: string[] | undefined, switchMode: boolean): Values {
-  if (refs === undefined) return values;
+  if (refs === undefined) return settleMode(model, values);
   let next = values;
   let field = refField(model, next);
   if (!field && switchMode && refs.length > 0) {
@@ -255,10 +269,10 @@ function withRefs(model: ModelDef, values: Values, refs: string[] | undefined, s
       field = refField(model, next);
     }
   }
-  if (!field) return next;
+  if (!field) return settleMode(model, next);
   const value = field.kind === "images" ? refs.slice(0, field.maxItems ?? refs.length) : refs[0];
   const same = JSON.stringify(next[field.key] ?? (field.kind === "images" ? [] : undefined)) === JSON.stringify(value);
-  return same ? next : { ...next, [field.key]: value };
+  return settleMode(model, same ? next : { ...next, [field.key]: value });
 }
 
 /**
@@ -466,7 +480,7 @@ export const useStudio = create<StudioState>()(
       setValue: (key, value) =>
         set((state) => {
           const current = valuesFor(state, state.modelId);
-          const next: Values = { ...current, [key]: value };
+          let next: Values = { ...current, [key]: value };
           const model = getModel(state.modelId);
           // A tier is its own endpoint with its own options (Higgsfield's
           // Kling Pro stops at 1080p where 4K goes further). Carry over what
@@ -485,6 +499,7 @@ export const useStudio = create<StudioState>()(
           if (model && prompt && typeof next[prompt] === "string" && imageFields(model, next).some((f) => f.key === key)) {
             next[prompt] = followRemoval(next[prompt] as string, imageRefs(model, current), imageRefs(model, next));
           }
+          if (model) next = settleMode(model, next);
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: next },
             ...(model ? sharedPrompt(state, model, next) : {}),
@@ -492,9 +507,10 @@ export const useStudio = create<StudioState>()(
           };
         }),
 
-      setValues: (values) =>
+      setValues: (given) =>
         set((state) => {
           const model = getModel(state.modelId);
+          const values = model ? settleMode(model, given) : given;
           return {
             valuesByModel: { ...state.valuesByModel, [state.modelId]: values },
             ...(model ? sharedPrompt(state, model, values) : {}),
@@ -516,7 +532,7 @@ export const useStudio = create<StudioState>()(
           }
           // The sent pictures leave the whole category, not just this model.
           return {
-            valuesByModel: { ...state.valuesByModel, [modelId]: next },
+            valuesByModel: { ...state.valuesByModel, [modelId]: settleMode(model, next) },
             refsByCategory: { ...state.refsByCategory, [model.category]: [] },
           };
         }),

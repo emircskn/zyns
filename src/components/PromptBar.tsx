@@ -32,7 +32,7 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
-import { activeFields, providerOf, shownInputs, validateValues, type Field } from "@/lib/registry";
+import { activeFields, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
@@ -42,15 +42,24 @@ export function ModeStrip({ flush }: { flush?: boolean }) {
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
   // A single mode is not a choice — the strip only earns its place from two.
-  if (!model?.modes || model.modes.length < 2) return null;
+  // A mode folded into another tab (Edit into Generate) is not one either.
+  const tabs = model?.modes?.filter((mode) => !mode.hidden) ?? [];
+  if (!model || tabs.length < 2) return null;
 
   return (
     <div key={model.id} className={`anim-swap flex justify-start ${flush ? "" : "mb-2"}`}>
       <PillGroup
         className="!bg-elevated ring-1 ring-inset ring-line"
-        value={String(values.__mode ?? model.modes[0].id)}
+        value={tabOf(model, values)}
         onChange={setMode}
-        items={model.modes.map((mode) => ({ id: mode.id, label: mode.label, hint: mode.hint }))}
+        // The folded tab makes from text or from a picture, so it is named
+        // for neither: "Text to video" beside "Reference" said the picture
+        // slot under it was not for pictures.
+        items={tabs.map((mode) => ({
+          id: mode.id,
+          label: mode.id === model.autoMode?.text ? "Generate" : mode.label,
+          hint: mode.id === model.autoMode?.text ? undefined : mode.hint,
+        }))}
       />
     </div>
   );

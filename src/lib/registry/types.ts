@@ -118,6 +118,24 @@ export interface Mode {
   hint?: string;
   /** Which media the mode expects, used for the mode strip icons. */
   icon?: string;
+  /** Folded into another tab (see AutoMode): sent, but not offered. */
+  hidden?: boolean;
+}
+
+/**
+ * A model's "from text" and "from a picture" modes shown as one. Nano Banana's
+ * Generate and Edit, or a video model's Text to video and Image to video, are
+ * the same request with or without a picture. So the studio shows one tab and
+ * the picture slot in it, and which of the two is sent depends on whether a
+ * picture is in the slot.
+ */
+export interface AutoMode {
+  /** The mode sent when the slot is empty; also the one the strip shows. */
+  text: string;
+  /** The mode sent once the slot holds a picture. */
+  image: string;
+  /** The slot: the image mode's picture field. */
+  field: string;
 }
 
 /** Which polling endpoint family a task belongs to. */
@@ -149,6 +167,8 @@ export interface ModelDef {
   docs?: string;
   modes?: Mode[];
   defaultMode?: string;
+  /** Set where two modes differ only by a picture; see AutoMode. */
+  autoMode?: AutoMode;
   fields: Field[];
   build: (v: Values) => BuildResult;
   /** Returns a human message when the current values cannot be submitted. */
