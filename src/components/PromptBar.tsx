@@ -39,30 +39,81 @@ import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 
+/** Past this many tabs, the rest of a desktop's strip waits behind More. */
+const STRIP_TABS = 4;
+
 export function ModeStrip({ flush }: { flush?: boolean }) {
   const model = useModel();
   const values = useValues();
   const setMode = useStudio((s) => s.setMode);
+  const current = model ? tabOf(model, values) : "";
+  // A mode folded into another tab (Edit into Generate) is not a choice, and
+  // one that works on an earlier result is offered on that result; it shows
+  // here only while it is the one in use, so the bar says what it will do.
+  const tabs = model?.modes?.filter((mode) => !mode.hidden && (!mode.action || mode.id === current)) ?? [];
   // A single mode is not a choice — the strip only earns its place from two.
-  // A mode folded into another tab (Edit into Generate) is not one either.
-  const tabs = model?.modes?.filter((mode) => !mode.hidden) ?? [];
   if (!model || tabs.length < 2) return null;
 
+  // The folded tab makes from text or from a picture, so it is named for
+  // neither: "Text to video" beside "Reference" said the picture slot under
+  // it was not for pictures.
+  const item = (mode: (typeof tabs)[number]) => ({
+    id: mode.id,
+    label: mode.id === model.autoMode?.text ? "Generate" : mode.label,
+    hint: mode.id === model.autoMode?.text ? undefined : mode.hint,
+  });
+  // A phone's strip scrolls sideways under the thumb; a desktop's keeps its
+  // first few and the tab in use, and lists the rest behind More.
+  let shown = tabs;
+  let rest: typeof tabs = [];
+  if (!flush && tabs.length > STRIP_TABS + 1) {
+    shown = tabs.slice(0, STRIP_TABS - 1);
+    const active = tabs.find((mode) => mode.id === current);
+    shown.push(active && !shown.includes(active) ? active : tabs[STRIP_TABS - 1]);
+    rest = tabs.filter((mode) => !shown.includes(mode));
+  }
+
   return (
-    <div key={model.id} className={`anim-swap flex justify-start ${flush ? "" : "mb-2"}`}>
+    <div key={model.id} className={`anim-swap flex items-center justify-start gap-1.5 ${flush ? "" : "mb-2"}`}>
       <PillGroup
         className="!bg-elevated ring-1 ring-inset ring-line"
-        value={tabOf(model, values)}
+        value={current}
         onChange={setMode}
-        // The folded tab makes from text or from a picture, so it is named
-        // for neither: "Text to video" beside "Reference" said the picture
-        // slot under it was not for pictures.
-        items={tabs.map((mode) => ({
-          id: mode.id,
-          label: mode.id === model.autoMode?.text ? "Generate" : mode.label,
-          hint: mode.id === model.autoMode?.text ? undefined : mode.hint,
-        }))}
+        items={shown.map(item)}
       />
+      {rest.length > 0 && (
+        <Popover
+          align="start"
+          width={240}
+          trigger={(open) => (
+            <span
+              className={`flex h-[38px] items-center gap-1 rounded-full bg-elevated px-3.5 text-[13px] ring-1 ring-inset ring-line transition-colors duration-[120ms] ${
+                open ? "text-t1" : "text-t3 hover:text-t1"
+              }`}
+            >
+              More
+              <Icon name="chevron" size={15} className={`transition-transform duration-[200ms] ${open ? "rotate-180" : ""}`} />
+            </span>
+          )}
+        >
+          {(close) =>
+            rest.map((mode) => (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => {
+                  setMode(mode.id);
+                  close();
+                }}
+                className="flex w-full flex-col items-start rounded-chip px-3 py-2 text-left transition-colors duration-[120ms] hover:bg-t1/[0.06]"
+              >
+                <span className="text-[13.5px] text-t1">{item(mode).label}</span>
+                {mode.hint && <span className="text-[11.5px] leading-snug text-t4">{mode.hint}</span>}
+              </button>
+            ))
+          }
+        </Popover>
+      )}
     </div>
   );
 }

@@ -26,6 +26,7 @@ import { prefetchMedia, useSave } from "@/lib/download";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
+import { actionsFor, applyAction, type ResultAction } from "@/lib/resultActions";
 import { useStudio, type Run } from "@/store/studio";
 
 /**
@@ -476,6 +477,24 @@ export function MediaViewer({
     }, 260);
   }
 
+  // What other models can do with this run: Extend it, Upscale it, split
+  // its stems. Grouped by the model that does it, the run's own first.
+  const follow = run ? actionsFor(run) : [];
+  const groups = follow.reduce<Array<{ model: ResultAction["model"]; items: ResultAction[] }>>((all, action) => {
+    const group = all.find((g) => g.model.id === action.model.id);
+    if (group) group.items.push(action);
+    else all.push({ model: action.model, items: [action] });
+    return all;
+  }, []);
+  groups.sort((a, b) => Number(b.model.id === run?.modelId) - Number(a.model.id === run?.modelId));
+
+  function follow_(action: ResultAction) {
+    if (!run) return;
+    applyAction(action, run, shown ?? undefined);
+    onClose();
+    readyToWrite();
+  }
+
   function remove() {
     if (run) removeRun(run.id);
     else if (upload) removeUpload(upload.id);
@@ -655,6 +674,35 @@ export function MediaViewer({
                 </button>
               )}
             </MoreMenu>
+          )}
+
+          {groups.length > 0 && (
+            <section aria-label="Continue with" className="flex flex-col gap-2 pt-1">
+              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-t4">Continue with</p>
+              {groups.map((group) => (
+                <div key={group.model.id} className="flex flex-col gap-1.5">
+                  {groups.length > 1 && (
+                    <p className="flex items-center gap-1.5 text-[12px] text-t3">
+                      <VendorBadge model={group.model} size={14} bare />
+                      {group.model.name}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-1.5">
+                    {group.items.map((action) => (
+                      <button
+                        key={`${action.model.id}:${action.mode.id}`}
+                        type="button"
+                        onClick={() => follow_(action)}
+                        title={action.mode.hint}
+                        className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+                      >
+                        {action.mode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </section>
           )}
 
           {confirming && (

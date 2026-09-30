@@ -120,6 +120,11 @@ export interface Mode {
   icon?: string;
   /** Folded into another tab (see AutoMode): sent, but not offered. */
   hidden?: boolean;
+  /**
+   * Works on an earlier result (Extend, Upscale, Stems): offered on that
+   * result rather than as a tab, and names the field that points at it.
+   */
+  action?: string;
 }
 
 /**
