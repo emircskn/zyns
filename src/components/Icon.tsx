@@ -42,7 +42,9 @@ export type IconName =
   | "square"
   | "more"
   | "at"
-  | "ai-brain";
+  | "ai-brain"
+  | "coin"
+  | "user";
 
 const PATHS: Record<IconName, ReactElement> = {
   image: (
@@ -211,6 +213,18 @@ const PATHS: Record<IconName, ReactElement> = {
   // Drawn closed, so the same path reads as an outline or, filled, as kept.
   heart: (
     <path d="M12 20.3l-1.3-1.2C6.1 15 3 12.2 3 8.8 3 6.1 5.1 4 7.8 4c1.5 0 3 .7 4.2 2 1.2-1.3 2.7-2 4.2-2C18.9 4 21 6.1 21 8.8c0 3.4-3.1 6.2-7.7 10.4L12 20.3z" />
+  ),
+  coin: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5l3.2 4.5-3.2 4.5-3.2-4.5z" />
+    </>
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8.5" r="3.8" />
+      <path d="M4.5 20c.9-3.6 3.9-5.8 7.5-5.8s6.6 2.2 7.5 5.8" />
+    </>
   ),
   at: (
     <>

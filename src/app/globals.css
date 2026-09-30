@@ -77,8 +77,6 @@
   /* The phone's bottom row, which the prompt bar and every page sit above.
      Zero on a desktop, where the row is not there at all. */
   --nav-h: 0px;
-  /* The desktop rail down the left, which the pages and the bar clear. */
-  --rail-w: 0px;
   /* How much of Recent shows under the home screen's box: its heading and
      the first inch of the row, enough to say there is more down there. */
   --home-peek: 96px;
@@ -120,12 +118,6 @@
   --shadow-bar: 0 20px 50px -20px rgb(0 0 0 / 0.2);
 
   color-scheme: light;
-}
-
-@media (min-width: 768px) {
-  :root {
-    --rail-w: 212px;
-  }
 }
 
 /* A phone has less to spare, and its bottom row is in the way. */

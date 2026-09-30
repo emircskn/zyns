@@ -85,7 +85,7 @@ export function SelectionBar({
     // picked rather than about the next one you might make.
     <div
       data-select-bar=""
-      className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex justify-center px-3 pb-3 md:pb-5 md:pl-[calc(var(--rail-w)+16px)] md:pr-4"
+      className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex justify-center px-3 pb-3 md:pb-5 md:pl-4 md:pr-4"
     >
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">

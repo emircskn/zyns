@@ -1243,7 +1243,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
         // On a phone the box is the card above until it is opened.
         centered
           ? "hidden w-full md:block"
-          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 hidden justify-center px-3 pb-3 md:flex md:pl-[calc(var(--rail-w)+16px)] md:pr-4 md:pb-5"
+          : "bar-swap pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-40 hidden justify-center px-3 pb-3 md:flex md:pl-4 md:pr-4 md:pb-5"
       }
     >
       <div

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { Icon } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { Backdrop } from "@/components/Backdrop";
@@ -16,66 +15,34 @@ import { PhoneComposer } from "@/components/PhoneComposer";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { SideRail } from "@/components/SideRail";
+import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
-import { activeKey, openPickerHere, useStudio, type Page } from "@/store/studio";
+import { openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 /**
- * A phone has no rail, so the mark and the theme sit in a thin strip at the
- * top; the pages and the key are on the bottom row.
+ * A phone's version of the top bar: the mark, the service, and at the right
+ * the credits and the account, as on a desktop. The pages are on the bottom
+ * row instead.
  */
-function PhoneBar() {
+function PhoneBar({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
-  const theme = useStudio((s) => s.theme);
-  const setTheme = useStudio((s) => s.setTheme);
-  const runs = useStudio((s) => s.runs);
-  const loadDemo = useStudio((s) => s.loadDemo);
-  const clearDemo = useStudio((s) => s.clearDemo);
-  const apiKey = useStudio(activeKey);
-  const hydrated = useStudio((s) => s.hydrated);
-
-  const demo = runs.some((r) => r.id.startsWith("demo-"));
 
   return (
-    <header className="relative z-10 flex items-center justify-between px-4 py-3 md:hidden">
-      {/* The badge, not the name: a phone bar is too short a line to spell
-          anything out on, and the mark carries further at this size. */}
+    <header className="relative z-30 flex items-center justify-between gap-2 px-4 py-3 md:hidden">
       <button
         type="button"
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
-        className="transition-opacity duration-[150ms] hover:opacity-70"
+        className="shrink-0 transition-opacity duration-[150ms] hover:opacity-70"
       >
         <ZynsMark size={32} />
       </button>
       {/* The service to make with, in reach on every phone page. */}
-      <ProviderSwitch />
-      <div className="flex items-center gap-1">
-        {/* The rail's samples button, for a phone that has no rail, and only
-            while there is no key: it sits left of the theme switch, so the
-            switch keeps its place at the edge whether it is there or not. */}
-        {hydrated && !apiKey && (
-        <button
-          type="button"
-          onClick={demo ? clearDemo : loadDemo}
-          aria-label={demo ? "Take the sample media back out" : "Fill the studio with sample media"}
-          aria-pressed={demo}
-          className={`grid h-9 w-9 place-items-center rounded-full transition-colors duration-[150ms] ${
-            demo ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
-          }`}
-        >
-          <Icon name="palette" size={16} />
-        </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
-          className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[150ms] hover:bg-t1/[0.07] hover:text-t1"
-        >
-          <Icon name={theme === "dark" ? "sun" : "moon"} size={16} />
-        </button>
+      <ProviderSwitch size="xs" />
+      <div className="flex shrink-0 items-center gap-1.5">
+        <CreditsPill onKeyClick={onKeyClick} compact />
+        <AccountMenu onKeyClick={onKeyClick} />
       </div>
     </header>
   );
@@ -139,11 +106,11 @@ export function Shell() {
   const browsing = page === "assets" || page === "favorites";
 
   return (
-    <div className="flex min-h-dvh flex-col md:pl-[var(--rail-w)]">
+    <div className="flex min-h-dvh flex-col">
       {/* The surface the whole studio stands on, under everything. */}
       <Backdrop />
-      <SideRail onKeyClick={() => setKeyOpen(true)} />
-      <PhoneBar />
+      <TopBar onKeyClick={() => setKeyOpen(true)} />
+      <PhoneBar onKeyClick={() => setKeyOpen(true)} />
       <main
         className={`relative z-10 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 md:px-6 md:pt-5 ${
           composing ? "below-bar" : browsing ? "below-card" : "below-nav"
