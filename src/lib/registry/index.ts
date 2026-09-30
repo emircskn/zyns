@@ -86,6 +86,22 @@ export function searchModels(query: string, provider: Provider = "kie"): ModelDe
   });
 }
 
+/** How many option chips the bar shows; the rest join the drawer. */
+export const BAR_CHIPS = 5;
+
+/**
+ * The bar's chips and the drawer's options for these fields. A model with
+ * more chips than fit on a line sends the last ones to the drawer, the
+ * way the rarely touched options already live there.
+ */
+export function barAndPanel(fields: Field[]): { bar: Field[]; panel: Field[] } {
+  const bar = fields.filter((f) => f.placement === "bar");
+  return {
+    bar: bar.slice(0, BAR_CHIPS),
+    panel: [...bar.slice(BAR_CHIPS), ...fields.filter((f) => f.placement === "panel")],
+  };
+}
+
 /** Fields that apply to the current values (mode-aware). */
 export function activeFields(model: ModelDef, values: Values): Field[] {
   return model.fields.filter((f) => !f.when || f.when(values));

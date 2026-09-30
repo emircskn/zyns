@@ -97,6 +97,8 @@ export interface Family {
   creditHint?: ModelDef["creditHint"];
   /** A family's own rule on top of the documented ones. */
   validate?: ModelDef["validate"];
+  /** Values the family works out from the others just before sending. */
+  prepare?: (v: Values) => Values;
   /** Shown on the home showcase. */
   featured?: boolean;
   /** One-tap starting prompts for the showcase and the empty bar. */
@@ -717,7 +719,8 @@ export function familyToModel(family: Family): ModelDef {
       }
       return family.validate?.(v) ?? null;
     },
-    build(v) {
+    build(given) {
+      const v = family.prepare ? family.prepare(given) : given;
       const mode = modes.find((m) => m.id === v.__mode) ?? modes[0];
       const input: Record<string, unknown> = {};
       for (const key of mode.keys) {

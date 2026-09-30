@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { usePresence } from "@/lib/usePresence";
 import { Control } from "@/components/controls";
 import { Icon } from "@/components/Icon";
-import { activeFields } from "@/lib/registry";
+import { activeFields, barAndPanel } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
 
 /** Controls that already print their own help text under the widget. */
@@ -22,7 +22,7 @@ export function SettingsPanel() {
 
   const groups = useMemo(() => {
     if (!model) return [];
-    const fields = activeFields(model, values).filter((f) => f.placement === "panel");
+    const fields = barAndPanel(activeFields(model, values)).panel;
     const map = new Map<string, typeof fields>();
     for (const field of fields) {
       const key = field.group ?? "Options";

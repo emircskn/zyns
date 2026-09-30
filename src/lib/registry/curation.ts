@@ -94,6 +94,22 @@ const OMNI_FIELDS: Family["fields"] = {
   character_name: { placement: "input", label: "Character name", placeholder: "Jenny" },
 };
 
+/**
+ * Lyrics mean Custom mode: Suno only sings the words it is given there. And
+ * Custom mode needs a title, so a song without one takes its first sung line
+ * (section tags like [Chorus] are not a title).
+ */
+function sunoLyrics(v: Values): Values {
+  const lyrics = String(v.lyrics ?? "").trim();
+  if (!lyrics) return v;
+  const line = lyrics
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l && !/^\[.*\]$/.test(l));
+  const title = String(v.title ?? "").trim() || (line ?? "Untitled").slice(0, 80);
+  return { ...v, custom_mode: true, title };
+}
+
 /** One of a Suno song's tracks, picked from the songs made here. */
 const SUNO_TRACK: Partial<Field> = {
   kind: "source",
@@ -1224,9 +1240,20 @@ export const FAMILIES: Family[] = [
       m("sounds", "Sounds", "ai-music-api/sounds", { hint: "Short sound design clips" }),
     ],
     fields: {
-      prompt: { label: "Prompt / lyrics", placeholder: "Describe the song, or paste lyrics in Custom mode…" },
+      prompt: { label: "Prompt", placeholder: "Describe the song…" },
+      lyrics: { label: "Lyrics", placeholder: "Write or paste lyrics…" },
       audio_id: SUNO_TRACK,
+      // Custom mode is worked out from the lyrics (see sunoLyrics); the
+      // switch stays in Advanced for a style-and-title song without them.
+      custom_mode: { placement: "panel" },
+      vocal_gender: { placement: "panel" },
+      persona_model: { placement: "panel" },
     },
+    prepare: sunoLyrics,
+    validate: (v) =>
+      String(v.lyrics ?? "").trim() && !String(v.style ?? "").trim() && !v.instrumental
+        ? "Add a style to go with your lyrics."
+        : null,
   },
   {
     id: "suno-studio",

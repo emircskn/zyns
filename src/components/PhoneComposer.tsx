@@ -12,7 +12,9 @@ import {
   MentionStrip,
   ModeStrip,
   PromptField,
+  PromptFolds,
   useComposer,
+  useFoldedPrompts,
 } from "@/components/PromptBar";
 import { AttachPanel } from "@/components/Attachments";
 import { VendorBadge } from "@/components/VendorMark";
@@ -227,6 +229,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
     insertToken,
     run,
   } = useComposer();
+  const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
 
   const close = () => setComposer(false);
 
@@ -374,7 +377,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
         <div className="rounded-panel border border-line bg-elevated">
           {promptFields.length > 0 && (
             <div className="px-4 pb-1.5 pt-3.5">
-              {promptFields.map((field, index) => (
+              {prompts.shown.map((field, index) => (
                 <PromptField
                   key={field.key}
                   field={field}
@@ -385,6 +388,7 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
                   inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
                 />
               ))}
+              <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
               {mentionable && firstPrompt && (
                 <MentionStrip
                   names={names}

@@ -34,10 +34,45 @@ import {
 import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { isAttachField } from "@/lib/attach";
-import { activeFields, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
+import { activeFields, barAndPanel, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
+
+/**
+ * A model's second prompt box (Suno's lyrics, a negative prompt) stays folded
+ * behind a "+ Lyrics" link until it is opened or holds something: most runs
+ * never touch it, and two empty boxes read as two things you must fill.
+ */
+export function useFoldedPrompts(fields: Field[], values: Record<string, unknown>, modelId: string) {
+  const [opened, setOpened] = useState<string[]>([]);
+  const filled = (f: Field) => typeof values[f.key] === "string" && (values[f.key] as string).trim() !== "";
+  const isOpen = (f: Field, index: number) => index === 0 || filled(f) || opened.includes(`${modelId}:${f.key}`);
+  return {
+    shown: fields.filter(isOpen),
+    folded: fields.filter((f, index) => !isOpen(f, index)),
+    open: (f: Field) => setOpened((current) => [...current, `${modelId}:${f.key}`]),
+  };
+}
+
+export function PromptFolds({ folded, onOpen }: { folded: Field[]; onOpen: (field: Field) => void }) {
+  if (folded.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5 px-1 pb-2">
+      {folded.map((field) => (
+        <button
+          key={field.key}
+          type="button"
+          onClick={() => onOpen(field)}
+          className="flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+        >
+          <Icon name="plus" size={13} />
+          {field.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 /** Past this many tabs, the rest of a desktop's strip waits behind More. */
 const STRIP_TABS = 4;
@@ -872,8 +907,7 @@ export function useComposer() {
   // rest of the inputs (lines, pickers, trimmed clips) keep their slots.
   const attachFields = inputFields.filter(isAttachField);
   const stripFields = inputFields.filter((f) => !isAttachField(f));
-  const barFields = fields.filter((f) => f.placement === "bar");
-  const panelFields = fields.filter((f) => f.placement === "panel");
+  const { bar: barFields, panel: panelFields } = barAndPanel(fields);
 
   // A picture at a time, and nothing in the request that asks for more: then
   // the count is ours to send. Models with their own count keep it.
@@ -1266,6 +1300,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
     run,
   } = useComposer();
   const attach = useAttach(attachFields);
+  const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);
   const selectMode = useStudio((s) => s.selectMode);
@@ -1347,7 +1382,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
             <DraftField trailing={send} onSubmit={openPickerHere} />
           )}
 
-          {promptFields.map((field, index) => (
+          {prompts.shown.map((field, index) => (
             <PromptField
               key={field.key}
               field={field}
@@ -1360,6 +1395,7 @@ export function PromptBar({ placement = "docked" }: { placement?: "docked" | "ce
               inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
             />
           ))}
+          <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
 
           <Reveal>
             {mentionable && firstPrompt ? (
