@@ -126,14 +126,14 @@ type Composer = ReturnType<typeof useComposer>;
 
 /**
  * The model at the head of the composer, as a card: its latest result
- * behind its name when there is one, a cover of light when there is not,
- * and Change in the corner for the catalogue.
+ * behind its name when there is one, else its catalogue preview, else a
+ * cover of light, and Change in the corner for the catalogue.
  */
 export function ModelBanner({ model }: { model: ModelDef }) {
   const togglePicker = useStudio((s) => s.togglePicker);
   return (
     <div className="relative h-[124px] shrink-0 overflow-hidden rounded-panel bg-surface">
-      <ModelMedia model={model} catalog={false} />
+      <ModelMedia model={model} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
       <button
         type="button"
