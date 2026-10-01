@@ -19,7 +19,7 @@ import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
 import { RecipeDriver } from "@/components/recipes/RecipeDriver";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
+import { CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
 import { SIDE_PAGES } from "@/lib/layout";
 import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
@@ -28,8 +28,7 @@ import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 /**
  * A phone's version of the top bar: the mark, the service, and at the right
- * the credits and the account, as on a desktop. The pages are on the bottom
- * row instead.
+ * the credits. The pages and the account are on the bottom row instead.
  */
 function PhoneBar({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
@@ -48,7 +47,6 @@ function PhoneBar({ onKeyClick }: { onKeyClick: () => void }) {
       <ProviderSwitch size="xs" />
       <div className="flex shrink-0 items-center gap-1.5">
         <CreditsPill onKeyClick={onKeyClick} compact />
-        <AccountMenu onKeyClick={onKeyClick} />
       </div>
     </header>
   );

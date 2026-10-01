@@ -166,7 +166,14 @@ function MenuRow({
  * service in use has a key, and a menu holding the key and the two switches
  * that belong to the browser rather than to any page.
  */
-export function AccountMenu({ onKeyClick }: { onKeyClick: () => void }) {
+export function AccountMenu({
+  onKeyClick,
+  tab,
+}: {
+  onKeyClick: () => void;
+  /** A phone's: a tab of the bottom row, whose menu opens upward. */
+  tab?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const { mounted, exiting } = usePresence(open, 160);
   const root = useRef<HTMLDivElement>(null);
@@ -203,31 +210,59 @@ export function AccountMenu({ onKeyClick }: { onKeyClick: () => void }) {
   };
 
   return (
-    <div ref={root} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Account"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className={`relative grid h-9 w-9 place-items-center rounded-full text-t1 transition-[background-color,transform] duration-[150ms] active:scale-[0.94] ${
-          open ? "bg-t1/[0.14]" : "bg-t1/[0.08] hover:bg-t1/[0.12]"
-        }`}
-      >
-        <Icon name="user" size={18} />
-        <span
-          className="absolute right-[1px] top-[1px] h-2 w-2 rounded-full ring-2"
-          style={{
-            background: apiKey ? "var(--t1)" : "var(--t4)",
-            ["--tw-ring-color" as string]: "var(--canvas)",
-          }}
-        />
-      </button>
+    <div ref={root} className={tab ? "relative flex flex-1" : "relative"}>
+      {tab ? (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Account"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className={`flex h-[52px] flex-1 flex-col items-center justify-center gap-1 text-[11px] transition-colors duration-[150ms] ${
+            open ? "font-medium text-t1" : "text-t4"
+          }`}
+        >
+          <span className="relative">
+            <Icon name="user" size={23} />
+            {/* Lit while a key is connected, as the key tab's dot was. */}
+            <span
+              className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-2"
+              style={{
+                background: apiKey ? "var(--accent)" : "var(--t4)",
+                ["--tw-ring-color" as string]: "var(--elevated)",
+              }}
+            />
+          </span>
+          Account
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Account"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className={`relative grid h-9 w-9 place-items-center rounded-full text-t1 transition-[background-color,transform] duration-[150ms] active:scale-[0.94] ${
+            open ? "bg-t1/[0.14]" : "bg-t1/[0.08] hover:bg-t1/[0.12]"
+          }`}
+        >
+          <Icon name="user" size={18} />
+          <span
+            className="absolute right-[1px] top-[1px] h-2 w-2 rounded-full ring-2"
+            style={{
+              background: apiKey ? "var(--t1)" : "var(--t4)",
+              ["--tw-ring-color" as string]: "var(--canvas)",
+            }}
+          />
+        </button>
+      )}
 
       {mounted && (
         <div
           role="menu"
-          className={`absolute right-0 top-[calc(100%+8px)] z-[70] w-[248px] origin-top-right rounded-panel border border-line bg-elevated p-1.5 ${
+          className={`absolute right-0 z-[70] w-[248px] rounded-panel border border-line bg-elevated p-1.5 ${
+            tab ? "bottom-[calc(100%+10px)] origin-bottom-right" : "top-[calc(100%+8px)] origin-top-right"
+          } ${
             exiting ? "anim-pop-out" : "anim-pop"
           }`}
           style={{ boxShadow: "var(--shadow-pop)" }}

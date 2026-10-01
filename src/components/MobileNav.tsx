@@ -2,7 +2,8 @@
 
 import { Icon, type IconName } from "@/components/Icon";
 import { MetalButton } from "@/components/MetalButton";
-import { activeKey, useStudio, type Page } from "@/store/studio";
+import { AccountMenu } from "@/components/TopBar";
+import { useStudio, type Page } from "@/store/studio";
 
 /**
  * The four tabs share one shape, and it is the Create button's height: the
@@ -43,7 +44,6 @@ function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
  * and everything above reserves room for it through --nav-h.
  */
 export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: () => void }) {
-  const apiKey = useStudio(activeKey);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-1 border-t border-line bg-elevated px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 md:hidden">
@@ -72,25 +72,8 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
 
       <Tab {...ITEMS[2]} />
 
-      <button
-        type="button"
-        onClick={onKey}
-        aria-label={apiKey ? "API key connected" : "Add API key"}
-        className={`${TAB} text-t4`}
-      >
-        <span className="relative">
-          <Icon name="key" size={23} />
-          <span
-            className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-2"
-            style={{
-              background: apiKey ? "var(--accent)" : "var(--t4)",
-              // Punched out of the bar rather than sitting on it.
-              ["--tw-ring-color" as string]: "var(--elevated)",
-            }}
-          />
-        </span>
-        API key
-      </button>
+      {/* The account (key, theme, samples) where the key alone used to be. */}
+      <AccountMenu tab onKeyClick={onKey} />
     </nav>
   );
 }
