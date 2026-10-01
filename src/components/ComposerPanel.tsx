@@ -25,6 +25,7 @@ import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
 import { ProjectChip } from "@/components/ProjectMenu";
 import { ModelMedia } from "@/components/ModelMedia";
+import { ErrorPopup } from "@/components/ErrorPopup";
 
 /**
  * A reference slot before anything is in it: the whole width to aim a thumb
@@ -309,15 +310,7 @@ export function ComposerBody({
 
       {panelFields.length > 0 && <AdvancedRow count={panelFields.length} />}
 
-      {error && (
-        <div className="anim-pop flex items-start gap-2 rounded-card bg-[#ff6b6b]/10 px-3.5 py-2.5 text-[13px] text-[#ff8f8f] ring-1 ring-inset ring-[#ff6b6b]/25">
-          <Icon name="alert" size={16} className="mt-px shrink-0" />
-          <span className="min-w-0 flex-1">{error}</span>
-          <button type="button" onClick={() => setError(null)} aria-label="Dismiss">
-            <Icon name="close" size={15} />
-          </button>
-        </div>
-      )}
+      <ErrorPopup message={error} onClose={() => setError(null)} />
     </>
   );
 }

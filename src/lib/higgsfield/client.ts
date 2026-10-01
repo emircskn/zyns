@@ -115,10 +115,24 @@ export function authHeader(apiKey: string): string {
   return `Key ${apiKey.trim()}`;
 }
 
+/** Reasons Higgsfield gives as bare codes, as a person would say them. */
+const CODES: Record<string, string> = {
+  not_enough_credits: "Not enough credits on your Higgsfield account. Top up and try again.",
+  insufficient_credits: "Not enough credits on your Higgsfield account. Top up and try again.",
+};
+
+/** A bare code ("rate_limit_exceeded") read out as a sentence. */
+function readable(detail: string): string {
+  if (CODES[detail]) return CODES[detail];
+  if (!/^[a-z0-9]+(_[a-z0-9]+)+$/.test(detail)) return detail;
+  const words = detail.replace(/_/g, " ");
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}.`;
+}
+
 /** FastAPI puts the reason in `detail`: a string, or a list for validation errors. */
 export function errorMessage(body: unknown, status: number): string {
   const detail = (body as { detail?: unknown } | null)?.detail;
-  if (typeof detail === "string" && detail) return detail;
+  if (typeof detail === "string" && detail) return readable(detail);
   if (Array.isArray(detail) && detail.length > 0) {
     return detail
       .map((d) => {

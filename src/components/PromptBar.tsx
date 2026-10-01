@@ -43,6 +43,7 @@ import { activeFields, barAndPanel, providerOf, shownInputs, tabOf, validateValu
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
+import { ErrorPopup } from "@/components/ErrorPopup";
 
 /**
  * A model's second prompt box (Suno's lyrics, a negative prompt) stays folded
@@ -1470,15 +1471,7 @@ export function PromptBar({
       >
         {model && <ModeStrip />}
 
-        {error && (
-          <div className="anim-pop mb-2 flex items-start gap-2 rounded-card bg-[#ff6b6b]/10 px-3.5 py-2.5 text-[12.5px] text-[#ff8f8f] ring-1 ring-inset ring-[#ff6b6b]/25">
-            <Icon name="alert" size={16} className="mt-px shrink-0" />
-            <span className="min-w-0 flex-1">{error}</span>
-            <button type="button" onClick={() => setError(null)} aria-label="Dismiss">
-              <Icon name="close" size={15} />
-            </button>
-          </div>
-        )}
+        <ErrorPopup message={error} onClose={() => setError(null)} />
 
         <Glow>
         <div
