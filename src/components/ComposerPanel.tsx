@@ -24,6 +24,7 @@ import type { Field, ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
 import { ProjectChip } from "@/components/ProjectMenu";
+import { ModelMedia } from "@/components/ModelMedia";
 
 /**
  * A reference slot before anything is in it: the whole width to aim a thumb
@@ -124,28 +125,14 @@ type Composer = ReturnType<typeof useComposer>;
 
 /**
  * The model at the head of the composer, as a card: its latest result
- * behind its name when there is one, a cover of light when there is not,
- * and Change in the corner for the catalogue.
+ * behind its name when there is one, else its catalogue preview, else a
+ * cover of light, and Change in the corner for the catalogue.
  */
 export function ModelBanner({ model }: { model: ModelDef }) {
   const togglePicker = useStudio((s) => s.togglePicker);
-  const runs = useStudio((s) => s.runs);
-  const latest = runs.find(
-    (r) => r.modelId === model.id && r.state === "success" && r.urls.some((u) => mediaKind(u) !== "audio"),
-  );
-  const media = latest?.urls.find((u) => mediaKind(u) !== "audio");
   return (
     <div className="relative h-[124px] shrink-0 overflow-hidden rounded-panel bg-surface">
-      {media ? (
-        mediaKind(media) === "video" ? (
-          <video src={media} muted loop autoPlay playsInline className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={media} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        )
-      ) : (
-        <CoverArt id={model.id} category={model.category} className="absolute inset-0 h-full" />
-      )}
+      <ModelMedia model={model} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
       <button
         type="button"

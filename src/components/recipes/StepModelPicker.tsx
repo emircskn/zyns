@@ -94,9 +94,9 @@ export function StepModelPicker({
             />
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto px-2 py-2 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className="grid flex-1 auto-rows-min grid-cols-1 gap-2 overflow-y-auto px-3 py-3 pb-[max(16px,env(safe-area-inset-bottom))] sm:grid-cols-2">
           {models.length === 0 ? (
-            <p className="py-16 text-center text-[13px] text-t4">No model matches.</p>
+            <p className="col-span-full py-16 text-center text-[13px] text-t4">No model matches.</p>
           ) : (
             models.map((model) => (
               <ModelRow
