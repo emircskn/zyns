@@ -839,6 +839,12 @@ if (typeof window !== "undefined") {
     const page = state.page;
     if (isLibraryPage(page) || page === "home") return;
     const model = getModel(state.modelId);
+    // A page the service no longer has (Higgsfield's video tools moved from
+    // Tools to Video) opens on the model's own page instead, or Home.
+    if (!modelsFor(state.provider).some((m) => m.category === page)) {
+      state.setPage(model && model.provider === state.provider ? model.category : "home");
+      return;
+    }
     if (model ? model.category !== page : state.modelId !== "") state.setPage(page);
   };
   useStudio.persist?.onFinishHydration(settle);
