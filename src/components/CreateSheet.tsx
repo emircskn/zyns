@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CoverArt } from "@/components/CoverArt";
+import { ModelMedia } from "@/components/ModelMedia";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
@@ -38,7 +38,10 @@ function ModelCard({
       className="anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left transition-colors duration-[200ms]"
     >
       <div className="relative">
-        <CoverArt id={model.id} category={model.category} className="aspect-[7/4]" />
+        {/* What the model makes: your latest result from it, else its catalogue preview. */}
+        <div className="relative aspect-[7/4] overflow-hidden">
+          <ModelMedia model={model} />
+        </div>
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2.5">
           {model.badge ? (
             <span className="rounded-chip bg-accent px-2 py-0.5 text-[10.5px] font-semibold uppercase italic tracking-[0.04em] text-accent-ink">
@@ -47,7 +50,10 @@ function ModelCard({
           ) : (
             <span />
           )}
-          <VendorBadge model={model} size={24} />
+          {/* On a dark, blurred disc: over a preview the plain tile washed out. */}
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md">
+            <VendorBadge model={model} size={15} bare />
+          </span>
         </div>
         {active && (
           <span className="absolute bottom-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full bg-t1 text-canvas">

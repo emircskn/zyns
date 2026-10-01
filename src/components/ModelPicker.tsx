@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
-import { ModelMedia } from "@/components/ModelMedia";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, modelsFor, searchModels, type Category, type ModelDef } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
@@ -41,58 +40,40 @@ export function ModelRow({
   /** For lists that mix KIE's and Higgsfield's models. */
   showProvider?: boolean;
 }) {
-  const card = useRef<HTMLButtonElement>(null);
+  const row = useRef<HTMLButtonElement>(null);
 
   // The one you are on should be in front of you when the list opens.
   useEffect(() => {
-    if (active) card.current?.scrollIntoView({ block: "nearest" });
+    if (active) row.current?.scrollIntoView({ block: "nearest" });
   }, [active]);
 
-  // A card as the composer heads itself: what the model makes behind it, its
-  // maker's mark, name and line over a shade, and its price in a corner.
   return (
     <button
-      ref={card}
+      ref={row}
       type="button"
       onClick={onPick}
       aria-current={active ? "true" : undefined}
-      className={`group relative block h-[112px] w-full overflow-hidden rounded-card bg-surface text-left ring-inset transition-shadow duration-[150ms] sm:h-[124px] ${
-        active ? "ring-2 ring-[var(--accent)]" : "ring-1 ring-line hover:ring-line-strong"
+      className={`flex w-full items-center gap-3 rounded-card px-3 py-2.5 text-left transition-colors duration-[120ms] ${
+        active ? "bg-t1/[0.08]" : "hover:bg-t1/[0.045]"
       }`}
     >
-      <ModelMedia model={model} className="transition-transform duration-[400ms] group-hover:scale-[1.03]" />
-      <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10" />
-      <span className="absolute left-2.5 top-2.5 flex items-center gap-1.5">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md">
-          <VendorBadge model={model} size={15} bare />
+      <VendorBadge model={model} size={34} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate text-[14px] font-medium text-t1">{model.name}</span>
+          {model.badge && (
+            <span className="shrink-0 rounded-[2px] bg-accent px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-ink">
+              {model.badge}
+            </span>
+          )}
+          {showProvider && <ProviderTag model={model} />}
         </span>
-        {model.badge && (
-          <span className="rounded-[3px] bg-white px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-black">
-            {model.badge}
-          </span>
-        )}
-        {showProvider && <ProviderTag model={model} onMedia />}
+        <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
       </span>
-      {active ? (
-        <span className="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-white text-black">
-          <Icon name="check" size={15} strokeWidth={2.4} />
-        </span>
-      ) : (
-        model.price && (
-          <span className="absolute right-2.5 top-2.5 rounded-full bg-black/55 px-2 py-1 text-[11px] tabular-nums text-white/90 backdrop-blur-md">
-            {model.price}
-          </span>
-        )
+      {model.price && <span className="shrink-0 text-[11.5px] tabular-nums text-t3">{model.price}</span>}
+      {active && (
+        <Icon name="check" size={17} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
       )}
-      <span className="absolute inset-x-3 bottom-2.5 text-white">
-        <span className="block truncate text-[17px] font-bold uppercase leading-none tracking-[-0.02em] sm:text-[18px]">
-          {model.name}
-        </span>
-        <span className="mt-1.5 block truncate text-[12px] text-white/75">
-          {active && model.price ? `${model.price} · ` : ""}
-          {model.tagline}
-        </span>
-      </span>
     </button>
   );
 }
@@ -207,7 +188,7 @@ export function ModelPicker() {
                 <h3 className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-t3">
                   {GROUP_LABEL[group.id]}
                 </h3>
-                <div className="grid grid-cols-1 gap-2 px-1 sm:grid-cols-2">
+                <div className="flex flex-col gap-0.5">
                   {group.models.map((model) => (
                     <ModelRow
                       key={model.id}
