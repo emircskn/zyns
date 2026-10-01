@@ -129,8 +129,8 @@ function Media({ url, run, small, compact }: { url: string; run?: Run; small?: b
     // Named for what it is; the tile lays its own play button over this.
     if (small) {
       return (
-        <span className="pending-surface grid h-full w-full place-items-center">
-          <Icon name="audio" size={16} className="relative z-10 text-t2" />
+        <span className="grid h-full w-full place-items-center bg-surface bg-gradient-to-br from-t1/[0.07] to-transparent">
+          <Icon name="audio" size={16} className="text-t2" />
         </span>
       );
     }

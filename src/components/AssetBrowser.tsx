@@ -135,7 +135,7 @@ function AssetTile({
         ) : (
           <span className={`block w-full ${box || square ? "h-full" : "aspect-square"}`}>
             <AudioFace
-              title={asset.source === "upload" ? asset.label : audioTitle(run, asset.url, asset.label)}
+              title={asset.source === "upload" ? asset.label : audioTitle(run, asset.url)}
               source={asset.source === "upload" ? "Upload" : asset.label}
               compact={square}
             />
