@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { ENDPOINTS, submit } from "@/lib/higgsfield/client";
+import { submit } from "@/lib/higgsfield/client";
+import { isKnownEndpoint } from "@/lib/higgsfield/catalogServer";
 import { failure, jsonBody, keyFrom, missingKey } from "@/lib/higgsfield/route";
 
 export const runtime = "nodejs";
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
   const body = await jsonBody<{ endpoint?: string; payload?: unknown; idempotencyKey?: string }>(request);
   if (!body) return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
-  if (!body.endpoint || !ENDPOINTS.has(body.endpoint)) {
+  if (!body.endpoint || !(await isKnownEndpoint(body.endpoint))) {
     return NextResponse.json({ error: `Unsupported endpoint: ${body.endpoint}` }, { status: 400 });
   }
 

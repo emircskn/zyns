@@ -145,7 +145,7 @@ export const FAMILIES: Family[] = [
     vendor: "Higgsfield",
     category: "image",
     output: "image",
-    tagline: "The original Soul: realistic people and places, with an optional image reference.",
+    tagline: "The original Soul: realistic people and places.",
     modes: [m("generate", "Generate", "higgsfield-ai/soul/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] })],
   },
   {

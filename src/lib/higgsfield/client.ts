@@ -48,9 +48,9 @@ export class HiggsfieldError extends Error {
 }
 
 /**
- * Every generation endpoint the catalogue documents. The browser names the
- * endpoint it wants, so the proxy only relays these — an open list would turn
- * it into a general relay for the caller's key.
+ * Every generation endpoint the shipped catalogue lists. The browser names the
+ * endpoint it wants, so the proxy only relays catalogued ones (these, or the
+ * live catalogue's; see catalogServer) rather than any path on the API.
  */
 export const ENDPOINTS: ReadonlySet<string> = new Set(
   (catalog as unknown as { specs: Array<{ endpoint: string }> }).specs.map((s) => s.endpoint),
@@ -67,6 +67,15 @@ export const UPLOAD_TYPES = new Set([
   "audio/x-wav",
   "video/mp4",
 ]);
+
+/** A model path on the API, and nothing that could step outside it. */
+const ENDPOINT = /^\/[a-z0-9][a-z0-9._-]*(\/[a-z0-9][a-z0-9._-]*)*$/i;
+
+function checkEndpoint(endpoint: string): void {
+  if (!ENDPOINT.test(endpoint) || endpoint.includes("..")) {
+    throw new HiggsfieldError(`Unsupported endpoint: ${endpoint}`, 400);
+  }
+}
 
 const REQUEST_ID = /^[0-9a-f-]{8,64}$/i;
 
@@ -162,7 +171,7 @@ export async function submit(
   payload: unknown,
   idempotencyKey?: string,
 ): Promise<Submitted> {
-  if (!ENDPOINTS.has(endpoint)) throw new HiggsfieldError(`Unsupported endpoint: ${endpoint}`, 400);
+  checkEndpoint(endpoint);
   const body = (await request(apiKey, endpoint, {
     method: "POST",
     body: JSON.stringify(payload ?? {}),
@@ -191,7 +200,7 @@ export async function cancel(apiKey: string, requestId: string, cancelUrl?: stri
 
 /** What a run would cost, from the same parameters it would be sent with. */
 export async function estimate(apiKey: string, endpoint: string, payload: unknown): Promise<Estimate> {
-  if (!ENDPOINTS.has(endpoint)) throw new HiggsfieldError(`Unsupported endpoint: ${endpoint}`, 400);
+  checkEndpoint(endpoint);
   const body = (await request(apiKey, `/estimate${endpoint}`, {
     method: "POST",
     body: JSON.stringify(payload ?? {}),
