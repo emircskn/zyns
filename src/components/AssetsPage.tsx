@@ -49,11 +49,6 @@ export function AssetsPage() {
     [working, assets, filter, project],
   );
 
-  // Only the kinds there are something of, so a phone's row stays short.
-  const available = FILTERS.filter(
-    (f) => f.id === "all" || f.id === filter || [...working, ...assets].some((a) => matches(a, f.id)),
-  );
-
   return (
     <div className="anim-fade flex flex-1 flex-col">
       {/* A slim strip over the wall, as on the pages that make things: the
@@ -78,10 +73,10 @@ export function AssetsPage() {
         </div>
       </div>
 
-      {/* A phone's filters: plain words in one quiet row, only the kinds there
-          are, and Elements at the end since a phone has no top bar for it. */}
+      {/* A phone's filters: one quiet row of every kind, each with its icon,
+          and Elements at the end since a phone has no top bar for it. */}
       <div role="tablist" aria-label="Filter assets" className="no-bar mb-3 flex items-center gap-1.5 overflow-x-auto px-4 md:hidden">
-        {available.map((f) => {
+        {FILTERS.map((f) => {
           const on = f.id === filter;
           return (
             <button
@@ -90,10 +85,11 @@ export function AssetsPage() {
               role="tab"
               aria-selected={on}
               onClick={() => setFilter(f.id)}
-              className={`h-8 shrink-0 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[150ms] ${
+              className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13.5px] font-medium transition-colors duration-[150ms] ${
                 on ? "bg-t1 text-canvas" : "text-t3"
               }`}
             >
+              <Icon name={f.icon} size={15} />
               {f.label}
             </button>
           );
@@ -101,8 +97,9 @@ export function AssetsPage() {
         <button
           type="button"
           onClick={() => setPage("elements")}
-          className="ml-auto flex h-8 shrink-0 items-center gap-1 rounded-full pl-3 pr-2 text-[13.5px] font-medium text-t3"
+          className="ml-auto flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-2 text-[13.5px] font-medium text-t3"
         >
+          <Icon name="user" size={15} />
           Elements
           <Icon name="chevron" size={14} className="-rotate-90" />
         </button>
