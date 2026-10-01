@@ -174,6 +174,25 @@ function ModelRow({ model }: { model: ModelDef }) {
   );
 }
 
+/** The model as the last line of the phone's prompt box: its name on the right, opening the catalogue. */
+function InlineModelRow({ model }: { model: ModelDef }) {
+  const togglePicker = useStudio((s) => s.togglePicker);
+  return (
+    <button
+      type="button"
+      onClick={() => togglePicker(true, model.category, true)}
+      className="-mx-3.5 mt-2.5 flex w-[calc(100%+1.75rem)] items-center gap-2.5 border-t border-line px-3.5 py-3 text-left"
+    >
+      <span className="text-t3">
+        <VendorBadge model={model} size={17} bare />
+      </span>
+      <span className="text-[14px] text-t3">Model</span>
+      <span className="ml-auto min-w-0 truncate text-[15px] text-t1">{model.name}</span>
+      <Icon name="chevron" size={17} className="shrink-0 text-t2" />
+    </button>
+  );
+}
+
 /** The drawer, as the last row: what it holds, and the way in. */
 function AdvancedRow({ count }: { count: number }) {
   const toggleSettings = useStudio((s) => s.toggleSettings);
@@ -236,11 +255,15 @@ export function ComposerBody({
   const toggles = barFields.filter((f) => f.kind === "toggle");
   const tiles = barFields.filter((f) => f.kind !== "toggle");
   const count = tiles.length + (batchable ? 1 : 0);
+  // A phone heads only video with the model's card; everywhere else on a
+  // phone the model is a line at the foot of the prompt box.
+  const promptBox = promptFields.length > 0 || toggles.length > 0;
+  const inlineModel = phone && model.category !== "video" && promptBox;
 
   return (
     <>
       {phone ? <ModeStrip flush fill /> : <ModeTabs />}
-      <ModelBanner model={model} />
+      {!(phone && model.category !== "video") && <ModelBanner model={model} />}
 
       <AttachPanel fields={attachFields} />
       {stripFields.length > 0 && (
@@ -258,8 +281,8 @@ export function ComposerBody({
         </div>
       )}
 
-      {(promptFields.length > 0 || toggles.length > 0) && (
-        <div className="rounded-panel bg-t1/[0.05] px-3.5 pb-2.5 pt-3">
+      {promptBox && (
+        <div className={`rounded-panel bg-t1/[0.05] px-3.5 pt-3 ${inlineModel ? "pb-0" : "pb-2.5"}`}>
           {prompts.shown.map((field, index) => (
             <PromptField
               key={field.key}
@@ -287,10 +310,11 @@ export function ComposerBody({
               ))}
             </div>
           )}
+          {inlineModel && <InlineModelRow model={model} />}
         </div>
       )}
 
-      <ModelRow model={model} />
+      {!inlineModel && <ModelRow model={model} />}
 
       {count > 0 && (
         <TileChips.Provider value>
