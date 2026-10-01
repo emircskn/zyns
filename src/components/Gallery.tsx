@@ -23,6 +23,7 @@ import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
 import { useStudio, type Run } from "@/store/studio";
+import { mediaSrc } from "@/lib/storage/client";
 
 const STATE_LABEL: Record<Run["state"], string> = {
   queued: "Submitting",
@@ -114,7 +115,7 @@ function Media({ url, run, small, compact }: { url: string; run?: Run; small?: b
       // No controls on a tile: the tap belongs to the tile, and the enlarged
       // view is where the clip actually plays.
       <video
-        src={url}
+        src={mediaSrc(url)}
         className="no-lift h-full w-full object-cover"
         muted
         loop
@@ -138,7 +139,7 @@ function Media({ url, run, small, compact }: { url: string; run?: Run; small?: b
   // eslint-disable-next-line @next/next/no-img-element
   return (
     <img
-      src={url}
+      src={mediaSrc(url)}
       alt=""
       loading="lazy"
       draggable={false}
@@ -451,7 +452,7 @@ function RunDetails({ run }: { run: Run }) {
             <span key={url} className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line">
               {mediaKind(url) === "image" ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={url} alt="" className="h-full w-full object-cover" />
+                <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
               ) : (
                 <span className="grid h-full w-full place-items-center text-t3">
                   <Icon name={mediaKind(url) === "video" ? "video" : "audio"} size={15} />

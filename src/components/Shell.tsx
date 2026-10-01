@@ -14,6 +14,7 @@ import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
+import { StorageKeeper } from "@/components/StorageKeeper";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
@@ -149,6 +150,7 @@ export function Shell() {
       <SettingsPanel />
       <ModelPicker />
       <RunPoller />
+      <StorageKeeper />
       <ThemeSync />
       <ApiKeyDialog open={keyOpen} onClose={() => setKeyOpen(false)} />
     </div>

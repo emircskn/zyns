@@ -19,6 +19,7 @@ import { JustifiedRows } from "@/components/JustifiedRows";
 import { Tile } from "@/components/Gallery";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
+import { mediaSrc } from "@/lib/storage/client";
 
 function TileButton({
   icon,
@@ -115,7 +116,7 @@ function AssetTile({
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={asset.url}
+            src={mediaSrc(asset.url)}
             alt=""
             loading="lazy"
             draggable={false}
@@ -124,7 +125,7 @@ function AssetTile({
           />
         ) : asset.kind === "video" ? (
           <video
-            src={asset.url}
+            src={mediaSrc(asset.url)}
             muted
             playsInline
             preload="metadata"

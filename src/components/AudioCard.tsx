@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import type { Run } from "@/store/studio";
+import { mediaSrc } from "@/lib/storage/client";
 
 /**
  * What a piece of sound is called on its tile: a song's own title, a made
@@ -70,7 +71,7 @@ export function AudioPlay({ url, className = "", compact }: { url: string; class
     event.stopPropagation();
     let node = audio.current;
     if (!node) {
-      node = new Audio(url);
+      node = new Audio(mediaSrc(url));
       node.preload = "metadata";
       node.addEventListener("play", () => setOn(true));
       node.addEventListener("pause", () => setOn(false));

@@ -28,6 +28,7 @@ import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
 import { actionsFor, applyAction, type ResultAction } from "@/lib/resultActions";
 import { useStudio, type Run } from "@/store/studio";
+import { mediaSrc } from "@/lib/storage/client";
 
 /**
  * Escape closes the view, through a listener that is registered once.
@@ -222,18 +223,18 @@ function Stage({ url }: { url: string }) {
     "no-lift max-h-[52vh] w-auto max-w-full object-contain md:h-full md:max-h-none md:w-full";
   const kind = mediaKind(url);
   if (kind === "video") {
-    return <video src={url} controls autoPlay loop playsInline className={fit} />;
+    return <video src={mediaSrc(url)} controls autoPlay loop playsInline className={fit} />;
   }
   if (kind === "audio") {
     return (
       <div className="flex w-full max-w-[520px] flex-col items-center gap-5 py-8">
         <Icon name="audio" size={34} className="text-t3" />
-        <audio src={url} controls autoPlay className="w-full" />
+        <audio src={mediaSrc(url)} controls autoPlay className="w-full" />
       </div>
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt="" draggable={false} className={fit} />;
+  return <img src={mediaSrc(url)} alt="" draggable={false} className={fit} />;
 }
 
 /**

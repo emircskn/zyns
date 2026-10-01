@@ -79,6 +79,20 @@ export interface Run {
   held?: boolean;
 }
 
+/** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
+export interface StoredCopy {
+  key: string;
+  kind: "image" | "video" | "audio";
+  at: number;
+}
+
+/** A copy of a kept file on one service, good until `expiresAt`. */
+export interface RemoteUrl {
+  url: string;
+  expiresAt?: number;
+}
+export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
+
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
@@ -141,6 +155,10 @@ interface StudioState {
   uploads: Upload[];
   /** Media kept by its URL, which is the one thing an output and an upload share. */
   favorites: string[];
+  /** Lasting copies in the studio's own storage, by the URL they were copied from. */
+  copies: Record<string, StoredCopy>;
+  /** Where each kept file was last handed to a service, by its storage key. */
+  remotes: Record<string, RemoteUrls>;
   settingsOpen: boolean;
   pickerOpen: boolean;
   pickerTab: Category | "all";
@@ -181,6 +199,9 @@ interface StudioState {
 
   addUpload: (upload: Upload) => void;
   removeUpload: (id: string) => void;
+
+  setCopy: (source: string, copy: StoredCopy) => void;
+  setRemote: (key: string, provider: Provider, remote: RemoteUrl) => void;
 
   toggleFavorite: (url: string) => void;
   /** Favourite or un-favourite several at once, as a selection does. */
@@ -362,6 +383,8 @@ export const useStudio = create<StudioState>()(
       runs: [],
       uploads: [],
       favorites: [],
+      copies: {},
+      remotes: {},
       settingsOpen: false,
       pickerOpen: false,
       pickerTab: "all",
@@ -610,6 +633,10 @@ export const useStudio = create<StudioState>()(
       removeUpload: (id) =>
         set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
 
+      setCopy: (source, copy) => set((state) => ({ copies: { ...state.copies, [source]: copy } })),
+      setRemote: (key, provider, remote) =>
+        set((state) => ({ remotes: { ...state.remotes, [key]: { ...state.remotes[key], [provider]: remote } } })),
+
       toggleFavorite: (url) =>
         set((state) => ({
           favorites: state.favorites.includes(url)
@@ -664,6 +691,8 @@ export const useStudio = create<StudioState>()(
         runs: state.runs,
         uploads: state.uploads,
         favorites: state.favorites,
+        copies: state.copies,
+        remotes: state.remotes,
       }),
     },
   ),

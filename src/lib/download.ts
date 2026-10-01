@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { storageUrl } from "@/lib/storage/client";
+import { useStudio } from "@/store/studio";
 
 /**
  * Saving media.
@@ -76,7 +78,12 @@ function fetchFile(url: string, index = 0): Promise<File | null> {
   const inFlight = pending.get(url);
   if (inFlight) return inFlight;
   const job = (async () => {
-    const blob = (await readBlob(url)) ?? (await readBlob(`/api/media?url=${encodeURIComponent(url)}`));
+    // A kept copy comes through this origin; anything else from its host,
+    // then through /api/media.
+    const kept = useStudio.getState().copies[url];
+    const blob = kept
+      ? await readBlob(`${storageUrl(kept.key)}?download=1`)
+      : (await readBlob(url)) ?? (await readBlob(`/api/media?url=${encodeURIComponent(url)}`));
     if (!blob) return null;
     const file = new File([blob], fileName(url, blob.type, index), { type: blob.type || "application/octet-stream" });
     remember(url, file);

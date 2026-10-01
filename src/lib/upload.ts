@@ -4,6 +4,7 @@ import { uploadFile as kieUpload } from "@/lib/kie/transport";
 import { uploadFile as hfUpload } from "@/lib/higgsfield/transport";
 import type { Provider } from "@/lib/registry";
 import { prepareImage } from "@/lib/prepareImage";
+import { isWav, toWav } from "@/lib/wav";
 
 /**
  * Uploads a browser file to the chosen service's file host (KIE's, or
@@ -13,8 +14,16 @@ import { prepareImage } from "@/lib/prepareImage";
  * model can read them (see prepareImage).
  */
 export async function uploadFile(file: File, apiKey: string, provider: Provider = "kie"): Promise<string> {
+  if (provider === "higgsfield" && looksLikeAudio(file) && !isWav(file.type)) {
+    // Higgsfield's storage takes sound only as WAV.
+    return hfUpload(apiKey, await toWav(file, file.name));
+  }
   const ready = looksLikeImage(file) ? await prepareImage(file).catch(() => file) : file;
   return provider === "higgsfield" ? hfUpload(apiKey, ready) : kieUpload(apiKey, ready);
+}
+
+function looksLikeAudio(file: File): boolean {
+  return file.type ? file.type.startsWith("audio/") : /\.(mp3|wav|ogg|m4a|flac|aac)$/i.test(file.name);
 }
 
 /** A picture by its type, or, when a phone gives no type, by its name. */
