@@ -45,24 +45,73 @@ async function route<T>(apiKey: string, path: string, init: RequestInit = {}): P
   return body;
 }
 
-export async function createTask(apiKey: string, endpoint: string, payload: unknown): Promise<{ taskId: string }> {
-  if (isDirect()) return { taskId: await hf.submit(apiKey, endpoint, payload) };
-  const body = await route<{ taskId?: string }>(apiKey, "/api/higgsfield/create", {
+export interface CreatedTask {
+  taskId: string;
+  statusUrl?: string;
+  cancelUrl?: string;
+}
+
+async function createOnce(
+  apiKey: string,
+  endpoint: string,
+  payload: unknown,
+  idempotencyKey?: string,
+): Promise<CreatedTask> {
+  if (isDirect()) {
+    const sent = await hf.submit(apiKey, endpoint, payload, idempotencyKey);
+    return { taskId: sent.requestId, statusUrl: sent.statusUrl, cancelUrl: sent.cancelUrl };
+  }
+  const body = await route<Partial<CreatedTask>>(apiKey, "/api/higgsfield/create", {
     method: "POST",
-    body: JSON.stringify({ endpoint, payload }),
+    body: JSON.stringify({ endpoint, payload, idempotencyKey }),
   });
   if (!body.taskId) throw new Error("Higgsfield accepted the request but returned no request ID.");
-  return { taskId: body.taskId };
+  return { taskId: body.taskId, statusUrl: body.statusUrl, cancelUrl: body.cancelUrl };
 }
 
-export async function getTask(apiKey: string, taskId: string): Promise<NormalisedTask> {
-  if (isDirect()) return hf.status(apiKey, taskId);
-  return route<NormalisedTask>(apiKey, `/api/higgsfield/status?id=${encodeURIComponent(taskId)}`);
+/** A failure that says nothing about the request itself: the answer never came back. */
+function lostInTransit(error: unknown): boolean {
+  if (error instanceof TypeError) return true;
+  return error instanceof Error && /took too long|could not reach|timed? ?out/i.test(error.message);
 }
 
-export async function cancelTask(apiKey: string, taskId: string): Promise<void> {
-  if (isDirect()) return hf.cancel(apiKey, taskId);
-  await route(apiKey, `/api/higgsfield/status?id=${encodeURIComponent(taskId)}`, { method: "DELETE" });
+const RESEND_DELAYS_MS = [2_000, 4_000];
+
+/**
+ * Submits a generation. When the answer is lost on the way back the same
+ * submission is sent again under the same idempotency key, so Higgsfield
+ * hands back the request it already made instead of starting a second one.
+ */
+export async function createTask(
+  apiKey: string,
+  endpoint: string,
+  payload: unknown,
+  idempotencyKey?: string,
+): Promise<CreatedTask> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await createOnce(apiKey, endpoint, payload, idempotencyKey);
+    } catch (error) {
+      if (!idempotencyKey || attempt >= RESEND_DELAYS_MS.length || !lostInTransit(error)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, RESEND_DELAYS_MS[attempt]));
+    }
+  }
+}
+
+function followUp(taskId: string, url?: string): string {
+  const query = new URLSearchParams({ id: taskId });
+  if (url) query.set("url", url);
+  return `/api/higgsfield/status?${query}`;
+}
+
+export async function getTask(apiKey: string, taskId: string, statusUrl?: string): Promise<NormalisedTask> {
+  if (isDirect()) return hf.status(apiKey, taskId, statusUrl);
+  return route<NormalisedTask>(apiKey, followUp(taskId, statusUrl));
+}
+
+export async function cancelTask(apiKey: string, taskId: string, cancelUrl?: string): Promise<void> {
+  if (isDirect()) return hf.cancel(apiKey, taskId, cancelUrl);
+  await route(apiKey, followUp(taskId, cancelUrl), { method: "DELETE" });
 }
 
 export async function getEstimate(apiKey: string, endpoint: string, payload: unknown): Promise<Estimate> {

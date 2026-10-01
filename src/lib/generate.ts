@@ -5,6 +5,7 @@ import { resolveAutoRatio } from "@/lib/autoRatio";
 import { withImageMentions } from "@/lib/mentions";
 import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import * as hf from "@/lib/higgsfield/transport";
+import { enqueue } from "@/lib/higgsfield/queue";
 import type { PollKind } from "@/lib/kie/client";
 import { getModel, providerOf, validateValues, type Provider, type Values } from "@/lib/registry";
 import { keyFor, useStudio, type Run } from "@/store/studio";
@@ -55,11 +56,20 @@ export async function submitRun(): Promise<SubmitResult> {
     createdAt: Date.now(),
     values: { ...values },
   };
-  state.addRun(run);
 
+  // Higgsfield runs go out through its queue, which holds them while the
+  // account is at its ceiling of requests in flight.
+  if (provider === "higgsfield") {
+    state.addRun({ ...run, request: { endpoint, payload }, idempotencyKey: newIdempotencyKey() });
+    await enqueue(id);
+    const sent = useStudio.getState().runs.find((r) => r.id === id);
+    if (sent?.state === "failed") return { ok: false, error: sent.error };
+    return { ok: true };
+  }
+
+  state.addRun(run);
   try {
-    const { taskId, made }: { taskId?: string; made?: Run["made"] } =
-      provider === "higgsfield" ? await hf.createTask(key, endpoint, payload) : await createTask(key, endpoint, payload);
+    const { taskId, made }: { taskId?: string; made?: Run["made"] } = await createTask(key, endpoint, payload);
     // A character or voice is ready the moment it is made; there is nothing
     // to poll.
     if (made) useStudio.getState().patchRun(id, { state: "success", made, urls: made.image ? [made.image] : [] });
@@ -71,6 +81,11 @@ export async function submitRun(): Promise<SubmitResult> {
     useStudio.getState().patchRun(id, { state: "failed", error: message });
     return { ok: false, error: message };
   }
+}
+
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 }
 
 export const PROVIDER_NAME: Record<Provider, string> = { kie: "KIE", higgsfield: "Higgsfield" };
@@ -114,7 +129,7 @@ export async function pollRun(run: Run): Promise<void> {
   const late = Date.now() - run.createdAt > limit.ms;
   try {
     const task = higgsfield
-      ? await hf.getTask(apiKey, run.taskId)
+      ? await hf.getTask(apiKey, run.taskId, run.statusUrl)
       : await getTask(apiKey, run.taskId, run.poll as PollKind);
     // Asked once more at the limit: a run that finished meanwhile still
     // lands; one that has not is let go (and on Higgsfield cancelled, where a
@@ -122,7 +137,7 @@ export async function pollRun(run: Run): Promise<void> {
     if (late && task.state !== "success" && task.state !== "failed") {
       if (stopping.has(run.id)) return;
       stopping.add(run.id);
-      if (higgsfield) await hf.cancelTask(apiKey, run.taskId).catch(() => {});
+      if (higgsfield) await hf.cancelTask(apiKey, run.taskId, run.cancelUrl).catch(() => {});
       patchRun(run.id, {
         state: "failed",
         error: `Timed out: no result from ${name} after ${limit.label}.`,

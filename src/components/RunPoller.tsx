@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { pollRun, refreshCredits } from "@/lib/generate";
+import { drainHiggsfield, waiting } from "@/lib/higgsfield/queue";
 import { useStudio } from "@/store/studio";
 
 const INTERVAL_MS = 3500;
@@ -15,16 +16,19 @@ export function RunPoller() {
   // to start the loop, and pollRun skips a run whose key is missing.
   const anyKey = apiKey || hfKey;
 
+  // Higgsfield runs waiting their turn keep the loop going too: each tick
+  // sends whichever of them now has room.
   const pending = runs.filter(
-    (run) => run.taskId && (run.state === "pending" || run.state === "running"),
+    (run) => (run.taskId && (run.state === "pending" || run.state === "running")) || waiting(run),
   );
-  const signature = pending.map((run) => run.taskId).join(",");
+  const signature = pending.map((run) => run.taskId ?? run.id).join(",");
 
   useEffect(() => {
     if (!anyKey || !signature) return;
     let cancelled = false;
 
     async function tick() {
+      drainHiggsfield();
       const current = useStudio
         .getState()
         .runs.filter((run) => run.taskId && (run.state === "pending" || run.state === "running"));

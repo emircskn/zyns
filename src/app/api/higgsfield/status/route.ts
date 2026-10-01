@@ -9,6 +9,11 @@ function idFrom(request: Request): string | null {
   return new URL(request.url).searchParams.get("id");
 }
 
+/** The status or cancel URL Higgsfield returned; the client only follows its own API's. */
+function urlFrom(request: Request): string | undefined {
+  return new URL(request.url).searchParams.get("url") ?? undefined;
+}
+
 /** Where a request is: queued, running, done (with its output) or failed. */
 export async function GET(request: Request) {
   const apiKey = keyFrom(request);
@@ -16,7 +21,7 @@ export async function GET(request: Request) {
   const id = idFrom(request);
   if (!id) return NextResponse.json({ error: "Missing request ID." }, { status: 400 });
   try {
-    return NextResponse.json(await status(apiKey, id));
+    return NextResponse.json(await status(apiKey, id, urlFrom(request)));
   } catch (error) {
     return failure(error);
   }
@@ -29,7 +34,7 @@ export async function DELETE(request: Request) {
   const id = idFrom(request);
   if (!id) return NextResponse.json({ error: "Missing request ID." }, { status: 400 });
   try {
-    await cancel(apiKey, id);
+    await cancel(apiKey, id, urlFrom(request));
     return NextResponse.json({ ok: true });
   } catch (error) {
     return failure(error);

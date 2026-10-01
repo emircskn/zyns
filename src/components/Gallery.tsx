@@ -101,7 +101,7 @@ function StatusOverlay({ run }: { run: Run }) {
           theme, never on the finished picture. */}
       <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-t1/30 border-t-t1" />
       <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-t2">
-        {STATE_LABEL[run.state]}
+        {run.held ? "Waiting for a slot" : STATE_LABEL[run.state]}
       </span>
     </div>
   );

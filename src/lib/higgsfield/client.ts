@@ -26,6 +26,13 @@ export interface Estimate {
   usd: number | null;
 }
 
+/** A queued request, with the URLs Higgsfield gave for following it up. */
+export interface Submitted {
+  requestId: string;
+  statusUrl?: string;
+  cancelUrl?: string;
+}
+
 export interface UploadTicket {
   publicUrl: string;
   uploadUrl: string;
@@ -65,6 +72,34 @@ const REQUEST_ID = /^[0-9a-f-]{8,64}$/i;
 
 export function isRequestId(id: string): boolean {
   return REQUEST_ID.test(id);
+}
+
+/** A client-made key that lets a resent submission reach Higgsfield only once. */
+const IDEMPOTENCY_KEY = /^[A-Za-z0-9-]{8,64}$/;
+
+export function isIdempotencyKey(key: string): boolean {
+  return IDEMPOTENCY_KEY.test(key);
+}
+
+/**
+ * The path of a follow-up URL Higgsfield handed back, if it is one of its own
+ * API's: the key goes wherever this points, so nothing else is followed.
+ */
+export function apiPath(url: string | undefined | null): string | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.origin !== HF_BASE) return undefined;
+    return `${parsed.pathname}${parsed.search}`;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The account's ceiling on requests in flight, from the error that reports it. */
+export function concurrencyLimit(message: string): number | null {
+  const match = /maximum number of concurrent requests\D*(\d+)/i.exec(message);
+  return match ? Number(match[1]) : null;
 }
 
 export function authHeader(apiKey: string): string {
@@ -116,25 +151,42 @@ async function request(apiKey: string, path: string, init: RequestInit = {}): Pr
   return body;
 }
 
-/** Submits a generation; resolves to the request id Higgsfield queued it under. */
-export async function submit(apiKey: string, endpoint: string, payload: unknown): Promise<string> {
+/**
+ * Submits a generation. With an idempotency key, sending the same submission
+ * again (after a timeout, or from a reloaded page) returns the request it
+ * already made instead of starting a second, paid one.
+ */
+export async function submit(
+  apiKey: string,
+  endpoint: string,
+  payload: unknown,
+  idempotencyKey?: string,
+): Promise<Submitted> {
   if (!ENDPOINTS.has(endpoint)) throw new HiggsfieldError(`Unsupported endpoint: ${endpoint}`, 400);
   const body = (await request(apiKey, endpoint, {
     method: "POST",
     body: JSON.stringify(payload ?? {}),
-  })) as { request_id?: string };
+    headers: idempotencyKey && isIdempotencyKey(idempotencyKey) ? { "Idempotency-Key": idempotencyKey } : {},
+  })) as { request_id?: string; status_url?: string; cancel_url?: string };
   if (!body?.request_id) throw new HiggsfieldError("Higgsfield accepted the request but returned no request ID.", 502);
-  return body.request_id;
+  return {
+    requestId: body.request_id,
+    statusUrl: apiPath(body.status_url) ? body.status_url : undefined,
+    cancelUrl: apiPath(body.cancel_url) ? body.cancel_url : undefined,
+  };
 }
 
-export async function status(apiKey: string, requestId: string): Promise<NormalisedTask> {
+/** Follows a request up at the URL Higgsfield gave for it; runs from before that are found by id. */
+export async function status(apiKey: string, requestId: string, statusUrl?: string): Promise<NormalisedTask> {
   if (!isRequestId(requestId)) throw new HiggsfieldError("Invalid request ID.", 400);
-  return normalise(await request(apiKey, `/requests/${encodeURIComponent(requestId)}/status`));
+  const path = apiPath(statusUrl) ?? `/requests/${encodeURIComponent(requestId)}/status`;
+  return normalise(await request(apiKey, path));
 }
 
-export async function cancel(apiKey: string, requestId: string): Promise<void> {
+export async function cancel(apiKey: string, requestId: string, cancelUrl?: string): Promise<void> {
   if (!isRequestId(requestId)) throw new HiggsfieldError("Invalid request ID.", 400);
-  await request(apiKey, `/requests/${encodeURIComponent(requestId)}/cancel`, { method: "POST" });
+  const path = apiPath(cancelUrl) ?? `/requests/${encodeURIComponent(requestId)}/cancel`;
+  await request(apiKey, path, { method: "POST" });
 }
 
 /** What a run would cost, from the same parameters it would be sent with. */

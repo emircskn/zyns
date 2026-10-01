@@ -68,6 +68,15 @@ export interface Run {
   tracks?: Track[];
   /** A character or voice this run made, for later runs to use. */
   made?: Made;
+  /** Higgsfield: where to follow the request up and cancel it, as Higgsfield gave them. */
+  statusUrl?: string;
+  cancelUrl?: string;
+  /** Higgsfield: sent with the submission, so sending it again cannot start a second request. */
+  idempotencyKey?: string;
+  /** Higgsfield: what is still to be sent while the run waits its turn; dropped once sent. */
+  request?: { endpoint: string; payload: unknown };
+  /** Higgsfield: waiting because the account already has as many requests running as it may. */
+  held?: boolean;
 }
 
 export type Theme = "dark" | "light";
@@ -692,7 +701,9 @@ if (typeof window !== "undefined") {
     // that has since closed or reloaded: nothing here is sending it, and it
     // never got a task id to poll, so it would sit there for good. Say what
     // happened instead; KIE may or may not have received it.
-    const stranded = state.runs.filter((run) => run.state === "queued" && !run.taskId);
+    // A Higgsfield run that still holds its request is simply sent again: its
+    // idempotency key makes Higgsfield return the request it may already have.
+    const stranded = state.runs.filter((run) => run.state === "queued" && !run.taskId && !run.request);
     for (const run of stranded) {
       state.patchRun(run.id, {
         state: "failed",
