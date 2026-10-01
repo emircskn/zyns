@@ -123,7 +123,13 @@ export const FAMILIES: Family[] = [
     output: "image",
     badge: "NEW",
     tagline: "Higgsfield's fashion and editorial photo model, one or four at a time.",
-    modes: [m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] })],
+    modes: [
+      m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] }),
+      m("edit", "Edit", "higgsfield-ai/soul/v2/image-to-image", {
+        hint: "Restyle a photo",
+        hide: [...SOUL_ID, "style_id", "style_strength"],
+      }),
+    ],
   },
   {
     id: "soul-cinema",

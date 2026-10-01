@@ -15,6 +15,48 @@ const GROUP_LABEL: Record<Category, string> = {
   tool: "Tools",
 };
 
+/**
+ * A Higgsfield model's preview from its catalogue: the clip loops silently
+ * once the row scrolls into view (a list of thirty playing at once would
+ * choke a phone), the still stands in until then and when there is no clip.
+ */
+function PreviewThumb({ model }: { model: ModelDef }) {
+  const box = useRef<HTMLSpanElement>(null);
+  const [seen, setSeen] = useState(false);
+  const preview = model.preview;
+
+  useEffect(() => {
+    const node = box.current;
+    if (!node || !preview?.video) return;
+    const watch = new IntersectionObserver(([entry]) => setSeen(entry.isIntersecting), { rootMargin: "80px" });
+    watch.observe(node);
+    return () => watch.disconnect();
+  }, [preview?.video]);
+
+  if (!preview) return <VendorBadge model={model} size={34} />;
+  const still = preview.poster ?? preview.image;
+  return (
+    <span ref={box} className="relative h-[44px] w-[66px] shrink-0 overflow-hidden rounded-[10px] bg-t1/[0.06]">
+      {still && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={still} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      {preview.video && seen && (
+        <video
+          src={preview.video}
+          poster={still}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+    </span>
+  );
+}
+
 function ModelRow({
   model,
   active,
@@ -41,7 +83,7 @@ function ModelRow({
         active ? "bg-t1/[0.08]" : "hover:bg-t1/[0.045]"
       }`}
     >
-      <VendorBadge model={model} size={34} />
+      <PreviewThumb model={model} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span className="truncate text-[14px] font-medium text-t1">{model.name}</span>
@@ -53,6 +95,7 @@ function ModelRow({
         </span>
         <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
       </span>
+      {model.price && <span className="shrink-0 text-[11.5px] tabular-nums text-t3">{model.price}</span>}
       {active && (
         <Icon name="check" size={17} strokeWidth={2.2} className="shrink-0" style={{ color: "var(--accent)" }} />
       )}

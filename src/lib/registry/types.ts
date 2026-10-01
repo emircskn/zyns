@@ -182,6 +182,10 @@ export interface ModelDef {
   creditHint?: (v: Values) => string | undefined;
   featured?: boolean;
   prompts?: string[];
+  /** Higgsfield: the catalogue's preview of what the model makes. */
+  preview?: { video?: string; poster?: string; image?: string };
+  /** Higgsfield: its catalogue price, as people read it ("from $0.14/s"). */
+  price?: string;
 }
 
 export const MODE_KEY = "__mode";

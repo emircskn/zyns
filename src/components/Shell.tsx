@@ -18,6 +18,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
 import { SIDE_PAGES } from "@/lib/layout";
+import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
 import { openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
@@ -85,6 +86,8 @@ export function Shell() {
   const createOpen = useStudio((s) => s.createOpen);
   const setCreateOpen = useStudio((s) => s.setCreateOpen);
   const page = useStudio((s) => s.page);
+  // Redraws the studio when Higgsfield's live catalogue changes its models.
+  useHiggsfieldCatalog();
 
   // ⌘K is the shortcut people already reach for in this kind of studio.
   useEffect(() => {

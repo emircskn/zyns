@@ -1,6 +1,8 @@
 import { familyToModel, allSpecs } from "./auto";
 import { FAMILIES } from "./curation";
-import { familyToModel as hfFamilyToModel } from "./hf/auto";
+import { familyToModel as hfFamilyToModel, loadCatalogSpecs, uncuratedFamilies } from "./hf/auto";
+import snapshot from "./hf/generated/catalog.json";
+import type { HfCatalog } from "@/lib/higgsfield/catalogSource";
 import { FAMILIES as HF_FAMILIES } from "./hf/curation";
 import { withAutoMode } from "./autoMode";
 import { withActions } from "./actions";
@@ -23,17 +25,52 @@ export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
  * and a model's values, gallery and memory never mix with its KIE twin.
  */
 export const HF_PREFIX = "hf-";
-export const HF_MODELS: ModelDef[] = HF_FAMILIES.map(hfFamilyToModel)
-  .map(withAutoMode)
-  .map(withActions)
-  .map((m) => ({
-  ...m,
-  id: HF_PREFIX + m.id,
-  provider: "higgsfield" as const,
-}));
+
+function buildHiggsfield(): ModelDef[] {
+  return [...HF_FAMILIES, ...uncuratedFamilies(HF_FAMILIES)]
+    .map(hfFamilyToModel)
+    .map(withAutoMode)
+    .map(withActions)
+    .map((m) => ({
+      ...m,
+      id: HF_PREFIX + m.id,
+      provider: "higgsfield" as const,
+    }));
+}
+
+export const HF_MODELS: ModelDef[] = buildHiggsfield();
 
 /** Both catalogues; a model is found by id whichever provider is chosen. */
 export const ALL_MODELS: ModelDef[] = [...KIE_MODELS, ...HF_MODELS];
+
+let catalogSignature = JSON.stringify((snapshot as unknown as HfCatalog).specs);
+let catalogInUse = snapshot as unknown as HfCatalog;
+
+/**
+ * Rebuilds the Higgsfield models from a newer catalogue (the live one from
+ * /api/hf-catalog), in place, so every list that holds them sees the change.
+ * Returns whether anything changed; a catalogue the curation cannot be laid
+ * over is refused and the models stay as they were.
+ */
+export function applyHiggsfieldCatalog(next: HfCatalog): boolean {
+  if (!Array.isArray(next?.specs) || next.specs.length === 0) return false;
+  const signature = JSON.stringify(next.specs);
+  if (signature === catalogSignature) return false;
+  loadCatalogSpecs(next);
+  let models: ModelDef[];
+  try {
+    models = buildHiggsfield();
+  } catch (error) {
+    console.warn("[registry] live Higgsfield catalogue not applied:", error);
+    loadCatalogSpecs(catalogInUse);
+    return false;
+  }
+  catalogSignature = signature;
+  catalogInUse = next;
+  HF_MODELS.splice(0, HF_MODELS.length, ...models);
+  ALL_MODELS.splice(KIE_MODELS.length, ALL_MODELS.length - KIE_MODELS.length, ...models);
+  return true;
+}
 
 /** The chosen provider's models. */
 export function modelsFor(provider: Provider): ModelDef[] {

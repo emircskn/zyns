@@ -1,11 +1,13 @@
 /**
  * Turns a curated family (a product line with its modes and tiers) plus the
- * generated catalogue (the request schemas scraped from docs.higgsfield.ai)
- * into a ModelDef the studio can render. Nothing here knows about any
- * particular model — every control, default and limit comes from the docs,
- * and every grouping decision comes from curation.ts.
+ * Higgsfield catalogue (each endpoint's request schema and form hints, from
+ * dash.higgsfield.ai) into a ModelDef the studio can render. Nothing here
+ * knows about any particular model — every control, default and limit comes
+ * from the schema, and every grouping decision comes from curation.ts, which
+ * is applied over the schema as overrides.
  */
 import catalog from "./generated/catalog.json";
+import type { CatalogFamily, CatalogMedia, HfCatalog, UiHint } from "@/lib/higgsfield/catalogSource";
 import type { Category, Choice, Field, FieldKind, ItemField, ModelDef, Placement, Values } from "../types";
 import { TIER_KEY, compact } from "../types";
 import { ratioNumber } from "@/lib/aspect";
@@ -48,11 +50,30 @@ export interface Spec {
   top: Record<string, SpecProp>;
   /** The page's usage notes, for whoever curates the family. */
   notes: string[];
+  /** The order Higgsfield's own form lists the fields in. */
+  order?: string[];
+  /** Higgsfield's own form hints, per field. */
+  ui?: Record<string, UiHint>;
+  variant?: string;
+  preview?: CatalogMedia;
+  banner?: CatalogMedia;
 }
 
 const SPECS: Record<string, Spec> = {};
-for (const spec of (catalog as unknown as { specs: Spec[] }).specs) {
-  SPECS[spec.model] = spec;
+let FAMILY_INFO: Record<string, CatalogFamily> = {};
+
+/** Takes in a catalogue: the shipped snapshot at startup, the live one when it arrives. */
+export function loadCatalogSpecs(source: HfCatalog): void {
+  for (const key of Object.keys(SPECS)) delete SPECS[key];
+  for (const spec of source.specs as unknown as Spec[]) SPECS[spec.model] = spec;
+  FAMILY_INFO = source.families ?? {};
+}
+loadCatalogSpecs(catalog as unknown as HfCatalog);
+
+/** The catalogue's card for the family an endpoint belongs to. */
+export function familyInfo(endpointId: string): CatalogFamily | undefined {
+  const spec = SPECS[endpointId];
+  return spec ? FAMILY_INFO[spec.family] : undefined;
 }
 
 export function getSpec(id: string): Spec | undefined {
@@ -321,7 +342,7 @@ function itemFieldsFor(props: Record<string, SpecProp>): ItemField[] {
 }
 
 /** Decide kind + placement + bounds for one documented parameter. */
-function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field {
+function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>, ui?: UiHint): Field {
   let kind: FieldKind = "text";
   let placement: Placement = "panel";
   const extra: Partial<Field> = {};
@@ -441,6 +462,12 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
   }
   if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images|batch_size)$/.test(key)) extra.chip = (v) => `${v}×`;
 
+  // Higgsfield's form tucks some fields into its advanced section; they go to
+  // the drawer here too, unless the studio keeps that control in the bar.
+  if (ui?.advanced && placement === "bar" && !BAR_KEYS.has(key) && !BAR_TOGGLES.has(key) && !isDurationKey(key)) {
+    placement = "panel";
+  }
+
   const group = placement === "panel" ? GROUPS.find(([re]) => re.test(key))?.[1] ?? "Options" : undefined;
 
   let choices = enumValues.length > 0 && kind !== "slider" && kind !== "toggle" ? enumChoices(prop) : undefined;
@@ -452,16 +479,25 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
 
   const field: Field = {
     key,
-    label: humanize(key),
+    label: LABELS[key] ?? ui?.title ?? humanize(key),
     kind,
     placement,
     choices,
     default: prop.default,
-    help: sentence(prop.desc),
+    help: ui?.help ?? sentence(prop.desc),
     group,
     ...extra,
     ...override,
   };
+  if (field.kind === "textarea" && !field.placeholder && key !== "prompt" && ui?.placeholder) {
+    field.placeholder = ui.placeholder;
+  }
+  // A field Higgsfield shows only while another holds a value.
+  const shownWhen = ui?.visibleWhen;
+  if (shownWhen) {
+    const previous = field.when;
+    field.when = (v: Values) => v[shownWhen.field] === shownWhen.equals && (!previous || previous(v));
+  }
   if (field.kind === "textarea" && !field.placeholder) {
     field.placeholder = key === "prompt" ? "Describe what you want to see…" : `${field.label}…`;
   }
@@ -533,6 +569,24 @@ function coerce(value: unknown, prop: SpecProp | undefined, kind: FieldKind): un
   return value;
 }
 
+const PRICE_UNIT: Record<string, string> = { second: "/s", sec: "/s", image: "/image", minute: "/min", request: "" };
+
+/** "from $0.14/s": a catalogue price as people read it. */
+export function priceLabel(price: CatalogFamily["price"]): string | undefined {
+  if (!price || !Number.isFinite(price.amount)) return undefined;
+  const amount = price.amount >= 1 ? price.amount.toFixed(2) : String(Number(price.amount.toPrecision(2)));
+  const symbol = price.currency === "USD" ? "$" : `${price.currency} `;
+  const unit = PRICE_UNIT[price.unit] ?? (price.unit ? `/${price.unit}` : "");
+  return `${price.qualifier === "from" ? "from " : ""}${symbol}${amount}${unit}`;
+}
+
+/** What the model picker shows of a Higgsfield model: the family's preview and price, else its first endpoint's. */
+function cardFor(specs: Spec[]): Pick<ModelDef, "preview" | "price"> {
+  const info = specs.map((s) => FAMILY_INFO[s.family]).find(Boolean);
+  const preview = info?.preview ?? specs.map((s) => s.preview ?? s.banner).find(Boolean);
+  return { preview, price: priceLabel(info?.price) };
+}
+
 export function familyToModel(family: Family): ModelDef {
   const units: Unit[] = [];
   for (const mode of family.modes) {
@@ -574,8 +628,9 @@ export function familyToModel(family: Family): ModelDef {
       variants.set(sig, entry);
     }
   }
+  const hintFor = (key: string) => units.find((u) => u.keys.includes(key) && u.spec.ui?.[key])?.spec.ui?.[key];
   for (const { key, prop, units: inUnits, required, fromInput } of variants.values()) {
-    const field = fieldFor(key, prop, family.fields?.[key]);
+    const field = fieldFor(key, prop, family.fields?.[key], hintFor(key));
     // An endpoint that edits or animates a picture, whose API has no "auto"
     // ratio: offer one anyway. It is resolved when sending, to whichever
     // listed ratio sits closest to the first reference's shape.
@@ -629,11 +684,16 @@ export function familyToModel(family: Family): ModelDef {
     });
   }
 
-  // Prompt first, then media, then the tier, then everything else in
-  // documented order — by key, so a chip keeps its place across modes and
-  // tiers even when its definition differs between them.
+  // Prompt first, then media, then the tier, then everything else in the
+  // order Higgsfield's form gives (the schema's where it gives none) — by
+  // key, so a chip keeps its place across modes and tiers even when its
+  // definition differs between them.
   const order = new Map<string, number>();
-  for (const unit of units) for (const key of unit.keys) if (!order.has(key)) order.set(key, order.size);
+  for (const unit of units) {
+    for (const key of [...(unit.spec.order ?? []), ...unit.keys]) {
+      if (unit.keys.includes(key) && !order.has(key)) order.set(key, order.size);
+    }
+  }
   const rank = (f: Field) => (f.placement === "prompt" ? 0 : f.placement === "input" ? 1 : f.placement === "bar" ? 2 : 3);
   fields.sort((a, b) => rank(a) - rank(b) || order.get(a.key)! - order.get(b.key)!);
   const firstBar = fields.findIndex((f) => rank(f) >= 2);
@@ -658,6 +718,7 @@ export function familyToModel(family: Family): ModelDef {
     creditHint: family.creditHint,
     featured: family.featured,
     prompts: family.prompts,
+    ...cardFor(units.map((u) => u.spec)),
     validate(v) {
       const unit = unitFor(v);
       for (const key of unit.required) {
@@ -692,4 +753,40 @@ export function familyToModel(family: Family): ModelDef {
       return { endpoint: unit.spec.endpoint, payload: compact(input) };
     },
   };
+}
+
+/**
+ * Families for endpoints the curation does not mention, so a model Higgsfield
+ * adds shows up with a form generated from its schema alone. An endpoint in
+ * a family the curation already shapes is left to the curation.
+ */
+export function uncuratedFamilies(curated: Family[]): Family[] {
+  const used = new Set(curated.flatMap((f) => f.modes.flatMap((m) => (m.tiers ? Object.values(m.tiers) : [m.model]))));
+  const owned = new Set([...used].map((id) => SPECS[id]?.family).filter(Boolean));
+  const groups = new Map<string, Spec[]>();
+  for (const spec of Object.values(SPECS)) {
+    if (used.has(spec.model) || owned.has(spec.family) || Object.keys(spec.top).length === 0) continue;
+    groups.set(spec.family, [...(groups.get(spec.family) ?? []), spec]);
+  }
+  return [...groups].map(([id, specs]) => {
+    const info = FAMILY_INFO[id];
+    const output = specs[0].output;
+    const ids = new Set<string>();
+    const modes = specs.map((spec) => {
+      const label = spec.variant ?? spec.title;
+      let modeId = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "generate";
+      while (ids.has(modeId)) modeId += "-2";
+      ids.add(modeId);
+      return { id: modeId, label, model: spec.model };
+    });
+    return {
+      id: `auto-${id}`,
+      name: info?.name ?? specs[0].crumb,
+      vendor: info?.company ?? "Higgsfield",
+      category: output === "video" ? "video" : output === "audio" ? "audio" : "image",
+      output,
+      tagline: info?.desc || specs[0].title,
+      modes,
+    } satisfies Family;
+  });
 }
