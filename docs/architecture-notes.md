@@ -176,3 +176,33 @@ Tek istisna tek dosyalık standalone build (`npm run build:standalone` → `dist
 3. **Zorvyn → Karar:** Zorvyn kapsam dışı. Faz 1–5 sadece Zyns'e yapılır; Zorvyn'e taşıma yok.
 4. **`text-to-video` → Karar:** Eklenmiyor. Spec'teki `Capability` listesi aynen kalır (Higgsfield'daki gibi); recipe adımlarında video bir görselden başlar. Normal Video sayfasındaki text-to-video modları etkilenmez.
 5. **Capability'nin birimi → Karar:** Mod bazında.
+
+---
+
+## Faz 1 sonrası (2026-10-01)
+
+Neyin nerede olduğu:
+
+| Konu | Dosyalar |
+|---|---|
+| Higgsfield idempotency, dönen status/cancel URL'leri, eşzamanlılık kuyruğu | `src/lib/higgsfield/client.ts`, `transport.ts`, `queue.ts`; `Run.statusUrl/cancelUrl/idempotencyKey/request/held` |
+| Katalog | `src/lib/higgsfield/catalogSource.ts` (normalize), `catalogServer.ts` (1 saat bellek önbelleği + snapshot'a düşüş), `src/app/api/hf-catalog/route.ts` (edge: `s-maxage=3600, stale-while-revalidate=86400`), `scripts/refresh-hf-catalog.ts` → `src/lib/registry/hf/generated/catalog.json` |
+| Şemadan form + override | `src/lib/registry/hf/auto.ts` (`ui:order`, `ui:options.advanced`, `visibleWhen`, başlık/yardım/placeholder), override = `hf/curation.ts`; canlı katalog `src/lib/useHiggsfieldCatalog.ts` ile ziyaret başına bir kez uygulanır (`applyHiggsfieldCatalog`) |
+| Model seçicide önizleme/fiyat | `ModelDef.preview/price`, `src/components/ModelPicker.tsx` |
+| Kalıcı depolama (R2) | `src/lib/storage/r2.ts` (SigV4 elle), `guard.ts` (yazmak için geçerli KIE/HF key), `src/app/api/storage/{copy,file/[...key],remote}`; tarayıcı: `src/lib/storage/client.ts` (`keepCopy`, `mediaSrc`, `ensureRemoteUrl`), `StorageKeeper` (yüklemeler + beğenilenler) |
+| MediaRef, WAV, medya ölçüsü | `src/lib/media.ts`, `src/lib/wav.ts`, `src/lib/mediaMeta.ts`; gönderimde `src/lib/sendMedia.ts` |
+| Elements | `src/lib/elements.ts` (`LibraryElement`), `ElementsPage.tsx`, `ElementEditor.tsx`, `@` menüsü `PromptBar.tsx` |
+| Recipe motoru | `src/lib/registry/capabilities.ts` (onaylı tablo), `src/lib/recipes/{types,template,paramMap,engine}.ts`, `src/recipes/**` (JSON), `src/components/recipes/*`, test sayfası `/lab` |
+| Projeler | `Project` + `Run.projectId/Upload.projectId` (`src/store/studio.ts`), `src/components/ProjectMenu.tsx` |
+
+Spec'ten sapmalar ve nedenleri:
+
+- **Preview deploy:** Proje tek dal (`zyns-main`) ile canlıya gidiyor; her görev canlıya çıktı. Ayrı bir preview dalı açmak için Emir'in onayı gerekir.
+- **Snapshot yolu:** `/data/hf-catalog.snapshot.json` yerine mevcut `src/lib/registry/hf/generated/catalog.json` (mevcut kalıp).
+- **Override'lar:** JSON yerine mevcut `hf/curation.ts` (mevcut kalıp).
+- **`ui:widget: hidden`:** Uygulanmadı. Higgsfield Kling'in `elements` alanını gizliyor, Zyns onu kullanıyor.
+- **Kalıcı kopya:** Her çıktı değil; yüklenenler, beğenilenler, Element görselleri ve recipe adım çıktıları kopyalanıyor (10 GB ücretsiz alan için).
+- **Recipe'ler:** `/recipes/**` yerine `src/recipes/**` (import edilebilsin diye).
+- **Gemini TTS:** Konuşmacı/ses seçimi zorunlu; recipe adımında "Settings" altından seçilmeli, otomatik eşlenmiyor.
+- **Higgsfield katalogunda yeni:** `higgsfield/genjutsu/restyle/v1.0` (Faz 2 §2.3 "ayrı style endpoint'i yok" diyordu; artık var, `preset_id` istiyor) ve Soul 2.0 image-to-image (Soul 2.0'a "Edit" modu olarak eklendi).
+
