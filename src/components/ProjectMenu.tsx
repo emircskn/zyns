@@ -20,8 +20,15 @@ function ProjectList({
 }) {
   const projects = useStudio((s) => s.projects);
   const addProject = useStudio((s) => s.addProject);
+  const renameProject = useStudio((s) => s.renameProject);
+  const removeProject = useStudio((s) => s.removeProject);
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState("");
+  // The project whose row is open for a new name or deleting, and whether
+  // the delete has been asked for once already.
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [confirming, setConfirming] = useState(false);
   const row = (on: boolean) =>
     `flex w-full items-center gap-2.5 rounded-full px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
       on ? "bg-t1 text-canvas" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
@@ -33,12 +40,81 @@ function ProjectList({
         <Icon name="layers" size={15} />
         {noneLabel}
       </button>
-      {projects.map((project) => (
-        <button key={project.id} type="button" className={row(current === project.id)} onClick={() => (onPick(project.id), close())}>
-          <Icon name="folder" size={15} />
-          <span className="truncate">{project.name}</span>
-        </button>
-      ))}
+      {projects.map((project) =>
+        editing === project.id ? (
+          <form
+            key={project.id}
+            className="flex items-center gap-1.5 px-1 py-0.5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              renameProject(project.id, draft);
+              setEditing(null);
+            }}
+          >
+            <input
+              autoFocus
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              aria-label="Project name"
+              className="min-w-0 flex-1 rounded-full bg-t1/[0.06] px-3 py-1.5 text-[13.5px] text-t1 outline-none"
+            />
+            {confirming ? (
+              <button
+                type="button"
+                onClick={() => {
+                  removeProject(project.id);
+                  if (current === project.id) onPick(null);
+                  setEditing(null);
+                }}
+                className="rounded-full bg-[#ff6b6b]/15 px-3 py-1.5 text-[12.5px] font-medium text-[#ff8f8f]"
+              >
+                Delete
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  aria-label={`Delete ${project.name}`}
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+                >
+                  <Icon name="trash" size={15} />
+                </button>
+                <button type="submit" className="cta rounded-full px-3 py-1.5 text-[12.5px] font-medium">
+                  Save
+                </button>
+              </>
+            )}
+          </form>
+        ) : (
+          <div key={project.id} className="relative">
+            <button
+              type="button"
+              className={`${row(current === project.id)} pr-11`}
+              onClick={() => (onPick(project.id), close())}
+            >
+              <Icon name="folder" size={15} />
+              <span className="truncate">{project.name}</span>
+            </button>
+            {/* Renaming and deleting, kept off the row itself so a tap on
+                the name still simply picks it. */}
+            <button
+              type="button"
+              aria-label={`Edit ${project.name}`}
+              onClick={() => {
+                setEditing(project.id);
+                setDraft(project.name);
+                setConfirming(false);
+              }}
+              className={`absolute right-1 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full transition-colors duration-[120ms] ${
+                current === project.id ? "text-canvas/70 hover:text-canvas" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
+              }`}
+            >
+              <Icon name="more" size={16} />
+            </button>
+          </div>
+        ),
+      )}
       {naming ? (
         <form
           className="mt-1 flex items-center gap-1.5 px-1"
