@@ -11,6 +11,8 @@ import { getModel, providerOf, validateValues, type Provider, type Values } from
 import { keyFor, useStudio, type Run } from "@/store/studio";
 import { withoutInputs } from "@/lib/runInputs";
 import { englishError } from "@/lib/kie/errors";
+import { withLibraryElements } from "@/lib/elements";
+import { readyMedia } from "@/lib/sendMedia";
 
 export interface SubmitResult {
   ok: boolean;
@@ -38,7 +40,15 @@ export async function submitRun(): Promise<SubmitResult> {
   // "auto" in its values so Recreate brings Auto back.
   // `@Image N` in the prompt is ours too: the model reads it spelled out.
   const sent = await resolveAutoRatio(model, values);
-  const { endpoint, payload, poll } = model.build(withImageMentions(model, sent));
+  // Library elements called with `@name` are spelled out, and kept media
+  // (their pictures among it) is handed to the service first.
+  let ready: Awaited<ReturnType<typeof readyMedia>>;
+  try {
+    ready = await readyMedia(withLibraryElements(model, sent, state.elements), provider);
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "A picture could not be prepared." };
+  }
+  const { endpoint, payload, poll } = model.build(withImageMentions(model, ready.values));
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const run: Run = {
@@ -55,6 +65,7 @@ export async function submitRun(): Promise<SubmitResult> {
     urls: [],
     createdAt: Date.now(),
     values: { ...values },
+    sent: ready.sent.length > 0 ? ready.sent : undefined,
   };
 
   // Higgsfield runs go out through its queue, which holds them while the
@@ -147,7 +158,7 @@ export async function pollRun(run: Run): Promise<void> {
     patchRun(run.id, {
       state: task.state,
       // What the run was sent (references, first frames) is never its output.
-      urls: task.urls && task.urls.length > 0 ? withoutInputs(task.urls, run.values) : run.urls,
+      urls: task.urls && task.urls.length > 0 ? withoutInputs(task.urls, { ...run.values, __sent: run.sent }) : run.urls,
       ...("tracks" in task && task.tracks ? { tracks: task.tracks as Run["tracks"] } : {}),
       error: higgsfield ? task.error : englishError(task.error),
       credits: ("credits" in task ? (task.credits as number | undefined) : undefined) ?? run.credits,

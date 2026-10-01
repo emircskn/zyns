@@ -17,6 +17,7 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
     [
       { id: "assets", label: "Assets" },
       { id: "favorites", label: "Favorites" },
+      { id: "elements", label: "Elements" },
     ],
   ];
 }

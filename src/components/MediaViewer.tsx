@@ -420,6 +420,7 @@ export function MediaViewer({
   const active = getModel(modelId);
   const isImage = shown ? mediaKind(shown) === "image" : false;
   const kept = !!shown && favorites.includes(shown);
+  const openElementEditor = useStudio((s) => s.openElementEditor);
 
   // Which model a picture can be handed to, as a reference and as a first
   // frame. Both follow the bar when it takes pictures and otherwise the model
@@ -525,6 +526,17 @@ export function MediaViewer({
       lit={saver.state === "done" || saver.state === "retry"}
       onClick={() => shown && saver.state !== "busy" && void saver.save([shown])}
     />,
+    isImage && shown && (
+      <Action
+        key="element"
+        icon="user"
+        label="Make element"
+        onClick={() => {
+          openElementEditor({ images: [shown] });
+          onClose();
+        }}
+      />
+    ),
     (run || upload) && (
       <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
     ),

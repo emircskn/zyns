@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { LibraryElement } from "@/lib/elements";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
@@ -77,6 +78,8 @@ export interface Run {
   request?: { endpoint: string; payload: unknown };
   /** Higgsfield: waiting because the account already has as many requests running as it may. */
   held?: boolean;
+  /** Addresses sent in place of kept media, so a result echoing one is not taken for output. */
+  sent?: string[];
 }
 
 /** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
@@ -96,7 +99,12 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "home";
+export type Page = Category | "assets" | "favorites" | "elements" | "home";
+
+/** The pages that keep things rather than make them. */
+export function isLibraryPage(page: Page): page is "assets" | "favorites" | "elements" {
+  return page === "assets" || page === "favorites" || page === "elements";
+}
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
 export interface Upload {
@@ -157,6 +165,10 @@ interface StudioState {
   favorites: string[];
   /** Lasting copies in the studio's own storage, by the URL they were copied from. */
   copies: Record<string, StoredCopy>;
+  /** The Elements library, newest first. */
+  elements: LibraryElement[];
+  /** The element being made or edited, if the editor is open: an id to edit, or pictures to start from. */
+  elementEditor: { id?: string; images?: string[] } | null;
   /** Where each kept file was last handed to a service, by its storage key. */
   remotes: Record<string, RemoteUrls>;
   settingsOpen: boolean;
@@ -201,6 +213,9 @@ interface StudioState {
   removeUpload: (id: string) => void;
 
   setCopy: (source: string, copy: StoredCopy) => void;
+  saveElement: (element: LibraryElement) => void;
+  removeElement: (id: string) => void;
+  openElementEditor: (editor: { id?: string; images?: string[] } | null) => void;
   setRemote: (key: string, provider: Provider, remote: RemoteUrl) => void;
 
   toggleFavorite: (url: string) => void;
@@ -384,6 +399,8 @@ export const useStudio = create<StudioState>()(
       uploads: [],
       favorites: [],
       copies: {},
+      elements: [],
+      elementEditor: null,
       remotes: {},
       settingsOpen: false,
       pickerOpen: false,
@@ -426,7 +443,7 @@ export const useStudio = create<StudioState>()(
         const state = get();
         if (state.provider === provider) return;
         const page = state.page;
-        const onCategory = page !== "assets" && page !== "favorites" && page !== "home";
+        const onCategory = !isLibraryPage(page) && page !== "home";
         const offered = modelsFor(provider).some((m) => m.category === (onCategory ? page : state.category));
         set({
           provider,
@@ -448,7 +465,7 @@ export const useStudio = create<StudioState>()(
       setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
-          if (page === "assets" || page === "favorites" || page === "home") return { page, selectMode: false };
+          if (isLibraryPage(page) || page === "home") return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
           const id = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
@@ -633,6 +650,14 @@ export const useStudio = create<StudioState>()(
       removeUpload: (id) =>
         set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
 
+      saveElement: (element) =>
+        set((state) => ({
+          elements: state.elements.some((e) => e.id === element.id)
+            ? state.elements.map((e) => (e.id === element.id ? element : e))
+            : [element, ...state.elements],
+        })),
+      removeElement: (id) => set((state) => ({ elements: state.elements.filter((e) => e.id !== id) })),
+      openElementEditor: (elementEditor) => set({ elementEditor }),
       setCopy: (source, copy) => set((state) => ({ copies: { ...state.copies, [source]: copy } })),
       setRemote: (key, provider, remote) =>
         set((state) => ({ remotes: { ...state.remotes, [key]: { ...state.remotes[key], [provider]: remote } } })),
@@ -692,6 +717,7 @@ export const useStudio = create<StudioState>()(
         uploads: state.uploads,
         favorites: state.favorites,
         copies: state.copies,
+        elements: state.elements,
         remotes: state.remotes,
       }),
     },
@@ -749,7 +775,7 @@ if (typeof window !== "undefined") {
       if (kept.length > 0 && kept.length < run.urls.length) state.patchRun(run.id, { urls: kept });
     }
     const page = state.page;
-    if (page === "assets" || page === "favorites" || page === "home") return;
+    if (isLibraryPage(page) || page === "home") return;
     const model = getModel(state.modelId);
     if (model ? model.category !== page : state.modelId !== "") state.setPage(page);
   };
@@ -786,7 +812,7 @@ export function useValues(): Values {
  */
 export function openPickerHere() {
   const { page, togglePicker } = useStudio.getState();
-  const scoped = page !== "home" && page !== "assets" && page !== "favorites";
+  const scoped = page !== "home" && !isLibraryPage(page);
   togglePicker(true, scoped ? page : "all", scoped);
 }
 

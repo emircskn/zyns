@@ -6,6 +6,8 @@ import { ZynsMark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { Backdrop } from "@/components/Backdrop";
 import { FavoritesPage } from "@/components/FavoritesPage";
+import { ElementEditor } from "@/components/ElementEditor";
+import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
 import { HomePage } from "@/components/HomePage";
@@ -20,7 +22,7 @@ import { AccountMenu, CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
 import { SIDE_PAGES } from "@/lib/layout";
 import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
-import { openPickerHere, useStudio, type Page } from "@/store/studio";
+import { isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 /**
@@ -104,11 +106,11 @@ export function Shell() {
 
   // Home carries the box in the middle of itself and the browsing pages have
   // none at all; only a page that makes things docks one at the bottom.
-  const composing = page !== "assets" && page !== "favorites" && page !== "home";
+  const composing = !isLibraryPage(page) && page !== "home";
   // A phone keeps its prompt card on the library pages too, so the prompt it
   // was writing does not vanish the moment it goes to look at something. The
   // desktop bar has no business there; the card is phone-only already.
-  const browsing = page === "assets" || page === "favorites";
+  const browsing = isLibraryPage(page);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -133,6 +135,8 @@ export function Shell() {
               <AssetsPage />
             ) : shown === "favorites" ? (
               <FavoritesPage />
+            ) : shown === "elements" ? (
+              <ElementsPage />
             ) : (
               // Keyed by page: without it React reuses this element between
               // categories and the empty state's reveal never runs again.
@@ -148,6 +152,7 @@ export function Shell() {
       <PhoneComposer onKey={() => setKeyOpen(true)} />
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />
+      <ElementEditor />
       <ModelPicker />
       <RunPoller />
       <StorageKeeper />

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   createContext,
   useContext,
   useEffect,
@@ -34,7 +35,9 @@ import {
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
-import { isAttachField } from "@/lib/attach";
+import { attachMedia, isAttachField } from "@/lib/attach";
+import type { LibraryElement } from "@/lib/elements";
+import { mediaSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
@@ -521,8 +524,12 @@ export function FieldChip({ field }: { field: Field }) {
   );
 }
 
-/** A name the prompt can point at with `@`, and the picture it stands for. */
-type MentionOption = { name: string; thumb?: string };
+/**
+ * A name the prompt can point at with `@`, and the picture it stands for:
+ * the model's own names (Kling elements, attached Image 1…N), or an element
+ * from the library.
+ */
+type MentionOption = { name: string; thumb?: string; element?: LibraryElement };
 
 function optionMatches(option: MentionOption, query: string) {
   const q = query.toLowerCase();
@@ -572,8 +579,15 @@ export function PromptField({
   const [dismissed, setDismissed] = useState<number | null>(null);
 
   const refs = model && names.length === 0 ? imageRefs(model, values) : [];
-  const options: MentionOption[] =
+  const library = useStudio((s) => s.elements);
+  const own: MentionOption[] =
     names.length > 0 ? names.map((name) => ({ name })) : refs.map((url, i) => ({ name: imageName(i), thumb: url }));
+  const options: MentionOption[] = [
+    ...own,
+    ...library
+      .filter((element) => !own.some((o) => o.name === element.name))
+      .map((element) => ({ name: element.name, thumb: element.images[0]?.storageUrl, element })),
+  ];
   const chips = refs.length > 0 ? imageTokens(text).filter((t) => t.index < refs.length) : [];
   const chipped = chips.length > 0;
   // A caret set down inside a chip is not writing a new one.
@@ -669,12 +683,19 @@ export function PromptField({
     if (node) setCaret(node.selectionStart);
   }
 
-  function pick(name: string) {
+  function pick(option: MentionOption) {
     if (!token) return;
-    const next = insertMention(text, token.start, caret ?? text.length, name);
+    const next = insertMention(text, token.start, caret ?? text.length, option.name);
     setValue(field.key, next.text);
     setDismissed(null);
     placeCaret(next.caret);
+    // A library element brings its pictures along, into the model's own
+    // picture slots, where they show before anything is sent.
+    if (option.element) {
+      const attached = new Set(Object.values(values).flat().filter((v): v is string => typeof v === "string"));
+      const pictures = option.element.images.map((ref) => ref.storageUrl).filter((url) => !attached.has(url));
+      if (pictures.length > 0) attachMedia(pictures.map((url) => ({ url, kind: "image" as const })));
+    }
   }
 
   // A chip goes as one piece: Backspace at its end (or Delete at its start)
@@ -708,7 +729,7 @@ export function PromptField({
       }
       if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
-        pick((matches[cursor] ?? matches[0]).name);
+        pick(matches[cursor] ?? matches[0]);
         return;
       }
       if (event.key === "Escape") {
@@ -817,17 +838,19 @@ export function PromptField({
           style={{ left: spot.left, bottom: spot.bottom, width: spot.width }}
           role="listbox"
         >
-          <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
-            {names.length > 0 ? "Elements" : "References"}
-          </div>
           {matches.map((option, i) => (
+            <Fragment key={`${option.element ? "library" : "own"}-${option.name}`}>
+            {(i === 0 || !!matches[i - 1].element !== !!option.element) && (
+              <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
+                {option.element ? "Your elements" : names.length > 0 ? "Elements" : "References"}
+              </div>
+            )}
             <button
-              key={option.name}
               type="button"
               role="option"
               aria-selected={i === cursor}
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => pick(option.name)}
+              onClick={() => pick(option)}
               onMouseEnter={() => setCursor(i)}
               className={`flex w-full items-center gap-2.5 rounded-full text-left text-[13.5px] transition-colors duration-[120ms] ${
                 option.thumb ? "py-1.5 pl-1.5 pr-3" : "px-3 py-2"
@@ -836,7 +859,7 @@ export function PromptField({
               {option.thumb ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={option.thumb}
+                  src={mediaSrc(option.thumb)}
                   alt=""
                   draggable={false}
                   className="h-8 w-8 shrink-0 rounded-full bg-t1/[0.07] object-cover"
@@ -844,8 +867,9 @@ export function PromptField({
               ) : (
                 <Icon name="at" size={16} className="shrink-0" />
               )}
-              <span className="truncate">{option.name}</span>
+              <span className="truncate">{option.element ? `@${option.name}` : option.name}</span>
             </button>
+            </Fragment>
           ))}
         </div>,
         document.body,

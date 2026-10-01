@@ -33,6 +33,7 @@ function matches(asset: Asset, filter: Filter) {
 export function AssetsPage() {
   const assets = useAssets();
   const runs = useStudio((s) => s.runs);
+  const setPage = useStudio((s) => s.setPage);
   const [filter, setFilter] = useState<Filter>("all");
 
   // Runs still being made sit among the outputs with their loader, and turn
@@ -91,6 +92,17 @@ export function AssetsPage() {
             </Fragment>
           );
         })}
+        {/* A phone has no top bar to reach Elements from; it sits at the end
+            of this row, set apart like Uploads. */}
+        <span aria-hidden className="mx-1 w-px shrink-0 self-stretch bg-line-strong md:hidden" />
+        <button
+          type="button"
+          onClick={() => setPage("elements")}
+          className="flex h-10 shrink-0 items-center gap-2 rounded-card bg-t1/[0.05] px-3.5 text-[14px] font-semibold tracking-[-0.01em] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.08] hover:text-t1 md:hidden"
+        >
+          <Icon name="user" size={17} className="text-t3" />
+          Elements
+        </button>
       </div>
 
       {shown.length === 0 ? (
