@@ -21,6 +21,8 @@ export interface Asset {
   createdAt: number;
   /** The run behind a pending asset. */
   run?: Run;
+  /** The project it was saved to, if any. */
+  projectId?: string;
 }
 
 export function runAssets(run: Run): Asset[] {
@@ -35,6 +37,7 @@ export function runAssets(run: Run): Asset[] {
     label: run.modelName,
     prompt: run.prompt,
     createdAt: run.createdAt,
+    projectId: run.projectId,
   }));
 }
 
@@ -59,6 +62,7 @@ export function pendingAsset(run: Run): Asset {
     prompt: run.prompt,
     createdAt: run.createdAt,
     run,
+    projectId: run.projectId,
   };
 }
 
@@ -70,6 +74,7 @@ export function uploadAsset(upload: Upload): Asset {
     source: "upload",
     label: upload.name ?? "Upload",
     createdAt: upload.createdAt,
+    projectId: upload.projectId,
   };
 }
 

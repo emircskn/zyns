@@ -78,6 +78,7 @@ export async function submitModelRun(
     createdAt: Date.now(),
     values: { ...values },
     sent: ready.sent.length > 0 ? ready.sent : undefined,
+    projectId: state.activeProjectId ?? undefined,
     ...extra,
   };
 

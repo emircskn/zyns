@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
 import { DensityControl } from "@/components/DensityControl";
+import { ProjectFilter } from "@/components/ProjectMenu";
 import { Icon, type IconName } from "@/components/Icon";
 import { inFlight, pendingAsset, useAssets, type Asset } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
@@ -35,13 +36,17 @@ export function AssetsPage() {
   const runs = useStudio((s) => s.runs);
   const setPage = useStudio((s) => s.setPage);
   const [filter, setFilter] = useState<Filter>("all");
+  const [project, setProject] = useState<string | null>(null);
 
   // Runs still being made sit among the outputs with their loader, and turn
   // into the finished media in the same place when they land.
   const working = useMemo(() => runs.filter(inFlight).map(pendingAsset), [runs]);
   const shown = useMemo(
-    () => [...working, ...assets].filter((a) => matches(a, filter)).sort((a, b) => b.createdAt - a.createdAt),
-    [working, assets, filter],
+    () =>
+      [...working, ...assets]
+        .filter((a) => matches(a, filter) && (!project || a.projectId === project))
+        .sort((a, b) => b.createdAt - a.createdAt),
+    [working, assets, filter, project],
   );
 
   return (
@@ -59,7 +64,10 @@ export function AssetsPage() {
             </span>
           </p>
         </div>
-        {assets.length + working.length > 0 && <DensityControl />}
+        <div className="flex items-center gap-2">
+          <ProjectFilter value={project} onChange={setProject} />
+          {assets.length + working.length > 0 && <DensityControl />}
+        </div>
       </div>
 
       {/* Each filter its own tile with its icon, the chosen one simply

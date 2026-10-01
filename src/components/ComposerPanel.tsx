@@ -23,6 +23,7 @@ import { openingClip, videoDuration } from "@/lib/clips";
 import type { Field, ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
+import { ProjectChip } from "@/components/ProjectMenu";
 
 /**
  * A reference slot before anything is in it: the whole width to aim a thumb
@@ -312,6 +313,9 @@ export function ComposerBody({
               </div>
             ))}
             {batchable && <BatchChip />}
+            <div className="min-w-0 empty:hidden">
+              <ProjectChip full />
+            </div>
           </div>
         </TileChips.Provider>
       )}

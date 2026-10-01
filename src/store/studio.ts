@@ -81,6 +81,8 @@ export interface Run {
   held?: boolean;
   /** Addresses sent in place of kept media, so a result echoing one is not taken for output. */
   sent?: string[];
+  /** The project it was saved to, if any. */
+  projectId?: string;
   /** Set when the run is a step of a recipe: which run of it, and which step. */
   recipeRunId?: string;
   recipeStep?: string;
@@ -116,6 +118,16 @@ export interface Upload {
   url: string;
   kind: "image" | "video" | "audio";
   name?: string;
+  createdAt: number;
+  /** The project it was saved to, if any. */
+  projectId?: string;
+}
+
+/** A folder of work: what is made while it is chosen in the composer is saved to it. */
+export interface Project {
+  id: string;
+  name: string;
+  coverUrl?: string;
   createdAt: number;
 }
 
@@ -173,6 +185,9 @@ interface StudioState {
   elements: LibraryElement[];
   /** Recipes run, newest first. */
   recipeRuns: RecipeRun[];
+  projects: Project[];
+  /** Where new runs and uploads are saved: a project's id, or none. */
+  activeProjectId: string | null;
   /** The model last chosen for a step, by "category.step" and "category.recipe.step". */
   lastModelByStep: Record<string, string>;
   /** The element being made or edited, if the editor is open: an id to edit, or pictures to start from. */
@@ -223,6 +238,10 @@ interface StudioState {
   setCopy: (source: string, copy: StoredCopy) => void;
   saveElement: (element: LibraryElement) => void;
   addRecipeRun: (run: RecipeRun) => void;
+  addProject: (name: string) => Project;
+  renameProject: (id: string, name: string) => void;
+  removeProject: (id: string) => void;
+  setActiveProject: (id: string | null) => void;
   patchRecipeRun: (id: string, patch: (run: RecipeRun) => RecipeRun) => void;
   rememberStepModel: (keys: string[], modelId: string) => void;
   removeElement: (id: string) => void;
@@ -414,6 +433,8 @@ export const useStudio = create<StudioState>()(
       elementEditor: null,
       recipeRuns: [],
       lastModelByStep: {},
+      projects: [],
+      activeProjectId: null,
       remotes: {},
       settingsOpen: false,
       pickerOpen: false,
@@ -658,7 +679,10 @@ export const useStudio = create<StudioState>()(
 
       addUpload: (upload) =>
         set((state) => ({
-          uploads: [upload, ...state.uploads.filter((u) => u.url !== upload.url)].slice(0, 200),
+          uploads: [
+            { ...upload, projectId: upload.projectId ?? state.activeProjectId ?? undefined },
+            ...state.uploads.filter((u) => u.url !== upload.url),
+          ].slice(0, 200),
         })),
       removeUpload: (id) =>
         set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
@@ -669,6 +693,22 @@ export const useStudio = create<StudioState>()(
             ? state.elements.map((e) => (e.id === element.id ? element : e))
             : [element, ...state.elements],
         })),
+      addProject: (name) => {
+        const project: Project = { id: `project-${Date.now().toString(36)}`, name: name.trim() || "Untitled", createdAt: Date.now() };
+        set((state) => ({ projects: [project, ...state.projects] }));
+        return project;
+      },
+      renameProject: (id, name) =>
+        set((state) => ({ projects: state.projects.map((p) => (p.id === id ? { ...p, name: name.trim() || p.name } : p)) })),
+      // The work stays; it simply belongs to no project any more.
+      removeProject: (id) =>
+        set((state) => ({
+          projects: state.projects.filter((p) => p.id !== id),
+          activeProjectId: state.activeProjectId === id ? null : state.activeProjectId,
+          runs: state.runs.map((r) => (r.projectId === id ? { ...r, projectId: undefined } : r)),
+          uploads: state.uploads.map((u) => (u.projectId === id ? { ...u, projectId: undefined } : u)),
+        })),
+      setActiveProject: (activeProjectId) => set({ activeProjectId }),
       addRecipeRun: (run) => set((state) => ({ recipeRuns: [run, ...state.recipeRuns].slice(0, 50) })),
       patchRecipeRun: (id, patch) =>
         set((state) => ({ recipeRuns: state.recipeRuns.map((run) => (run.id === id ? patch(run) : run)) })),
@@ -737,6 +777,8 @@ export const useStudio = create<StudioState>()(
         copies: state.copies,
         elements: state.elements,
         recipeRuns: state.recipeRuns,
+        projects: state.projects,
+        activeProjectId: state.activeProjectId,
         lastModelByStep: state.lastModelByStep,
         remotes: state.remotes,
       }),
