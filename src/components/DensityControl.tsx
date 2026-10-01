@@ -17,48 +17,32 @@ export function DensityControl() {
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   const selectMode = useStudio((s) => s.selectMode);
   const setSelectMode = useStudio((s) => s.setSelectMode);
-  const shape = (on: boolean) =>
-    `grid h-8 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
-      on ? "bg-t1 text-canvas" : "text-t3 hover:text-t1"
-    }`;
 
   return (
     <>
       {/* A phone picks through this rather than a long press, which iOS
           also reads as selecting text or opening the picture's own menu. */}
-      <div className="flex items-center gap-2 md:hidden">
-      <button
-        type="button"
-        onClick={() => setSelectMode(!selectMode)}
-        aria-pressed={selectMode}
-        className={`h-10 rounded-full px-4 text-[14px] font-semibold tracking-[-0.01em] transition-colors duration-[120ms] ${
-          selectMode ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1"
-        }`}
-      >
-        {selectMode ? "Cancel" : "Select"}
-      </button>
-      {/* A phone has room for two answers, not five: everything at once, or
-          one piece of media at its own size. */}
-      <div className="flex items-center gap-0.5 rounded-full bg-t1/[0.07] p-1">
+      <div className="flex items-center gap-1.5 md:hidden">
         <button
           type="button"
-          onClick={() => setPhoneGrid(true)}
-          aria-label="Grid"
-          aria-pressed={phoneGrid}
-          className={shape(phoneGrid)}
+          onClick={() => setSelectMode(!selectMode)}
+          aria-pressed={selectMode}
+          className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
+            selectMode ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1"
+          }`}
         >
-          <Icon name="grid" size={15} />
+          {selectMode ? "Cancel" : "Select"}
         </button>
+        {/* Two answers on a phone, so one button that switches between them:
+            everything at once, or one piece of media at its own size. */}
         <button
           type="button"
-          onClick={() => setPhoneGrid(false)}
-          aria-label="One at a time"
-          aria-pressed={!phoneGrid}
-          className={shape(!phoneGrid)}
+          onClick={() => setPhoneGrid(!phoneGrid)}
+          aria-label={phoneGrid ? "Show one at a time" : "Show as a grid"}
+          className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms]"
         >
-          <Icon name="square" size={15} />
+          <Icon name={phoneGrid ? "square" : "grid"} size={16} />
         </button>
-      </div>
       </div>
 
     {/* A slider rather than a stepper: the tiles resize under the thumb as

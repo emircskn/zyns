@@ -18,8 +18,10 @@ interface Props {
 
 interface Placement {
   left: number;
-  bottom: number;
   width: number;
+  /** Above the trigger (the composer's chips), or below it near the top of the screen. */
+  bottom?: number;
+  top?: number;
 }
 
 export function Popover({ trigger, children, align = "start", width = 264, title, full }: Props) {
@@ -68,10 +70,13 @@ export function Popover({ trigger, children, align = "start", width = 264, title
           : align === "end"
             ? rect.right - w
             : rect.left;
+      // Opens upward, as from the composer at the foot of the screen; a
+      // trigger in the top half (a page's toolbar) opens downward instead.
+      const below = rect.top < window.innerHeight / 2;
       setPlace({
         // Nudged back inside when a chip sits near an edge.
         left: Math.max(margin, Math.min(left, window.innerWidth - margin - w)),
-        bottom: window.innerHeight - rect.top + 10,
+        ...(below ? { top: rect.bottom + 10 } : { bottom: window.innerHeight - rect.top + 10 }),
         width: w,
       });
     };
@@ -97,7 +102,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
             className={`surface-pop fixed z-[90] rounded-panel p-1.5 ${
               exiting ? "anim-rise-out pointer-events-none" : "anim-rise"
             }`}
-            style={{ left: place.left, bottom: place.bottom, width: place.width }}
+            style={{ left: place.left, top: place.top, bottom: place.bottom, width: place.width }}
           >
             {title && (
               <div className="px-2.5 pb-2 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">

@@ -94,14 +94,33 @@ export function ProjectChip({ full }: { full?: boolean }) {
 }
 
 /** Assets' project filter, which also starts new projects. */
-export function ProjectFilter({ value, onChange }: { value: string | null; onChange: (id: string | null) => void }) {
+export function ProjectFilter({
+  value,
+  onChange,
+  compact,
+}: {
+  value: string | null;
+  onChange: (id: string | null) => void;
+  /** A phone's: a round folder button, lit while a project is chosen. */
+  compact?: boolean;
+}) {
   const projects = useStudio((s) => s.projects);
   const project = projects.find((p) => p.id === value);
   return (
     <Popover
       align="end"
       title="Projects"
-      trigger={(open) => (
+      trigger={(open) =>
+        compact ? (
+          <span
+            aria-label={project ? `Project: ${project.name}` : "Projects"}
+            className={`grid h-9 w-9 place-items-center rounded-full transition-colors duration-[120ms] ${
+              project ? "bg-t1 text-canvas" : open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1"
+            }`}
+          >
+            <Icon name="folder" size={16} />
+          </span>
+        ) : (
         <span
           className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors duration-[120ms] ${
             open || project ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t2 hover:text-t1"
@@ -111,7 +130,8 @@ export function ProjectFilter({ value, onChange }: { value: string | null; onCha
           <span className="max-w-[160px] truncate">{project?.name ?? "All projects"}</span>
           <Icon name="chevron" size={14} className="text-t3" />
         </span>
-      )}
+        )
+      }
     >
       {(close) => <ProjectList current={value} noneLabel="All projects" onPick={onChange} close={close} />}
     </Popover>

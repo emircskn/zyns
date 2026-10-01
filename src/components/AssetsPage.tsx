@@ -49,25 +49,63 @@ export function AssetsPage() {
     [working, assets, filter, project],
   );
 
+  // Only the kinds there are something of, so a phone's row stays short.
+  const available = FILTERS.filter(
+    (f) => f.id === "all" || f.id === filter || [...working, ...assets].some((a) => matches(a, f.id)),
+  );
+
   return (
     <div className="anim-fade flex flex-1 flex-col">
       {/* A slim strip over the wall, as on the pages that make things: the
           header names the page on a desktop, so there it says how much is
           here; a phone keeps the name. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
-        <div>
-          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">Assets</h2>
-          <p className="text-[13px] text-t3">
-            <span className="md:hidden">What you make and upload</span>
-            <span className="hidden md:inline">
-              {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : "What you make and upload"}
-            </span>
-          </p>
+      {/* A phone: the name, and three small round buttons (project, select,
+          grid) where a desktop has a full strip. */}
+      <div className="flex items-center justify-between gap-3 px-4 pb-2.5 pt-1 md:hidden">
+        <h2 className="text-[24px] leading-tight tracking-[-0.02em] text-t1">Assets</h2>
+        <div className="flex items-center gap-1.5">
+          <ProjectFilter value={project} onChange={setProject} compact />
+          {assets.length + working.length > 0 && <DensityControl />}
         </div>
+      </div>
+      <div className="hidden flex-wrap items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">
+        <p className="text-[13px] text-t3">
+          {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : "What you make and upload"}
+        </p>
         <div className="flex items-center gap-2">
           <ProjectFilter value={project} onChange={setProject} />
           {assets.length + working.length > 0 && <DensityControl />}
         </div>
+      </div>
+
+      {/* A phone's filters: plain words in one quiet row, only the kinds there
+          are, and Elements at the end since a phone has no top bar for it. */}
+      <div role="tablist" aria-label="Filter assets" className="no-bar mb-3 flex items-center gap-1.5 overflow-x-auto px-4 md:hidden">
+        {available.map((f) => {
+          const on = f.id === filter;
+          return (
+            <button
+              key={f.id}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              onClick={() => setFilter(f.id)}
+              className={`h-8 shrink-0 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[150ms] ${
+                on ? "bg-t1 text-canvas" : "text-t3"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setPage("elements")}
+          className="ml-auto flex h-8 shrink-0 items-center gap-1 rounded-full pl-3 pr-2 text-[13.5px] font-medium text-t3"
+        >
+          Elements
+          <Icon name="chevron" size={14} className="-rotate-90" />
+        </button>
       </div>
 
       {/* Each filter its own tile with its icon, the chosen one simply
@@ -76,7 +114,7 @@ export function AssetsPage() {
       <div
         role="tablist"
         aria-label="Filter assets"
-        className="no-bar mb-3 flex gap-2 overflow-x-auto px-4"
+        className="no-bar mb-3 hidden gap-2 overflow-x-auto px-4 md:flex"
       >
         {FILTERS.map((f) => {
           const on = f.id === filter;
@@ -100,17 +138,6 @@ export function AssetsPage() {
             </Fragment>
           );
         })}
-        {/* A phone has no top bar to reach Elements from; it sits at the end
-            of this row, set apart like Uploads. */}
-        <span aria-hidden className="mx-1 w-px shrink-0 self-stretch bg-line-strong md:hidden" />
-        <button
-          type="button"
-          onClick={() => setPage("elements")}
-          className="flex h-10 shrink-0 items-center gap-2 rounded-card bg-t1/[0.05] px-3.5 text-[14px] font-semibold tracking-[-0.01em] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.08] hover:text-t1 md:hidden"
-        >
-          <Icon name="user" size={17} className="text-t3" />
-          Elements
-        </button>
       </div>
 
       {shown.length === 0 ? (

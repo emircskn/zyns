@@ -14,7 +14,7 @@ import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
-import { PromptBar, PromptCard } from "@/components/PromptBar";
+import { PromptBar } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
 import { RecipeDriver } from "@/components/recipes/RecipeDriver";
@@ -108,9 +108,8 @@ export function Shell() {
   // Home carries the box in the middle of itself and the browsing pages have
   // none at all; only a page that makes things docks one at the bottom.
   const composing = !isLibraryPage(page) && page !== "home";
-  // A phone keeps its prompt card on the library pages too, so the prompt it
-  // was writing does not vanish the moment it goes to look at something. The
-  // desktop bar has no business there; the card is phone-only already.
+  // The library pages are a wall of media edge to edge with nothing docked
+  // over it; on a phone, Create in the bottom row is the way back to making.
   const browsing = isLibraryPage(page);
 
   return (
@@ -125,7 +124,7 @@ export function Shell() {
         className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
           composing || browsing ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
         } ${
-          composing ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}` : browsing ? "below-card" : "below-nav"
+          composing ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}` : "below-nav"
         }`}
       >
         <PageSwap page={page}>
@@ -148,7 +147,6 @@ export function Shell() {
       </main>
 
       {composing && <PromptBar desktop={!SIDE_PAGES.has(page)} />}
-      {browsing && <PromptCard placement="docked" />}
       <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
       <PhoneComposer onKey={() => setKeyOpen(true)} />
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
