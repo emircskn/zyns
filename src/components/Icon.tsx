@@ -36,6 +36,7 @@ export type IconName =
   | "mic"
   | "palette"
   | "expand"
+  | "shrink"
   | "hash"
   | "heart"
   | "home"
@@ -198,6 +199,7 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   expand: <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />,
+  shrink: <path d="M14 10l6-6M14 10V5.5M14 10h4.5M10 14l-6 6M10 14v4.5M10 14H5.5" />,
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
   square: <rect x="4" y="4" width="16" height="16" rx="3" />,
   more: (

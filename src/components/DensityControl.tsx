@@ -33,16 +33,28 @@ export function DensityControl() {
         >
           {selectMode ? "Cancel" : "Select"}
         </button>
-        {/* Two answers on a phone, so one button that switches between them:
-            everything at once, or one piece of media at its own size. */}
-        <button
-          type="button"
-          onClick={() => setPhoneGrid(!phoneGrid)}
-          aria-label={phoneGrid ? "Show one at a time" : "Show as a grid"}
-          className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms]"
-        >
-          <Icon name={phoneGrid ? "square" : "grid"} size={16} />
-        </button>
+        {/* Two answers on a phone, side by side so both are in view: one
+            piece of media at its own size, or everything at once. */}
+        <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-full bg-t1/[0.07] p-1">
+          {([
+            [false, "square", "One at a time"],
+            [true, "grid", "Grid"],
+          ] as const).map(([grid, icon, label]) => (
+            <button
+              key={icon}
+              type="button"
+              role="radio"
+              aria-checked={phoneGrid === grid}
+              aria-label={label}
+              onClick={() => setPhoneGrid(grid)}
+              className={`grid h-7 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
+                phoneGrid === grid ? "bg-t1/[0.14] text-t1" : "text-t3"
+              }`}
+            >
+              <Icon name={icon} size={15} />
+            </button>
+          ))}
+        </div>
       </div>
 
     {/* A slider rather than a stepper: the tiles resize under the thumb as

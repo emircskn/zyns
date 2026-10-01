@@ -560,6 +560,7 @@ export function PromptField({
   trailing,
   inputRef,
   large,
+  clamp,
 }: {
   field: Field;
   index: number;
@@ -569,6 +570,8 @@ export function PromptField({
   inputRef?: (node: HTMLTextAreaElement | null) => void;
   /** The phone composer's: a page of room to write in rather than a line. */
   large?: boolean;
+  /** Held to a few lines, fading out where a long prompt goes on. */
+  clamp?: boolean;
 }) {
   const model = useModel();
   const values = useValues();
@@ -633,6 +636,14 @@ export function PromptField({
   // The copy scrolls with the textarea once the prompt outgrows the box.
   useLayoutEffect(() => {
     if (mirror.current && ref.current) mirror.current.scrollTop = ref.current.scrollTop;
+  });
+
+  // Whether a held prompt runs on past what is shown, so its end can fade.
+  const [overflowing, setOverflowing] = useState(false);
+  useLayoutEffect(() => {
+    const node = ref.current;
+    const over = !!clamp && !!node && node.scrollHeight > node.clientHeight + 2;
+    if (over !== overflowing) setOverflowing(over);
   });
 
   // The chip under the pointer (or the finger's last tap) and where it is.
@@ -775,7 +786,9 @@ export function PromptField({
           <div
             ref={mirror}
             aria-hidden
-            className={`no-bar pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words text-t1 ${type}`}
+            className={`no-bar pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words text-t1 ${type} ${
+              overflowing ? "[mask-image:linear-gradient(to_bottom,black_62%,transparent)]" : ""
+            }`}
           >
             {copy}
           </div>
@@ -822,6 +835,8 @@ export function PromptField({
           placeholder={field.placeholder ?? `${field.label}…`}
           className={`relative block w-full resize-none bg-transparent text-t1 outline-none placeholder:text-t4 ${type} ${
             large ? "min-h-[104px] placeholder:font-normal" : "max-h-40"
+          } ${clamp ? "no-bar max-h-[122px] overflow-hidden" : ""} ${
+            overflowing ? "[mask-image:linear-gradient(to_bottom,black_62%,transparent)]" : ""
           } ${chipped ? "no-bar text-transparent caret-t1" : ""}`}
         />
       </div>

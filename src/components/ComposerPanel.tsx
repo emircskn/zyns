@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { AttachPanel } from "@/components/Attachments";
 import { Control, InputLabel } from "@/components/controls";
 import { CoverArt } from "@/components/CoverArt";
@@ -215,6 +215,28 @@ function AdvancedRow({ count }: { count: number }) {
 const GRID_COLS = ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"];
 
 /**
+ * The part of the screen the keyboard leaves, while `active`: iOS keeps the
+ * layout the same height under its keyboard, so a box sized to the window
+ * would put its own buttons behind the keys.
+ */
+function useVisibleArea(active: boolean) {
+  const [area, setArea] = useState<{ top: number; height: number } | null>(null);
+  useEffect(() => {
+    const view = window.visualViewport;
+    if (!active || !view) return setArea(null);
+    const update = () => setArea({ top: view.offsetTop, height: view.height });
+    update();
+    view.addEventListener("resize", update);
+    view.addEventListener("scroll", update);
+    return () => {
+      view.removeEventListener("resize", update);
+      view.removeEventListener("scroll", update);
+    };
+  }, [active]);
+  return area;
+}
+
+/**
  * The composer's body, shared by the phone's full-screen composer and the
  * desktop's side panel: the modes, the model, the media, the prompt with its
  * switches, and the options as a grid of tiles over the drawer's row.
@@ -248,8 +270,37 @@ export function ComposerBody({
   } = composer;
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
+  // A phone shows a long prompt as its first few lines; a tap on it opens
+  // the box over the composer, with the whole prompt and the send button.
+  const [expanded, setExpanded] = useState(false);
+  const area = useVisibleArea(expanded);
+  useEffect(() => {
+    if (!expanded) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        setExpanded(false);
+      }
+    }
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, [expanded]);
   if (!model) return null;
   const phone = variant === "phone";
+  const open = phone && expanded;
+  const openStyle: CSSProperties | undefined = open
+    ? {
+        top: `calc(${area?.top ?? 0}px + max(12px, env(safe-area-inset-top)))`,
+        height: area
+          ? `calc(${area.height}px - max(12px, env(safe-area-inset-top)) - 12px)`
+          : "calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)))",
+        boxShadow: "var(--shadow-pop)",
+      }
+    : undefined;
+  function collapse() {
+    setExpanded(false);
+    (document.activeElement as HTMLElement | null)?.blur();
+  }
   // Switches ride in the prompt box, the way its audio does on a clip; the
   // options that open a menu are the tiles under it.
   const toggles = barFields.filter((f) => f.kind === "toggle");
@@ -281,19 +332,42 @@ export function ComposerBody({
         </div>
       )}
 
+      {open && (
+        <button
+          type="button"
+          aria-label="Close prompt"
+          onClick={collapse}
+          className="anim-fade fixed inset-0 z-[74] bg-canvas-deep/70 backdrop-blur-sm"
+        />
+      )}
       {promptBox && (
-        <div className={`rounded-panel bg-t1/[0.05] px-3.5 pt-3 ${inlineModel ? "pb-0" : "pb-2.5"}`}>
-          {prompts.shown.map((field, index) => (
-            <PromptField
-              key={field.key}
-              field={field}
-              index={index}
-              names={names}
-              large={phone}
-              onSubmit={onSubmit}
-              inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
-            />
-          ))}
+        <div
+          className={
+            open
+              ? "anim-pop fixed inset-x-4 z-[75] flex flex-col rounded-panel border border-line bg-elevated px-3.5 pb-3 pt-3"
+              : `rounded-panel bg-t1/[0.05] px-3.5 pt-3 ${inlineModel ? "pb-0" : "pb-2.5"}`
+          }
+          style={openStyle}
+        >
+          <div
+            className={open ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : ""}
+            // A tap on the held prompt opens it; the tap goes on to put the
+            // caret in it, now in the open box.
+            onPointerDown={phone && !expanded ? () => setExpanded(true) : undefined}
+          >
+            {prompts.shown.map((field, index) => (
+              <PromptField
+                key={field.key}
+                field={field}
+                index={index}
+                names={names}
+                large={phone}
+                clamp={phone && !expanded}
+                onSubmit={onSubmit}
+                inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
+              />
+            ))}
+          </div>
           <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
           {mentionable && firstPrompt && (
             <MentionStrip
@@ -303,14 +377,35 @@ export function ComposerBody({
               onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
             />
           )}
-          {toggles.length > 0 && (
+          {toggles.length > 0 && !open && (
             <div className="mt-1 flex flex-wrap gap-1.5">
               {toggles.map((field) => (
                 <FieldChip key={field.key} field={field} />
               ))}
             </div>
           )}
-          {inlineModel && <InlineModelRow model={model} />}
+          {inlineModel && !open && <InlineModelRow model={model} />}
+          {open && (
+            <div className="flex shrink-0 items-center justify-between gap-3 pt-3">
+              <button
+                type="button"
+                onClick={collapse}
+                aria-label="Make the prompt smaller"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-card bg-t1/[0.07] text-t1 transition-colors duration-[120ms] active:bg-t1/[0.12]"
+              >
+                <Icon name="shrink" size={18} />
+              </button>
+              <div className="w-[60%]">
+                <GenerateButton
+                  composer={composer}
+                  onClick={() => {
+                    collapse();
+                    onSubmit();
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
