@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { LibraryElement } from "@/lib/elements";
+import type { RecipeRun } from "@/lib/recipes/types";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
@@ -80,6 +81,9 @@ export interface Run {
   held?: boolean;
   /** Addresses sent in place of kept media, so a result echoing one is not taken for output. */
   sent?: string[];
+  /** Set when the run is a step of a recipe: which run of it, and which step. */
+  recipeRunId?: string;
+  recipeStep?: string;
 }
 
 /** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
@@ -167,6 +171,10 @@ interface StudioState {
   copies: Record<string, StoredCopy>;
   /** The Elements library, newest first. */
   elements: LibraryElement[];
+  /** Recipes run, newest first. */
+  recipeRuns: RecipeRun[];
+  /** The model last chosen for a step, by "category.step" and "category.recipe.step". */
+  lastModelByStep: Record<string, string>;
   /** The element being made or edited, if the editor is open: an id to edit, or pictures to start from. */
   elementEditor: { id?: string; images?: string[] } | null;
   /** Where each kept file was last handed to a service, by its storage key. */
@@ -214,6 +222,9 @@ interface StudioState {
 
   setCopy: (source: string, copy: StoredCopy) => void;
   saveElement: (element: LibraryElement) => void;
+  addRecipeRun: (run: RecipeRun) => void;
+  patchRecipeRun: (id: string, patch: (run: RecipeRun) => RecipeRun) => void;
+  rememberStepModel: (keys: string[], modelId: string) => void;
   removeElement: (id: string) => void;
   openElementEditor: (editor: { id?: string; images?: string[] } | null) => void;
   setRemote: (key: string, provider: Provider, remote: RemoteUrl) => void;
@@ -401,6 +412,8 @@ export const useStudio = create<StudioState>()(
       copies: {},
       elements: [],
       elementEditor: null,
+      recipeRuns: [],
+      lastModelByStep: {},
       remotes: {},
       settingsOpen: false,
       pickerOpen: false,
@@ -656,6 +669,11 @@ export const useStudio = create<StudioState>()(
             ? state.elements.map((e) => (e.id === element.id ? element : e))
             : [element, ...state.elements],
         })),
+      addRecipeRun: (run) => set((state) => ({ recipeRuns: [run, ...state.recipeRuns].slice(0, 50) })),
+      patchRecipeRun: (id, patch) =>
+        set((state) => ({ recipeRuns: state.recipeRuns.map((run) => (run.id === id ? patch(run) : run)) })),
+      rememberStepModel: (keys, modelId) =>
+        set((state) => ({ lastModelByStep: { ...state.lastModelByStep, ...Object.fromEntries(keys.map((k) => [k, modelId])) } })),
       removeElement: (id) => set((state) => ({ elements: state.elements.filter((e) => e.id !== id) })),
       openElementEditor: (elementEditor) => set({ elementEditor }),
       setCopy: (source, copy) => set((state) => ({ copies: { ...state.copies, [source]: copy } })),
@@ -718,6 +736,8 @@ export const useStudio = create<StudioState>()(
         favorites: state.favorites,
         copies: state.copies,
         elements: state.elements,
+        recipeRuns: state.recipeRuns,
+        lastModelByStep: state.lastModelByStep,
         remotes: state.remotes,
       }),
     },

@@ -7,7 +7,7 @@ import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import * as hf from "@/lib/higgsfield/transport";
 import { enqueue } from "@/lib/higgsfield/queue";
 import type { PollKind } from "@/lib/kie/client";
-import { getModel, providerOf, validateValues, type Provider, type Values } from "@/lib/registry";
+import { getModel, providerOf, validateValues, type ModelDef, type Provider, type Values } from "@/lib/registry";
 import { keyFor, useStudio, type Run } from "@/store/studio";
 import { withoutInputs } from "@/lib/runInputs";
 import { englishError } from "@/lib/kie/errors";
@@ -27,12 +27,24 @@ export async function submitRun(): Promise<SubmitResult> {
   const state = useStudio.getState();
   const model = getModel(state.modelId);
   if (!model) return { ok: false, error: "Pick a model first." };
+  return submitModelRun(model, state.valuesByModel[state.modelId] ?? {});
+}
+
+/**
+ * Sends one run of `model` with `values`, from the composer or from a step of
+ * a recipe (`extra` marks which), and resolves once it is on its way.
+ */
+export async function submitModelRun(
+  model: ModelDef,
+  values: Values,
+  extra: Partial<Run> = {},
+): Promise<SubmitResult & { runId?: string }> {
+  const state = useStudio.getState();
   // A model runs on its own service, with that service's key.
   const provider = providerOf(model);
   const key = keyFor(state, provider);
   if (!key) return { ok: false, error: `Add your ${PROVIDER_NAME[provider]} API key first.` };
 
-  const values: Values = state.valuesByModel[state.modelId] ?? {};
   const problem = validateValues(model, values);
   if (problem) return { ok: false, error: problem };
 
@@ -66,6 +78,7 @@ export async function submitRun(): Promise<SubmitResult> {
     createdAt: Date.now(),
     values: { ...values },
     sent: ready.sent.length > 0 ? ready.sent : undefined,
+    ...extra,
   };
 
   // Higgsfield runs go out through its queue, which holds them while the
@@ -74,8 +87,8 @@ export async function submitRun(): Promise<SubmitResult> {
     state.addRun({ ...run, request: { endpoint, payload }, idempotencyKey: newIdempotencyKey() });
     await enqueue(id);
     const sent = useStudio.getState().runs.find((r) => r.id === id);
-    if (sent?.state === "failed") return { ok: false, error: sent.error };
-    return { ok: true };
+    if (sent?.state === "failed") return { ok: false, error: sent.error, runId: id };
+    return { ok: true, runId: id };
   }
 
   state.addRun(run);
@@ -86,11 +99,11 @@ export async function submitRun(): Promise<SubmitResult> {
     if (made) useStudio.getState().patchRun(id, { state: "success", made, urls: made.image ? [made.image] : [] });
     else useStudio.getState().patchRun(id, { taskId, state: "pending" });
     void refreshCredits();
-    return { ok: true };
+    return { ok: true, runId: id };
   } catch (error) {
     const message = englishError(error instanceof Error ? error.message : "Request failed.");
     useStudio.getState().patchRun(id, { state: "failed", error: message });
-    return { ok: false, error: message };
+    return { ok: false, error: message, runId: id };
   }
 }
 

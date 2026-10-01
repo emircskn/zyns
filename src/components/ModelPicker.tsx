@@ -57,14 +57,26 @@ function PreviewThumb({ model }: { model: ModelDef }) {
   );
 }
 
-function ModelRow({
+/** Whose model it is, where KIE's and Higgsfield's are listed together. */
+export function ProviderTag({ model }: { model: ModelDef }) {
+  return (
+    <span className="shrink-0 rounded-full bg-t1/[0.07] px-1.5 py-px text-[10px] font-medium text-t3">
+      {model.provider === "higgsfield" ? "Higgsfield" : "KIE"}
+    </span>
+  );
+}
+
+export function ModelRow({
   model,
   active,
   onPick,
+  showProvider,
 }: {
   model: ModelDef;
   active: boolean;
   onPick: () => void;
+  /** For lists that mix KIE's and Higgsfield's models. */
+  showProvider?: boolean;
 }) {
   const row = useRef<HTMLButtonElement>(null);
 
@@ -87,6 +99,7 @@ function ModelRow({
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span className="truncate text-[14px] font-medium text-t1">{model.name}</span>
+          {showProvider && <ProviderTag model={model} />}
           {model.badge && (
             <span className="shrink-0 rounded-[2px] bg-accent px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-ink">
               {model.badge}

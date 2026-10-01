@@ -193,3 +193,4 @@ export function shownInputs(fields: Field[]): Field[] {
   const file = (f: Field) => (f.kind === "images" || f.kind === "media" || f.kind === "clips" ? 0 : 1);
   return [...shown].sort((a, b) => file(a) - file(b));
 }
+export * from "./capabilities";
