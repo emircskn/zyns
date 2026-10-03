@@ -40,7 +40,12 @@ export function AssetsPage() {
 
   // Runs still being made sit among the outputs with their loader, and turn
   // into the finished media in the same place when they land.
-  const working = useMemo(() => runs.filter(inFlight).map(pendingAsset), [runs]);
+  // A run that failed stays too, as a tile saying why, until it is removed:
+  // dropping it left the loader simply vanishing with no word of what went wrong.
+  const working = useMemo(
+    () => runs.filter((run) => inFlight(run) || (run.state === "failed" && run.urls.length === 0)).map(pendingAsset),
+    [runs],
+  );
   const shown = useMemo(
     () =>
       [...working, ...assets]
