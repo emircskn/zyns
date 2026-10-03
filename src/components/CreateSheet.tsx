@@ -7,8 +7,9 @@ import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
 import { categoriesFor, getModel, modelsFor, type Category, type ModelDef, type Provider } from "@/lib/registry";
 import { GENJUTSU } from "@/lib/remix/targets";
+import { CINEMA } from "@/lib/studio/cinema";
 import { usePresence } from "@/lib/usePresence";
-import { useStudio } from "@/store/studio";
+import { ownPageOf, useStudio } from "@/store/studio";
 
 type Tab = "all" | Category;
 
@@ -72,9 +73,9 @@ function ModelCard({
   );
 }
 
-/** Remix leads the catalogue: a page of its own rather than one more model. */
-function RemixCard({ onPick }: { onPick: () => void }) {
-  const genjutsu = getModel(GENJUTSU);
+/** Genjutsu and Cinema Studio lead the catalogue: pages of their own rather than one more model. */
+function PageCard({ modelId, title, line, onPick }: { modelId: string; title: string; line: string; onPick: () => void }) {
+  const model = getModel(modelId);
   return (
     <button
       type="button"
@@ -82,11 +83,11 @@ function RemixCard({ onPick }: { onPick: () => void }) {
       className="anim-tile lift relative mb-2.5 block w-full overflow-hidden rounded-card bg-surface-2 text-left"
     >
       <div className="relative aspect-[16/7]">
-        {genjutsu && <ModelMedia model={genjutsu} own={false} />}
+        {model && <ModelMedia model={model} own={false} />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-3.5">
-          <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">GENJUTSU</p>
-          <p className="mt-0.5 text-[12.5px] text-white/75">Motion transfer, swap and restyle on a clip you bring</p>
+          <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">{title}</p>
+          <p className="mt-0.5 text-[12.5px] text-white/75">{line}</p>
         </div>
       </div>
     </button>
@@ -165,12 +166,26 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
 
         <div className="flex-1 overflow-y-auto px-4 pb-[max(20px,env(safe-area-inset-bottom))] pt-2 sm:px-5 sm:pb-5">
           {(tab === "all" || tab === "video") && (
-            <RemixCard
-              onPick={() => {
-                setPage("remix");
-                onClose();
-              }}
-            />
+            <>
+              <PageCard
+                modelId={GENJUTSU}
+                title="GENJUTSU"
+                line="Motion transfer, swap and restyle on a clip you bring"
+                onPick={() => {
+                  setPage("remix");
+                  onClose();
+                }}
+              />
+              <PageCard
+                modelId={CINEMA}
+                title="CINEMA STUDIO"
+                line="Direct a shot: camera, film, light and colour"
+                onPick={() => {
+                  setPage("studio");
+                  onClose();
+                }}
+              />
+            </>
           )}
           <div key={tab} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {shown.map((model, index) => (
@@ -181,8 +196,8 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
                 active={model.id === modelId}
                 onPick={() => {
                   selectModel(model.id);
-                  // Genjutsu opens its own page (selectModel took it there).
-                  if (model.id === GENJUTSU) return onClose();
+                  // Genjutsu and Cinema Studio open their own pages (selectModel took them there).
+                  if (ownPageOf(model.id)) return onClose();
                   // Picked to make something: the page that makes it is
                   // where this belongs, not the home screen it opened from.
                   setPage(model.category);

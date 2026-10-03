@@ -108,19 +108,27 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix";
+export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio";
 
 /** The pages that keep things rather than make them. */
 export function isLibraryPage(page: Page): page is "assets" | "favorites" | "elements" {
   return page === "assets" || page === "favorites" || page === "elements";
 }
 
-/** Genjutsu's model id: it is offered on its own page, not as a Video model. */
-const GENJUTSU_ID = "hf-genjutsu";
+/**
+ * Models with a page of their own: chosen anywhere, they open that page
+ * rather than becoming a category page's model.
+ */
+const OWN_PAGE: Record<string, Page> = { "hf-genjutsu": "remix", "hf-cinema-studio-4": "studio" };
+
+/** The page a model has to itself, if it has one. */
+export function ownPageOf(id: string | undefined): Page | undefined {
+  return id ? OWN_PAGE[id] : undefined;
+}
 
 /** The pages of one kind of work, each with its own models and prompt bar. */
 export function isCategoryPage(page: Page): page is Category {
-  return !isLibraryPage(page) && page !== "home" && page !== "remix";
+  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio";
 }
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
@@ -257,6 +265,11 @@ interface StudioState {
   setCreateOpen: (open: boolean) => void;
   setValue: (key: string, value: unknown) => void;
   setValues: (values: Values) => void;
+  /** Values of a model other than the bar's (a page with its own composer: Cinema Studio). */
+  setModelValues: (modelId: string, patch: Values, replace?: boolean) => void;
+  /** How many runs Cinema Studio sends at once, each its own request. */
+  studioCount: number;
+  setStudioCount: (count: number) => void;
   resetValues: () => void;
   /** Empty a model's media inputs, as a sent run does; the prompt stays. */
   clearInputs: (modelId: string) => void;
@@ -544,7 +557,7 @@ export const useStudio = create<StudioState>()(
           // invent one: until you choose, the bar says Choose model.
           const remembered = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
           // Genjutsu, remembered from before it had its own page, is not the Video page's model.
-          const id = remembered === GENJUTSU_ID ? "" : remembered;
+          const id = ownPageOf(remembered) ? "" : remembered;
           const model = getModel(id);
           if (!id || !model) return { page, category: page, modelId: "", selectMode: false };
           return {
@@ -570,8 +583,9 @@ export const useStudio = create<StudioState>()(
         // Genjutsu has a page of its own: chosen anywhere (the Video page's
         // catalogue, the phone's Create sheet), it opens that page instead of
         // becoming the Video page's model.
-        if (id === GENJUTSU_ID) {
-          set({ page: "remix", pickerOpen: false, composer: false, selectMode: false, createOpen: false });
+        const own = ownPageOf(id);
+        if (own) {
+          set({ page: own, pickerOpen: false, composer: false, selectMode: false, createOpen: false });
           return;
         }
         set((state) => {
@@ -645,6 +659,15 @@ export const useStudio = create<StudioState>()(
           };
         }),
 
+      setModelValues: (modelId, patch, replace) =>
+        set((state) => ({
+          valuesByModel: {
+            ...state.valuesByModel,
+            [modelId]: replace ? patch : { ...(state.valuesByModel[modelId] ?? cachedDefaults(modelId)), ...patch },
+          },
+        })),
+      studioCount: 1,
+      setStudioCount: (studioCount) => set({ studioCount: Math.min(4, Math.max(1, Math.round(studioCount))) }),
       setValues: (given) =>
         set((state) => {
           const model = getModel(state.modelId);
@@ -938,7 +961,7 @@ if (typeof window !== "undefined") {
       state.setPage(model && model.provider === state.provider ? model.category : "home");
       return;
     }
-    if (model ? model.category !== page || model.id === GENJUTSU_ID : state.modelId !== "") state.setPage(page);
+    if (model ? model.category !== page || !!ownPageOf(model.id) : state.modelId !== "") state.setPage(page);
   };
   useStudio.persist?.onFinishHydration(settle);
   if (useStudio.persist?.hasHydrated()) settle();

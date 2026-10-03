@@ -35,6 +35,7 @@ export type IconName =
   | "folder"
   | "mic"
   | "palette"
+  | "camera"
   | "expand"
   | "shrink"
   | "hash"
@@ -275,6 +276,12 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <rect x="9" y="3" width="6" height="11" rx="3" />
       <path d="M5 11a7 7 0 0014 0M12 18v3" />
+    </>
+  ),
+  camera: (
+    <>
+      <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8l1.4-2h6.6l1.4 2h1.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z" />
+      <circle cx="12" cy="13" r="3.6" />
     </>
   ),
   palette: (

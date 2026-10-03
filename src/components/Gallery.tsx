@@ -544,7 +544,16 @@ function RunDetails({ run }: { run: Run }) {
 }
 
 /** The runs of one category, newest first. */
-export function Gallery({ category, view = "grid" }: { category?: Category; view?: "list" | "grid" }) {
+export function Gallery({
+  category,
+  view = "grid",
+  modelId,
+}: {
+  category?: Category;
+  view?: "list" | "grid";
+  /** Only one model's runs (a page of its own, as Cinema Studio has). */
+  modelId?: string;
+}) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
   const phoneGrid = useStudio((s) => s.phoneGrid);
@@ -565,8 +574,12 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
 
   const shown = useMemo(
     () =>
-      category ? runs.filter((run) => getModel(run.modelId)?.category === category) : runs,
-    [runs, category],
+      modelId
+        ? runs.filter((run) => run.modelId === modelId)
+        : category
+          ? runs.filter((run) => getModel(run.modelId)?.category === category)
+          : runs,
+    [runs, category, modelId],
   );
   // A deleted run holds its cell while it shrinks out of it, rather than the
   // grid closing over it between two frames.

@@ -10,7 +10,7 @@ import { GenjutsuComposer } from "@/components/remix/RemixStudio";
 import { GENJUTSU } from "@/lib/remix/targets";
 import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
-import { activeKey, memoryKey, useStudio } from "@/store/studio";
+import { activeKey, memoryKey, ownPageOf, useStudio } from "@/store/studio";
 
 const SECTION_ICON: Record<Category, IconName> = {
   image: "image",
@@ -26,8 +26,8 @@ const SECTION_ICON: Record<Category, IconName> = {
 function modelFor(category: Category): string | undefined {
   const { provider, modelByCategory } = useStudio.getState();
   const remembered = modelByCategory[memoryKey(provider, category)];
-  if (remembered && remembered !== GENJUTSU && getModel(remembered)) return remembered;
-  const own = modelsFor(provider).filter((m) => m.category === category && m.id !== GENJUTSU);
+  if (remembered && !ownPageOf(remembered) && getModel(remembered)) return remembered;
+  const own = modelsFor(provider).filter((m) => m.category === category && !ownPageOf(m.id));
   return (own.find((m) => m.featured) ?? own[0])?.id;
 }
 

@@ -6,8 +6,8 @@ import { PillGroup } from "@/components/PillGroup";
 import { BLURB } from "@/lib/remix/banner";
 import { useStudio } from "@/store/studio";
 
-/** Shown in place of the composer while there is no Higgsfield key: Genjutsu runs on it. */
-export function NeedsHiggsfield({ onKeyClick }: { onKeyClick: () => void }) {
+/** Shown in place of the composer while there is no Higgsfield key: Genjutsu (and Cinema Studio) run on it. */
+export function NeedsHiggsfield({ onKeyClick, feature = "Remix runs on Higgsfield's Genjutsu" }: { onKeyClick: () => void; feature?: string }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-panel border border-line bg-elevated px-5 py-8 text-center md:border-0 md:bg-transparent">
       <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.08] text-t1">
@@ -15,7 +15,7 @@ export function NeedsHiggsfield({ onKeyClick }: { onKeyClick: () => void }) {
       </span>
       <p className="text-[15px] text-t1">This needs your Higgsfield key</p>
       <p className="max-w-[300px] text-[13px] leading-relaxed text-t3">
-        Remix runs on Higgsfield&apos;s Genjutsu. Add your Higgsfield key ID and secret, and it is ready.
+        {feature}. Add your Higgsfield key ID and secret, and it is ready.
       </p>
       <button type="button" onClick={onKeyClick} className="cta mt-1 rounded-full px-5 py-2.5 text-[13.5px] font-medium">
         Add Higgsfield key

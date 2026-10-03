@@ -18,6 +18,8 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
       ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label })),
       // Genjutsu's own page: a clip remade with your characters, objects or a style.
       { id: "remix", label: "Genjutsu" },
+      // Cinema Studio's own page: a shot directed with real camera, film and light settings.
+      { id: "studio", label: "Cinema Studio" },
     ],
     [
       { id: "assets", label: "Assets" },

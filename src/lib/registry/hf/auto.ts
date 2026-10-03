@@ -57,6 +57,8 @@ export interface Spec {
   variant?: string;
   preview?: CatalogMedia;
   banner?: CatalogMedia;
+  /** The playground's starting prompt, as an example of what to write. */
+  example?: string;
 }
 
 const SPECS: Record<string, Spec> = {};

@@ -36,7 +36,7 @@ const BLURB: Record<Category, string> = {
  * Nothing from another category appears here.
  */
 /** List or wall, for a desktop's history. */
-function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (view: "list" | "grid") => void }) {
+export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange: (view: "list" | "grid") => void }) {
   const item = (id: "list" | "grid", label: string) => (
     <button
       type="button"

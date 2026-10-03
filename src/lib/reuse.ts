@@ -11,7 +11,7 @@ import {
   type Field,
   type ModelDef,
 } from "@/lib/registry";
-import { memoryKey, useStudio, type Run } from "@/store/studio";
+import { memoryKey, ownPageOf, useStudio, type Run } from "@/store/studio";
 
 /**
  * Putting a finished piece of media back into the bar: the two things you do
@@ -128,6 +128,15 @@ export function recreateRun(run: Run): boolean {
   // Genjutsu's runs go back to its own page, with their clip and pictures.
   if (run.modelId === GENJUTSU) {
     restoreRemix(run);
+    return true;
+  }
+  // Cinema Studio's go back to its page, with every setting they had.
+  if (ownPageOf(run.modelId) === "studio") {
+    const studio = getModel(run.modelId);
+    if (!studio) return false;
+    const store = useStudio.getState();
+    store.setModelValues(run.modelId, { ...defaultValues(studio), ...run.values }, true);
+    store.setPage("studio");
     return true;
   }
   const model = getModel(run.modelId);

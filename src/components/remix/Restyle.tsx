@@ -34,7 +34,22 @@ export function useRestylePresets(): { presets: RestylePreset[] | null; error: s
   return { presets, error };
 }
 
-export function Sheet({ open, title, sub, onClose, children }: { open: boolean; title: string; sub?: string; onClose: () => void; children: ReactNode }) {
+export function Sheet({
+  open,
+  title,
+  sub,
+  onClose,
+  children,
+  footer,
+}: {
+  open: boolean;
+  title: string;
+  sub?: string;
+  onClose: () => void;
+  children: ReactNode;
+  /** Held at the foot, under what scrolls. */
+  footer?: ReactNode;
+}) {
   const { mounted, exiting } = usePresence(open, 240);
   if (!mounted || typeof document === "undefined") return null;
   // On the page's top layer: the composer it opens from is a sticky column
@@ -69,7 +84,10 @@ export function Sheet({ open, title, sub, onClose, children }: { open: boolean; 
             <Icon name="close" size={17} />
           </button>
         </header>
-        <div className="flex-1 overflow-y-auto p-3 pb-[max(16px,env(safe-area-inset-bottom))]">{children}</div>
+        <div className={`flex-1 overflow-y-auto p-3 ${footer ? "" : "pb-[max(16px,env(safe-area-inset-bottom))]"}`}>{children}</div>
+        {footer && (
+          <div className="shrink-0 border-t border-line px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">{footer}</div>
+        )}
       </div>
     </div>,
     document.body,

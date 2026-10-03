@@ -225,7 +225,7 @@ export function MediaPicker({
   // block for anything fixed inside it. The dialog has to leave that subtree
   // to cover the page at all.
   return createPortal(
-    <div className="fixed inset-0 z-[115] flex items-end justify-center sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[117] flex items-end justify-center sm:items-center sm:p-4">
       <button
         type="button"
         aria-label="Close"

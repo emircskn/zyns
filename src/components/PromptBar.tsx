@@ -478,9 +478,12 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
  * the bar simply sends the same thing that many times. Models that batch
  * themselves have their own control and do not get this one.
  */
-export function BatchChip() {
-  const batch = useStudio((s) => s.batch);
-  const setBatch = useStudio((s) => s.setBatch);
+export function BatchChip({ value, onChange }: { value?: number; onChange?: (count: number) => void } = {}) {
+  const barBatch = useStudio((s) => s.batch);
+  const setBarBatch = useStudio((s) => s.setBatch);
+  // A page with its own composer (Cinema Studio) keeps its own count.
+  const batch = value ?? barBatch;
+  const setBatch = onChange ?? setBarBatch;
   const large = useContext(LargeChips);
   const tile = useContext(TileChips);
   const step = (by: number) => (event: MouseEvent<HTMLButtonElement>) => {
