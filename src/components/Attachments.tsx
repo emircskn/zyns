@@ -7,6 +7,40 @@ import { MediaPicker } from "@/components/MediaPicker";
 import { attachMedia, kindOf, roomIn, urlsIn, type MediaKind } from "@/lib/attach";
 import type { Field } from "@/lib/registry";
 import { useStudio, useValues } from "@/store/studio";
+import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
+
+interface Attached {
+  field: Field;
+  url: string;
+  index: number;
+  key: string;
+}
+
+/** Everything attached, in slot order, each with a key that stays with it when the order changes. */
+function attachedIn(fields: Field[], values: Record<string, unknown>): Attached[] {
+  return fields.flatMap((field) => {
+    const urls = urlsIn(field, values[field.key]);
+    const keys = keysFor(urls);
+    return urls.map((url, index) => ({ field, url, index, key: `${field.key}-${keys[index]}` }));
+  });
+}
+
+/**
+ * Hold a thumb and drag it to reorder the pictures of its own slot; the
+ * model reads them in that order, and the prompt's `@Image N` follow.
+ */
+function useAttachedOrder(items: Attached[]) {
+  const setValue = useStudio((s) => s.setValue);
+  const values = useValues();
+  return useReorder(
+    items.length,
+    (from, to) => {
+      const { field } = items[from];
+      setValue(field.key, moveItem(urlsIn(field, values[field.key]), items[from].index, items[to].index));
+    },
+    (i) => (items[i].field.kind === "images" ? items[i].field.key : `${items[i].field.key}:${i}`),
+  );
+}
 
 /**
  * The bar's one way to add media: a picker over everything the model's file
@@ -42,9 +76,8 @@ export function useAttach(fields: Field[]) {
 export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: () => void; canAdd: boolean }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
-  const items = fields.flatMap((field) =>
-    urlsIn(field, values[field.key]).map((url, index) => ({ field, url, index })),
-  );
+  const items = attachedIn(fields, values);
+  const reorder = useAttachedOrder(items);
   if (items.length === 0) return null;
   const named = fields.length > 1;
 
@@ -62,8 +95,8 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
           <Icon name="plus" size={17} />
         </button>
       )}
-      {items.map(({ field, url, index }) => (
-        <div key={`${field.key}-${url}-${index}`} className="w-14 shrink-0">
+      {items.map(({ field, url, index, key }, at) => (
+        <div key={key} {...reorder.bind(at)} className={`w-14 shrink-0 ${reorder.bind(at).className}`}>
           <MediaThumb
             url={url}
             onRemove={() =>
@@ -122,10 +155,9 @@ export function AttachPanel({ fields }: { fields: Field[] }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
   const attach = useAttach(fields);
+  const items = attachedIn(fields, values);
+  const reorder = useAttachedOrder(items);
   if (fields.length === 0) return null;
-  const items = fields.flatMap((field) =>
-    urlsIn(field, values[field.key]).map((url, index) => ({ field, url, index })),
-  );
   const kinds = [...new Set(fields.map(kindOf))];
   const only = fields.length === 1 ? fields[0] : undefined;
   const words = kinds.map((k) => KIND_WORD[k]);
@@ -169,8 +201,8 @@ export function AttachPanel({ fields }: { fields: Field[] }) {
               </span>
             </button>
           )}
-          {items.map(({ field, url, index }) => (
-            <div key={`${field.key}-${url}-${index}`} className="w-[88px] shrink-0">
+          {items.map(({ field, url, index, key }, at) => (
+            <div key={key} {...reorder.bind(at)} className={`w-[88px] shrink-0 ${reorder.bind(at).className}`}>
               <MediaThumb
                 url={url}
                 roomy

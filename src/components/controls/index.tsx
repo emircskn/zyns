@@ -14,6 +14,7 @@ import { useUploader } from "@/lib/useUploader";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
 import { mediaSrc } from "@/lib/storage/client";
+import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 
 interface ControlProps {
   field: Field;
@@ -264,7 +265,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
     >
       {kind === "image" && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+        <img src={mediaSrc(url)} alt="" draggable={false} className="h-full w-full object-cover" />
       )}
       {kind === "video" && <video src={mediaSrc(url)} className="h-full w-full object-cover" muted playsInline />}
       {kind === "audio" && (
@@ -418,6 +419,9 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
   const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
+  // Held and dragged to a new place: the order is the order the model reads them in.
+  const reorder = useReorder(urls.length, (from, to) => onChange(moveItem(urls, from, to)));
+  const keys = keysFor(urls);
 
   return (
     <div className="min-w-0">
@@ -450,14 +454,14 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
       >
         {/* First, so another can be added without scrolling to the end. */}
         {!full && <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />}
-        {urls.map((url, index) => (
-          <MediaThumb
-            key={`${url}-${index}`}
-            url={url}
-            roomy={roomy}
-            onRemove={() => onChange(urls.filter((_, i) => i !== index))}
-          />
-        ))}
+        {urls.map((url, index) => {
+          const { className, ...hold } = reorder.bind(index);
+          return (
+            <div key={keys[index]} {...hold} className={`shrink-0 ${className}`}>
+              <MediaThumb url={url} roomy={roomy} onRemove={() => onChange(urls.filter((_, i) => i !== index))} />
+            </div>
+          );
+        })}
       </div>
       {!compact && field.help && <p className="mt-1.5 text-[11.5px] leading-snug text-t4">{field.help}</p>}
       <MediaPicker

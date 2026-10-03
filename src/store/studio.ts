@@ -6,7 +6,7 @@ import type { LibraryElement } from "@/lib/elements";
 import type { RecipeRun } from "@/lib/recipes/types";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
-import { followRemoval, imageFields, imageRefs } from "@/lib/mentions";
+import { followPictures, imageFields, imageRefs } from "@/lib/mentions";
 import type { Made, Track } from "@/lib/results";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
@@ -598,10 +598,10 @@ export const useStudio = create<StudioState>()(
               if (next[field.key] === undefined && field.default !== undefined) next[field.key] = field.default;
             }
           }
-          // Taking a picture out moves the prompt's `@Image N` with the rest.
+          // Taking a picture out, or moving one, moves the prompt's `@Image N` with it.
           const prompt = model && promptKey(model, next);
           if (model && prompt && typeof next[prompt] === "string" && imageFields(model, next).some((f) => f.key === key)) {
-            next[prompt] = followRemoval(next[prompt] as string, imageRefs(model, current), imageRefs(model, next));
+            next[prompt] = followPictures(next[prompt] as string, imageRefs(model, current), imageRefs(model, next));
           }
           if (model) next = settleMode(model, next);
           return {
