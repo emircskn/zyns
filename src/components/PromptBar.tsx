@@ -1541,31 +1541,20 @@ export function PromptBar({
   // The centred box sits in the page's own flow; nothing pads itself for it.
   usePublishedHeight(wrapper, !centered);
 
-  // The one button that starts something, as a tall block at the right of
-  // the box (as Higgsfield's bar has it) in the studio's own colours: the
-  // cream that marks the one thing to press, with the cost under the word.
+  // The one button that starts something: round, with the arrow, at the end
+  // of the prompt. No ring of metal around it any more.
   const send = (
     <button
       type="button"
-      onClick={model ? run : openPickerHere}
-      disabled={!!model && (busy || !!blocker || !apiKey)}
-      title={!model ? "Choose a model" : (blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)"))}
-      className="cta flex min-h-[76px] w-[136px] shrink-0 flex-col items-center justify-center gap-1 self-stretch rounded-panel px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
+      onClick={run}
+      disabled={busy || !!blocker || !apiKey}
+      title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
+      className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.12] disabled:cursor-not-allowed disabled:text-t4 disabled:hover:bg-t1/[0.07]"
     >
       {busy ? (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
       ) : (
-        <>
-          <span className={`whitespace-nowrap font-semibold leading-none ${model ? "text-[16px]" : "text-[14px]"}`}>
-            {model ? "Generate" : "Choose model"}
-          </span>
-          {model && (
-            <span className="flex items-center gap-1 font-mono text-[12.5px] font-medium tabular-nums leading-none opacity-70">
-              <Icon name="spark" size={12} fill="currentColor" strokeWidth={1.2} />
-              {hint ?? ""}
-            </span>
-          )}
-        </>
+        <Icon name="arrow-up" size={17} strokeWidth={2} />
       )}
     </button>
   );
@@ -1597,10 +1586,9 @@ export function PromptBar({
 
         <Glow>
         <div
-          className="flex gap-4 rounded-panel border border-line bg-elevated p-4"
+          className="rounded-panel border border-line bg-elevated p-4"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
-          <div className="min-w-0 flex-1">
           <Reveal>
             <InputStrip fields={stripFields} />
             <AttachRow fields={attachFields} onAdd={attach.open} canAdd={attach.canAdd} />
@@ -1608,7 +1596,7 @@ export function PromptBar({
           {attach.picker}
 
           {!model && (
-            <DraftField onSubmit={openPickerHere} />
+            <DraftField trailing={send} onSubmit={openPickerHere} />
           )}
 
           {prompts.shown.map((field, index) => (
@@ -1620,6 +1608,7 @@ export function PromptBar({
               onSubmit={() => {
                 if (!blocker && !busy) void run();
               }}
+              trailing={index === 0 ? send : undefined}
               inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
             />
           ))}
@@ -1675,9 +1664,12 @@ export function PromptBar({
               </button>
             )}
 
+            <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
+              {hint && <span className="font-mono text-[11.5px] tabular-nums text-t3">{hint}</span>}
+              {/* Models without a prompt still need somewhere to send from. */}
+              {model && promptFields.length === 0 && send}
+            </div>
           </div>
-          </div>
-          {send}
         </div>
         </Glow>
 

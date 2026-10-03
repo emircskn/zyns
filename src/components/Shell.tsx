@@ -105,8 +105,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   useEffect(() => {
     if (!hydrated || !arrived || !/^https?:$/.test(window.location.protocol)) return;
     const here = window.location.pathname.replace(/\/$/, "") || "/";
-    if (here !== "/" && here !== "/remix") return;
-    const want = page === "remix" ? "/remix" : "/";
+    if (here !== "/" && here !== "/remix" && here !== "/genjutsu") return;
+    const want = page === "remix" ? "/genjutsu" : "/";
     if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
   }, [page, hydrated, arrived]);
   // Redraws the studio when Higgsfield's live catalogue changes its models.

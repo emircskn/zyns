@@ -1,5 +1,7 @@
 "use client";
 
+import { restoreRemix } from "@/lib/remix/reuse";
+import { GENJUTSU } from "@/lib/remix/targets";
 import {
   modelsFor,
   providerOf,
@@ -123,6 +125,11 @@ export function sendReference(url: string): boolean {
  * older run) puts that line in the prompt field rather than arriving empty.
  */
 export function recreateRun(run: Run): boolean {
+  // Genjutsu's runs go back to its own page, with their clip and pictures.
+  if (run.modelId === GENJUTSU) {
+    restoreRemix(run);
+    return true;
+  }
   const model = getModel(run.modelId);
   const store = useStudio.getState();
   store.selectModel(run.modelId);

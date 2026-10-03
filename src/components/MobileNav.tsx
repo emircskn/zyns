@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon, type IconName } from "@/components/Icon";
-import { MetalButton } from "@/components/MetalButton";
+import { ZynsMark } from "@/components/Logo";
 import { AccountMenu } from "@/components/TopBar";
 import { useStudio, type Page } from "@/store/studio";
 
@@ -18,6 +18,24 @@ const ITEMS: Array<{ id: Page; label: string; icon: IconName }> = [
   { id: "favorites", label: "Favorites", icon: "heart" },
   { id: "assets", label: "Assets", icon: "folder" },
 ];
+
+/** Home, as the studio's mark rather than a house. */
+function HomeTab() {
+  const page = useStudio((s) => s.page);
+  const setPage = useStudio((s) => s.setPage);
+  const on = page === "home";
+  return (
+    <button
+      type="button"
+      onClick={() => setPage("home")}
+      aria-label="Home"
+      aria-current={on ? "page" : undefined}
+      className={`${TAB} transition-opacity ${on ? "opacity-100" : "opacity-55"}`}
+    >
+      <ZynsMark size={30} />
+    </button>
+  );
+}
 
 function Tab({ id, label, icon }: { id: Page; label: string; icon: IconName }) {
   const page = useStudio((s) => s.page);
@@ -47,28 +65,20 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-1 border-t border-line bg-elevated px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 md:hidden">
-      <Tab {...ITEMS[0]} />
+      <HomeTab />
       <Tab {...ITEMS[1]} />
 
-      {/* The same metal ring the send button wears, around a circle this
-          time, and still the spark rather than an arrow: this button opens
-          the models, it does not send anything. */}
+      {/* The spark rather than an arrow: this button opens the models, it
+          does not send anything. A plain circle, without the metal ring. */}
       <span className="mx-2">
-        {/* The ring stays, still: it moving all the time pulled the eye off the page. */}
-        <MetalButton still>
-          <button
-            type="button"
-            onClick={onCreate}
-            aria-label="Create"
-            className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full text-t1"
-          >
-            {/* The fill sits inside the button, not on it: the ring normalizes
-                the host's own chrome, and a background set there is dropped. */}
-            <span className="grid h-full w-full place-items-center rounded-full bg-t1/[0.07]">
-              <Icon name="spark" size={22} fill="currentColor" strokeWidth={1.2} />
-            </span>
-          </button>
-        </MetalButton>
+        <button
+          type="button"
+          onClick={onCreate}
+          aria-label="Create"
+          className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line transition-transform duration-[120ms] active:scale-95"
+        >
+          <Icon name="spark" size={22} fill="currentColor" strokeWidth={1.2} />
+        </button>
       </span>
 
       <Tab {...ITEMS[2]} />

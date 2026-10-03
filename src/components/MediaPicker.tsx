@@ -62,7 +62,7 @@ function Thumb({
         type="button"
         onClick={taken ? undefined : onClick}
         aria-disabled={taken || undefined}
-        title={taken ? "Already added" : (asset.prompt ?? asset.label)}
+        title={taken ? "Already added" : undefined}
         className={`block h-full w-full ${taken ? "cursor-default" : ""}`}
       >
         {asset.kind === "image" ? (

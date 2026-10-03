@@ -115,6 +115,9 @@ export function isLibraryPage(page: Page): page is "assets" | "favorites" | "ele
   return page === "assets" || page === "favorites" || page === "elements";
 }
 
+/** Genjutsu's model id: it is offered on its own page, not as a Video model. */
+const GENJUTSU_ID = "hf-genjutsu";
+
 /** The pages of one kind of work, each with its own models and prompt bar. */
 export function isCategoryPage(page: Page): page is Category {
   return !isLibraryPage(page) && page !== "home" && page !== "remix";
@@ -539,7 +542,9 @@ export const useStudio = create<StudioState>()(
           if (!isCategoryPage(page)) return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
-          const id = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
+          const remembered = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
+          // Genjutsu, remembered from before it had its own page, is not the Video page's model.
+          const id = remembered === GENJUTSU_ID ? "" : remembered;
           const model = getModel(id);
           if (!id || !model) return { page, category: page, modelId: "", selectMode: false };
           return {
@@ -562,6 +567,13 @@ export const useStudio = create<StudioState>()(
       selectModel: (id) => {
         const model = getModel(id);
         if (!model) return;
+        // Genjutsu has a page of its own: chosen anywhere (the Video page's
+        // catalogue, the phone's Create sheet), it opens that page instead of
+        // becoming the Video page's model.
+        if (id === GENJUTSU_ID) {
+          set({ page: "remix", pickerOpen: false, composer: false, selectMode: false, createOpen: false });
+          return;
+        }
         set((state) => {
           // The model takes its category's prompt: whatever was last written
           // in any model of the same kind. Text typed before a model was
@@ -579,7 +591,8 @@ export const useStudio = create<StudioState>()(
             // Higgsfield run, say) brings that service along.
             provider: providerOf(model),
             category: model.category,
-            page: state.page === "home" || state.page === "remix" ? state.page : model.category,
+            // A model is chosen to make something, so its page opens, from Home too.
+            page: model.category,
             modelByCategory: { ...state.modelByCategory, [memoryKey(providerOf(model), model.category)]: id },
             pickerOpen: false,
             draft: draft === undefined ? state.draft : "",
@@ -925,7 +938,7 @@ if (typeof window !== "undefined") {
       state.setPage(model && model.provider === state.provider ? model.category : "home");
       return;
     }
-    if (model ? model.category !== page : state.modelId !== "") state.setPage(page);
+    if (model ? model.category !== page || model.id === GENJUTSU_ID : state.modelId !== "") state.setPage(page);
   };
   useStudio.persist?.onFinishHydration(settle);
   if (useStudio.persist?.hasHydrated()) settle();

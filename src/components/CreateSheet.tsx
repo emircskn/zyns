@@ -85,7 +85,7 @@ function RemixCard({ onPick }: { onPick: () => void }) {
         {genjutsu && <ModelMedia model={genjutsu} own={false} />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-3.5">
-          <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">REMIX</p>
+          <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">GENJUTSU</p>
           <p className="mt-0.5 text-[12.5px] text-white/75">Motion transfer, swap and restyle on a clip you bring</p>
         </div>
       </div>
@@ -181,6 +181,8 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
                 active={model.id === modelId}
                 onPick={() => {
                   selectModel(model.id);
+                  // Genjutsu opens its own page (selectModel took it there).
+                  if (model.id === GENJUTSU) return onClose();
                   // Picked to make something: the page that makes it is
                   // where this belongs, not the home screen it opened from.
                   setPage(model.category);
