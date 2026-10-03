@@ -31,7 +31,10 @@ export async function GET(request: Request) {
   if (res.status === 404) return NextResponse.json({ doc: null, etag: null }, { headers: { "Cache-Control": "no-store" } });
   if (!res.ok) return NextResponse.json({ error: `Storage answered ${res.status}.` }, { status: 502 });
   const doc = await res.json().catch(() => null);
-  return NextResponse.json({ doc, etag: res.headers.get("etag") }, { headers: { "Cache-Control": "no-store" } });
+  // A compressed read comes back marked weak (W/"…"); a conditional write
+  // only matches the strong tag inside it.
+  const etag = res.headers.get("etag")?.replace(/^W\//, "") ?? null;
+  return NextResponse.json({ doc, etag }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PUT(request: Request) {
@@ -48,7 +51,7 @@ export async function PUT(request: Request) {
   // Written only over the version the device last read, so two devices
   // saving at once cannot drop each other's changes: the second is told to
   // read again and merge.
-  const etag = request.headers.get("x-if-match");
+  const etag = request.headers.get("x-if-match")?.replace(/^W\//, "") || null;
   const res = await fetch(presign("PUT", libraryKey(request), 60), {
     method: "PUT",
     headers: {
