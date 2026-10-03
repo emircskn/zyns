@@ -30,9 +30,13 @@ function HomeTab() {
       onClick={() => setPage("home")}
       aria-label="Home"
       aria-current={on ? "page" : undefined}
-      className={`${TAB} transition-opacity ${on ? "opacity-100" : "opacity-55"}`}
+      className={`${TAB} ${on ? "font-medium text-t1" : "text-t4"}`}
     >
-      <ZynsMark size={30} />
+      {/* The mark in the icon's place, at the icons' size, named like the rest. */}
+      <span className={on ? "" : "opacity-60"}>
+        <ZynsMark size={24} />
+      </span>
+      Home
     </button>
   );
 }
