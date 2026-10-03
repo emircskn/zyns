@@ -22,8 +22,6 @@ export interface RemixState {
   /** References in the order the model gets them. */
   refs: string[];
   prompts: Partial<Record<RemixMode, string>>;
-  /** Whether each mode's prompt is switched on (it is sent only then); on wherever one is written, until switched off. */
-  promptOn?: Partial<Record<RemixMode, boolean>>;
   /** Each model's own settings (resolution and the like), by `targetKey`. */
   settings: Record<string, Values>;
   /** Restyle's model, last chosen; Genjutsu's own Restyle until another is picked. */
@@ -55,11 +53,6 @@ export interface MotionClip {
 }
 
 export const EMPTY_REMIX: RemixState = { mode: "motion", source: null, refs: [], prompts: {}, settings: {} };
-
-/** Whether a mode's prompt goes out with the run. */
-export function promptIsOn(remix: RemixState, mode: RemixMode = remix.mode): boolean {
-  return remix.promptOn?.[mode] ?? !!remix.prompts[mode]?.trim();
-}
 
 export function targetKey(target: RemixTarget): string {
   return target.mode ? `${target.modelId}:${target.mode}` : target.modelId;

@@ -93,8 +93,12 @@ export function RestyleModelRow() {
     <>
       <Row
         label="Model"
-        lead={model && <VendorBadge model={model} size={34} />}
-        value={<span className="truncate">{current?.label ?? model?.name ?? "Choose a model"}</span>}
+        value={
+          <>
+            <span className="truncate">{current?.label ?? model?.name ?? "Choose a model"}</span>
+            {model && <VendorBadge model={model} size={15} bare />}
+          </>
+        }
         onClick={() => setOpen(true)}
       />
       <Sheet open={open} title="Restyle with" sub={`Video edit · ${options.length} models`} onClose={() => setOpen(false)}>
@@ -275,7 +279,7 @@ export function StyleRow() {
         onClick={() => setOpen(true)}
         lead={
         <span
-          className="block h-[34px] w-[34px] shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
+          className="block h-8 w-8 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
           style={!preview && style ? { background: `linear-gradient(140deg, ${style.tint[0]}, ${style.tint[1]})` } : undefined}
         >
           {preview ? (

@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
-import { Dropzone, Pill, RoundIcon, Row, Switch } from "@/components/remix/Row";
+import { Row } from "@/components/remix/Row";
+import { ModelMedia } from "@/components/ModelMedia";
+import { FieldChip, TileChips } from "@/components/PromptBar";
+import { ProjectChip } from "@/components/ProjectMenu";
+import { BLURB, bannerOf } from "@/lib/remix/banner";
 import { VendorBadge } from "@/components/VendorMark";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
@@ -15,7 +19,7 @@ import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { mediaSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
-import { getModel, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
+import { getModel, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
 import {
   GENJUTSU,
   MODE_LABEL,
@@ -31,7 +35,7 @@ import {
   type SourceLimits,
   type StyleInput,
 } from "@/lib/remix/targets";
-import { promptIsOn, targetKey, type RemixMode, type RemixRunInfo } from "@/lib/remix/types";
+import { targetKey, type RemixMode, type RemixRunInfo } from "@/lib/remix/types";
 import { useEstimate } from "@/lib/useEstimate";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 import { keyFor, useStudio } from "@/store/studio";
@@ -80,28 +84,76 @@ export function sourceProblem(meta: MediaMeta | null | undefined, limits: Source
   return null;
 }
 
-const SOURCE_TITLE: Record<RemixMode, string> = {
-  motion: "Add a video to take the motion from",
-  swap: "Add a video to edit",
-  restyle: "Add a video to restyle",
-};
-
-const REFS_TITLE: Record<RemixMode, string> = {
-  motion: "Add your characters",
-  swap: "Add your characters, products, or clothes",
-  restyle: "Add characters to restyle",
-};
-
 function rule(limits: SourceLimits): string | undefined {
-  if (limits.min && limits.max) return `Video duration: ${limits.min} to ${limits.max} seconds`;
-  if (limits.min) return `Video duration: ${limits.min} seconds or longer`;
-  if (limits.max) return `Video duration: up to ${limits.max} seconds`;
+  if (limits.min && limits.max) return `${limits.min} to ${limits.max} seconds`;
+  if (limits.min) return `${limits.min} seconds or longer`;
+  if (limits.max) return `up to ${limits.max} seconds`;
   return undefined;
+}
+
+/** The small round buttons the composer's boxes carry. */
+function SmallPill({ children, onClick, strong }: { children: ReactNode; onClick: () => void; strong?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[120ms] ${
+        strong ? "cta font-medium" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** A dashed box to add into, drawn as the Video composer's upload boxes are. */
+function EmptyBox({
+  icons,
+  label,
+  note,
+  onClick,
+  extra,
+}: {
+  icons: Array<Parameters<typeof Icon>[0]["name"]>;
+  label: string;
+  note?: string;
+  onClick: () => void;
+  extra?: ReactNode;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      className="flex w-full cursor-pointer flex-col items-center justify-center gap-2.5 rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 py-5 text-center transition-colors duration-[150ms] hover:bg-t1/[0.04] active:bg-t1/[0.05]"
+    >
+      <span className="flex items-center gap-1.5">
+        {icons.map((icon) => (
+          <span key={icon} className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08] text-t2">
+            <Icon name={icon} size={18} />
+          </span>
+        ))}
+      </span>
+      <span className="text-[14px] text-t3">
+        {label}
+        {note && <span className="text-t4"> ({note})</span>}
+      </span>
+      {extra}
+    </div>
+  );
 }
 
 /** The clip the result keeps the motion (or the scene) of. */
 function SourceBox({
-  mode,
   url,
   meta,
   limits,
@@ -110,7 +162,6 @@ function SourceBox({
   onClear,
   extra,
 }: {
-  mode: RemixMode;
   url: string | null;
   meta: MediaMeta | null | undefined;
   limits: SourceLimits;
@@ -127,21 +178,22 @@ function SourceBox({
   const over = !!length && !!limits.max && limits.trims && length > limits.max + 0.05;
   if (!url) {
     return (
-      <Dropzone
-        icons={<RoundIcon name="video" />}
-        title={SOURCE_TITLE[mode]}
-        sub={rule(limits)}
+      <EmptyBox
+        icons={["video"]}
+        label="Source video"
+        note={rule(limits)}
         onClick={onPick}
-        action={
-          <Pill icon="plus" onClick={onLibrary}>
-            Select from the Motion library{clips.length > 0 ? ` (${clips.length})` : ""}
-          </Pill>
+        extra={
+          <SmallPill onClick={onLibrary}>
+            <Icon name="move" size={14} />
+            From the Motion library{clips.length > 0 ? ` (${clips.length})` : ""}
+          </SmallPill>
         }
       />
     );
   }
   return (
-    <div className="flex flex-col gap-2 rounded-panel bg-elevated p-2">
+    <div className="flex flex-col gap-2 rounded-panel border border-line bg-elevated p-3">
       <div className="relative overflow-hidden rounded-card bg-canvas-deep">
         <video
           key={url}
@@ -151,7 +203,7 @@ function SourceBox({
           autoPlay
           playsInline
           preload="metadata"
-          className="max-h-[300px] w-full object-contain"
+          className="max-h-[240px] w-full object-contain"
         />
         {length ? (
           <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[11px] text-white">
@@ -162,20 +214,20 @@ function SourceBox({
           type="button"
           onClick={onClear}
           aria-label="Remove the source video"
-          className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-transform duration-[120ms] active:scale-90"
+          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms] active:scale-90"
         >
           <Icon name="close" size={15} />
         </button>
       </div>
       {problem ? (
-        <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
+        <p role="alert" className="flex items-start gap-1.5 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
           <Icon name="alert" size={15} className="mt-px shrink-0" />
           {problem.text}
         </p>
       ) : over ? (
-        <p className="px-1 text-[12.5px] leading-snug text-t3">Only the first {limits.max} s are used. Trim it to pick another stretch.</p>
+        <p className="text-[12.5px] leading-snug text-t3">Only the first {limits.max} s are used. Trim it to pick another stretch.</p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-1.5 px-0.5 pb-0.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         <SmallPill onClick={onPick}>Replace</SmallPill>
         {clips.length > 0 && <SmallPill onClick={onLibrary}>Library</SmallPill>}
         {extra}
@@ -183,7 +235,7 @@ function SourceBox({
           type="button"
           onClick={() => url && !kept && void saveMotionClip(url)}
           disabled={kept}
-          className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:hover:text-t3"
+          className="ml-auto flex items-center gap-1 rounded-full px-2 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:hover:text-t3"
         >
           <Icon name={kept ? "check" : "plus"} size={13} />
           {kept ? "In library" : "Save to library"}
@@ -193,23 +245,8 @@ function SourceBox({
   );
 }
 
-function SmallPill({ children, onClick, strong }: { children: ReactNode; onClick: () => void; strong?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[120ms] ${
-        strong ? "cta font-medium" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
 /** The pictures the result takes its characters (or objects) from, in the order the model reads them. */
 function RefsBox({
-  mode,
   label,
   refs,
   room,
@@ -218,7 +255,6 @@ function RefsBox({
   onAdd,
   onElements,
 }: {
-  mode: RemixMode;
   label: string;
   refs: string[];
   room: number;
@@ -232,103 +268,56 @@ function RefsBox({
   const full = refs.length >= room;
   if (refs.length === 0) {
     return (
-      <Dropzone
-        icons={
-          <>
-            <RoundIcon name="user" />
-            <RoundIcon name="shirt" overlap />
-            <RoundIcon name="box" overlap />
-          </>
-        }
-        title={REFS_TITLE[mode]}
-        sub={`Up to ${room} ${room === 1 ? "image" : "images"}${required ? "" : " · optional"}`}
+      <EmptyBox
+        icons={["user", "shirt", "box"]}
+        label={label}
+        note={`up to ${room}${required ? "" : " · optional"}`}
         onClick={onAdd}
-        action={
-          <Pill icon="user" onClick={onElements}>
+        extra={
+          <SmallPill onClick={onElements}>
+            <Icon name="user" size={13} />
             From Elements
-          </Pill>
+          </SmallPill>
         }
       />
     );
   }
   return (
-    <div className="rounded-panel bg-elevated p-3">
-      <div className="mb-2.5 flex items-center justify-between gap-2">
-        <span className="text-[13.5px] text-t1">
-          {label} <span className="font-mono text-[11.5px] tabular-nums text-t4">{refs.length}/{room}</span>
+    <div className="rounded-panel border border-line bg-elevated p-3">
+      <div className="no-bar flex gap-2.5 overflow-x-auto">
+        {/* First, so another can be added without scrolling to the end. */}
+        {!full && (
+          <button
+            type="button"
+            onClick={onAdd}
+            aria-label="Add pictures"
+            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
+          >
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
+              <Icon name="plus" size={20} />
+            </span>
+          </button>
+        )}
+        {refs.map((url, index) => {
+          const { className, ...hold } = reorder.bind(index);
+          return (
+            <div key={keys[index]} {...hold} className={`w-[88px] shrink-0 ${className}`}>
+              <MediaThumb url={url} roomy onRemove={() => onChange(refs.filter((_, i) => i !== index))} />
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-2.5 flex items-center justify-between gap-2">
+        <span className="text-[12px] text-t4">
+          {label} · {refs.length}/{room}
+          {refs.length > 1 ? " · hold to reorder" : ""}
         </span>
         <SmallPill onClick={onElements}>
           <Icon name="user" size={13} />
           Elements
         </SmallPill>
       </div>
-      <div className="no-bar -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 pt-0.5">
-        {!full && (
-          <button
-            type="button"
-            onClick={onAdd}
-            aria-label="Add pictures"
-            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] text-t2 transition-colors duration-[150ms] hover:bg-t1/[0.05]"
-          >
-            <Icon name="plus" size={18} />
-          </button>
-        )}
-        {refs.map((url, index) => {
-          const { className, ...hold } = reorder.bind(index);
-          return (
-            <div key={keys[index]} {...hold} className={`shrink-0 ${className}`}>
-              <MediaThumb url={url} roomy onRemove={() => onChange(refs.filter((_, i) => i !== index))} />
-            </div>
-          );
-        })}
-      </div>
-      {refs.length > 1 && (
-        <p className="mt-2 text-[11.5px] leading-snug text-t4">Hold and drag to reorder. The model reads them in this order.</p>
-      )}
     </div>
-  );
-}
-
-/** A setting with a short list of values, as a row that opens its list in place. */
-function SettingRow({ field, value, onChange }: { field: Field; value: unknown; onChange: (value: unknown) => void }) {
-  const [open, setOpen] = useState(false);
-  const choices = field.choices ?? [];
-  const current = choices.find((c) => String(c.value) === String(value ?? field.default ?? ""));
-  return (
-    <Row
-      label={field.label}
-      value={<span className="truncate">{current?.label ?? String(value ?? "—")}</span>}
-      chevron="down"
-      open={open}
-      onClick={() => setOpen((was) => !was)}
-    >
-      {open && (
-        <div className="anim-fade flex flex-col gap-px border-t border-line p-1.5">
-          {choices.map((choice) => {
-            const on = choice === current;
-            return (
-              <button
-                key={choice.value}
-                type="button"
-                onClick={() => {
-                  onChange(choice.value);
-                  setOpen(false);
-                }}
-                className={`flex items-center justify-between gap-3 rounded-card px-3 py-2.5 text-left text-[14px] transition-colors duration-[120ms] ${
-                  on ? "bg-t1/[0.08] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
-                }`}
-              >
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate">{choice.label}</span>
-                  {choice.hint && <span className="truncate text-[12px] text-t4">{choice.hint}</span>}
-                </span>
-                {on && <Icon name="check" size={16} className="shrink-0" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </Row>
   );
 }
 
@@ -471,30 +460,147 @@ export function RemixComposer({
   const settings = model ? settingFields(model, own) : [];
   const promptText = remix.prompts[remix.mode] ?? "";
 
-  const promptOn = promptIsOn(remix);
+  const tiles = model ? settings : [];
+  // As on Video: the tiles share the row; the project chip takes a cell only when it shows.
+  const count = Math.max(1, tiles.length);
+  const hint = key && blocker ? blocker : "⌘↵ to generate";
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <ModeTabs />
-      <SourceBox
-        mode={remix.mode}
-        url={remix.source}
-        meta={meta}
-        limits={limits}
-        onPick={() => setPicking("source")}
-        onLibrary={() => setLibrary(true)}
-        onClear={() => patchRemix({ source: null })}
-        extra={
-          meta?.durationSec && (!limits.min || meta.durationSec > limits.min) ? (
-            <SmallPill
-              onClick={() => setTrimming(true)}
-              strong={!!problem?.trim || (limits.trims && !!limits.max && meta.durationSec > limits.max)}
-            >
-              <Icon name="film" size={14} />
-              Trim
-            </SmallPill>
-          ) : undefined
-        }
+    <>
+      {/* The panel's body scrolls on a desktop; the button stays at its foot. */}
+      <div
+        className="no-bar flex min-h-0 flex-1 flex-col gap-2.5 md:overflow-y-auto md:p-3 [&>*]:shrink-0"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            void generate();
+          }
+        }}
+      >
+        <ModeTabs />
+        {model && <RemixBanner model={model} mode={remix.mode} />}
+        <SourceBox
+          url={remix.source}
+          meta={meta}
+          limits={limits}
+          onPick={() => setPicking("source")}
+          onLibrary={() => setLibrary(true)}
+          onClear={() => patchRemix({ source: null })}
+          extra={
+            meta?.durationSec && (!limits.min || meta.durationSec > limits.min) ? (
+              <SmallPill
+                onClick={() => setTrimming(true)}
+                strong={!!problem?.trim || (limits.trims && !!limits.max && meta.durationSec > limits.max)}
+              >
+                <Icon name="film" size={14} />
+                Trim
+              </SmallPill>
+            ) : undefined
+          }
+        />
+        {refsField && (
+          <RefsBox
+            label={refsField.label}
+            refs={remix.refs.slice(0, room)}
+            room={room}
+            required={!!refsField.required}
+            onChange={(refs) => patchRemix({ refs })}
+            onAdd={() => setPicking("refs")}
+            onElements={() => setChoosing((was) => !was)}
+          />
+        )}
+        <ElementChooser
+          open={choosing}
+          onClose={() => setChoosing(false)}
+          onPick={(urls) => {
+            patchRemix((r) => ({ refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) }));
+            setChoosing(false);
+          }}
+        />
+        {below}
+        <div className="rounded-panel bg-t1/[0.05] px-3.5 pb-2.5 pt-3">
+          <textarea
+            value={promptText}
+            rows={3}
+            placeholder={
+              remix.mode === "swap"
+                ? "Optional: what to swap, and for what"
+                : remix.mode === "restyle"
+                  ? "Optional: anything the style should keep or change"
+                  : "Optional: describe the new scene"
+            }
+            onChange={(event) => patchRemix((r) => ({ prompts: { ...r.prompts, [r.mode]: event.target.value } }))}
+            className="w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+          />
+        </div>
+        {modelRow ??
+          (model && (
+            <Row
+              label="Model"
+              value={
+                <>
+                  <span className="truncate">{model.id === GENJUTSU ? "Higgsfield Genjutsu" : model.name}</span>
+                  <VendorBadge model={model} size={15} bare />
+                </>
+              }
+            />
+          ))}
+        <TileChips.Provider value>
+          <div className={`grid gap-2 ${GRID_COLS[Math.min(3, count)]}`}>
+            {tiles.map((field) => (
+              <div key={field.key} className="min-w-0">
+                <FieldChip field={field} values={own} onChange={setSetting} />
+              </div>
+            ))}
+            <div className="min-w-0 empty:hidden">
+              <ProjectChip full />
+            </div>
+          </div>
+        </TileChips.Provider>
+        {built && built.warnings.length > 0 && <p className="px-1 text-[12px] leading-snug text-t4">{built.warnings.join(" ")}</p>}
+        {error && (
+          <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
+            <Icon name="alert" size={15} className="mt-px shrink-0" />
+            {error}
+          </p>
+        )}
+      </div>
+      <div className="shrink-0 pt-2.5 md:border-t md:border-line md:p-3">
+        <button
+          type="button"
+          onClick={() => void generate()}
+          disabled={!!key && (busy || !!blocker)}
+          title={blocker ?? undefined}
+          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
+        >
+          {busy ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : !key ? (
+            <>
+              <Icon name="key" size={17} />
+              Add your API key
+            </>
+          ) : (
+            <>
+              Generate
+              <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
+              {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
+            </>
+          )}
+        </button>
+        <p className="mt-2 truncate text-center text-[11.5px] text-t4">
+          {hint === "⌘↵ to generate" ? <span className="hidden md:inline">{hint}</span> : hint}
+        </p>
+      <MediaPicker
+        open={picking !== null}
+        accept={picking === "source" ? "video" : "image"}
+        multiple={picking === "refs"}
+        taken={picking === "refs" ? remix.refs : remix.source ? [remix.source] : []}
+        onPick={(urls) => {
+          if (picking === "source") patchRemix({ source: urls[0] ?? null });
+          else patchRemix((r) => ({ refs: [...r.refs, ...urls].slice(0, room) }));
+        }}
+        onClose={() => setPicking(null)}
       />
       <Sheet open={library} title="Motion library" sub="Clips kept for their motion" onClose={() => setLibrary(false)}>
         <MotionLibrary onUsed={() => setLibrary(false)} />
@@ -513,125 +619,46 @@ export function RemixComposer({
           }}
         />
       ) : null}
-      {refsField && (
-        <RefsBox
-          mode={remix.mode}
-          label={refsField.label}
-          refs={remix.refs.slice(0, room)}
-          room={room}
-          required={!!refsField.required}
-          onChange={(refs) => patchRemix({ refs })}
-          onAdd={() => setPicking("refs")}
-          onElements={() => setChoosing((was) => !was)}
+      </div>
+    </>
+  );
+}
+
+const GRID_COLS = ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"];
+
+/**
+ * The model at the head of the composer, as the Video composer heads with
+ * its model's card: Higgsfield's own banner for Genjutsu, the model's
+ * preview for another Restyle model.
+ */
+function RemixBanner({ model, mode }: { model: ModelDef; mode: RemixMode }) {
+  const media = model.id === GENJUTSU ? bannerOf(mode === "restyle" ? "motion" : mode) : undefined;
+  return (
+    <div className="relative h-[124px] shrink-0 overflow-hidden rounded-panel bg-surface">
+      {media?.video ? (
+        <video
+          key={media.video}
+          src={media.video}
+          poster={media.poster}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 h-full w-full object-cover"
         />
+      ) : (
+        <ModelMedia model={model} own={false} />
       )}
-      <ElementChooser
-        open={choosing}
-        onClose={() => setChoosing(false)}
-        onPick={(urls) => {
-          patchRemix((r) => ({ refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) }));
-          setChoosing(false);
-        }}
-      />
-      {below}
-      {/* The prompt is optional here: off, nothing is sent with the run. */}
-      <div className="rounded-panel bg-elevated">
-        <div className="flex items-center gap-3 px-4 py-3.5">
-          <span className="flex-1 text-[15px] text-t1">Prompt</span>
-          <Switch
-            label="Prompt"
-            on={promptOn}
-            onFlip={() => patchRemix((r) => ({ promptOn: { ...r.promptOn, [r.mode]: !promptIsOn(r) } }))}
-          />
-        </div>
-        {promptOn && (
-          <div className="anim-fade border-t border-line px-4 pb-3 pt-2.5">
-            <textarea
-              value={promptText}
-              rows={3}
-              autoFocus={!promptText}
-              placeholder={
-                remix.mode === "swap"
-                  ? "What to swap, and for what: “the jacket for the one in the picture”"
-                  : remix.mode === "restyle"
-                    ? "Anything the style should keep or change"
-                    : "Describe the new scene"
-              }
-              onChange={(event) =>
-                patchRemix((r) => ({
-                  prompts: { ...r.prompts, [r.mode]: event.target.value },
-                  promptOn: { ...r.promptOn, [r.mode]: true },
-                }))
-              }
-              className="w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
-            />
-          </div>
-        )}
-      </div>
-      {modelRow ??
-        (model && (
-          <Row
-            label="Model"
-            lead={<VendorBadge model={model} size={34} />}
-            value={<span className="truncate">{model.id === GENJUTSU ? "Higgsfield Genjutsu" : model.name}</span>}
-          />
-        ))}
-      {model &&
-        settings.map((field) =>
-          field.choices && field.choices.length > 0 && (field.kind === "select" || field.kind === "segmented" || field.kind === "ratio") ? (
-            <SettingRow key={field.key} field={field} value={own[field.key]} onChange={(value) => setSetting(field.key, value)} />
-          ) : (
-            <div key={field.key} className="rounded-panel bg-elevated px-4 py-3">
-              <InputLabel field={field} />
-              <Control field={field} value={own[field.key]} values={own} dense onChange={(value) => setSetting(field.key, value)} />
-            </div>
-          ),
-        )}
-      {built && built.warnings.length > 0 && <p className="px-1 text-[12px] leading-snug text-t4">{built.warnings.join(" ")}</p>}
-      {error ? (
-        <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
-          <Icon name="alert" size={15} className="mt-px shrink-0" />
-          {error}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+      <div className="absolute inset-x-3.5 bottom-3 text-white">
+        <p className="truncate text-[21px] font-bold uppercase leading-none tracking-[-0.02em]">
+          {model.id === GENJUTSU ? "Genjutsu" : model.name}
         </p>
-      ) : key && blocker ? (
-        <p className="px-1 text-center text-[12px] text-t4">{blocker}</p>
-      ) : null}
-      {/* Held in reach on a phone while the composer is on screen, as Higgsfield's is. */}
-      <div className="sticky bottom-[calc(var(--nav-h)+10px)] z-20 rounded-panel bg-canvas md:static">
-        <button
-          type="button"
-          onClick={() => void generate()}
-          disabled={!!key && (busy || !!blocker)}
-          title={blocker ?? undefined}
-          className="cta flex h-[56px] w-full items-center justify-center gap-2 rounded-panel text-[16.5px] font-semibold shadow-[0_8px_24px_rgb(0_0_0/0.35)] disabled:opacity-60 md:h-12 md:text-[15.5px] md:shadow-none"
-        >
-          {busy ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          ) : !key ? (
-            <>
-              <Icon name="key" size={17} />
-              Add your {PROVIDER_NAME[provider]} key
-            </>
-          ) : (
-            <>
-              Generate
-              <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
-              {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
-            </>
-          )}
-        </button>
+        <p className="mt-1.5 truncate text-[12px] text-white/75">
+          {MODE_LABEL[mode]} · {BLURB[mode]}
+        </p>
       </div>
-      <MediaPicker
-        open={picking !== null}
-        accept={picking === "source" ? "video" : "image"}
-        multiple={picking === "refs"}
-        taken={picking === "refs" ? remix.refs : remix.source ? [remix.source] : []}
-        onPick={(urls) => {
-          if (picking === "source") patchRemix({ source: urls[0] ?? null });
-          else patchRemix((r) => ({ refs: [...r.refs, ...urls].slice(0, room) }));
-        }}
-        onClose={() => setPicking(null)}
-      />
     </div>
   );
 }

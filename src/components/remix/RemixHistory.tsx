@@ -123,11 +123,13 @@ export function RemixHistory({
 
   if (mine.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-panel border border-dashed border-line px-6 py-14 text-center">
-        <p className="text-[22px] tracking-[-0.02em] text-t1">Nothing remixed yet.</p>
-        <p className="max-w-[380px] text-[13px] leading-relaxed text-t3">
+      <div className="grid place-items-center px-4 py-8 text-center md:min-h-[calc(100dvh-220px)] md:py-16">
+        <div className="max-w-[560px]">
+        <p className="text-[34px] leading-[1.08] tracking-[-0.03em] text-t1 md:text-[54px]">Nothing remixed yet.</p>
+        <p className="mx-auto mt-4 max-w-[380px] text-[13px] leading-relaxed text-t3">
           Add a clip and the pictures to put in it. What you make here also shows up in Assets.
         </p>
+        </div>
       </div>
     );
   }

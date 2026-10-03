@@ -47,6 +47,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const mode = useStudio((s) => s.remix.mode);
   const restyle = mode === "restyle";
   const { style, preset, needs } = useRestyleStyle();
+  const count = useStudio((s) => s.runs.filter((run) => run.remix).length);
 
   const stage = (run: Run, open: (url: string) => void) => (
     <>
@@ -89,6 +90,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
   return (
     <RemixPage
       onKeyClick={onKeyClick}
+      count={count}
       composer={
         <RemixComposer
           onKeyClick={onKeyClick}

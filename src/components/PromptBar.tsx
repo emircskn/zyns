@@ -39,7 +39,7 @@ import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import type { LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
-import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
+import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
@@ -526,9 +526,20 @@ export function BatchChip() {
   );
 }
 
-export function FieldChip({ field }: { field: Field }) {
-  const values = useValues();
-  const setValue = useStudio((s) => s.setValue);
+export function FieldChip({
+  field,
+  values: given,
+  onChange,
+}: {
+  field: Field;
+  /** Values other than the bar's (a page with its own composer, as Remix has), with where changes go. */
+  values?: Values;
+  onChange?: (key: string, value: unknown) => void;
+}) {
+  const bar = useValues();
+  const setBarValue = useStudio((s) => s.setValue);
+  const values = given ?? bar;
+  const setValue = onChange ?? setBarValue;
   const value = values[field.key];
 
   // Booleans read better as a chip you flip than as a chip that opens a menu.
