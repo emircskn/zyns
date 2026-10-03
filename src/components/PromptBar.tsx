@@ -992,7 +992,7 @@ function ChipPeek({ url, name, rect }: { url: string; name: string; rect: DOMRec
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url}
+        src={mediaSrc(url)}
         alt={name}
         draggable={false}
         className="block h-auto max-h-[200px] w-auto min-w-[120px] max-w-[196px] rounded-[10px] bg-t1/[0.07] object-contain"

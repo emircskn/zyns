@@ -160,6 +160,46 @@ function MoreMenu({
 }
 
 /** The pictures a run was given to work from, in the order it got them. */
+/**
+ * One of the inputs a run was given, from the kept copy when there is one:
+ * the service's own link stops working after some days. A file gone from
+ * everywhere shows as such rather than as a broken picture.
+ */
+function RefThumb({ url }: { url: string }) {
+  const [gone, setGone] = useState(false);
+  const src = mediaSrc(url);
+  const kind = mediaKind(url);
+  const box = "h-14 w-14 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line";
+  if (gone) {
+    return (
+      <span title="This input is no longer available" className={`${box} grid place-items-center bg-t1/[0.03] text-t4`}>
+        <span className="flex flex-col items-center gap-0.5">
+          <Icon name={kind === "video" ? "video" : kind === "audio" ? "audio" : "image"} size={15} />
+          <span className="text-[9.5px] leading-none">Gone</span>
+        </span>
+      </span>
+    );
+  }
+  return (
+    <a
+      href={src}
+      target="_blank"
+      rel="noreferrer"
+      title="Open this input"
+      className={`${box} transition-transform duration-[120ms] hover:scale-105`}
+    >
+      {kind === "image" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" onError={() => setGone(true)} className="h-full w-full object-cover" />
+      ) : (
+        <span className="grid h-full w-full place-items-center bg-surface-2">
+          <Icon name={kind === "video" ? "video" : "audio"} size={16} className="text-t3" />
+        </span>
+      )}
+    </a>
+  );
+}
+
 export function inputMedia(run: Run): string[] {
   const model = getModel(run.modelId);
   if (!model) return [];
@@ -817,23 +857,7 @@ export function MediaViewer({
               {refs.length > 0 && (
                 <div className="no-bar mb-2.5 flex gap-1.5 overflow-x-auto">
                   {refs.map((ref) => (
-                    <a
-                      key={ref}
-                      href={ref}
-                      target="_blank"
-                      rel="noreferrer"
-                      title="Open this input"
-                      className="h-14 w-14 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line transition-transform duration-[120ms] hover:scale-105"
-                    >
-                      {mediaKind(ref) === "image" ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={ref} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <span className="grid h-full w-full place-items-center bg-surface-2">
-                          <Icon name={mediaKind(ref) === "video" ? "video" : "audio"} size={16} className="text-t3" />
-                        </span>
-                      )}
-                    </a>
+                    <RefThumb key={ref} url={ref} />
                   ))}
                 </div>
               )}
