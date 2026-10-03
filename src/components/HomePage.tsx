@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { AssetBrowser } from "@/components/AssetBrowser";
-import { Icon } from "@/components/Icon";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PromptBar } from "@/components/PromptBar";
-import { useAssets } from "@/lib/assets";
 import { activeKey, useStudio } from "@/store/studio";
 
 /**
@@ -77,50 +74,30 @@ function Rolling() {
 }
 
 /**
- * The screen the studio opens on: the box in the middle of it, the pages
- * down the left, and whatever was made last underneath. Nothing else — no
- * model is chosen for you, and the box says so until you choose one.
+ * The screen the studio opens on: the box in the middle of it and the pages
+ * down the left. Nothing else — what was made lives in Assets, no model is
+ * chosen for you, and the box says so until you choose one.
  */
 export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
-  const assets = useAssets();
   const apiKey = useStudio(activeKey);
   const hydrated = useStudio((s) => s.hydrated);
-  const setPage = useStudio((s) => s.setPage);
   const loadDemo = useStudio((s) => s.loadDemo);
 
-  // What the studio made lately; uploads are not something it made.
-  const recent = useMemo(() => assets.filter((a) => a.source !== "upload").slice(0, 6), [assets]);
-
-  // The box holds the middle of the first screen, whether or not there is
-  // anything under it: the hero takes all the height left below whatever the
-  // page put above it, and Recent is pulled up into the empty part beneath
-  // the box rather than taking any of it away.
+  // The box holds the middle of the first screen: the hero takes all the
+  // height left below whatever the page put above it.
   const hero = useRef<HTMLElement>(null);
-  const middle = useRef<HTMLDivElement>(null);
   const [top, setTop] = useState(0);
-  const [pull, setPull] = useState(0);
-  const demo = useStudio((s) => s.runs.some((r) => r.id.startsWith("demo-")));
 
   useLayoutEffect(() => {
     const node = hero.current;
     if (!node) return;
-    const measure = () => {
-      // Measured off the page rather than off itself, so growing it cannot
-      // feed back into the number.
-      setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
-      // And the pull is only ever as much as the room under the box: on a
-      // short screen there is none, and Recent simply follows the hero.
-      const room = node.offsetHeight - (middle.current?.offsetHeight ?? 0);
-      const peek =
-        Number.parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue("--home-peek"),
-        ) || 0;
-      setPull(Math.max(0, Math.min(peek, Math.round(room / 2) - 24)));
-    };
+    // Measured off the page rather than off itself, so growing it cannot
+    // feed back into the number.
+    const measure = () => setTop(Math.round(node.getBoundingClientRect().top + window.scrollY));
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [hydrated, apiKey, demo, recent.length]);
+  }, [hydrated, apiKey]);
 
   // Fonts land after the first paint and move everything above it.
   useEffect(() => {
@@ -139,7 +116,7 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
         style={{ minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px)` }}
         className="flex flex-col items-center justify-center py-8 md:py-12"
       >
-        <div ref={middle} className="w-full max-w-[720px]">
+        <div className="w-full max-w-[720px]">
           {/* A real space between the verb and the word, not a flex gap: the
               line is read aloud and copied as one sentence. */}
           <h1 className="text-center text-[28px] leading-[1.1] tracking-[-0.03em] text-t1 md:text-[42px]">
@@ -182,27 +159,6 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
       </section>
 
-      {recent.length > 0 && (
-        // Lifted into the empty room under the box, so its heading peeks at
-        // the foot of the first screen without moving the box at all.
-        <section
-          style={{ marginTop: pull ? -pull : undefined }}
-          className="relative mx-auto w-full max-w-[1000px] pb-2 pt-2"
-        >
-          <div className="mb-3 flex items-end justify-between gap-3">
-            <h2 className="text-[13px] font-medium uppercase tracking-[0.08em] text-t3">Recent</h2>
-            <button
-              type="button"
-              onClick={() => setPage("assets")}
-              className="flex items-center gap-1 text-[13px] text-t3 transition-colors duration-[150ms] hover:text-t1"
-            >
-              All assets
-              <Icon name="chevron" size={15} className="-rotate-90" />
-            </button>
-          </div>
-          <AssetBrowser assets={recent} byDate={false} />
-        </section>
-      )}
     </div>
   );
 }
