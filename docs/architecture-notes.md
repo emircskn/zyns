@@ -228,3 +228,13 @@ Spec'ten sapmalar ve nedenleri:
 - **Kırpıcı:** Genjutsu'nun başlangıç/bitiş parametresi yok, bu yüzden seçilen parça yeni bir dosya olarak kaydedilir; parçanın süresi kadar sürer. Safari'de ses, sayfa izin vermezse sessiz kaydedilir (not düşülür).
 - **Banner:** Katalogda object-swap'ın `banner_media`'sı yok; Swap'ta da motion-transfer'inki duruyor.
 - **Preview deploy:** Faz 1'deki gibi canlı site (tek dal).
+
+## Faz 3 sonrası (2026-10-03)
+
+- **Sayfa:** `/studio` → `src/app/studio/page.tsx` → `Shell initialPage="studio"`. Görünüm `src/components/studio/CinemaStudio.tsx` (Genjutsu sayfasıyla aynı düzen: masaüstünde solda sabit panel, sağda geçmiş; telefonda yukarıdan aşağı). Geçmiş `Gallery modelId="hf-cinema-studio-4"`.
+- **Kendi sayfası olan modeller:** `OWN_PAGE` (`src/store/studio.ts`) → `hf-genjutsu` → `remix`, `hf-cinema-studio-4` → `studio`. `selectModel` bu modelleri seçince sayfaya gider; `setPage` bunları bir kategoride "son model" olarak geri getirmez. Recreate (`src/lib/reuse.ts`) Cinema Studio çalışmasını değerleriyle `/studio`'ya koyar.
+- **Ayar kartları:** `src/lib/studio/cinema.ts` şemadan gelen alanları kartlara ayırır: `camera_*` → Kamera (gövde/lens/diyafram tekerlek `Wheel.tsx`, hareket tekli grid), `genre/era/pacing` → Film, `light` → Işık, `color_palette` → Palet (arama kutulu). Kartların almadığı yeni bir seçim alanı "More" kartında çıkar. Seçenekler katalogdan; "Auto" (`""`) isteğe hiç girmez. Test: canlı katalog cevabına sahte bir `light` değeri eklendi, Işık penceresinde göründü.
+- **Referanslar:** `image_urls` ≤30, `video_urls` ≤10, `audio_urls` ≤10, `MediaPicker` + Elements'ten. Prompt'ta `@` → element listesi; seçilen element'in görselleri `image_urls`'e eklenir (limit sayılır), gönderirken `withLibraryElements` `@emir`'i "emir" yapar.
+- **Alt satır:** süre, çözünürlük, en-boy (FieldChip, kendi değerleriyle), ses düğmesi prompt kutusunda, adet 1–4 (`studioCount`) → N ayrı `submitModelRun` (Higgsfield kuyruğundan geçer), proje. Fiyat Higgsfield tahmini × N.
+- **Şema kontrolü:** `src/lib/studio/schema.ts` → `schemaProblems(top, body)`: zorunlu alan, tip, enum, min/max, liste uzunluğu, bilinmeyen anahtar. `submitModelRun(..., { schema: true })` gövdeyi tam gidecek haliyle (medya yüklendikten sonra) kataloğun `top` şemasına göre kontrol eder; hata varsa istek gitmez ve composer'da yazar.
+
