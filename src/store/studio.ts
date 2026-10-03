@@ -194,6 +194,11 @@ interface StudioState {
   elementEditor: { id?: string; images?: string[] } | null;
   /** Where each kept file was last handed to a service, by its storage key. */
   remotes: Record<string, RemoteUrls>;
+  /**
+   * What was deleted on purpose (runs, uploads, projects, elements), by id
+   * and when, so another device deletes it too rather than bringing it back.
+   */
+  deleted: Record<string, number>;
   settingsOpen: boolean;
   pickerOpen: boolean;
   pickerTab: Category | "all";
@@ -438,6 +443,7 @@ export const useStudio = create<StudioState>()(
       projects: [],
       activeProjectId: null,
       remotes: {},
+      deleted: {},
       settingsOpen: false,
       pickerOpen: false,
       pickerTab: "all",
@@ -687,7 +693,7 @@ export const useStudio = create<StudioState>()(
           ].slice(0, 200),
         })),
       removeUpload: (id) =>
-        set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id) })),
+        set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
 
       saveElement: (element) =>
         set((state) => ({
@@ -705,6 +711,7 @@ export const useStudio = create<StudioState>()(
       // The work stays; it simply belongs to no project any more.
       removeProject: (id) =>
         set((state) => ({
+          deleted: { ...state.deleted, [id]: Date.now() },
           projects: state.projects.filter((p) => p.id !== id),
           activeProjectId: state.activeProjectId === id ? null : state.activeProjectId,
           runs: state.runs.map((r) => (r.projectId === id ? { ...r, projectId: undefined } : r)),
@@ -726,7 +733,8 @@ export const useStudio = create<StudioState>()(
         set((state) => ({ recipeRuns: state.recipeRuns.map((run) => (run.id === id ? patch(run) : run)) })),
       rememberStepModel: (keys, modelId) =>
         set((state) => ({ lastModelByStep: { ...state.lastModelByStep, ...Object.fromEntries(keys.map((k) => [k, modelId])) } })),
-      removeElement: (id) => set((state) => ({ elements: state.elements.filter((e) => e.id !== id) })),
+      removeElement: (id) =>
+        set((state) => ({ elements: state.elements.filter((e) => e.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
       openElementEditor: (elementEditor) => set({ elementEditor }),
       setCopy: (source, copy) => set((state) => ({ copies: { ...state.copies, [source]: copy } })),
       setRemote: (key, provider, remote) =>
@@ -744,12 +752,15 @@ export const useStudio = create<StudioState>()(
           return { favorites: on ? [...urls, ...rest] : rest };
         }),
 
-      addRun: (run) => set((state) => ({ runs: [run, ...state.runs].slice(0, 200) })),
+      // Kept to the most recent thousand on this device; the shared library
+      // keeps them all and brings older ones back when they are needed.
+      addRun: (run) => set((state) => ({ runs: [run, ...state.runs].slice(0, 1000) })),
       patchRun: (id, patch) =>
         set((state) => ({
           runs: state.runs.map((run) => (run.id === id ? { ...run, ...patch } : run)),
         })),
-      removeRun: (id) => set((state) => ({ runs: state.runs.filter((run) => run.id !== id) })),
+      removeRun: (id) =>
+        set((state) => ({ runs: state.runs.filter((run) => run.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
       loadDemo: () =>
         set((state) => ({
           runs: [...demoRuns(), ...state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX))],
@@ -792,6 +803,7 @@ export const useStudio = create<StudioState>()(
         projects: state.projects,
         activeProjectId: state.activeProjectId,
         lastModelByStep: state.lastModelByStep,
+        deleted: state.deleted,
         remotes: state.remotes,
       }),
     },

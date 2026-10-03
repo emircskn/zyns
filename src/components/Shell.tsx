@@ -15,6 +15,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
+import { LibrarySync } from "@/components/LibrarySync";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
@@ -162,6 +163,7 @@ export function Shell() {
       <ModelPicker />
       <RunPoller />
       <UpdateWatcher />
+      <LibrarySync />
       <StorageKeeper />
       <RecipeDriver />
       <ThemeSync />
