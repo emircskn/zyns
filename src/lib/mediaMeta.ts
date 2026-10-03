@@ -40,12 +40,19 @@ export function readMediaMeta(source: Blob | string, kind: "image" | "video" | "
     const el = document.createElement(kind);
     el.preload = "metadata";
     el.muted = true;
-    el.onloadedmetadata = () => {
+    const report = () => {
       const video = el as HTMLVideoElement;
       finish({
-        durationSec: Number.isFinite(el.duration) ? el.duration : undefined,
+        durationSec: Number.isFinite(el.duration) && el.duration > 0 ? el.duration : undefined,
         ...(kind === "video" ? { width: video.videoWidth || undefined, height: video.videoHeight || undefined } : {}),
       });
+    };
+    el.onloadedmetadata = () => {
+      if (Number.isFinite(el.duration) && el.duration > 0) return report();
+      // A recording without a length in its header (a browser's own WebM)
+      // finds it out by seeking past the end.
+      el.ondurationchange = () => Number.isFinite(el.duration) && el.duration > 0 && report();
+      el.currentTime = Number.MAX_SAFE_INTEGER;
     };
     el.onerror = () => finish(null);
     el.src = url;
