@@ -38,9 +38,9 @@ function ModelCard({
       className="anim-tile lift card-lazy group flex flex-col overflow-hidden rounded-card bg-surface-2 text-left transition-colors duration-[200ms]"
     >
       <div className="relative">
-        {/* What the model makes: your latest result from it, else its catalogue preview. */}
+        {/* What the model makes: its catalogue preview, never your own results. */}
         <div className="relative aspect-[7/4] overflow-hidden">
-          <ModelMedia model={model} />
+          <ModelMedia model={model} own={false} />
         </div>
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2.5">
           {model.badge ? (
