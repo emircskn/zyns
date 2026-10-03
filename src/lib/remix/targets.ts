@@ -137,7 +137,8 @@ export function sourceLimits(model: ModelDef, values: Values): SourceLimits {
     limits.min = Number(range[1]);
     limits.max = Number(range[2]);
   }
-  const least = /at least\s*([\d.]+)\s*seconds/i.exec(text);
+  // "Normalized to at least 4 seconds" pads a short clip; only a plain "at least" is a floor.
+  const least = /(?<!normali[sz]ed to )at least\s*([\d.]+)\s*seconds/i.exec(text);
   if (least) limits.min = Number(least[1]);
   const longer = /longer than\s*([\d.]+)\s*seconds\s*(?:are|is)\s*(?:automatically\s*)?trimmed/i.exec(text);
   if (longer) {

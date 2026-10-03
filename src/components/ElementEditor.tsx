@@ -33,7 +33,7 @@ function EditorSheet({
   exiting,
   onClose,
 }: {
-  start: { id?: string; images?: string[] };
+  start: { id?: string; images?: string[]; kind?: ElementKind };
   exiting: boolean;
   onClose: () => void;
 }) {
@@ -43,7 +43,7 @@ function EditorSheet({
   const existing = start.id ? elements.find((e) => e.id === start.id) : undefined;
 
   const [name, setName] = useState(existing?.name ?? "");
-  const [kind, setKind] = useState<ElementKind>(existing?.kind ?? "character");
+  const [kind, setKind] = useState<ElementKind>(existing?.kind ?? start.kind ?? "character");
   const [notes, setNotes] = useState(existing?.notes ?? "");
   // Pictures by the address shown; those already kept carry their MediaRef.
   const [images, setImages] = useState<string[]>(

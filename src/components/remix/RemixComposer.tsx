@@ -25,7 +25,7 @@ import {
   type SourceLimits,
   type StyleInput,
 } from "@/lib/remix/targets";
-import { targetKey } from "@/lib/remix/types";
+import { targetKey, type RemixRunInfo } from "@/lib/remix/types";
 import { useEstimate } from "@/lib/useEstimate";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 import { keyFor, useStudio } from "@/store/studio";
@@ -303,6 +303,7 @@ export function RemixComposer({
   below,
   style,
   needsStyle,
+  info,
 }: {
   onKeyClick: () => void;
   /** Restyle's model row, between the tabs and the source. */
@@ -313,6 +314,8 @@ export function RemixComposer({
   style?: StyleInput;
   /** Why there is no style yet, where the model cannot go without one. */
   needsStyle?: string | null;
+  /** More for the run to remember (the style's name). */
+  info?: Partial<RemixRunInfo>;
 }) {
   const remix = useStudio((s) => s.remix);
   const patchRemix = useStudio((s) => s.patchRemix);
@@ -368,8 +371,8 @@ export function RemixComposer({
         mode: remix.mode,
         source: remix.source!,
         refs: remix.refs,
-        presetId: remix.presetId,
-        styleId: remix.styleId,
+        ...(remix.mode === "restyle" ? { presetId: remix.presetId, styleId: remix.styleId } : {}),
+        ...info,
       },
     });
     setBusy(false);

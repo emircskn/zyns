@@ -33,12 +33,17 @@ export function ModelRow({
   active,
   onPick,
   showProvider,
+  name,
+  tagline,
 }: {
   model: ModelDef;
   active: boolean;
   onPick: () => void;
   /** For lists that mix KIE's and Higgsfield's models. */
   showProvider?: boolean;
+  /** For a list that offers one model in two of its modes, each by its own name. */
+  name?: string;
+  tagline?: string;
 }) {
   const row = useRef<HTMLButtonElement>(null);
 
@@ -60,7 +65,7 @@ export function ModelRow({
       <VendorBadge model={model} size={34} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
-          <span className="truncate text-[14px] font-medium text-t1">{model.name}</span>
+          <span className="truncate text-[14px] font-medium text-t1">{name ?? model.name}</span>
           {model.badge && (
             <span className="shrink-0 rounded-[2px] bg-accent px-1 py-px text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-ink">
               {model.badge}
@@ -68,7 +73,7 @@ export function ModelRow({
           )}
           {showProvider && <ProviderTag model={model} />}
         </span>
-        <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
+        <span className="block truncate text-[12px] leading-snug text-t3">{tagline ?? model.tagline}</span>
       </span>
       {model.price && <span className="shrink-0 text-[11.5px] tabular-nums text-t3">{model.price}</span>}
       {active && (
