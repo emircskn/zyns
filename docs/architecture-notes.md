@@ -206,3 +206,25 @@ Spec'ten sapmalar ve nedenleri:
 - **Gemini TTS:** Konuşmacı/ses seçimi zorunlu; recipe adımında "Settings" altından seçilmeli, otomatik eşlenmiyor.
 - **Higgsfield katalogunda yeni:** `higgsfield/genjutsu/restyle/v1.0` (Faz 2 §2.3 "ayrı style endpoint'i yok" diyordu; artık var, `preset_id` istiyor) ve Soul 2.0 image-to-image (Soul 2.0'a "Edit" modu olarak eklendi).
 
+
+## Faz 2 sonrası (2026-10-03)
+
+Neyin nerede olduğu:
+
+| Konu | Dosyalar |
+|---|---|
+| Sayfa ve adres | `Page` içinde `"remix"`, `isCategoryPage()` (`src/store/studio.ts`); `src/app/remix/page.tsx` → `Shell initialPage`; adres sayfayla birlikte `/` ↔ `/remix` değişir; üst menüde "Remix", telefonda Create sayfasının başında kart |
+| Hedefler (hangi mod hangi modele gider) | `src/lib/remix/targets.ts`: Motion transfer / Swap = `hf-genjutsu` modları; Restyle = seçili hedef (varsayılan Genjutsu Restyle), `restyleTargets()` = Genjutsu Restyle + Genjutsu motion transfer + `video-edit` yeteneğindeki bütün modeller; alanlar `paramMap` ile yerleşir; süre/piksel sınırları ve saniye başı fiyat katalogdaki notlardan ve `pricing` metninden okunur |
+| Genjutsu Restyle | `hf/curation.ts`'te gizli (`hidden`) `restyle` modu (Video sayfasında sekme değil); stiller `GET /models/higgsfield/genjutsu/restyle/v1.0/presets` → `/api/higgsfield/presets`, `transport.getRestylePresets` |
+| Composer ve sayfa | `src/components/remix/*` (`RemixStudio`, `RemixPage`, `RemixComposer`, `Restyle`, `Trimmer`, `BeforeAfter`, `RemixHistory`, `MotionLibrary`) |
+| Zyns stilleri | `src/lib/remix/styles.ts` (hazır olanlar + `kind: 'style'` Element'ler) |
+| Kırpma | `src/lib/remix/trim.ts`: kaynak kendi depomuzdan (aynı köken) oynatılıp canvas + WebAudio ile `MediaRecorder`'a kaydedilir; MP4 kaydedebilen tarayıcı Higgsfield'a, sadece WebM kaydedebilen KIE'ye yükler |
+| Durum | `remix: RemixState` (bu cihazın composer'ı) ve `motionClips: MotionClip[]` (paylaşılan kütüphanede, `LibraryDoc.motionClips`); `Run.remix` önce/sonra ve "tekrar" için kaynak + referansları tutar |
+
+Spec'ten sapmalar ve nedenleri:
+
+- **Restyle ucu:** Spec "ayrı style endpoint'i yok" diyordu; Higgsfield `higgsfield/genjutsu/restyle/v1.0` ve dokümanlı preset listesini ekledi. Kural 1 gereği özelliğin kendi ucu varsayılan oldu. Spec'teki yol (motion-transfer + stil referansı) seçicide ikinci sırada.
+- **Stil önizlemeleri:** Zyns'in hazır stilleri prompt parçası olarak geldi; referans görselleri ve önizlemeleri Zyns ile üretilince eklenecek. Higgsfield stillerinin önizlemesi kendi listesinden geliyor.
+- **Kırpıcı:** Genjutsu'nun başlangıç/bitiş parametresi yok, bu yüzden seçilen parça yeni bir dosya olarak kaydedilir; parçanın süresi kadar sürer. Safari'de ses, sayfa izin vermezse sessiz kaydedilir (not düşülür).
+- **Banner:** Katalogda object-swap'ın `banner_media`'sı yok; Swap'ta da motion-transfer'inki duruyor.
+- **Preview deploy:** Faz 1'deki gibi canlı site (tek dal).
