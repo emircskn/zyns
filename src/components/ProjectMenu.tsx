@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { Chip } from "@/components/PromptBar";
 import { useStudio } from "@/store/studio";
 
@@ -58,33 +59,30 @@ export function ProjectList({
               aria-label="Project name"
               className="min-w-0 flex-1 rounded-full bg-t1/[0.06] px-3 py-1.5 text-[13.5px] text-t1 outline-none"
             />
-            {confirming ? (
-              <button
-                type="button"
-                onClick={() => {
-                  removeProject(project.id);
-                  if (current === project.id) onPick(null);
-                  setEditing(null);
-                }}
-                className="rounded-full bg-[#ff6b6b]/15 px-3 py-1.5 text-[12.5px] font-medium text-[#ff8f8f]"
-              >
-                Delete
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(true)}
-                  aria-label={`Delete ${project.name}`}
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
-                >
-                  <Icon name="trash" size={15} />
-                </button>
-                <button type="submit" className="cta rounded-full px-3 py-1.5 text-[12.5px] font-medium">
-                  Save
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              aria-label={`Delete ${project.name}`}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+            >
+              <Icon name="trash" size={15} />
+            </button>
+            <button type="submit" className="cta rounded-full px-3 py-1.5 text-[12.5px] font-medium">
+              Save
+            </button>
+            <ConfirmPopup
+              open={confirming}
+              title={`Delete ${project.name}?`}
+              message="What is in it stays in your studio; it just belongs to no project any more."
+              confirmLabel="Delete"
+              onConfirm={() => {
+                setConfirming(false);
+                removeProject(project.id);
+                if (current === project.id) onPick(null);
+                setEditing(null);
+              }}
+              onClose={() => setConfirming(false)}
+            />
           </form>
         ) : (
           <div key={project.id} className="relative">

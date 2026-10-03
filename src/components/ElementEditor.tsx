@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { ELEMENT_KINDS, MAX_ELEMENT_IMAGES, elementName, type ElementKind, type LibraryElement } from "@/lib/elements";
 import { makeMediaRef, type MediaRef } from "@/lib/media";
 import { mediaSrc } from "@/lib/storage/client";
@@ -55,11 +56,11 @@ function EditorSheet({
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape" && !picking) onClose();
+      if (event.key === "Escape" && !picking && !confirming) onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose, picking]);
+  }, [onClose, picking, confirming]);
 
   const slug = elementName(name);
   const taken = elements.some((e) => e.name === slug && e.id !== existing?.id);
@@ -215,28 +216,30 @@ function EditorSheet({
         </div>
 
         <footer className="flex items-center gap-2 border-t border-line px-5 py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-          {existing &&
-            (confirming ? (
-              <button
-                type="button"
-                onClick={() => {
-                  removeElement(existing.id);
-                  onClose();
-                }}
-                className="rounded-full bg-[#ff6b6b]/15 px-4 py-2 text-[13px] font-medium text-[#ff8f8f]"
-              >
-                Delete @{existing.name}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setConfirming(true)}
-                aria-label="Delete element"
-                className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
-              >
-                <Icon name="trash" size={16} />
-              </button>
-            ))}
+          {existing && (
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              aria-label="Delete element"
+              className="grid h-9 w-9 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+            >
+              <Icon name="trash" size={16} />
+            </button>
+          )}
+          {existing && (
+            <ConfirmPopup
+              open={confirming}
+              title={`Delete @${existing.name}?`}
+              message="Prompts that call it will no longer find it. Its pictures stay in your studio."
+              confirmLabel="Delete"
+              onConfirm={() => {
+                setConfirming(false);
+                removeElement(existing.id);
+                onClose();
+              }}
+              onClose={() => setConfirming(false)}
+            />
+          )}
           <span className="flex-1" />
           <button type="button" onClick={onClose} className="rounded-full px-4 py-2 text-[13px] text-t2 hover:text-t1">
             Cancel

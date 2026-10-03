@@ -44,7 +44,15 @@ export function ConfirmPopup({
   if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[130] flex items-center justify-center p-6" role="alertdialog" aria-modal="true" aria-label={shown.title}>
+    <div
+      className="fixed inset-0 z-[140] flex items-center justify-center p-6"
+      role="alertdialog"
+      aria-modal="true"
+      aria-label={shown.title}
+      // Its own: a menu it was opened from (a project's) must not read a
+      // press in here as a press outside and close under it.
+      onMouseDown={(event) => event.stopPropagation()}
+    >
       <button
         type="button"
         aria-label="Cancel"

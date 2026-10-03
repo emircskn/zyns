@@ -40,6 +40,7 @@ function StatusOverlay({ run }: { run: Run }) {
   const removeRun = useStudio((s) => s.removeRun);
   // A long reason is cut to a few lines; a tap shows it whole.
   const [whole, setWhole] = useState(false);
+  const [asking, setAsking] = useState(false);
   if (run.state === "failed") {
     const hint = failureHint(run.error);
     // A failed tile has no media to open, so its way out has to be on the
@@ -92,7 +93,7 @@ function StatusOverlay({ run }: { run: Run }) {
           </button>
           <button
             type="button"
-            onClick={() => removeRun(run.id)}
+            onClick={() => setAsking(true)}
             title="Remove from gallery"
             aria-label="Remove"
             className="flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--danger)_16%,transparent)] px-2 text-[11.5px] text-[var(--danger)] transition-colors duration-[120ms] hover:bg-[color-mix(in_oklab,var(--danger)_28%,transparent)] @[190px]:px-2.5"
@@ -101,6 +102,17 @@ function StatusOverlay({ run }: { run: Run }) {
             <span className="hidden @[190px]:inline">Remove</span>
           </button>
         </div>
+        <ConfirmPopup
+          open={asking}
+          title="Delete this?"
+          message="The failed run is removed from your studio."
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setAsking(false);
+            removeRun(run.id);
+          }}
+          onClose={() => setAsking(false)}
+        />
       </div>
     );
   }
@@ -426,6 +438,7 @@ function RunDetails({ run }: { run: Run }) {
   const model = getModel(run.modelId);
   const removeRun = useStudio((s) => s.removeRun);
   const [copied, setCopied] = useState(false);
+  const [asking, setAsking] = useState(false);
   const inputs = inputMedia(run);
   const chips = model
     ? model.fields
@@ -499,11 +512,22 @@ function RunDetails({ run }: { run: Run }) {
           type="button"
           title="Remove from gallery"
           aria-label="Remove"
-          onClick={() => removeRun(run.id)}
+          onClick={() => setAsking(true)}
           className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
         >
           <Icon name="trash" size={15} />
         </button>
+        <ConfirmPopup
+          open={asking}
+          title="Delete this?"
+          message={(asking && keptNote(usedElsewhere(run.urls, { runs: [run.id] }))) || "It is removed from your studio for good."}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setAsking(false);
+            removeRun(run.id);
+          }}
+          onClose={() => setAsking(false)}
+        />
       </div>
     </div>
   );
