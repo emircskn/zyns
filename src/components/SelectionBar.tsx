@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { useStudio } from "@/store/studio";
 import { saveLabel, type SaveResult, type SaveState } from "@/lib/download";
 import { SaveGlyph } from "@/components/SaveGlyph";
+import { ProjectPicker } from "@/components/ProjectPicker";
 
 /**
  * The bar that appears once something is picked: what it can do to all of
@@ -21,6 +22,8 @@ export function SelectionBar({
   onDownload,
   onDelete,
   onClose,
+  onProject,
+  project,
 }: {
   /** Up with nothing picked yet: a phone's Select button was pressed. */
   open?: boolean;
@@ -36,10 +39,15 @@ export function SelectionBar({
   onDownload: () => Promise<SaveResult> | void;
   onDelete: () => void;
   onClose: () => void;
+  /** Files the picks under a project (or none); absent where that has no meaning. */
+  onProject?: (projectId: string | null) => void;
+  /** The project every pick is already in, if they share one; "" when they differ. */
+  project?: string | null;
 }) {
   const setSelecting = useStudio((s) => s.setSelecting);
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState<SaveState>("idle");
+  const [filing, setFiling] = useState(false);
 
   useEffect(() => {
     setConfirming(false);
@@ -141,6 +149,12 @@ export function SelectionBar({
               <Icon name="heart" size={16} fill={favorited ? "currentColor" : "none"} />
               <span className="hidden sm:inline">{favorited ? "Unfavorite" : "Favorite"}</span>
             </button>
+            {onProject && (
+              <button type="button" onClick={() => setFiling(true)} aria-label="Add to project" className={button}>
+                <Icon name="folder" size={16} />
+                <span className="hidden sm:inline">Project</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setConfirming(true)}
@@ -154,6 +168,18 @@ export function SelectionBar({
             </>
             )}
           </>
+        )}
+        {onProject && (
+          <ProjectPicker
+            open={filing}
+            current={project ?? ""}
+            count={count}
+            onPick={(id) => {
+              setFiling(false);
+              onProject(id);
+            }}
+            onClose={() => setFiling(false)}
+          />
         )}
         <button
           type="button"

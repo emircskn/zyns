@@ -7,7 +7,7 @@ import { Chip } from "@/components/PromptBar";
 import { useStudio } from "@/store/studio";
 
 /** The list of projects with a way to start a new one, shared by the composer and Assets. */
-function ProjectList({
+export function ProjectList({
   current,
   noneLabel,
   onPick,

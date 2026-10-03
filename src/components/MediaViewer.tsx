@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
+import { ProjectPicker } from "@/components/ProjectPicker";
 import { LikeHeart } from "@/components/LikeHeart";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { VendorBadge } from "@/components/VendorMark";
@@ -379,6 +380,11 @@ export function MediaViewer({
   const [shown, setShown] = useState(url);
   const [copied, setCopied] = useState<"url" | "prompt" | null>(null);
   const [confirming, setConfirming] = useState(false);
+  // Choosing the project this belongs to.
+  const [filing, setFiling] = useState(false);
+  const projects = useStudio((s) => s.projects);
+  const fileUnder = useStudio((s) => s.fileUnder);
+  const uploads = useStudio((s) => s.uploads);
   const [more, setMore] = useState(false);
   const moreTile = useRef<HTMLButtonElement>(null);
   const [full, setFull] = useState(false);
@@ -505,45 +511,78 @@ export function MediaViewer({
   }
 
   // Everything this media can do, in reaching order. Six fit in the grid;
-  // past that the tail steps behind More, so the rows stay square.
-  const actions = [
-    videoModel && <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} />,
-    run && <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} />,
-    canReference && <Action key="reference" icon="layers" label="Reference" onClick={reference} />,
-    <LikeHeart
-      key="favorite"
-      liked={kept}
-      title={kept ? "Remove from favorites" : "Add to favorites"}
-      onToggle={() => shown && toggleFavorite(shown)}
-      className={`${TILE_SHAPE} bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1`}
-    >
-      <span className="max-w-full truncate">{kept ? "Kept" : "Favorite"}</span>
-    </LikeHeart>,
-    <Action
-      key="download"
-      icon="download"
-      label={saver.label}
-      glyph={<SaveGlyph state={saver.state} size={19} />}
-      lit={saver.state === "done" || saver.state === "retry"}
-      onClick={() => shown && saver.state !== "busy" && void saver.save([shown])}
-    />,
-    isImage && shown && (
-      <Action
-        key="element"
-        icon="user"
-        label="Make element"
-        onClick={() => {
+  // past that the tail steps behind More, so the rows stay square, and each
+  // of those carries the line it reads as in that menu.
+  type Entry = { key: string; tile: ReactNode; row?: { icon: IconName; label: string; onClick: () => void; danger?: boolean } };
+  const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
+  const project = projects.find((p) => p.id === filedIn);
+  const entries = ([
+    videoModel && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
+    run && { key: "recreate", tile: <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} /> },
+    canReference && { key: "reference", tile: <Action key="reference" icon="layers" label="Reference" onClick={reference} /> },
+    {
+      key: "favorite",
+      tile: (
+        <LikeHeart
+          key="favorite"
+          liked={kept}
+          title={kept ? "Remove from favorites" : "Add to favorites"}
+          onToggle={() => shown && toggleFavorite(shown)}
+          className={`${TILE_SHAPE} bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1`}
+        >
+          <span className="max-w-full truncate">{kept ? "Kept" : "Favorite"}</span>
+        </LikeHeart>
+      ),
+    },
+    {
+      key: "download",
+      tile: (
+        <Action
+          key="download"
+          icon="download"
+          label={saver.label}
+          glyph={<SaveGlyph state={saver.state} size={19} />}
+          lit={saver.state === "done" || saver.state === "retry"}
+          onClick={() => shown && saver.state !== "busy" && void saver.save([shown])}
+        />
+      ),
+    },
+    (run || upload) && {
+      key: "project",
+      tile: <Action key="project" icon="folder" label={project ? project.name : "Project"} lit={!!project} onClick={() => setFiling(true)} />,
+      row: { icon: "folder" as IconName, label: project ? `Project · ${project.name}` : "Add to project", onClick: () => setFiling(true) },
+    },
+    isImage && shown && {
+      key: "element",
+      tile: (
+        <Action
+          key="element"
+          icon="user"
+          label="Make element"
+          onClick={() => {
+            openElementEditor({ images: [shown] });
+            onClose();
+          }}
+        />
+      ),
+      row: {
+        icon: "user" as IconName,
+        label: "Make element",
+        onClick: () => {
           openElementEditor({ images: [shown] });
           onClose();
-        }}
-      />
-    ),
-    (run || upload) && (
-      <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
-    ),
-  ].filter(Boolean);
-  const overflowed = actions.length > 6;
-  const tiles = overflowed ? actions.slice(0, 5) : actions;
+        },
+      },
+    },
+    (run || upload) && {
+      key: "delete",
+      tile: <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />,
+      row: { icon: "trash" as IconName, label: "Delete", onClick: () => setConfirming(true), danger: true },
+    },
+  ] as Array<Entry | false | "" | null | undefined>).filter((entry): entry is Entry => !!entry);
+  const overflowed = entries.length > 6;
+  const tiles = (overflowed ? entries.slice(0, 5) : entries).map((entry) => entry.tile);
+  const tail = overflowed ? entries.slice(5) : [];
 
   const title = run?.modelName ?? upload?.label ?? "Media";
   const subtitle = run
@@ -672,20 +711,26 @@ export function MediaViewer({
 
           {overflowed && (
             <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
-              {(run || upload) && (
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMore(false);
-                    setConfirming(true);
-                  }}
-                  style={{ color: "var(--danger)" }}
-                  className="flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10"
-                >
-                  <Icon name="trash" size={15} className="shrink-0" />
-                  Delete
-                </button>
+              {tail.map(
+                (entry) =>
+                  entry.row && (
+                    <button
+                      key={entry.key}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setMore(false);
+                        entry.row!.onClick();
+                      }}
+                      style={entry.row.danger ? { color: "var(--danger)" } : undefined}
+                      className={`flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
+                        entry.row.danger ? "hover:bg-[#ff6b6b]/10" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
+                      }`}
+                    >
+                      <Icon name={entry.row.icon} size={15} className="shrink-0" />
+                      <span className="truncate">{entry.row.label}</span>
+                    </button>
+                  ),
               )}
             </MoreMenu>
           )}
@@ -722,6 +767,16 @@ export function MediaViewer({
           {/* Asked before it happens: a gallery is the only copy of what it
               holds, and a tap is easy to make by accident. A phone asks in
               a window of its own; a desktop in a line under the actions. */}
+          <ProjectPicker
+            open={filing}
+            current={(run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId) ?? null}
+            count={1}
+            onPick={(projectId) => {
+              setFiling(false);
+              if (shown) fileUnder([shown], projectId);
+            }}
+            onClose={() => setFiling(false)}
+          />
           <ConfirmPopup
             open={phone && confirming}
             title="Delete this?"
@@ -831,6 +886,19 @@ export function MediaViewer({
                     <dd className="truncate text-right text-[12.5px] capitalize text-t1/85">{row.value}</dd>
                   </div>
                 ))}
+                {/* Which project it is filed under, and the way to change it. */}
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="shrink-0 text-[12.5px] text-t3">Project</dt>
+                  <dd className="min-w-0 text-right">
+                    <button
+                      type="button"
+                      onClick={() => setFiling(true)}
+                      className="max-w-full truncate text-[12.5px] text-t1/85 underline decoration-line-strong underline-offset-[3px] hover:text-t1"
+                    >
+                      {project ? project.name : "None · add"}
+                    </button>
+                  </dd>
+                </div>
               </dl>
             </Section>
           )}

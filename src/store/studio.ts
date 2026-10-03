@@ -241,6 +241,8 @@ interface StudioState {
   addProject: (name: string) => Project;
   renameProject: (id: string, name: string) => void;
   removeProject: (id: string) => void;
+  /** Files what is already made (by its media URLs) under a project, or under none. */
+  fileUnder: (urls: string[], projectId: string | null) => void;
   setActiveProject: (id: string | null) => void;
   patchRecipeRun: (id: string, patch: (run: RecipeRun) => RecipeRun) => void;
   rememberStepModel: (keys: string[], modelId: string) => void;
@@ -709,6 +711,16 @@ export const useStudio = create<StudioState>()(
           uploads: state.uploads.map((u) => (u.projectId === id ? { ...u, projectId: undefined } : u)),
         })),
       setActiveProject: (activeProjectId) => set({ activeProjectId }),
+      // A run is filed whole: its outputs are one piece of work.
+      fileUnder: (urls, projectId) =>
+        set((state) => {
+          const picked = new Set(urls);
+          const projectIdOrNone = projectId ?? undefined;
+          return {
+            runs: state.runs.map((run) => (run.urls.some((u) => picked.has(u)) ? { ...run, projectId: projectIdOrNone } : run)),
+            uploads: state.uploads.map((upload) => (picked.has(upload.url) ? { ...upload, projectId: projectIdOrNone } : upload)),
+          };
+        }),
       addRecipeRun: (run) => set((state) => ({ recipeRuns: [run, ...state.recipeRuns].slice(0, 50) })),
       patchRecipeRun: (id, patch) =>
         set((state) => ({ recipeRuns: state.recipeRuns.map((run) => (run.id === id ? patch(run) : run)) })),

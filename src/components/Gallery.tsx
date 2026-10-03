@@ -524,6 +524,7 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
   const favorites = useStudio((s) => s.favorites);
   const setFavorites = useStudio((s) => s.setFavorites);
   const removeRun = useStudio((s) => s.removeRun);
+  const fileUnder = useStudio((s) => s.fileUnder);
   const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   // A phone's Select button: tiles pick on a tap before anything is picked.
@@ -580,6 +581,9 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
   // looking at and what its buttons act on.
   const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
   const pickedUrls = picked.flatMap((id) => runs.find((run) => run.id === id)?.urls ?? []);
+  // The project the picks share, or "" when they are in different ones.
+  const pickedProjects = new Set(picked.map((id) => runs.find((run) => run.id === id)?.projectId ?? null));
+  const pickedProject = pickedProjects.size === 1 ? [...pickedProjects][0] : "";
 
   return (
     <>
@@ -637,6 +641,12 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
           setFavorites(pickedUrls, !pickedUrls.every((url) => favorites.includes(url)))
         }
         onDownload={() => saveMedia(pickedUrls)}
+        project={pickedProject}
+        onProject={(projectId) => {
+          fileUnder(pickedUrls, projectId);
+          setPicked([]);
+          setSelectMode(false);
+        }}
         onDelete={() => {
           picked.forEach(removeRun);
           setPicked([]);

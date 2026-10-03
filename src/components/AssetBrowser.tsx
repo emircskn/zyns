@@ -243,6 +243,7 @@ export function AssetBrowser({
   const phone = usePhone();
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
+  const fileUnder = useStudio((s) => s.fileUnder);
   const favorites = useStudio((s) => s.favorites);
   const setFavorites = useStudio((s) => s.setFavorites);
   const [viewing, setViewing] = useState<string | null>(null);
@@ -374,6 +375,15 @@ export function AssetBrowser({
           setFavorites(picked, !picked.every((url) => favorites.includes(url)))
         }
         onDownload={() => saveMedia(picked)}
+        project={(() => {
+          const shared = new Set(picked.map((url) => assets.find((a) => a.url === url)?.projectId ?? null));
+          return shared.size === 1 ? [...shared][0] : "";
+        })()}
+        onProject={(projectId) => {
+          fileUnder(picked, projectId);
+          setPicked([]);
+          setSelectMode(false);
+        }}
         onDelete={() => {
           picked.forEach(drop);
           setPicked([]);
