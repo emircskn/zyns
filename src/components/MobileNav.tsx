@@ -54,7 +54,8 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
           time, and still the spark rather than an arrow: this button opens
           the models, it does not send anything. */}
       <span className="mx-2">
-        <MetalButton>
+        {/* The ring stays, still: it moving all the time pulled the eye off the page. */}
+        <MetalButton still>
           <button
             type="button"
             onClick={onCreate}

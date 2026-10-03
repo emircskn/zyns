@@ -18,14 +18,16 @@ import { useStudio } from "@/store/studio";
  * its own switch, and a ring tuned for a dark page reads as a smudge on a
  * light one. Browsers without WebGL2 render the plain child.
  */
-export function MetalButton({ children }: { children: ReactNode }) {
+export function MetalButton({ children, still: held }: { children: ReactNode; /** The ring without its movement. */ still?: boolean }) {
   const ring = useRef<HTMLDivElement>(null);
   const theme = useStudio((s) => s.theme);
   const [mounted, setMounted] = useState(false);
   // Someone who has asked for less motion keeps the metal, not the movement:
   // paused holds the last frame, so the ring is still there.
   const [still, setStill] = useState(false);
-  useMetalBend(ring);
+  // Held still, it does not dent under the finger either.
+  const none = useRef<HTMLDivElement>(null);
+  useMetalBend(held ? none : ring);
 
   // The ring is put on after the page has hydrated. MetalFx renders one
   // element on the server and another on the client, which React reports as a
@@ -50,7 +52,7 @@ export function MetalButton({ children }: { children: ReactNode }) {
       innerShadow
       strength={0.9}
       disableGlow
-      paused={still}
+      paused={still || held}
       className="shrink-0"
     >
       {children}

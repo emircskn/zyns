@@ -645,7 +645,7 @@ const GRID_COLS = ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"];
  * preview for another Restyle model.
  */
 function RemixBanner({ model, mode, onChange }: { model: ModelDef; mode: RemixMode; onChange?: () => void }) {
-  const media = model.id === GENJUTSU ? bannerOf(mode === "restyle" ? "motion" : mode) : undefined;
+  const media = model.id === GENJUTSU ? bannerOf(mode) : undefined;
   return (
     <div className="relative h-[124px] shrink-0 overflow-hidden rounded-panel bg-surface">
       {media?.video ? (
