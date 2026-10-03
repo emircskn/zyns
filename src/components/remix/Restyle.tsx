@@ -10,7 +10,6 @@ import { getRestylePresets } from "@/lib/higgsfield/transport";
 import type { RestylePreset } from "@/lib/higgsfield/client";
 import { isNativeRestyle, restyleTargets, targetOf } from "@/lib/remix/targets";
 import { zynsStyles, type ZynsStyle } from "@/lib/remix/styles";
-import { RESTYLE_COVER } from "@/lib/remix/banner";
 import { targetKey } from "@/lib/remix/types";
 import { getModel, providerOf } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
@@ -215,14 +214,6 @@ export function StyleGrid({ onPicked }: { onPicked?: () => void }) {
     if (presets.length === 0) return <p className="py-8 text-center text-[13px] text-t4">Higgsfield lists no styles for this account.</p>;
     return (
       <div className="flex flex-col gap-3">
-      {/* Higgsfield's own cover for Restyle, over its styles. */}
-      <div className="relative aspect-[880/496] max-h-[260px] w-full overflow-hidden rounded-panel bg-surface md:aspect-[16/5]">
-        <video src={RESTYLE_COVER} muted loop autoPlay playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-        <p className="absolute bottom-3 left-3.5 text-[13px] text-white/85">
-          {presets.length} Higgsfield styles · pick one to restyle your clip
-        </p>
-      </div>
       <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-5">
         {presets.map((preset) => (
           <Tile
