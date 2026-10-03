@@ -17,6 +17,7 @@ import { PhoneComposer } from "@/components/PhoneComposer";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
 import { LibrarySync } from "@/components/LibrarySync";
 import { StorageJanitor } from "@/components/StorageJanitor";
+import { MediaFallback } from "@/components/MediaFallback";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
@@ -166,6 +167,7 @@ export function Shell() {
       <UpdateWatcher />
       <LibrarySync />
       <StorageJanitor />
+      <MediaFallback />
       <StorageKeeper />
       <RecipeDriver />
       <ThemeSync />
