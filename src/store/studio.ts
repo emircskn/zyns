@@ -199,6 +199,12 @@ interface StudioState {
    * and when, so another device deletes it too rather than bringing it back.
    */
   deleted: Record<string, number>;
+  /**
+   * Media whose run or upload was deleted here, waiting to have its kept
+   * copy removed from storage once nothing else is found to use it.
+   */
+  purge: string[];
+  dropFromPurge: (urls: string[]) => void;
   settingsOpen: boolean;
   pickerOpen: boolean;
   pickerTab: Category | "all";
@@ -444,6 +450,8 @@ export const useStudio = create<StudioState>()(
       activeProjectId: null,
       remotes: {},
       deleted: {},
+      purge: [],
+      dropFromPurge: (urls) => set((state) => ({ purge: state.purge.filter((u) => !urls.includes(u)) })),
       settingsOpen: false,
       pickerOpen: false,
       pickerTab: "all",
@@ -693,7 +701,14 @@ export const useStudio = create<StudioState>()(
           ].slice(0, 200),
         })),
       removeUpload: (id) =>
-        set((state) => ({ uploads: state.uploads.filter((u) => u.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
+        set((state) => {
+          const gone = state.uploads.find((u) => u.id === id);
+          return {
+            uploads: state.uploads.filter((u) => u.id !== id),
+            deleted: { ...state.deleted, [id]: Date.now() },
+            purge: gone && !id.startsWith(DEMO_PREFIX) ? [...new Set([...state.purge, gone.url])] : state.purge,
+          };
+        }),
 
       saveElement: (element) =>
         set((state) => ({
@@ -760,7 +775,14 @@ export const useStudio = create<StudioState>()(
           runs: state.runs.map((run) => (run.id === id ? { ...run, ...patch } : run)),
         })),
       removeRun: (id) =>
-        set((state) => ({ runs: state.runs.filter((run) => run.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
+        set((state) => {
+          const gone = state.runs.find((run) => run.id === id);
+          return {
+            runs: state.runs.filter((run) => run.id !== id),
+            deleted: { ...state.deleted, [id]: Date.now() },
+            purge: gone && !id.startsWith(DEMO_PREFIX) ? [...new Set([...state.purge, ...gone.urls])] : state.purge,
+          };
+        }),
       loadDemo: () =>
         set((state) => ({
           runs: [...demoRuns(), ...state.runs.filter((r) => !r.id.startsWith(DEMO_PREFIX))],
@@ -804,6 +826,7 @@ export const useStudio = create<StudioState>()(
         activeProjectId: state.activeProjectId,
         lastModelByStep: state.lastModelByStep,
         deleted: state.deleted,
+        purge: state.purge,
         remotes: state.remotes,
       }),
     },

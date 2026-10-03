@@ -16,6 +16,7 @@ import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
 import { LibrarySync } from "@/components/LibrarySync";
+import { StorageJanitor } from "@/components/StorageJanitor";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
@@ -164,6 +165,7 @@ export function Shell() {
       <RunPoller />
       <UpdateWatcher />
       <LibrarySync />
+      <StorageJanitor />
       <StorageKeeper />
       <RecipeDriver />
       <ThemeSync />

@@ -109,7 +109,9 @@ export async function putObject(
 }
 
 export async function deleteObject(key: string): Promise<void> {
-  await fetch(presign("DELETE", key, 60), { method: "DELETE", signal: AbortSignal.timeout(15_000) });
+  const res = await fetch(presign("DELETE", key, 60), { method: "DELETE", signal: AbortSignal.timeout(15_000) });
+  // Gone already is as good as deleted.
+  if (!res.ok && res.status !== 404) throw new StorageError(`Storage would not delete the file (HTTP ${res.status}).`, 502);
 }
 
 const EXT: Record<string, string> = {

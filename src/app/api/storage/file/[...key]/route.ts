@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { StorageError, isStorageKey, presign } from "@/lib/storage/r2";
+import { refuseUnlessTrusted } from "@/lib/storage/guard";
+import { StorageError, deleteObject, isStorageKey, presign } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,4 +45,22 @@ export async function GET(request: Request, context: { params: Promise<{ key: st
     if (value) headers.set(name, value);
   }
   return new NextResponse(upstream.body, { status: upstream.status, headers });
+}
+
+/**
+ * Removes a kept file, once what pointed at it was deleted in the studio
+ * and nothing else uses it. Only for someone holding a working key.
+ */
+export async function DELETE(request: Request, context: { params: Promise<{ key: string[] }> }) {
+  const key = (await context.params).key.join("/");
+  if (!isStorageKey(key)) return NextResponse.json({ error: "No such file." }, { status: 404 });
+  const refusal = await refuseUnlessTrusted(request);
+  if (refusal) return refusal;
+  try {
+    await deleteObject(key);
+  } catch (error) {
+    const status = error instanceof StorageError ? error.status : 502;
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Storage failed." }, { status });
+  }
+  return NextResponse.json({ ok: true });
 }
