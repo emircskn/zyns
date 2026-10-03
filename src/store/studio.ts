@@ -879,6 +879,7 @@ export const useStudio = create<StudioState>()(
         modelId: state.modelId,
         draft: state.draft,
         batch: state.batch,
+        studioCount: state.studioCount,
         modelByCategory: state.modelByCategory,
         promptByCategory: state.promptByCategory,
         refsByCategory: state.refsByCategory,

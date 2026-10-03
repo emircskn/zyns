@@ -8,6 +8,7 @@ import { PillGroup } from "@/components/PillGroup";
 import { Sheet } from "@/components/remix/Restyle";
 import { Wheel } from "@/components/studio/Wheel";
 import { cameraParts, listOf, type CardId } from "@/lib/studio/cinema";
+import { hasPreviews, previewOf, type OptionPreview } from "@/lib/studio/options";
 import type { Field, Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
@@ -23,6 +24,7 @@ export function SettingCard({
   onClick,
   wide,
   set,
+  thumb,
 }: {
   icon: IconName;
   label: string;
@@ -31,20 +33,26 @@ export function SettingCard({
   wide?: boolean;
   /** Something other than Auto is chosen. */
   set?: boolean;
+  /** The chosen option's picture, beside its name. */
+  thumb?: OptionPreview;
 }) {
   return (
     <button
       type="button"
+      aria-label={`${label}: ${value}`}
       onClick={onClick}
-      className={`flex min-w-0 flex-col gap-2 rounded-panel bg-t1/[0.05] px-3 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.09] active:bg-t1/[0.11] ${
+      className={`flex min-w-0 items-center gap-2 rounded-panel bg-t1/[0.05] px-3 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.09] active:bg-t1/[0.11] ${
         wide ? "col-span-2" : ""
       }`}
     >
-      <span className="flex items-center gap-1.5 text-[12px] text-t3">
-        <Icon name={icon} size={14} />
-        {label}
+      <span className="flex min-w-0 flex-1 flex-col gap-2">
+        <span className="flex items-center gap-1.5 text-[12px] text-t3">
+          <Icon name={icon} size={14} />
+          {label}
+        </span>
+        <span className={`truncate text-[13.5px] ${set ? "text-t1" : "text-t3"}`}>{value}</span>
       </span>
-      <span className={`truncate text-[13.5px] ${set ? "text-t1" : "text-t3"}`}>{value}</span>
+      {thumb && <PreviewMedia preview={thumb} className="h-9 w-9 shrink-0 rounded-[10px]" />}
     </button>
   );
 }
@@ -57,10 +65,90 @@ function Done({ onClick }: { onClick: () => void }) {
   );
 }
 
+/** A choice's still, with its loop played over it while `play` (hovered, or the one chosen). */
+export function PreviewMedia({ preview, play, className = "" }: { preview: OptionPreview; play?: boolean; className?: string }) {
+  return (
+    <span className={`relative block overflow-hidden bg-t1/[0.06] ${className}`}>
+      {preview.image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={preview.image} alt="" loading="lazy" draggable={false} className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      {preview.video && play && (
+        <video src={preview.video} muted loop autoPlay playsInline className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      {preview.colors && preview.colors.length > 0 && (
+        // A palette's colours, drawn from its values rather than read off the picture.
+        <span className="absolute inset-x-0 bottom-0 flex h-[20%] min-h-[6px]">
+          {preview.colors.map((color, i) => (
+            <span key={i} className="flex-1" style={{ background: color }} />
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** One choice with a preview: its picture (or loop) over its name. */
+function PreviewTile({
+  field,
+  choice,
+  on,
+  onPick,
+}: {
+  field: Field;
+  choice: { value: string; label: string };
+  on: boolean;
+  onPick: () => void;
+}) {
+  const [hover, setHover] = useState(false);
+  const preview = previewOf(field.key, choice.value);
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={on}
+      aria-label={choice.label}
+      onClick={onPick}
+      onPointerEnter={(event) => event.pointerType === "mouse" && setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      className={`flex flex-col gap-1.5 rounded-card p-1.5 text-left transition-colors duration-[120ms] ${
+        on ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.1] hover:text-t1"
+      }`}
+    >
+      {preview ? (
+        <PreviewMedia preview={preview} play={hover || on} className="aspect-video w-full rounded-[10px]" />
+      ) : (
+        <span className="grid aspect-video w-full place-items-center rounded-[10px] bg-t1/[0.06]">
+          <Icon name={choice.value === "" ? "spark" : "film"} size={18} className="opacity-60" />
+        </span>
+      )}
+      <span className="flex items-center gap-1.5 px-1 pb-0.5 text-[13px]">
+        {choice.value === "" && <Icon name="spark" size={13} />}
+        <span className="truncate">{choice.label}</span>
+      </span>
+    </button>
+  );
+}
+
 /** A field's choices as a grid of buttons; one is chosen at a time. */
 function OptionGrid({ field, value, onPick, search }: { field: Field; value: unknown; onPick: (value: string) => void; search?: string }) {
   const q = (search ?? "").trim().toLowerCase();
   const choices = (field.choices ?? []).filter((c) => !q || c.value === "" || c.label.toLowerCase().includes(q));
+  if (hasPreviews(field.key)) {
+    return (
+      <div role="radiogroup" aria-label={field.label} className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {choices.map((choice) => (
+          <PreviewTile
+            key={choice.value || "auto"}
+            field={field}
+            choice={choice}
+            on={(value ?? "") === choice.value}
+            onPick={() => onPick(choice.value)}
+          />
+        ))}
+      </div>
+    );
+  }
   return (
     <div role="radiogroup" aria-label={field.label} className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
       {choices.map((choice) => {
@@ -123,6 +211,7 @@ export function CameraSheet({
           {setup.map((field) => (
             <Wheel
               key={field.key}
+              field={field.key}
               label={field.label}
               choices={field.choices ?? []}
               value={values[field.key]}

@@ -415,6 +415,8 @@ Faz 1'in altyapısı hazır olmalı; burada yeni istemci ya da katalog yazılmaz
 
 #### 3.3 Ekran
 
+> Ek: `docs/zyns-studio-ref/STUDIO-UI.md` (Higgsfield ekranının ayrıntılı taraması). Emir'in kararı (2026-10-03): Zyns'in tasarım dili ve dizilimi korunur; ekten şimdilik sadece seçenek verisi (`data/cinema-studio-options.json`) alındı. Diğer maddeler Emir seçtikçe eklenecek.
+
 - Üstte ayar kartları: **Kamera** (model + lens + diyafram + hareket), **Film** (genre + era + pacing), **Işık**, **Palet**, **Referanslar** (x/30).
 - **Kamera modalı:** Setup sekmesinde üç sütun dikey "tekerlek" seçici (Otomatik + şemadaki enum'lar), Hareket sekmesinde grid. API tek hareket kabul ettiği için hareket seçimi **tekli**.
 - **Seçenek önizlemeleri:** kamera hareketi, lens ve palet önizlemeleri public API'de yok. İlk sürümde kartlar metin + ikonla gösterilir. İstenirse sonra `scripts/render-cinema-previews.ts` her enum değeri için sabit bir sahneyle Cinema Studio'yu 480p/4 sn çalıştırıp Zyns'in kendi önizlemelerini üretebilir (maliyetli, isteğe bağlı; Emir onaylarsa).

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Icon } from "@/components/Icon";
 import type { Choice } from "@/lib/registry";
+import { previewOf } from "@/lib/studio/options";
 
 const ITEM = 40;
 const SHOWN = 5;
@@ -12,11 +14,14 @@ const SHOWN = 5;
  * keys; it settles on a choice once it stops.
  */
 export function Wheel({
+  field,
   label,
   choices,
   value,
   onChange,
 }: {
+  /** The field's key, for the pictures of its choices. */
+  field?: string;
   label: string;
   choices: Choice[];
   value: unknown;
@@ -63,6 +68,7 @@ export function Wheel({
   return (
     <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2">
       <p className="text-center text-[11.5px] font-medium uppercase tracking-[0.08em] text-t3">{label}</p>
+      {field && <WheelPicture field={field} choice={choices[live]} />}
       <div className="relative rounded-panel bg-t1/[0.04]">
         {/* The band the chosen one sits in. */}
         <div
@@ -111,6 +117,21 @@ export function Wheel({
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The camera body, lens or aperture the wheel is on, pictured over it. */
+function WheelPicture({ field, choice }: { field: string; choice: Choice | undefined }) {
+  const image = choice ? previewOf(field, choice.value)?.image : undefined;
+  return (
+    <div className="grid aspect-[16/10] place-items-center overflow-hidden rounded-panel bg-t1/[0.04]">
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={image} src={image} alt="" draggable={false} className="anim-fade h-full w-full object-contain p-1.5" />
+      ) : (
+        <Icon name={choice?.value === "" ? "camera" : "spark"} size={22} className="text-t3" />
+      )}
     </div>
   );
 }

@@ -6,9 +6,10 @@ import { Icon } from "@/components/Icon";
 import { BatchChip, FieldChip, TileChips } from "@/components/PromptBar";
 import { ProjectChip } from "@/components/ProjectMenu";
 import { CameraSheet, ChoiceSheet, ReferencesSheet, SettingCard, type OpenSheet } from "@/components/studio/Settings";
+import { previewOf, type OptionPreview } from "@/lib/studio/options";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { insertMention, mentionAtCaret } from "@/lib/mentions";
-import { defaultValues, validateValues, type Values } from "@/lib/registry";
+import { defaultValues, validateValues, type Field, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { mediaKind } from "@/lib/upload";
 import {
@@ -25,6 +26,17 @@ import {
 import { useEstimate } from "@/lib/useEstimate";
 import { useStudio } from "@/store/studio";
 import type { LibraryElement } from "@/lib/elements";
+
+/** The picture a card shows for what is chosen on it: the first chosen field that has one. */
+function thumbOf(fields: Field[], values: Values): OptionPreview | undefined {
+  for (const field of fields) {
+    const value = values[field.key];
+    if (value === undefined || value === null || value === "") continue;
+    const preview = previewOf(field.key, value);
+    if (preview) return preview;
+  }
+  return undefined;
+}
 
 /** "12 cr" for one, made "48 cr" for four. */
 function times(hint: string | null, count: number): string | null {
@@ -321,6 +333,7 @@ export function CinemaComposer({ onKeyClick, scroll, onSent }: { onKeyClick: () 
                 label={card.label}
                 value={summary(cards[card.id], values)}
                 set={summary(cards[card.id], values) !== "Auto"}
+                thumb={thumbOf(cards[card.id], values)}
                 onClick={() => setSheet(card.id)}
               />
             ))}
