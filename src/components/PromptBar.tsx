@@ -39,7 +39,7 @@ import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import type { LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
-import { activeFields, barAndPanel, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
+import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
@@ -1129,10 +1129,17 @@ export function useComposer() {
     const copies = batchable ? useStudio.getState().batch : 1;
     const sent = useStudio.getState().modelId;
     let failure: string | null = null;
+    let landed = false;
     for (let i = 0; i < copies; i++) {
       const result = await submitRun();
-      if (!result.ok && !failure) failure = result.error ?? "Something went wrong.";
+      if (result.ok) landed = true;
+      else if (!failure) failure = result.error ?? "Something went wrong.";
     }
+    // Home has no gallery: a send from there goes on to the page the work
+    // lands on, so it can be watched coming in.
+    const state = useStudio.getState();
+    const category = getModel(sent)?.category;
+    if (landed && state.page === "home" && category) state.setPage(category);
     // A sent run takes its references with it: the next one starts with an
     // empty strip and the same prompt. The run keeps its own copy, so
     // Recreate brings them back. A send that failed leaves them to retry.

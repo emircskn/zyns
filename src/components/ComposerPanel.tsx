@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { AttachPanel } from "@/components/Attachments";
 import { Control, InputLabel } from "@/components/controls";
 import { CoverArt } from "@/components/CoverArt";
@@ -273,13 +274,77 @@ export function ComposerBody({
   // A phone shows a long prompt as its first few lines; a tap on it opens
   // the box over the composer, with the whole prompt and the send button.
   const [expanded, setExpanded] = useState(false);
+  // On its way back down: still over the composer, shrinking into its place.
+  const [closing, setClosing] = useState(false);
   const area = useVisibleArea(expanded);
+  // The box, and the place it holds in the composer while it is open (so
+  // nothing under it moves up, and so it knows where to land again).
+  const box = useRef<HTMLDivElement>(null);
+  const spot = useRef<HTMLDivElement>(null);
+  const from = useRef<DOMRect | null>(null);
+  const [held, setHeld] = useState(0);
+  const still = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const MORPH = { duration: 280, easing: "cubic-bezier(0.22, 0.61, 0.24, 1)" };
+
+  function expand() {
+    const node = box.current;
+    if (!node || expanded || closing) return;
+    const rect = node.getBoundingClientRect();
+    from.current = rect;
+    setHeld(rect.height);
+    setExpanded(true);
+  }
+
+  // Opening grows the box out of where it sat into the whole screen.
+  useLayoutEffect(() => {
+    const node = box.current;
+    const start = from.current;
+    if (!expanded || !node || !start || still()) return;
+    from.current = null;
+    const end = node.getBoundingClientRect();
+    node.animate(
+      [
+        { top: `${start.top}px`, left: `${start.left}px`, width: `${start.width}px`, height: `${start.height}px` },
+        { top: `${end.top}px`, left: `${end.left}px`, width: `${end.width}px`, height: `${end.height}px` },
+      ],
+      MORPH,
+    );
+  }, [expanded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function collapse() {
+    (document.activeElement as HTMLElement | null)?.blur();
+    const node = box.current;
+    const target = spot.current?.getBoundingClientRect();
+    if (!expanded || closing) return;
+    if (!node || !target || still()) {
+      setExpanded(false);
+      return;
+    }
+    const now = node.getBoundingClientRect();
+    setClosing(true);
+    setExpanded(false);
+    // And closing shrinks it back down into its place before it settles there.
+    const morph = node.animate(
+      [
+        { top: `${now.top}px`, left: `${now.left}px`, width: `${now.width}px`, height: `${now.height}px` },
+        { top: `${target.top}px`, left: `${target.left}px`, width: `${target.width}px`, height: `${target.height}px` },
+      ],
+      { ...MORPH, fill: "forwards" },
+    );
+    morph.onfinish = () => {
+      flushSync(() => setClosing(false));
+      morph.cancel();
+    };
+  }
+  const collapseRef = useRef(collapse);
+  collapseRef.current = collapse;
+
   useEffect(() => {
     if (!expanded) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
-        setExpanded(false);
+        collapseRef.current();
       }
     }
     document.addEventListener("keydown", onKey, true);
@@ -287,7 +352,10 @@ export function ComposerBody({
   }, [expanded]);
   if (!model) return null;
   const phone = variant === "phone";
-  const open = phone && expanded;
+  // Over the composer: open, or still shrinking back.
+  const open = phone && (expanded || closing);
+  // Open and settled, with the whole prompt and its send button.
+  const full = phone && expanded;
   const openStyle: CSSProperties | undefined = open
     ? {
         top: `calc(${area?.top ?? 0}px + max(12px, env(safe-area-inset-top)))`,
@@ -297,10 +365,6 @@ export function ComposerBody({
         boxShadow: "var(--shadow-pop)",
       }
     : undefined;
-  function collapse() {
-    setExpanded(false);
-    (document.activeElement as HTMLElement | null)?.blur();
-  }
   // Switches ride in the prompt box, the way its audio does on a clip; the
   // options that open a menu are the tiles under it.
   const toggles = barFields.filter((f) => f.kind === "toggle");
@@ -337,34 +401,37 @@ export function ComposerBody({
           type="button"
           aria-label="Close prompt"
           onClick={collapse}
-          className="anim-fade fixed inset-0 z-[74] bg-canvas-deep/70 backdrop-blur-sm"
+          className={`fixed inset-0 z-[74] bg-canvas-deep/70 backdrop-blur-sm ${closing ? "anim-fade-out" : "anim-fade"}`}
         />
       )}
       {promptBox && (
         <div
+          ref={box}
           className={
             open
-              ? "anim-pop fixed inset-x-4 z-[75] flex flex-col rounded-panel border border-line bg-elevated px-3.5 pb-3 pt-3"
+              ? `fixed inset-x-4 z-[75] flex flex-col overflow-hidden rounded-panel border border-line bg-elevated px-3.5 pt-3 ${
+                  full ? "pb-3" : inlineModel ? "pb-0" : "pb-2.5"
+                }`
               : `rounded-panel bg-t1/[0.05] px-3.5 pt-3 ${inlineModel ? "pb-0" : "pb-2.5"}`
           }
           style={openStyle}
         >
           <div
-            className={open ? "min-h-0 flex-1 cursor-text overflow-y-auto overscroll-contain" : ""}
+            className={full ? "min-h-0 flex-1 cursor-text overflow-y-auto overscroll-contain" : ""}
             // The held prompt opens once the tap has put the caret in it.
             // Opening on the touch itself moved the box out from under the
             // finger, so the tap landed elsewhere and no keyboard came up.
             onFocus={
-              phone && !expanded
+              phone && !open
                 ? (event) => {
-                    if (event.target instanceof HTMLTextAreaElement) setExpanded(true);
+                    if (event.target instanceof HTMLTextAreaElement) expand();
                   }
                 : undefined
             }
             // In the open box, a tap on the empty room under the text writes
             // at its end, as if the text box filled the whole of it.
             onClick={
-              open
+              full
                 ? (event) => {
                     const target = event.target as HTMLElement;
                     if (target.closest("textarea, button, a, input")) return;
@@ -398,15 +465,15 @@ export function ComposerBody({
               onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
             />
           )}
-          {toggles.length > 0 && !open && (
+          {toggles.length > 0 && !full && (
             <div className="mt-1 flex flex-wrap gap-1.5">
               {toggles.map((field) => (
                 <FieldChip key={field.key} field={field} />
               ))}
             </div>
           )}
-          {inlineModel && !open && <InlineModelRow model={model} />}
-          {open && (
+          {inlineModel && !full && <InlineModelRow model={model} />}
+          {full && (
             <div className="flex shrink-0 items-center justify-between gap-3 pt-3">
               <button
                 type="button"
@@ -429,6 +496,8 @@ export function ComposerBody({
           )}
         </div>
       )}
+      {/* The box's place while it is over the composer. */}
+      {open && <div ref={spot} aria-hidden style={{ height: held }} className="shrink-0" />}
 
       {!inlineModel && <ModelRow model={model} />}
 
