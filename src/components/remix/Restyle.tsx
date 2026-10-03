@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ModelRow } from "@/components/ModelPicker";
 import { VendorBadge } from "@/components/VendorMark";
+import { Row } from "@/components/remix/Row";
 import { getRestylePresets } from "@/lib/higgsfield/transport";
 import type { RestylePreset } from "@/lib/higgsfield/client";
 import { isNativeRestyle, restyleTargets, targetOf } from "@/lib/remix/targets";
@@ -90,18 +91,12 @@ export function RestyleModelRow() {
   const model = getModel(target.modelId);
   return (
     <>
-      <button
-        type="button"
+      <Row
+        label="Model"
+        lead={model && <VendorBadge model={model} size={34} />}
+        value={<span className="truncate">{current?.label ?? model?.name ?? "Choose a model"}</span>}
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 rounded-panel border border-line bg-elevated p-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.03]"
-      >
-        {model && <VendorBadge model={model} size={34} />}
-        <span className="min-w-0 flex-1">
-          <span className="block text-[11.5px] text-t4">Model</span>
-          <span className="block truncate text-[14px] text-t1">{current?.label ?? model?.name ?? "Choose a model"}</span>
-        </span>
-        <span className="shrink-0 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2">Change</span>
-      </button>
+      />
       <Sheet open={open} title="Restyle with" sub={`Video edit · ${options.length} models`} onClose={() => setOpen(false)}>
         {options.map((option) => (
           <ModelRow
@@ -274,13 +269,13 @@ export function StyleRow() {
   const preview = native ? preset?.preview : style?.preview;
   return (
     <>
-      <button
-        type="button"
+      <Row
+        label={native ? "Style" : "Style · optional"}
+        value={<span className="truncate">{name ?? (native ? "Choose a style" : "No style")}</span>}
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 rounded-panel border border-line bg-elevated p-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.03]"
-      >
+        lead={
         <span
-          className="block h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-line"
+          className="block h-[34px] w-[34px] shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
           style={!preview && style ? { background: `linear-gradient(140deg, ${style.tint[0]}, ${style.tint[1]})` } : undefined}
         >
           {preview ? (
@@ -292,12 +287,8 @@ export function StyleRow() {
             </span>
           ) : null}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[11.5px] text-t4">Style{native ? "" : " · optional"}</span>
-          <span className="block truncate text-[14px] text-t1">{name ?? (native ? "Choose a style" : "No style")}</span>
-        </span>
-        <span className="shrink-0 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2">{name ? "Change" : "Choose"}</span>
-      </button>
+        }
+      />
       <Sheet
         open={open}
         title="Style"

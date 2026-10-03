@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
+import { Dropzone, Pill, RoundIcon, Row, Switch } from "@/components/remix/Row";
+import { VendorBadge } from "@/components/VendorMark";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ModeTabs } from "@/components/remix/ModeTabs";
@@ -13,7 +15,7 @@ import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { mediaSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
-import { getModel, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
+import { getModel, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import {
   GENJUTSU,
   MODE_LABEL,
@@ -29,7 +31,7 @@ import {
   type SourceLimits,
   type StyleInput,
 } from "@/lib/remix/targets";
-import { targetKey, type RemixRunInfo } from "@/lib/remix/types";
+import { promptIsOn, targetKey, type RemixMode, type RemixRunInfo } from "@/lib/remix/types";
 import { useEstimate } from "@/lib/useEstimate";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 import { keyFor, useStudio } from "@/store/studio";
@@ -78,20 +80,28 @@ export function sourceProblem(meta: MediaMeta | null | undefined, limits: Source
   return null;
 }
 
-function Box({ title, right, children }: { title: string; right?: ReactNode; children: ReactNode }) {
-  return (
-    <div className="rounded-panel border border-line bg-elevated p-3">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-[12.5px] text-t2">{title}</span>
-        {right}
-      </div>
-      {children}
-    </div>
-  );
+const SOURCE_TITLE: Record<RemixMode, string> = {
+  motion: "Add a video to take the motion from",
+  swap: "Add a video to edit",
+  restyle: "Add a video to restyle",
+};
+
+const REFS_TITLE: Record<RemixMode, string> = {
+  motion: "Add your characters",
+  swap: "Add your characters, products, or clothes",
+  restyle: "Add characters to restyle",
+};
+
+function rule(limits: SourceLimits): string | undefined {
+  if (limits.min && limits.max) return `Video duration: ${limits.min} to ${limits.max} seconds`;
+  if (limits.min) return `Video duration: ${limits.min} seconds or longer`;
+  if (limits.max) return `Video duration: up to ${limits.max} seconds`;
+  return undefined;
 }
 
 /** The clip the result keeps the motion (or the scene) of. */
 function SourceBox({
+  mode,
   url,
   meta,
   limits,
@@ -100,6 +110,7 @@ function SourceBox({
   onClear,
   extra,
 }: {
+  mode: RemixMode;
   url: string | null;
   meta: MediaMeta | null | undefined;
   limits: SourceLimits;
@@ -114,105 +125,91 @@ function SourceBox({
   const problem = sourceProblem(meta, limits);
   const length = meta?.durationSec;
   const over = !!length && !!limits.max && limits.trims && length > limits.max + 0.05;
-  const rule =
-    limits.min && limits.max ? `${limits.min}–${limits.max} s` : limits.min ? `${limits.min} s or longer` : undefined;
+  if (!url) {
+    return (
+      <Dropzone
+        icons={<RoundIcon name="video" />}
+        title={SOURCE_TITLE[mode]}
+        sub={rule(limits)}
+        onClick={onPick}
+        action={
+          <Pill icon="plus" onClick={onLibrary}>
+            Select from the Motion library{clips.length > 0 ? ` (${clips.length})` : ""}
+          </Pill>
+        }
+      />
+    );
+  }
   return (
-    <Box title="Source video" right={rule && <span className="font-mono text-[11px] text-t4">{rule}</span>}>
-      {url ? (
-        <div className="flex flex-col gap-2">
-          <div className="relative overflow-hidden rounded-card bg-canvas-deep">
-            <video
-              key={url}
-              src={mediaSrc(url)}
-              muted
-              loop
-              autoPlay
-              playsInline
-              preload="metadata"
-              className="max-h-[260px] w-full object-contain"
-            />
-            {length ? (
-              <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[11px] text-white">
-                {seconds(length)}
-              </span>
-            ) : null}
-            <button
-              type="button"
-              onClick={onClear}
-              aria-label="Remove the source video"
-              className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-transform duration-[120ms] active:scale-90"
-            >
-              <Icon name="close" size={15} />
-            </button>
-          </div>
-          {problem ? (
-            <p role="alert" className="flex items-start gap-1.5 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
-              <Icon name="alert" size={15} className="mt-px shrink-0" />
-              {problem.text}
-            </p>
-          ) : over ? (
-            <p className="text-[12.5px] leading-snug text-t3">
-              Only the first {limits.max} s are used. Trim it to pick another stretch.
-            </p>
-          ) : null}
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={onPick}
-              className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
-            >
-              Replace
-            </button>
-            {clips.length > 0 && (
-              <button
-                type="button"
-                onClick={onLibrary}
-                className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
-              >
-                Library
-              </button>
-            )}
-            {extra}
-            <button
-              type="button"
-              onClick={() => url && !kept && void saveMotionClip(url)}
-              disabled={kept}
-              className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:hover:text-t3"
-            >
-              <Icon name={kept ? "check" : "plus"} size={13} />
-              {kept ? "In library" : "Save to library"}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={onPick}
-            className="flex w-full flex-col items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 py-7 text-center transition-colors duration-[150ms] hover:bg-t1/[0.04] active:bg-t1/[0.05]"
-          >
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08] text-t2">
-              <Icon name="video" size={18} />
-            </span>
-            <span className="text-[13.5px] text-t2">Add a video</span>
-            <span className="text-[12px] text-t4">Upload, or pick one from Assets</span>
-          </button>
-          <button
-            type="button"
-            onClick={onLibrary}
-            className="flex items-center justify-center gap-1.5 rounded-full bg-t1/[0.06] py-2 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
-          >
-            <Icon name="move" size={14} />
-            From the Motion library{clips.length > 0 ? ` (${clips.length})` : ""}
-          </button>
-        </div>
-      )}
-    </Box>
+    <div className="flex flex-col gap-2 rounded-panel bg-elevated p-2">
+      <div className="relative overflow-hidden rounded-card bg-canvas-deep">
+        <video
+          key={url}
+          src={mediaSrc(url)}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="metadata"
+          className="max-h-[300px] w-full object-contain"
+        />
+        {length ? (
+          <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[11px] text-white">
+            {seconds(length)}
+          </span>
+        ) : null}
+        <button
+          type="button"
+          onClick={onClear}
+          aria-label="Remove the source video"
+          className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-transform duration-[120ms] active:scale-90"
+        >
+          <Icon name="close" size={15} />
+        </button>
+      </div>
+      {problem ? (
+        <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
+          <Icon name="alert" size={15} className="mt-px shrink-0" />
+          {problem.text}
+        </p>
+      ) : over ? (
+        <p className="px-1 text-[12.5px] leading-snug text-t3">Only the first {limits.max} s are used. Trim it to pick another stretch.</p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-1.5 px-0.5 pb-0.5">
+        <SmallPill onClick={onPick}>Replace</SmallPill>
+        {clips.length > 0 && <SmallPill onClick={onLibrary}>Library</SmallPill>}
+        {extra}
+        <button
+          type="button"
+          onClick={() => url && !kept && void saveMotionClip(url)}
+          disabled={kept}
+          className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:hover:text-t3"
+        >
+          <Icon name={kept ? "check" : "plus"} size={13} />
+          {kept ? "In library" : "Save to library"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SmallPill({ children, onClick, strong }: { children: ReactNode; onClick: () => void; strong?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[120ms] ${
+        strong ? "cta font-medium" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
 /** The pictures the result takes its characters (or objects) from, in the order the model reads them. */
 function RefsBox({
+  mode,
   label,
   refs,
   room,
@@ -221,6 +218,7 @@ function RefsBox({
   onAdd,
   onElements,
 }: {
+  mode: RemixMode;
   label: string;
   refs: string[];
   room: number;
@@ -232,25 +230,38 @@ function RefsBox({
   const keys = keysFor(refs);
   const reorder = useReorder(refs.length, (from, to) => onChange(moveItem(refs, from, to)));
   const full = refs.length >= room;
+  if (refs.length === 0) {
+    return (
+      <Dropzone
+        icons={
+          <>
+            <RoundIcon name="user" />
+            <RoundIcon name="shirt" overlap />
+            <RoundIcon name="box" overlap />
+          </>
+        }
+        title={REFS_TITLE[mode]}
+        sub={`Up to ${room} ${room === 1 ? "image" : "images"}${required ? "" : " · optional"}`}
+        onClick={onAdd}
+        action={
+          <Pill icon="user" onClick={onElements}>
+            From Elements
+          </Pill>
+        }
+      />
+    );
+  }
   return (
-    <Box
-      title={label}
-      right={
-        <span className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onElements}
-            className="flex items-center gap-1 rounded-full bg-t1/[0.07] px-2.5 py-1 text-[12px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
-          >
-            <Icon name="user" size={13} />
-            Elements
-          </button>
-          <span className="font-mono text-[11px] tabular-nums text-t4">
-            {refs.length}/{room}
-          </span>
+    <div className="rounded-panel bg-elevated p-3">
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <span className="text-[13.5px] text-t1">
+          {label} <span className="font-mono text-[11.5px] tabular-nums text-t4">{refs.length}/{room}</span>
         </span>
-      }
-    >
+        <SmallPill onClick={onElements}>
+          <Icon name="user" size={13} />
+          Elements
+        </SmallPill>
+      </div>
       <div className="no-bar -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 pt-0.5">
         {!full && (
           <button
@@ -271,14 +282,53 @@ function RefsBox({
           );
         })}
       </div>
-      <p className="mt-2 text-[11.5px] leading-snug text-t4">
-        {refs.length > 1
-          ? "Hold and drag to reorder. The model reads them in this order."
-          : required
-            ? "Add at least one: a character, an outfit, a product."
-            : "Optional."}
-      </p>
-    </Box>
+      {refs.length > 1 && (
+        <p className="mt-2 text-[11.5px] leading-snug text-t4">Hold and drag to reorder. The model reads them in this order.</p>
+      )}
+    </div>
+  );
+}
+
+/** A setting with a short list of values, as a row that opens its list in place. */
+function SettingRow({ field, value, onChange }: { field: Field; value: unknown; onChange: (value: unknown) => void }) {
+  const [open, setOpen] = useState(false);
+  const choices = field.choices ?? [];
+  const current = choices.find((c) => String(c.value) === String(value ?? field.default ?? ""));
+  return (
+    <Row
+      label={field.label}
+      value={<span className="truncate">{current?.label ?? String(value ?? "—")}</span>}
+      chevron="down"
+      open={open}
+      onClick={() => setOpen((was) => !was)}
+    >
+      {open && (
+        <div className="anim-fade flex flex-col gap-px border-t border-line p-1.5">
+          {choices.map((choice) => {
+            const on = choice === current;
+            return (
+              <button
+                key={choice.value}
+                type="button"
+                onClick={() => {
+                  onChange(choice.value);
+                  setOpen(false);
+                }}
+                className={`flex items-center justify-between gap-3 rounded-card px-3 py-2.5 text-left text-[14px] transition-colors duration-[120ms] ${
+                  on ? "bg-t1/[0.08] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
+                }`}
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate">{choice.label}</span>
+                  {choice.hint && <span className="truncate text-[12px] text-t4">{choice.hint}</span>}
+                </span>
+                {on && <Icon name="check" size={16} className="shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </Row>
   );
 }
 
@@ -336,15 +386,15 @@ function usePrice(model: ModelDef | undefined, values: Values, blocker: string |
 /** The Remix composer: the mode, the source, the references, the prompt and the model's own settings. */
 export function RemixComposer({
   onKeyClick,
-  above,
+  modelRow,
   below,
   style,
   needsStyle,
   info,
 }: {
   onKeyClick: () => void;
-  /** Restyle's model row, between the tabs and the source. */
-  above?: ReactNode;
+  /** Restyle's model row, in place of the plain one naming the model. */
+  modelRow?: ReactNode;
   /** Restyle's style row, under the references. */
   below?: ReactNode;
   /** A style the chosen model takes as a reference and a line of prompt. */
@@ -421,13 +471,13 @@ export function RemixComposer({
   const settings = model ? settingFields(model, own) : [];
   const promptText = remix.prompts[remix.mode] ?? "";
 
+  const promptOn = promptIsOn(remix);
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="rounded-panel border border-line bg-elevated p-1.5">
-        <ModeTabs />
-      </div>
-      {above}
+    <div className="flex flex-col gap-2.5">
+      <ModeTabs />
       <SourceBox
+        mode={remix.mode}
         url={remix.source}
         meta={meta}
         limits={limits}
@@ -436,18 +486,13 @@ export function RemixComposer({
         onClear={() => patchRemix({ source: null })}
         extra={
           meta?.durationSec && (!limits.min || meta.durationSec > limits.min) ? (
-            <button
-              type="button"
+            <SmallPill
               onClick={() => setTrimming(true)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[120ms] ${
-                problem?.trim || (limits.trims && limits.max && meta.durationSec > limits.max)
-                  ? "cta font-medium"
-                  : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
-              }`}
+              strong={!!problem?.trim || (limits.trims && !!limits.max && meta.durationSec > limits.max)}
             >
               <Icon name="film" size={14} />
               Trim
-            </button>
+            </SmallPill>
           ) : undefined
         }
       />
@@ -470,6 +515,7 @@ export function RemixComposer({
       ) : null}
       {refsField && (
         <RefsBox
+          mode={remix.mode}
           label={refsField.label}
           refs={remix.refs.slice(0, room)}
           room={room}
@@ -488,49 +534,76 @@ export function RemixComposer({
         }}
       />
       {below}
-      <Box title="Prompt" right={<span className="text-[11px] text-t4">Optional</span>}>
-        <textarea
-          value={promptText}
-          rows={3}
-          placeholder={
-            remix.mode === "swap"
-              ? "What to swap, and for what: “the jacket for the one in the picture”"
-              : remix.mode === "restyle"
-                ? "Anything the style should keep or change"
-                : "Describe the new scene"
-          }
-          onChange={(event) => patchRemix((r) => ({ prompts: { ...r.prompts, [r.mode]: event.target.value } }))}
-          className="w-full resize-none bg-transparent text-[14px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[13.5px]"
-        />
-      </Box>
-      {model && settings.length > 0 && (
-        <Box title="Settings">
-          <div className="flex flex-col gap-3">
-            {settings.map((field) => (
-              <div key={field.key}>
-                <InputLabel field={field} />
-                <Control
-                  field={field}
-                  value={own[field.key]}
-                  values={own}
-                  dense
-                  onChange={(value) => setSetting(field.key, value)}
-                />
-              </div>
-            ))}
+      {/* The prompt is optional here: off, nothing is sent with the run. */}
+      <div className="rounded-panel bg-elevated">
+        <div className="flex items-center gap-3 px-4 py-3.5">
+          <span className="flex-1 text-[15px] text-t1">Prompt</span>
+          <Switch
+            label="Prompt"
+            on={promptOn}
+            onFlip={() => patchRemix((r) => ({ promptOn: { ...r.promptOn, [r.mode]: !promptIsOn(r) } }))}
+          />
+        </div>
+        {promptOn && (
+          <div className="anim-fade border-t border-line px-4 pb-3 pt-2.5">
+            <textarea
+              value={promptText}
+              rows={3}
+              autoFocus={!promptText}
+              placeholder={
+                remix.mode === "swap"
+                  ? "What to swap, and for what: “the jacket for the one in the picture”"
+                  : remix.mode === "restyle"
+                    ? "Anything the style should keep or change"
+                    : "Describe the new scene"
+              }
+              onChange={(event) =>
+                patchRemix((r) => ({
+                  prompts: { ...r.prompts, [r.mode]: event.target.value },
+                  promptOn: { ...r.promptOn, [r.mode]: true },
+                }))
+              }
+              className="w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+            />
           </div>
-        </Box>
-      )}
-      {built && built.warnings.length > 0 && (
-        <p className="px-1 text-[12px] leading-snug text-t4">{built.warnings.join(" ")}</p>
-      )}
-      <div className="flex flex-col gap-2">
+        )}
+      </div>
+      {modelRow ??
+        (model && (
+          <Row
+            label="Model"
+            lead={<VendorBadge model={model} size={34} />}
+            value={<span className="truncate">{model.id === GENJUTSU ? "Higgsfield Genjutsu" : model.name}</span>}
+          />
+        ))}
+      {model &&
+        settings.map((field) =>
+          field.choices && field.choices.length > 0 && (field.kind === "select" || field.kind === "segmented" || field.kind === "ratio") ? (
+            <SettingRow key={field.key} field={field} value={own[field.key]} onChange={(value) => setSetting(field.key, value)} />
+          ) : (
+            <div key={field.key} className="rounded-panel bg-elevated px-4 py-3">
+              <InputLabel field={field} />
+              <Control field={field} value={own[field.key]} values={own} dense onChange={(value) => setSetting(field.key, value)} />
+            </div>
+          ),
+        )}
+      {built && built.warnings.length > 0 && <p className="px-1 text-[12px] leading-snug text-t4">{built.warnings.join(" ")}</p>}
+      {error ? (
+        <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
+          <Icon name="alert" size={15} className="mt-px shrink-0" />
+          {error}
+        </p>
+      ) : key && blocker ? (
+        <p className="px-1 text-center text-[12px] text-t4">{blocker}</p>
+      ) : null}
+      {/* Held in reach on a phone while the composer is on screen, as Higgsfield's is. */}
+      <div className="sticky bottom-[calc(var(--nav-h)+10px)] z-20 rounded-panel bg-canvas md:static">
         <button
           type="button"
           onClick={() => void generate()}
           disabled={!!key && (busy || !!blocker)}
           title={blocker ?? undefined}
-          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
+          className="cta flex h-[56px] w-full items-center justify-center gap-2 rounded-panel text-[16.5px] font-semibold shadow-[0_8px_24px_rgb(0_0_0/0.35)] disabled:opacity-60 md:h-12 md:text-[15.5px] md:shadow-none"
         >
           {busy ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -541,20 +614,12 @@ export function RemixComposer({
             </>
           ) : (
             <>
-              {MODE_LABEL[remix.mode]}
+              Generate
               <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
               {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
             </>
           )}
         </button>
-        {error ? (
-          <p role="alert" className="flex items-start gap-1.5 px-1 text-[12.5px] leading-snug" style={{ color: "var(--danger)" }}>
-            <Icon name="alert" size={15} className="mt-px shrink-0" />
-            {error}
-          </p>
-        ) : key && blocker ? (
-          <p className="px-1 text-center text-[12px] text-t4">{blocker}</p>
-        ) : null}
       </div>
       <MediaPicker
         open={picking !== null}

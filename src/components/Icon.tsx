@@ -61,6 +61,8 @@ export type IconName =
   | "music"
   | "tag"
   | "move"
+  | "shirt"
+  | "box"
   | "ratio-auto";
 
 const PATHS: Record<IconName, ReactElement> = {
@@ -326,6 +328,13 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <circle cx="12" cy="8.5" r="3.8" />
       <path d="M4.5 20c.9-3.6 3.9-5.8 7.5-5.8s6.6 2.2 7.5 5.8" />
+    </>
+  ),
+  shirt: <path d="M9 4.5 4 7l1.8 4 2.2-1V19.5h8V10l2.2 1L20 7l-5-2.5a3 3 0 0 1-6 0z" />,
+  box: (
+    <>
+      <path d="M12 3.5 19.5 7.5v9L12 20.5 4.5 16.5v-9z" />
+      <path d="M4.5 7.5 12 11.5l7.5-4M12 11.5v9" />
     </>
   ),
   at: (

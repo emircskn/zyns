@@ -33,7 +33,7 @@ function Banner({ mode }: { mode: RemixMode }) {
   const media = bannerOf(mode === "restyle" ? "motion" : mode);
   return (
     <div className="relative overflow-hidden rounded-panel border border-line bg-surface-2">
-      <div className="relative aspect-[16/6] w-full md:aspect-[16/4]">
+      <div className="relative aspect-[16/7] w-full md:aspect-[16/4]">
         {media?.video ? (
           <video
             key={media.video}
@@ -50,10 +50,12 @@ function Banner({ mode }: { mode: RemixMode }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={media.poster} alt="" className="absolute inset-0 h-full w-full object-cover" />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
-          <h1 className="text-[26px] font-semibold leading-none tracking-[-0.03em] text-white md:text-[32px]">Remix</h1>
-          <p className="mt-1.5 text-[13px] text-white/75">
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+          <h1 className="text-[34px] font-black uppercase leading-none tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgb(0_0_0/0.45)] md:text-[44px]">
+            Remix
+          </h1>
+          <p className="text-[12.5px] text-white/80 [text-shadow:0_1px_8px_rgb(0_0_0/0.5)]">
             {MODE_LABEL[mode]} · {BLURB[mode]}
           </p>
         </div>

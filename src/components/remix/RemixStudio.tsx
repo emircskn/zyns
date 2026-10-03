@@ -92,7 +92,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
       composer={
         <RemixComposer
           onKeyClick={onKeyClick}
-          above={restyle ? <RestyleModelRow /> : undefined}
+          modelRow={restyle ? <RestyleModelRow /> : undefined}
           below={restyle ? <StyleRow /> : undefined}
           style={restyle ? styleInput(style) : undefined}
           needsStyle={restyle ? needs : null}
