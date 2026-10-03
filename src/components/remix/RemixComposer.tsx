@@ -5,6 +5,7 @@ import { Control, InputLabel, MediaThumb } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ModeTabs } from "@/components/remix/ModeTabs";
+import { Trimmer } from "@/components/remix/Trimmer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { mediaSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
@@ -325,6 +326,7 @@ export function RemixComposer({
   const model = getModel(target.modelId);
   const [picking, setPicking] = useState<"source" | "refs" | null>(null);
   const [choosing, setChoosing] = useState(false);
+  const [trimming, setTrimming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const meta = useClipMeta(remix.source);
@@ -394,7 +396,37 @@ export function RemixComposer({
         limits={limits}
         onPick={() => setPicking("source")}
         onClear={() => patchRemix({ source: null })}
+        extra={
+          meta?.durationSec && (!limits.min || meta.durationSec > limits.min) ? (
+            <button
+              type="button"
+              onClick={() => setTrimming(true)}
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[120ms] ${
+                problem?.trim || (limits.trims && limits.max && meta.durationSec > limits.max)
+                  ? "cta font-medium"
+                  : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+              }`}
+            >
+              <Icon name="film" size={14} />
+              Trim
+            </button>
+          ) : undefined
+        }
       />
+      {remix.source && meta?.durationSec ? (
+        <Trimmer
+          open={trimming}
+          url={remix.source}
+          duration={meta.durationSec}
+          min={limits.min}
+          max={limits.max}
+          onClose={() => setTrimming(false)}
+          onDone={(url) => {
+            setTrimming(false);
+            patchRemix({ source: url });
+          }}
+        />
+      ) : null}
       {refsField && (
         <RefsBox
           label={refsField.label}
