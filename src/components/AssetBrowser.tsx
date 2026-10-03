@@ -12,6 +12,7 @@ import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
+import { keptNote, usedElsewhere } from "@/lib/usage";
 import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
@@ -379,6 +380,12 @@ export function AssetBrowser({
           const shared = new Set(picked.map((url) => assets.find((a) => a.url === url)?.projectId ?? null));
           return shared.size === 1 ? [...shared][0] : "";
         })()}
+        deleteNote={() => {
+          const chosen = assets.filter((a) => picked.includes(a.url));
+          const runIds = chosen.flatMap((a) => (a.source === "run" ? runs.filter((r) => r.urls.includes(a.url)).map((r) => r.id) : []));
+          const uploadIds = chosen.filter((a) => a.source === "upload").map((a) => a.id);
+          return keptNote(usedElsewhere(picked, { runs: runIds, uploads: uploadIds }), picked.length > 1);
+        }}
         onProject={(projectId) => {
           fileUnder(picked, projectId);
           setPicked([]);

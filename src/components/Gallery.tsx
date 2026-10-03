@@ -23,6 +23,7 @@ import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
 import { failureHint } from "@/lib/runErrors";
+import { keptNote, usedElsewhere } from "@/lib/usage";
 import { useStudio, type Run } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
 
@@ -642,6 +643,7 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
         }
         onDownload={() => saveMedia(pickedUrls)}
         project={pickedProject}
+        deleteNote={() => keptNote(usedElsewhere(pickedUrls, { runs: picked }), picked.length > 1)}
         onProject={(projectId) => {
           fileUnder(pickedUrls, projectId);
           setPicked([]);

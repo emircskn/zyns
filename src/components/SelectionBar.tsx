@@ -24,6 +24,7 @@ export function SelectionBar({
   onClose,
   onProject,
   project,
+  deleteNote,
 }: {
   /** Up with nothing picked yet: a phone's Select button was pressed. */
   open?: boolean;
@@ -43,11 +44,15 @@ export function SelectionBar({
   onProject?: (projectId: string | null) => void;
   /** The project every pick is already in, if they share one; "" when they differ. */
   project?: string | null;
+  /** Said while a delete is being confirmed: what else uses the picks' files. */
+  deleteNote?: () => string | undefined;
 }) {
   const setSelecting = useStudio((s) => s.setSelecting);
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState<SaveState>("idle");
   const [filing, setFiling] = useState(false);
+  // Worked out when the delete is asked for, not on every render.
+  const [note, setNote] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setConfirming(false);
@@ -93,8 +98,13 @@ export function SelectionBar({
     // picked rather than about the next one you might make.
     <div
       data-select-bar=""
-      className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex justify-center px-3 pb-3 md:pb-5 md:pl-4 md:pr-4"
+      className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex flex-col items-center px-3 pb-3 md:pb-5 md:pl-4 md:pr-4"
     >
+      {confirming && note && (
+        <p className="surface-pop anim-pop pointer-events-auto mb-2 max-w-[420px] rounded-card px-3.5 py-2.5 text-center text-[12.5px] leading-relaxed text-t2">
+          {note}
+        </p>
+      )}
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">
           <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
@@ -157,7 +167,10 @@ export function SelectionBar({
             )}
             <button
               type="button"
-              onClick={() => setConfirming(true)}
+              onClick={() => {
+                setNote(deleteNote?.());
+                setConfirming(true);
+              }}
               aria-label="Delete"
               className={button}
               style={{ color: "var(--danger)" }}

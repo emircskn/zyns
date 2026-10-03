@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { ProjectPicker } from "@/components/ProjectPicker";
+import { keptNote, usedElsewhere } from "@/lib/usage";
 import { LikeHeart } from "@/components/LikeHeart";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { VendorBadge } from "@/components/VendorMark";
@@ -514,6 +515,15 @@ export function MediaViewer({
   // past that the tail steps behind More, so the rows stay square, and each
   // of those carries the line it reads as in that menu.
   type Entry = { key: string; tile: ReactNode; row?: { icon: IconName; label: string; onClick: () => void; danger?: boolean } };
+  // What else uses this file, said before deleting it (its file then stays).
+  const deleteNote = confirming
+    ? keptNote(
+        usedElsewhere(run ? run.urls : shown ? [shown] : [], {
+          runs: run ? [run.id] : [],
+          uploads: upload ? [upload.id] : [],
+        }),
+      )
+    : undefined;
   const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
   const project = projects.find((p) => p.id === filedIn);
   const entries = ([
@@ -780,11 +790,14 @@ export function MediaViewer({
           <ConfirmPopup
             open={phone && confirming}
             title="Delete this?"
-            message="It is removed from your studio for good."
+            message={deleteNote ?? "It is removed from your studio for good."}
             confirmLabel="Delete"
             onConfirm={remove}
             onClose={() => setConfirming(false)}
           />
+          {confirming && !phone && deleteNote && (
+            <p className="anim-pop -mb-1 px-1 text-[12px] leading-relaxed text-t3">{deleteNote}</p>
+          )}
           {confirming && !phone && (
             <div className="anim-pop flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
               <p className="flex-1 text-[13px]" style={{ color: "var(--danger)" }}>
