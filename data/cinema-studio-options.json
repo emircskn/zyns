@@ -1,0 +1,2126 @@
+{
+ "_meta": {
+  "source": "higgsfield.ai/generate (Cinema Studio 4.0 web UI), captured 2026-10-03",
+  "note": "Snapshot. Media are public CDN files on cdn.higgsfield.ai. \"value\" = API enum for higgsfield/cinema-studio/4.0; null = Auto (send nothing)."
+ },
+ "video": {
+  "camera_movement": [
+   {
+    "label": "Snorricam",
+    "value": "snorricam",
+    "auto": false,
+    "priority": 75,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/41f533bc-e56a-4807-9966-1b7f487a6fa4.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f74144c0-afc3-4d7e-b07b-76b16b6cd187.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Robot arm",
+    "value": "robot-arm",
+    "auto": false,
+    "priority": 72,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9be4a814-7030-416f-9e02-4d99dd92b9b2.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/08dd3e7e-45ab-4c33-b035-3ffb132e241e.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Tilt up",
+    "value": "tilt-up",
+    "auto": false,
+    "priority": 69,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9ad89e82-805c-4f66-8ce4-80c401e075ff.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ab10a655-8901-4dd7-8c54-0c76d88a6a62.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Rack focus",
+    "value": "rack-focus",
+    "auto": false,
+    "priority": 68,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f86bd18a-e233-4d3f-bc1c-2e5c08c02c69.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/a85cb540-7108-45e3-ac63-bf3ed2de42d7.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Tilt down",
+    "value": "tilt-down",
+    "auto": false,
+    "priority": 67,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/551af919-f1f4-4d5e-8eef-1ac88295bd5d.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c5d8fd64-4242-4de5-b941-27ba1b7a684c.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "POV",
+    "value": "pov",
+    "auto": false,
+    "priority": 66,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/167fc048-db8a-4205-90ef-3712b355d0f6.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6031271f-54fd-4d12-97bf-f1cd340aa269.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Pan left",
+    "value": "pan-left",
+    "auto": false,
+    "priority": 65,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/81867a75-9f71-4443-91f3-040569107597.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c5cdbc2f-1044-4f3d-924d-bd8516f15063.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Crane up",
+    "value": "crane-up",
+    "auto": false,
+    "priority": 64,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/16c732d0-1478-4597-9a72-2f1bacebfb53.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/e665aeba-0b1a-45d7-bcea-86a010baa9f7.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Pan right",
+    "value": "pan-right",
+    "auto": false,
+    "priority": 63,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/5b9ad1d2-0e1c-4b68-85e5-5980a5a1e71d.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/63ecb1ea-df5b-45e6-bff9-079a1a6fd23f.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Crane down",
+    "value": "crane-down",
+    "auto": false,
+    "priority": 62,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6338e059-21f3-4504-92cc-d4eca0a52a3a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/459b7457-eb08-405a-8eda-ee15b871bf29.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Side tracking",
+    "value": "side-tracking",
+    "auto": false,
+    "priority": 61,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/1e89e2a8-a99d-433a-9af7-703a6bfbe83e.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c076f77c-627b-4f87-90d2-3478024142cd.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Pedestal up",
+    "value": "pedestal-up",
+    "auto": false,
+    "priority": 60,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9d4269ee-cef4-40d4-affa-073c387efbd3.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f5877174-1a69-431a-95f4-02b5f115b72b.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Pedestal down",
+    "value": "pedestal-down",
+    "auto": false,
+    "priority": 59,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/dcb7fe2a-486e-4550-a254-eaa5259c7221.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/0b11f953-2cd4-4b80-ba5e-50c28d240b56.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Handheld",
+    "value": "handheld",
+    "auto": false,
+    "priority": 58,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/40c95353-6037-4a00-a7ba-7dab09ef9e64.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9dd7f7f2-4525-4e1a-bce8-1c77bdcde538.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Tracking",
+    "value": "tracking",
+    "auto": false,
+    "priority": 57,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ca7dc056-0e87-4398-b96d-cc59fae0024c.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/d352b3b2-d161-4f36-b62d-05707c357beb.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Drone orbit",
+    "value": "drone-orbit",
+    "auto": false,
+    "priority": 56,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/14f5b72a-7202-41cc-8f35-cc468eab9db1.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/dde2ae70-9d21-45ef-996f-c5a73c0e1aef.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Dolly zoom",
+    "value": "dolly-zoom",
+    "auto": false,
+    "priority": 55,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/8aa44e1d-32e8-4368-9a47-f40ffda77d5a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6f9ced07-5f77-49a3-a79c-e2608f5c5bb6.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Aerial pullback",
+    "value": "aerial-pullback",
+    "auto": false,
+    "priority": 54,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/e6233943-40ee-4a82-88c5-052e262b7eff.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ff4d0638-b321-4054-8444-37c7c86c07b0.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Static shot",
+    "value": "static-shot",
+    "auto": false,
+    "priority": 53,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/a8449dc8-41ec-49fc-90f4-81d74d9f7066.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/dd8b74ed-ab90-4eca-8f7d-00d4e4dd364c.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Bullet time",
+    "value": "bullet-time",
+    "auto": false,
+    "priority": 52,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/4e24525e-b626-4ac0-a22a-2365fee28c2c.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/32a345fc-4f06-4392-a9fe-39f411922a70.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Whip pan",
+    "value": "whip-pan",
+    "auto": false,
+    "priority": 51,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/3b30b328-199f-456d-84c6-a4b20efcadf3.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/bff738bb-888a-49c7-9e35-29c891298d12.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Slow zoom in",
+    "value": "slow-zoom-in",
+    "auto": false,
+    "priority": 49,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/fd673dee-53c4-4cfa-a7f5-9690c407cab8.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/e514e07b-ee64-4b2a-bd2b-807643d7b132.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Arc left",
+    "value": "arc-left",
+    "auto": false,
+    "priority": 46,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/052d0323-8a28-41ce-b7bc-db94e39580b9.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/73f89729-35d9-4100-b840-59dacf819ae4.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Slow zoom out",
+    "value": "slow-zoom-out",
+    "auto": false,
+    "priority": 45,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c2046a8a-831e-4aa2-a8b3-6a05e384b2c0.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9d9895e4-37e7-4dc9-baa5-673a5b408a8f.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Arc right",
+    "value": "arc-right",
+    "auto": false,
+    "priority": 42,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/11688e66-674d-45f5-9f9b-4543974ad12c.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/40bd5464-c4db-492a-9334-28c0a03ef23f.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Truck right",
+    "value": "truck-right",
+    "auto": false,
+    "priority": 39,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/bd898ff8-e0a8-4b44-a41f-ceb723e5b414.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/599ecaf0-2efb-4f91-af04-00ab4db120dd.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Dolly in",
+    "value": "dolly-in",
+    "auto": false,
+    "priority": 37,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/801093dc-0817-44ba-87da-6e544f218c0e.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f2d19ee8-6f11-424a-b8ee-ec4b919b6124.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Truck left",
+    "value": "truck-left",
+    "auto": false,
+    "priority": 35,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/4908b3bd-26b4-4c6d-8414-c4f093858066.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/1b7cb488-d455-4fca-9560-395d98eda3da.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Dolly out",
+    "value": "dolly-out",
+    "auto": false,
+    "priority": 33,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/5fab33de-d50b-4eea-bac1-d1605bc88a80.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/a3b7d521-9e89-4bda-b20e-f0efbfb239d0.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Slider right",
+    "value": "slider-right",
+    "auto": false,
+    "priority": 30,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/47b73a55-9dc7-4826-b7ea-71d33c3793a3.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/3c2bc6c0-b1dd-48b0-831e-c2a7ca1838e8.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Crush zoom",
+    "value": "crush-zoom",
+    "auto": false,
+    "priority": 28,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/7e76d6a7-7360-4254-8c0c-7afbec20248a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/2fc0b86d-a755-48e7-aa33-b7080fa6a36c.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Slider left",
+    "value": "slider-left",
+    "auto": false,
+    "priority": 24,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/809b7c81-8ce9-4d6c-b042-dcb46cfb0e9b.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/db4ff5ec-8386-46d5-b907-1d9eb0cc59df.webp",
+     "width": 600,
+     "height": 600
+    }
+   },
+   {
+    "label": "Helicopter shot",
+    "value": "helicopter-shot",
+    "auto": false,
+    "priority": 23,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c5f97f2c-f96b-479c-a2ff-ae37e7d79b07.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9f351ee9-54e8-4b4a-b104-1bbd7f8db714.webp",
+     "width": 600,
+     "height": 600
+    }
+   }
+  ],
+  "genre": [
+   {
+    "label": "General",
+    "value": null,
+    "auto": true,
+    "priority": 0,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/e2c0b8ad-e163-4c9b-95b3-1eb8396ef572.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/93eb82f2-6dc1-419b-b435-d6b61178cbd6.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Epic",
+    "value": "epic",
+    "auto": false,
+    "priority": 47,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/1d5bace2-93f0-49c0-84df-bdfd4ebf84b4.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/aeb0bea6-e268-439c-92e4-9c2ff4966571.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Drama",
+    "value": "drama",
+    "auto": false,
+    "priority": 43,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/a3129a2d-e132-4e67-9edc-f5d0075191ca.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/1a6cab3c-b6eb-4930-998e-8359fc64a4b6.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Noir",
+    "value": "noir",
+    "auto": false,
+    "priority": 38,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6913dc79-1b79-48bb-b7b3-4af4264beac8.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/15f98825-a751-4947-b8be-560c3aabcc9c.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Comedy",
+    "value": "comedy",
+    "auto": false,
+    "priority": 32,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/b2ae8058-ae8a-4708-b004-db614eaa02e5.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ba472198-f68f-4a7f-a1d7-ec5989ddfe1c.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Horror",
+    "value": "horror",
+    "auto": false,
+    "priority": 29,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6dbee35e-506a-4459-a7b2-ff08dc8921bb.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ea53a64b-5a44-4db8-b593-75b04919eec0.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Action",
+    "value": "action",
+    "auto": false,
+    "priority": 22,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ce8bb8b8-1755-4a17-9b14-f4f697a84ea5.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/55b8410f-b02b-4885-988d-693fd74504c4.webp",
+     "width": 600,
+     "height": 338
+    }
+   }
+  ],
+  "era": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 21,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/3e9d02bd-5d81-4e7a-a20d-9c92eaa34389.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/02134177-479e-4836-afbc-def483d4b37a.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "1960s",
+    "value": "1960s",
+    "auto": false,
+    "priority": 26,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/49f1cec3-9b30-4570-9b9d-c411a426eea1.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/e06c19b7-ffcf-4d42-a6f2-2af671816b5a.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "1980s",
+    "value": "1980s",
+    "auto": false,
+    "priority": 25,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ebb72ac5-bbfb-4652-81a3-98126e69f48b.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/5c38606d-5538-4d1d-9f4b-9a0aeb318acc.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "1990s",
+    "value": "1990s",
+    "auto": false,
+    "priority": 24,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/5ab5e82e-9413-49b5-ad09-e0990fea22ee.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/96bd92ab-d3d5-4e3b-9eb5-ad736d8d2357.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "2000s",
+    "value": "2000s",
+    "auto": false,
+    "priority": 23,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/cd12c346-7515-4a65-a58c-b9ede3185486.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/0da218b4-845f-420b-8580-1b784a28770b.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "2020s",
+    "value": "2020s",
+    "auto": false,
+    "priority": 22,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/7c088434-9419-4b45-951e-b1b6117fbd65.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/3bb5979c-1789-48e8-b87a-bfb87ced146c.webp",
+     "width": 600,
+     "height": 338
+    }
+   }
+  ],
+  "pacing": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 5,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/97a8f939-9cfa-4527-a3f1-58be06ace187.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c99aea1c-78e7-41ca-b90f-86785b892f43.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Chaotic",
+    "value": "chaotic",
+    "auto": false,
+    "priority": 9,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/2acc2bfe-e9b8-4fbf-9b2f-5288c65ab016.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/6e05bd09-800f-4a41-9910-96a09662efcd.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Dynamic",
+    "value": "dynamic",
+    "auto": false,
+    "priority": 8,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/7d9d7918-cb17-47eb-9cae-c2a64695282f.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c4bf8547-5047-4f38-b18a-44b141773960.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Calm",
+    "value": "calm",
+    "auto": false,
+    "priority": 7,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c819650a-6a5e-4231-9aef-a593051bb378.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ab84020a-ef8b-47ea-80d5-8466e4103d4d.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Single shot",
+    "value": "single-shot",
+    "auto": false,
+    "priority": 6,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/0ad23d54-7233-468d-9587-31dd033428b1.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/d19773a8-a734-45d2-94ab-2ea038c65dc4.webp",
+     "width": 600,
+     "height": 338
+    }
+   }
+  ],
+  "light": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 0,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/72232455-c7bf-4613-ab29-b77e8ab47c56.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/468c6074-9645-4cc3-b632-ba4be3d20e63.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Silhouette",
+    "value": "silhouette",
+    "auto": false,
+    "priority": 48,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/436a4b98-59e2-42ef-bbfd-6afa9b2d086a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/574c8be8-6572-488c-bd92-0d4efb1e76b2.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Practicals",
+    "value": "practicals",
+    "auto": false,
+    "priority": 44,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/430248d6-d196-4644-9acd-5bd971df502a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f9cc8c79-110b-4456-b068-2dd3d5941869.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Window",
+    "value": "window",
+    "auto": false,
+    "priority": 40,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/ae22f7b5-e044-4f96-bcd9-b87cc677a569.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/659c4612-b39e-4c09-8a61-36f5bea142ad.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Overhead fall",
+    "value": "overhead-fall",
+    "auto": false,
+    "priority": 34,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c8c80362-5f11-4bbc-88f9-61e4277c575a.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/96ecf21a-ddeb-4701-a815-b9a2274c4f4f.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Contre jour",
+    "value": "contre-jour",
+    "auto": false,
+    "priority": 27,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f55691e6-714c-4c83-b51f-f3b1eb920b27.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/445d44ac-368e-45a6-b3cb-91e9a6585af6.webp",
+     "width": 600,
+     "height": 338
+    }
+   },
+   {
+    "label": "Soft cross",
+    "value": "soft-cross",
+    "auto": false,
+    "priority": 25,
+    "media": {
+     "type": "video",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/9f754037-bd34-4ce2-8c4f-4489bc280c46.mp4",
+     "poster": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/0cfc70a8-ecb9-4d79-a779-79e6d3fdc2c5.webp",
+     "width": 600,
+     "height": 338
+    }
+   }
+  ],
+  "camera_model": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 0
+   },
+   {
+    "label": "Modern",
+    "value": "modern",
+    "auto": false,
+    "priority": 74,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/f4bc612a-f161-4cea-8c87-31131bbc74a2.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "35mm Film",
+    "value": "35mm-film",
+    "auto": false,
+    "priority": 71,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/70b1c8ee-2bb4-419e-85c3-aa9ed3c50b05.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "8mm Film",
+    "value": "8mm-film",
+    "auto": false,
+    "priority": 70,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/759c3c39-f578-4b3b-a8f0-66ca4ca541e6.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "DV Camcorder",
+    "value": "dv-camcorder",
+    "auto": false,
+    "priority": 3,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/c8e40116-cd9f-4ec1-a6c2-53e4a80847ff.webp",
+     "width": 1080,
+     "height": 607
+    }
+   }
+  ],
+  "camera_lens": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 0
+   },
+   {
+    "label": "Clean Sharp",
+    "value": "clean-sharp",
+    "auto": false,
+    "priority": 19,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/d3384005-bd42-42ab-bfff-4436b34313b8.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "Anamorphic",
+    "value": "anamorphic",
+    "auto": false,
+    "priority": 16,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/a0e62992-8272-4704-a01b-7ba6d9a10be2.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "Vintage Anamorphic",
+    "value": "vintage-anamorphic",
+    "auto": false,
+    "priority": 15,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/7a87b046-9c3f-4747-bb38-fcb1f4b219e4.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "Warm Vintage",
+    "value": "warm-vintage",
+    "auto": false,
+    "priority": 11,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/d30da6a5-7730-4098-8d39-e44a915cffee.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "Halation Vintage",
+    "value": "halation-vintage",
+    "auto": false,
+    "priority": 6,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/02c31fbe-4218-4534-8849-de230e7c099e.webp",
+     "width": 1080,
+     "height": 607
+    }
+   }
+  ],
+  "camera_aperture": [
+   {
+    "label": "Auto",
+    "value": null,
+    "auto": true,
+    "priority": 0
+   },
+   {
+    "label": "f/1.4 Wide Open",
+    "value": "f14-wide-open",
+    "auto": false,
+    "priority": 14,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/7147405f-9606-4aca-94ea-361c3c0f739e.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "f/4 Moderate",
+    "value": "f4-moderate",
+    "auto": false,
+    "priority": 8,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/69de716e-cd2a-4d01-9faa-d4e38c0194b7.webp",
+     "width": 1080,
+     "height": 607
+    }
+   },
+   {
+    "label": "f/11 Deep Focus",
+    "value": "f11-deep-focus",
+    "auto": false,
+    "priority": 4,
+    "media": {
+     "type": "image",
+     "url": "https://cdn.higgsfield.ai/cinema_studio_40_creative_controls/1cba04c8-4cab-4b6e-a72a-d17bedfaa970.webp",
+     "width": 1080,
+     "height": 607
+    }
+   }
+  ]
+ },
+ "image": {
+  "camera": [
+   {
+    "label": "Modular 8K Digital",
+    "group": "Digital",
+    "priority": 1,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/ca7e007e-ad7f-4d90-8d19-dad19bb587aa.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/2cf95d30-3503-43dd-bd7f-80e63825a61a.webp"
+   },
+   {
+    "label": "Full-Frame Cine Digital",
+    "group": "Digital",
+    "priority": 2,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/81cae177-2121-4e1b-88b9-d972c85235cb.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/2ad30fa3-17fa-462d-b952-445b2901432b.webp"
+   },
+   {
+    "label": "Grand Format 70mm Film",
+    "group": "Film",
+    "priority": 3,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/ef6ca2ff-3e8d-4272-afee-d9b265377488.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/ab9eeb78-bf8b-474b-b6f8-3888cb0722e9.webp"
+   },
+   {
+    "label": "Studio Digital S35",
+    "group": "Digital",
+    "priority": 4,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/053f1eb0-090e-4d01-9e57-2ebc92b96466.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/978c9f27-4b99-4de8-a252-144ff37dec1b.webp"
+   },
+   {
+    "label": "Classic 16mm Film",
+    "group": "Film",
+    "priority": 5,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/256f81d1-7159-4395-856f-fcb9f49c9831.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/04fea5d9-617a-41fe-85d2-053975d32ef8.webp"
+   },
+   {
+    "label": "Premium Large Format Digital",
+    "group": "Film",
+    "priority": 6,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/fac44341-2160-45f4-b48c-f4442dd1891c.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/8c6d5071-87d7-45ae-9538-c94b90854b1f.webp"
+   }
+  ],
+  "lens": [
+   {
+    "label": "Creative Tilt Lens",
+    "group": "Spherical",
+    "priority": 7,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/4d49926e-822e-45f1-a7e8-bed098f828a8.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/264368af-396f-4679-a97e-234ed3085f1f.webp"
+   },
+   {
+    "label": "Compact Anamorphic",
+    "group": "Anamorphic",
+    "priority": 8,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/c6cda2f7-acbf-48f4-96a5-34bdaf4409de.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/3711fb40-c6e3-4940-bc12-f09e6db2c350.webp"
+   },
+   {
+    "label": "Extreme Macro",
+    "group": "Spherical",
+    "priority": 9,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/4ee34004-0d5f-4834-8498-546c88ad88a0.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/99b6c067-23c6-4f02-8374-2b23e3ebe448.webp"
+   },
+   {
+    "label": "70s Cinema Prime",
+    "group": "Spherical",
+    "priority": 10,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/d2e29b92-5377-451d-995e-32b67fd1abd2.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/cf6b8357-7e9a-4e31-96e4-81d119e393b0.webp"
+   },
+   {
+    "label": "Classic Anamorphic",
+    "group": "Anamorphic",
+    "priority": 11,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/dfcecc6e-a7b4-4bd6-a4a3-a6c98f72ce1d.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/2a328d45-9d9d-4ecd-9a8b-68459f959992.webp"
+   },
+   {
+    "label": "Premium Modern Prime",
+    "group": "Spherical",
+    "priority": 12,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/10f628f2-4844-49df-b25e-14ddd62298aa.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/08248f35-311b-4ecc-b850-5c5f6ae27322.webp"
+   },
+   {
+    "label": "Warm Cinema Prime",
+    "group": "Spherical",
+    "priority": 13,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/295376d1-389a-47fc-9d37-3449d9a9d675.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/a0298a7b-ecf8-44be-a271-d318f9ae47ef.webp"
+   },
+   {
+    "label": "Swirl Bokeh Portrait",
+    "group": "Spherical",
+    "priority": 14,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/df4904e7-2655-455a-a107-cda586735833.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/98c6287b-c0d3-4070-8f35-eeb8d4edf815.webp"
+   },
+   {
+    "label": "Vintage Prime",
+    "group": "Spherical",
+    "priority": 15,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/bf2e27d6-bffc-494b-870d-9d57dc203e02.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/6f077e09-52ce-497e-8233-803b32e2338e.webp"
+   },
+   {
+    "label": "Halation Diffusion",
+    "group": "Anamorphic",
+    "priority": 16,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/0a8769d6-6962-4628-8c18-cac35b6234f6.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/c4a08dbb-db9d-4f03-bb4d-3aad5791b526.webp"
+   },
+   {
+    "label": "Clinical Sharp Prime",
+    "group": "Spherical",
+    "priority": 17,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/25cd1827-cae6-48df-8165-7e9106d86dd2.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/72aba0aa-92e6-4344-85aa-08366618a376.webp"
+   }
+  ],
+  "focal_length": [
+   {
+    "label": "8",
+    "group": null,
+    "priority": 18,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/a953e7f2-e270-4977-bc1e-b1aae0b2f217.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/beaf098d-10ef-4ff2-ac8f-37fc76adeeca.webp"
+   },
+   {
+    "label": "14",
+    "group": null,
+    "priority": 19,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/e12b2a47-b7b6-417a-bd89-89621d438979.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/791d5d16-69a6-482f-903c-06dcaee85a90.webp"
+   },
+   {
+    "label": "35",
+    "group": null,
+    "priority": 20,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/c4753aba-e1d0-41b8-85bf-03b711ae8e5c.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/852fd8eb-61a0-4bdf-887a-aa5f00d99d87.webp"
+   },
+   {
+    "label": "50",
+    "group": null,
+    "priority": 21,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/49a934e2-f586-4b15-b21b-d194f1fdfe09.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/a069452d-e869-48e6-9029-efe5e5f1e793.webp"
+   }
+  ],
+  "aperture": [
+   {
+    "label": "f/1.4",
+    "group": null,
+    "priority": 22,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/e92bf365-50af-453b-abce-db135883d940.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/de6deb23-b8ce-4e48-99c4-efb3e2ca4db6.webp"
+   },
+   {
+    "label": "f/4",
+    "group": null,
+    "priority": 23,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/864125a8-1ce4-408d-a61f-fc0d5f973f91.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/6973b0f6-d702-4854-894a-ba0951e5b450.webp"
+   },
+   {
+    "label": "f/11",
+    "group": null,
+    "priority": 24,
+    "icon": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/b230da45-49b8-4d86-83fc-b8e07a629e48.webp",
+    "preview": "https://cdn.higgsfield.ai/cinematic_studio_image_settings/3d0299f8-f08a-4ccb-aaf3-a3bf6a877890.webp"
+   }
+  ]
+ },
+ "color_palette": [
+  {
+   "label": "Static Noon",
+   "value": "static-noon",
+   "background": "#69483b",
+   "hex": [
+    "#0c0c0c",
+    "#28292a",
+    "#4e4f51",
+    "#626263",
+    "#a25955",
+    "#7b7b7b",
+    "#939548",
+    "#a7a7a6",
+    "#c1c2c2",
+    "#b6c6b7",
+    "#ededed",
+    "#69483b"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/abbce116-ac86-4d35-84d9-b0adff031962.webp"
+  },
+  {
+   "label": "Twilight Fable",
+   "value": "twilight-fable",
+   "background": "#764019",
+   "hex": [
+    "#040605",
+    "#1e4f59",
+    "#5d4623",
+    "#7b5d35",
+    "#36797f",
+    "#948052",
+    "#b2a24a",
+    "#56afae",
+    "#88b2c9",
+    "#dac593",
+    "#f3f4ea",
+    "#764019"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/7104bc8d-f658-414e-b5c5-a34b87c7dfae.webp"
+  },
+  {
+   "label": "Back Row Kissing Seats",
+   "value": "back-row-kissing-seats",
+   "background": "#881913",
+   "hex": [
+    "#070405",
+    "#4e1311",
+    "#1a4388",
+    "#875046",
+    "#b26a38",
+    "#6079c3",
+    "#2da744",
+    "#b89892",
+    "#846e69",
+    "#9ccd8a",
+    "#c4c7d2",
+    "#881913"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/5b59386f-4fe9-48c2-9723-d98783458ccf.webp"
+  },
+  {
+   "label": "On the Other Side of the Porthole",
+   "value": "on-the-other-side-of-the-porthole",
+   "background": "#b82d1c",
+   "hex": [
+    "#090709",
+    "#720b11",
+    "#474548",
+    "#3d537d",
+    "#933542",
+    "#776343",
+    "#71726e",
+    "#969c9e",
+    "#9dbbd8",
+    "#c6bfb5",
+    "#a3cba9",
+    "#b82d1c"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/74e3315e-c581-47d8-bd42-89f67993ca55.webp"
+  },
+  {
+   "label": "The Emerald Ambush",
+   "value": "the-emerald-ambush",
+   "background": "#1d481b",
+   "hex": [
+    "#101210",
+    "#4b4d2d",
+    "#3c4c7b",
+    "#64574b",
+    "#3d703b",
+    "#6986a7",
+    "#959b87",
+    "#ca9e80",
+    "#bebec1",
+    "#98d0d5",
+    "#f0f7f0",
+    "#1d481b"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/269a3671-1c7f-4f8f-900d-cf1192cbdcc1.webp"
+  },
+  {
+   "label": "Highway Standoff",
+   "value": "highway-standoff",
+   "background": "#0f1c79",
+   "hex": [
+    "#0d110c",
+    "#36463f",
+    "#69351a",
+    "#635a39",
+    "#215ca7",
+    "#607765",
+    "#867660",
+    "#9b9c85",
+    "#beb389",
+    "#adc7ae",
+    "#eee6c2",
+    "#0f1c79"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/dfa8708a-adbf-4375-a3df-768f4465e6a8.webp"
+  },
+  {
+   "label": "The Faded Fresco",
+   "value": "the-faded-fresco",
+   "background": "#b8b592",
+   "hex": [
+    "#14120e",
+    "#4b4536",
+    "#6d443e",
+    "#5b544d",
+    "#646864",
+    "#7a6b62",
+    "#8c877d",
+    "#a2957f",
+    "#b4b8a1",
+    "#cbd196",
+    "#c9e1c7",
+    "#b8b592"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/3a1a5e27-f010-490e-b88d-84a480e2d440.webp"
+  },
+  {
+   "label": "Oil & Ochre",
+   "value": "oil-ochre",
+   "background": "#8d7941",
+   "hex": [
+    "#0d0d0a",
+    "#342619",
+    "#524628",
+    "#654e38",
+    "#6d6932",
+    "#636962",
+    "#93896f",
+    "#aea483",
+    "#d0a681",
+    "#e0d0a7",
+    "#e1dcc8",
+    "#8d7941"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/8d5f2cc0-959e-44ac-a4a8-89803cb4ffe8.webp"
+  },
+  {
+   "label": "The Mountain Convent",
+   "value": "the-mountain-convent",
+   "background": "#942417",
+   "hex": [
+    "#0a0a07",
+    "#342f1f",
+    "#464d47",
+    "#695037",
+    "#405e2d",
+    "#646257",
+    "#7e8079",
+    "#7ea1c7",
+    "#b29e73",
+    "#b1b7b9",
+    "#c6d7de",
+    "#942417"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/db7fd459-9518-43de-8f75-25d57c8cf783.webp"
+  },
+  {
+   "label": "Ghost in the Code",
+   "value": "ghost-in-the-code",
+   "background": "#638a63",
+   "hex": [
+    "#040605",
+    "#1b331d",
+    "#664836",
+    "#3c6052",
+    "#696747",
+    "#818380",
+    "#928363",
+    "#6a9387",
+    "#b8ad9a",
+    "#bfe1c8",
+    "#e6ebe9",
+    "#638a63"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/5a3f634a-3a49-47b8-a3df-438f42b9ee5e.webp"
+  },
+  {
+   "label": "Pink Velvet",
+   "value": "pink-velvet",
+   "background": "#9f140b",
+   "hex": [
+    "#0d0c0f",
+    "#682f1d",
+    "#205279",
+    "#7c5144",
+    "#3078a3",
+    "#996d73",
+    "#7f818d",
+    "#d29d9f",
+    "#dda780",
+    "#d7c5c8",
+    "#efdcd5",
+    "#9f140b"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/5353b968-27ea-4f7d-a218-391a3ddabafd.webp"
+  },
+  {
+   "label": "Two Days to the Horizon",
+   "value": "two-days-to-the-horizon",
+   "background": "#988357",
+   "hex": [
+    "#060805",
+    "#254850",
+    "#55482c",
+    "#774c18",
+    "#696c53",
+    "#558085",
+    "#828767",
+    "#c0a875",
+    "#a7baa6",
+    "#ccc9a4",
+    "#e2e5cb",
+    "#988357"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/0cec6501-eabd-4705-99ed-f5e18d40f553.webp"
+  },
+  {
+   "label": "Industrial Fog",
+   "value": "industrial-fog",
+   "background": "#561b11",
+   "hex": [
+    "#121012",
+    "#300d0b",
+    "#4d4840",
+    "#6e4f42",
+    "#5d5857",
+    "#6e6e70",
+    "#7f8180",
+    "#989a99",
+    "#adb2b1",
+    "#c4b09a",
+    "#ccced0",
+    "#561b11"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/37cb0b27-ebd2-410a-8ca3-ef3fa29ce9f7.webp"
+  },
+  {
+   "label": "Stairs Go Up",
+   "value": "stairs-go-up",
+   "background": "#814f21",
+   "hex": [
+    "#050b0e",
+    "#3d301f",
+    "#375133",
+    "#50574d",
+    "#705b44",
+    "#557c76",
+    "#9f8865",
+    "#87a290",
+    "#4cb9a3",
+    "#bebe9b",
+    "#b2d0b5",
+    "#814f21"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/4ba81239-256f-481e-a08c-cabf39f67a58.webp"
+  },
+  {
+   "label": "Field Post",
+   "value": "field-post",
+   "background": "#0a5a0e",
+   "hex": [
+    "#040505",
+    "#514e28",
+    "#295860",
+    "#3e5b46",
+    "#716538",
+    "#5f8681",
+    "#65a1d2",
+    "#a9a668",
+    "#d9b388",
+    "#e3e39f",
+    "#f8faf4",
+    "#0a5a0e"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/5cd8b81f-1513-4818-a3e6-a25962051900.webp"
+  },
+  {
+   "label": "Home Is the Next Gas Station",
+   "value": "home-is-the-next-gas-station",
+   "background": "#20345c",
+   "hex": [
+    "#0d0907",
+    "#14182f",
+    "#434145",
+    "#57514e",
+    "#766360",
+    "#596d8a",
+    "#8c868a",
+    "#7d92bd",
+    "#a57852",
+    "#878ba1",
+    "#b2aeb2",
+    "#20345c"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/501cc86b-9d4c-47f3-aafc-a776b81ed705.webp"
+  },
+  {
+   "label": "Glossy Flesh",
+   "value": "glossy-flesh",
+   "background": "#8b2926",
+   "hex": [
+    "#0c0b11",
+    "#223750",
+    "#5b4747",
+    "#785753",
+    "#797074",
+    "#b37092",
+    "#92919d",
+    "#d28c60",
+    "#89c2df",
+    "#b1bcce",
+    "#d2c5ce",
+    "#8b2926"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/073ad22b-dc27-4f1f-98cc-acf72a597aed.webp"
+  },
+  {
+   "label": "The Crimson Ballet",
+   "value": "the-crimson-ballet",
+   "background": "#d20c25",
+   "hex": [
+    "#0b0509",
+    "#291c7d",
+    "#621418",
+    "#805442",
+    "#475be0",
+    "#d3184e",
+    "#807d8b",
+    "#b59c93",
+    "#c5bfd9",
+    "#70ddf8",
+    "#f2e322",
+    "#d20c25"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/ac8c3167-88ab-42ec-a0f4-ed867fa51903.webp"
+  },
+  {
+   "label": "Neon Rain at Midnight",
+   "value": "neon-rain-at-midnight",
+   "background": "#446bc7",
+   "hex": [
+    "#0c0c0e",
+    "#334d4e",
+    "#7b3612",
+    "#655254",
+    "#676650",
+    "#497197",
+    "#708986",
+    "#b3978e",
+    "#95b0c2",
+    "#bebc9d",
+    "#f3e04e",
+    "#446bc7"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/34a5d30a-2a78-499c-a508-945639e43876.webp"
+  },
+  {
+   "label": "The Morning After Rain",
+   "value": "the-morning-after-rain",
+   "background": "#255e54",
+   "hex": [
+    "#0b0b0b",
+    "#3c3228",
+    "#404845",
+    "#5e6459",
+    "#3e6f81",
+    "#7c7670",
+    "#458f83",
+    "#8ba1af",
+    "#a8bccc",
+    "#6ec9ce",
+    "#c1d4e0",
+    "#255e54"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/fb85bdb0-3f50-4851-ba03-dfc14af15afe.webp"
+  },
+  {
+   "label": "The Iron Borough",
+   "value": "the-iron-borough",
+   "background": "#b02610",
+   "hex": [
+    "#0a0604",
+    "#2b0f07",
+    "#613926",
+    "#893d10",
+    "#555461",
+    "#756664",
+    "#87858b",
+    "#ad887c",
+    "#d3aa6b",
+    "#acb6c2",
+    "#f5f8f9",
+    "#b02610"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/bca2f827-575d-445a-9759-e3fbe534f11c.webp"
+  },
+  {
+   "label": "The Ground",
+   "value": "the-ground",
+   "background": "#688ad2",
+   "hex": [
+    "#0a0708",
+    "#4b3e35",
+    "#3f4b72",
+    "#675b52",
+    "#757f5f",
+    "#907a66",
+    "#ad9e92",
+    "#82a9de",
+    "#d2b48b",
+    "#c7bfbb",
+    "#e2e7f5",
+    "#688ad2"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/ca2aa394-3bc5-40f8-9ba4-98fa03062454.webp"
+  },
+  {
+   "label": "The Investigation",
+   "value": "the-investigation",
+   "background": "#2a7c8e",
+   "hex": [
+    "#0b0c0f",
+    "#1a303d",
+    "#515346",
+    "#3a5b58",
+    "#845931",
+    "#6a7d78",
+    "#e06b84",
+    "#6c9ca0",
+    "#8cb8b1",
+    "#b3d1bc",
+    "#d5e6c2",
+    "#2a7c8e"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/191a57bc-a4ce-4efe-af8d-5d01c9fd87ab.webp"
+  },
+  {
+   "label": "Turquoise Mirage",
+   "value": "turquoise-mirage",
+   "background": "#0d8b06",
+   "hex": [
+    "#161614",
+    "#054503",
+    "#4c4a43",
+    "#66635a",
+    "#9a6941",
+    "#6a8474",
+    "#4aa290",
+    "#9c9e72",
+    "#87bc90",
+    "#59cec2",
+    "#cad7a2",
+    "#0d8b06"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/d98f2171-6d51-42d1-9c49-4ce0c6bda59f.webp"
+  },
+  {
+   "label": "A Dream in Color",
+   "value": "a-dream-in-color",
+   "background": "#cb9336",
+   "hex": [
+    "#0c0b0a",
+    "#5a3723",
+    "#354d30",
+    "#6d4d37",
+    "#4d5e45",
+    "#5d5c67",
+    "#a78672",
+    "#8d8db1",
+    "#b7a9a1",
+    "#b0b4cc",
+    "#eac94a",
+    "#cb9336"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/eecd43cb-bb64-4c97-b321-d65a20799984.webp"
+  },
+  {
+   "label": "Breakfast on Schedule",
+   "value": "breakfast-on-schedule",
+   "background": "#533115",
+   "hex": [
+    "#111217",
+    "#732419",
+    "#494637",
+    "#6e5133",
+    "#416c87",
+    "#68734a",
+    "#7b796b",
+    "#91a5b0",
+    "#a6b1aa",
+    "#aac2c8",
+    "#cadcd6",
+    "#533115"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/b25f124a-9d9a-4089-af35-310dbb6c3499.webp"
+  },
+  {
+   "label": "Favela Gold",
+   "value": "favela-gold",
+   "background": "#d3ac74",
+   "hex": [
+    "#0a0807",
+    "#563322",
+    "#464969",
+    "#57594d",
+    "#765636",
+    "#586f93",
+    "#867b7e",
+    "#aca389",
+    "#85b1f7",
+    "#acb4b5",
+    "#f3f7f3",
+    "#d3ac74"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/7d84b77a-6f4d-46e6-b03c-f7d0b4011d56.webp"
+  },
+  {
+   "label": "A Hotel for One",
+   "value": "a-hotel-for-one",
+   "background": "#101821",
+   "hex": [
+    "#07070c",
+    "#1f1414",
+    "#362e25",
+    "#094b27",
+    "#494b4b",
+    "#2c5354",
+    "#584e3c",
+    "#686664",
+    "#423b30",
+    "#314041",
+    "#4f3a2f",
+    "#101821"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/da660656-b056-4cce-ab47-fc7d10c82717.webp"
+  },
+  {
+   "label": "After Dark",
+   "value": "after-dark",
+   "background": "#1d1885",
+   "hex": [
+    "#0a090c",
+    "#651113",
+    "#1d2d6c",
+    "#794f3d",
+    "#575a67",
+    "#118d65",
+    "#5b8aa0",
+    "#a99a93",
+    "#ba9569",
+    "#919faf",
+    "#cfcbc6",
+    "#1d1885"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/2b79ccd9-9d52-48db-858a-5dc6c40949fd.webp"
+  },
+  {
+   "label": "Crimson Vigi",
+   "value": "crimson-vigi",
+   "background": "#c72f1f",
+   "hex": [
+    "#0b080a",
+    "#483125",
+    "#98261c",
+    "#654f46",
+    "#4870ca",
+    "#926b51",
+    "#e95531",
+    "#bf9982",
+    "#f0854a",
+    "#fec17b",
+    "#dbd6d4",
+    "#c72f1f"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/ac138053-fb87-45bf-b439-a03b395e6c01.webp"
+  },
+  {
+   "label": "The Neighbors Saw Everything",
+   "value": "the-neighbors-saw-everything",
+   "background": "#5b3b29",
+   "hex": [
+    "#0f1116",
+    "#2e1c11",
+    "#644727",
+    "#76554a",
+    "#3b6084",
+    "#646058",
+    "#948676",
+    "#9d9fa4",
+    "#778082",
+    "#6293b2",
+    "#b7bcc9",
+    "#5b3b29"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/8a61aef3-dfb8-4350-b345-9b3e34df3258.webp"
+  },
+  {
+   "label": "The Grey Channel",
+   "value": "the-grey-channel",
+   "background": "#cecfa5",
+   "hex": [
+    "#081214",
+    "#164942",
+    "#494d3e",
+    "#6b533b",
+    "#30706c",
+    "#787b61",
+    "#5b8f82",
+    "#9aa491",
+    "#b1b898",
+    "#a4c8b0",
+    "#e7ddb3",
+    "#cecfa5"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/fd113bb2-7a8d-4d97-b911-345ca3725fcf.webp"
+  },
+  {
+   "label": "Mirage at Noon",
+   "value": "mirage-at-noon",
+   "background": "#954924",
+   "hex": [
+    "#0c0b0c",
+    "#403733",
+    "#5d463b",
+    "#7f503e",
+    "#695d5a",
+    "#707e9b",
+    "#a47e70",
+    "#b2a3a1",
+    "#a5b9b3",
+    "#d5ced3",
+    "#f4ddaf",
+    "#954924"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/719dd469-2359-44f9-939a-253449b08b3a.webp"
+  },
+  {
+   "label": "Bubblegum Boulevard",
+   "value": "bubblegum-boulevard",
+   "background": "#aa637e",
+   "hex": [
+    "#181415",
+    "#2f3973",
+    "#62382f",
+    "#6b524e",
+    "#957a70",
+    "#878894",
+    "#b48f60",
+    "#65b0cb",
+    "#c3b0a9",
+    "#81d7f9",
+    "#e5e0df",
+    "#aa637e"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/c4e8a13c-b592-4380-9063-0ac5ab1d42df.webp"
+  },
+  {
+   "label": "Yellow Room",
+   "value": "yellow-room",
+   "background": "#ebd41a",
+   "hex": [
+    "#0e0606",
+    "#222e2a",
+    "#513d1a",
+    "#884f1e",
+    "#6a6a67",
+    "#388516",
+    "#a3a59c",
+    "#67b5ae",
+    "#d0b32b",
+    "#5ac99c",
+    "#e3eccb",
+    "#ebd41a"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/601447d6-50c3-484f-89ac-0ea903da700b.webp"
+  },
+  {
+   "label": "The Earth Keeps Things, Reluctantly",
+   "value": "the-earth-keeps-things-reluctantly",
+   "background": "#282a48",
+   "hex": [
+    "#110f11",
+    "#34221f",
+    "#474547",
+    "#55565a",
+    "#6a755f",
+    "#807a7a",
+    "#9b949c",
+    "#9eaf9f",
+    "#beb0b8",
+    "#aeb7d4",
+    "#eae1f5",
+    "#282a48"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/060c55ca-4d90-46b5-adf0-2b09393818b1.webp"
+  },
+  {
+   "label": "Tropic Fever Dream",
+   "value": "tropic-fever-dream",
+   "background": "#8d4f28",
+   "hex": [
+    "#090c0c",
+    "#6b111a",
+    "#584d54",
+    "#305a6e",
+    "#96414b",
+    "#7c7c88",
+    "#65949b",
+    "#ca8a5e",
+    "#df877a",
+    "#f3b32b",
+    "#c8bda3",
+    "#8d4f28"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/49f43893-8596-4128-baec-fc5a97d38c13.webp"
+  },
+  {
+   "label": "Bioluminescent Night",
+   "value": "bioluminescent-night",
+   "background": "#564abb",
+   "hex": [
+    "#0d0f12",
+    "#1f2574",
+    "#2f473f",
+    "#8d421f",
+    "#3d667c",
+    "#54988a",
+    "#83a6bd",
+    "#c099a0",
+    "#b8a3ed",
+    "#d7b06d",
+    "#c0d5db",
+    "#564abb"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/a9cced71-101f-4087-a2e8-fa46751c93cf.webp"
+  },
+  {
+   "label": "Don't Turn It Off, I'm Watching",
+   "value": "dont-turn-it-off-im-watching",
+   "background": "#0c1640",
+   "hex": [
+    "#0c0b0c",
+    "#132669",
+    "#16433e",
+    "#245986",
+    "#973911",
+    "#31706c",
+    "#82797f",
+    "#a49051",
+    "#6097b2",
+    "#46b291",
+    "#aba8a3",
+    "#0c1640"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/c2777a88-e03d-4d16-976e-71653df883d0.webp"
+  },
+  {
+   "label": "The Silk Curtain Falls",
+   "value": "the-silk-curtain-falls",
+   "background": "#672a0e",
+   "hex": [
+    "#1f0303",
+    "#2b313d",
+    "#5f4f36",
+    "#6a512a",
+    "#3a596c",
+    "#ce5838",
+    "#a89062",
+    "#77b2ba",
+    "#c6b395",
+    "#89ece9",
+    "#f7e9d4",
+    "#672a0e"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/e07c6bdc-2aa8-4f33-89e1-7649967fb433.webp"
+  },
+  {
+   "label": "The Butterfly",
+   "value": "the-butterfly",
+   "background": "#771c1e",
+   "hex": [
+    "#0d0c08",
+    "#52463b",
+    "#415747",
+    "#6c604b",
+    "#5c686a",
+    "#708a87",
+    "#918461",
+    "#8694a6",
+    "#bcc5d2",
+    "#efe990",
+    "#eceef2",
+    "#771c1e"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/82415e51-078f-4768-ab7d-d1d419f1481a.webp"
+  },
+  {
+   "label": "Playtime",
+   "value": "playtime",
+   "background": "#725738",
+   "hex": [
+    "#12160f",
+    "#4e3921",
+    "#3e4b50",
+    "#4f5451",
+    "#626f6f",
+    "#876b57",
+    "#868f86",
+    "#a8ac9d",
+    "#afbdb3",
+    "#cbd0be",
+    "#c0e1cf",
+    "#725738"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/a7ad4990-2fd2-49a3-8bc2-34121cbfbd65.webp"
+  },
+  {
+   "label": "Wallpaper Romance",
+   "value": "wallpaper-romance",
+   "background": "#883063",
+   "hex": [
+    "#121010",
+    "#741313",
+    "#4a4b58",
+    "#435e6d",
+    "#69605e",
+    "#8b5952",
+    "#787e7b",
+    "#a6997f",
+    "#9fa796",
+    "#bbb192",
+    "#dfd0a4",
+    "#883063"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/6da58732-b68e-482b-b3cb-047b9d74bb18.webp"
+  },
+  {
+   "label": "Overtime",
+   "value": "overtime",
+   "background": "#866b22",
+   "hex": [
+    "#080502",
+    "#1f2a08",
+    "#66450d",
+    "#ac3510",
+    "#746931",
+    "#97611c",
+    "#8f8e6c",
+    "#cb983b",
+    "#a7bc89",
+    "#dfc178",
+    "#edeedf",
+    "#866b22"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/3a35c32e-eb66-42c8-a0d3-61d74c080b80.webp"
+  },
+  {
+   "label": "The Way Home Is Longer",
+   "value": "the-way-home-is-longer",
+   "background": "#6c93f4",
+   "hex": [
+    "#0c0a0a",
+    "#2b3352",
+    "#484042",
+    "#525776",
+    "#69544b",
+    "#587ad4",
+    "#c4836c",
+    "#91a6ef",
+    "#b0c0f5",
+    "#dfbcb0",
+    "#e3e1f1",
+    "#6c93f4"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/07dfe24f-02f0-4d60-ab97-3c868cff6224.webp"
+  },
+  {
+   "label": "Everyone Speaks in Whispers",
+   "value": "everyone-speaks-in-whispers",
+   "background": "#865517",
+   "hex": [
+    "#0f0c0b",
+    "#65370d",
+    "#4d4b47",
+    "#724c31",
+    "#5a6661",
+    "#916d4c",
+    "#9a896a",
+    "#7e9689",
+    "#acbb9e",
+    "#c6be94",
+    "#f2f1c4",
+    "#865517"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/72fb06de-7e63-4a4e-9a12-adf7975cd37c.webp"
+  },
+  {
+   "label": "Runaway Summer",
+   "value": "runaway-summer",
+   "background": "#be1205",
+   "hex": [
+    "#0f0f0d",
+    "#5d1610",
+    "#4e523a",
+    "#595452",
+    "#277540",
+    "#7c745f",
+    "#8a939a",
+    "#b8a590",
+    "#adb1b0",
+    "#d6cc6a",
+    "#c6dfe3",
+    "#be1205"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/5e34c2ee-9c27-478c-acc7-cebffebccd22.webp"
+  },
+  {
+   "label": "Amber Wasteland",
+   "value": "amber-wasteland",
+   "background": "#bf6909",
+   "hex": [
+    "#0b0b0b",
+    "#294446",
+    "#7b3a07",
+    "#a04003",
+    "#5b6866",
+    "#a8792d",
+    "#798b82",
+    "#9baa95",
+    "#72833f",
+    "#c0b981",
+    "#dad5bc",
+    "#bf6909"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/eaf40a03-fa08-4751-a529-ffbe3d070b9d.webp"
+  },
+  {
+   "label": "The Circus",
+   "value": "the-circus",
+   "background": "#b70204",
+   "hex": [
+    "#090a0b",
+    "#900304",
+    "#1d5768",
+    "#58554a",
+    "#8e5917",
+    "#627163",
+    "#979d7e",
+    "#7daca6",
+    "#7f907d",
+    "#add3c0",
+    "#ccebd8",
+    "#b70204"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/d1422d51-c566-449c-b015-e8f073bb4c25.webp"
+  },
+  {
+   "label": "Gasoline Sunset",
+   "value": "gasoline-sunset",
+   "background": "#b36521",
+   "hex": [
+    "#0e0d0c",
+    "#4e2a15",
+    "#0d4486",
+    "#65565d",
+    "#894f29",
+    "#3478a9",
+    "#a09296",
+    "#d38846",
+    "#dab4a2",
+    "#ccb8bd",
+    "#ecd6dd",
+    "#b36521"
+   ],
+   "image": "https://cdn.higgsfield.ai/cinema_studio_40_color_presets/29e586cb-7476-4506-94fd-c12c3ea22e59.webp"
+  }
+ ],
+ "composer_icons": {
+  "film_setup": "https://static.higgsfield.ai/public/cinema-studio-4/camera-roll-animated.svg",
+  "camera": "https://static.higgsfield.ai/public/cinematic/v40/camera-settings.svg",
+  "color_palette": "https://static.higgsfield.ai/public/cinematic/v40/color-palette-default.webp",
+  "lighting": "https://static.higgsfield.ai/public/cinematic/v40/lightning.webp"
+ }
+}
