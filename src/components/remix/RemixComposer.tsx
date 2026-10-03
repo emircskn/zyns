@@ -552,7 +552,9 @@ export function RemixComposer({
               onClick={onChangeModel}
               value={
                 <>
-                  <span className="truncate">{model.id === GENJUTSU ? "Higgsfield Genjutsu" : model.name}</span>
+                  <span className="truncate">
+                    {model.id === GENJUTSU ? (remix.mode === "restyle" ? "Genjutsu Restyle" : "Higgsfield Genjutsu") : model.name}
+                  </span>
                   <VendorBadge model={model} size={15} bare />
                 </>
               }

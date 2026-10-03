@@ -6,7 +6,7 @@ import { RemixComposer } from "@/components/remix/RemixComposer";
 import { MotionLibrary } from "@/components/remix/MotionLibrary";
 import { RemixHistory } from "@/components/remix/RemixHistory";
 import { RemixPage } from "@/components/remix/RemixPage";
-import { RestyleModelRow, StyleGrid, StyleRow, useRestyleStyle } from "@/components/remix/Restyle";
+import { StyleGrid, StyleRow, useRestyleStyle } from "@/components/remix/Restyle";
 import { restoreRemix } from "@/lib/remix/reuse";
 import { styleInput } from "@/lib/remix/styles";
 import { useStudio, type Run } from "@/store/studio";
@@ -62,7 +62,6 @@ export function GenjutsuComposer({
   return (
     <RemixComposer
       onKeyClick={onKeyClick}
-      modelRow={restyle ? <RestyleModelRow /> : undefined}
       below={restyle ? <StyleRow /> : undefined}
       style={restyle ? styleInput(style) : undefined}
       needsStyle={restyle ? needs : null}

@@ -223,7 +223,7 @@ Neyin nerede olduğu:
 
 Spec'ten sapmalar ve nedenleri:
 
-- **Restyle ucu:** Spec "ayrı style endpoint'i yok" diyordu; Higgsfield `higgsfield/genjutsu/restyle/v1.0` ve dokümanlı preset listesini ekledi. Kural 1 gereği özelliğin kendi ucu varsayılan oldu. Spec'teki yol (motion-transfer + stil referansı) seçicide ikinci sırada.
+- **Restyle ucu:** Spec "ayrı style endpoint'i yok" diyordu; Higgsfield `higgsfield/genjutsu/restyle/v1.0` ve dokümanlı preset listesini ekledi. Kural 1 gereği özelliğin kendi ucu kullanılıyor. Spec'teki model seçici (motion-transfer + stil referansı, `video-edit` modelleri) Emir'in isteğiyle (2026-10-03) kaldırıldı: Restyle sadece Genjutsu Restyle. `restyleTargets()` ve Zyns stilleri kodda duruyor ama Remix'te sunulmuyor.
 - **Stil önizlemeleri:** Zyns'in hazır stilleri prompt parçası olarak geldi; referans görselleri ve önizlemeleri Zyns ile üretilince eklenecek. Higgsfield stillerinin önizlemesi kendi listesinden geliyor.
 - **Kırpıcı:** Genjutsu'nun başlangıç/bitiş parametresi yok, bu yüzden seçilen parça yeni bir dosya olarak kaydedilir; parçanın süresi kadar sürer. Safari'de ses, sayfa izin vermezse sessiz kaydedilir (not düşülür).
 - **Banner:** Katalogda object-swap'ın `banner_media`'sı yok; Swap'ta da motion-transfer'inki duruyor.

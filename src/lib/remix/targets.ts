@@ -48,8 +48,8 @@ export function restyleTargets(): Array<RemixTarget & { model: ModelDef; label: 
 export function targetOf(remix: RemixState, mode: RemixMode = remix.mode): RemixTarget {
   if (mode === "motion") return MOTION;
   if (mode === "swap") return SWAP;
-  const picked = remix.restyle;
-  if (picked && restyleTargets().some((t) => targetKey(t) === targetKey(picked))) return picked;
+  // Restyle runs on Genjutsu's own Restyle, and on nothing else (Emir's call):
+  // a model picked here before is no longer offered.
   return RESTYLE;
 }
 
