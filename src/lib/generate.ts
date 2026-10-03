@@ -13,6 +13,8 @@ import { withoutInputs } from "@/lib/runInputs";
 import { englishError } from "@/lib/kie/errors";
 import { withLibraryElements } from "@/lib/elements";
 import { readyMedia } from "@/lib/sendMedia";
+import { getSpec } from "@/lib/registry/hf/auto";
+import { schemaProblems, type SchemaTop } from "@/lib/studio/schema";
 
 export interface SubmitResult {
   ok: boolean;
@@ -38,6 +40,7 @@ export async function submitModelRun(
   model: ModelDef,
   values: Values,
   extra: Partial<Run> = {},
+  options: { schema?: boolean } = {},
 ): Promise<SubmitResult & { runId?: string }> {
   const state = useStudio.getState();
   // A model runs on its own service, with that service's key.
@@ -61,6 +64,12 @@ export async function submitModelRun(
     return { ok: false, error: error instanceof Error ? error.message : "A picture could not be prepared." };
   }
   const { endpoint, payload, poll } = model.build(withImageMentions(model, ready.values));
+  // The body as it goes out, held to the model's own schema where asked.
+  if (options.schema && provider === "higgsfield") {
+    const top = getSpec(endpoint.replace(/^\//, ""))?.top;
+    const problems = top ? schemaProblems(top as SchemaTop, payload as Record<string, unknown>) : [];
+    if (problems.length > 0) return { ok: false, error: `Not sent: ${problems.join(" ")}` };
+  }
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const run: Run = {
