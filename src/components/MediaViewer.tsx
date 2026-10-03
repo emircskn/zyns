@@ -26,6 +26,7 @@ import {
   sendReference,
 } from "@/lib/reuse";
 import { prefetchMedia, useSave } from "@/lib/download";
+import { restoreRemix } from "@/lib/remix/reuse";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
@@ -592,6 +593,12 @@ export function MediaViewer({
 
   function recreate() {
     if (!run) return;
+    // A remix goes back to Remix, with its clip and its pictures.
+    if (run.remix) {
+      restoreRemix(run);
+      onClose();
+      return;
+    }
     recreateRun(run);
     onClose();
     readyToWrite();
