@@ -24,6 +24,7 @@ import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
 import { failureHint } from "@/lib/runErrors";
 import { keptNote, usedElsewhere } from "@/lib/usage";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { useStudio, type Run } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
 
@@ -259,7 +260,6 @@ export function Tile({
   return (
     <div
       data-flip={run.id}
-      onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
       } group relative shrink-0 overflow-hidden bg-surface transition-all duration-[200ms] ${
@@ -270,6 +270,18 @@ export function Tile({
         ...(box ? { position: "absolute", left: box.x, top: box.y, width: box.width, height: box.height } : null),
       }}
     >
+      {/* Asked in a small window, saying what else uses the file. */}
+      <ConfirmPopup
+        open={confirming}
+        title="Delete this?"
+        message={(confirming && keptNote(usedElsewhere(run.urls, { runs: [run.id] }))) || "It is removed from your studio for good."}
+        confirmLabel="Delete"
+        onConfirm={() => {
+          setConfirming(false);
+          removeRun(run.id);
+        }}
+        onClose={() => setConfirming(false)}
+      />
       {/* While the run is still queued the box is a slim placeholder; it
           grows into the shape of the media as the model starts on it, and
           the same transition carries the tile between grid sizes. */}
@@ -385,26 +397,7 @@ export function Tile({
           )}
           {url && <SaveTileAction url={url} />}
           <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
-          {confirming ? (
-            <>
-              <TileAction icon="close" label="Keep it" onClick={() => setConfirming(false)} />
-              <button
-                type="button"
-                onClick={() => removeRun(run.id)}
-                aria-label="Confirm delete"
-                className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-transform duration-[120ms] hover:scale-110"
-              >
-                <Icon name="check" size={14} strokeWidth={2.2} />
-              </button>
-            </>
-          ) : (
-            <TileAction
-              icon="trash"
-              label="Remove from gallery"
-              danger
-              onClick={() => setConfirming(true)}
-            />
-          )}
+          <TileAction icon="trash" label="Remove from gallery" danger onClick={() => setConfirming(true)} />
         </div>
 
         {url && mediaKind(url) === "image" && (

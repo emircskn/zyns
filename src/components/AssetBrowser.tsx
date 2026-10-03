@@ -13,6 +13,7 @@ import { useLeaving } from "@/lib/useLeaving";
 import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { keptNote, usedElsewhere } from "@/lib/usage";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
@@ -98,7 +99,6 @@ function AssetTile({
   return (
     <div
       data-flip={asset.id}
-      onMouseLeave={() => setConfirming(false)}
       className={`${
         leaving ? "tile-leave" : "anim-tile"
       } card-lazy group relative shrink-0 overflow-hidden bg-surface ${
@@ -109,6 +109,29 @@ function AssetTile({
         ...(box ? { position: "absolute", left: box.x, top: box.y, width: box.width, height: box.height } : null),
       }}
     >
+      {/* Asked in a small window, saying what else uses the file. */}
+      {onRemove && (
+        <ConfirmPopup
+          open={confirming}
+          title="Delete this?"
+          message={
+            (confirming &&
+              keptNote(
+                usedElsewhere([asset.url], {
+                  runs: run ? [run.id] : [],
+                  uploads: asset.source === "upload" ? [asset.id] : [],
+                }),
+              )) ||
+            "It is removed from your studio for good."
+          }
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setConfirming(false);
+            onRemove();
+          }}
+          onClose={() => setConfirming(false)}
+        />
+      )}
       <button
         type="button"
         onClick={picking ? onPick : onOpen}
@@ -194,22 +217,7 @@ function AssetTile({
             />
             <SaveTileButton url={asset.url} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
-            {onRemove &&
-              (confirming ? (
-                <>
-                  <TileButton icon="close" label="Keep it" onClick={() => setConfirming(false)} />
-                  <button
-                    type="button"
-                    onClick={onRemove}
-                    aria-label="Confirm delete"
-                    className="grid h-7 w-7 place-items-center rounded-full bg-[#ff6b6b]/85 text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-                  >
-                    <Icon name="check" size={14} strokeWidth={2.2} />
-                  </button>
-                </>
-              ) : (
-                <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />
-              ))}
+            {onRemove && <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />}
           </div>
 
           {asset.kind === "image" && (
