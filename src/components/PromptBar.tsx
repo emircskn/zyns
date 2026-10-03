@@ -297,39 +297,77 @@ function InputStrip({ fields }: { fields: Field[] }) {
 }
 
 /** A tiny frame drawn in the selected aspect ratio — the chip shows its shape. */
+/**
+ * A shape as width over height, from however the model spells it: "16:9",
+ * "16x9", "1024*1536", or a word with the numbers in it ("portrait_4_3",
+ * "landscape_16_9", "square_hd"). Undefined for "auto" and anything else.
+ */
+function shapeOf(value: unknown): [number, number] | undefined {
+  const text = String(value ?? "").toLowerCase();
+  if (/^square/.test(text)) return [1, 1];
+  const pair = text.match(/(\d+(?:\.\d+)?)\s*[:x*_/]\s*(\d+(?:\.\d+)?)/);
+  if (!pair) return undefined;
+  let [w, h] = [Number(pair[1]), Number(pair[2])];
+  if (!(w > 0 && h > 0)) return undefined;
+  // "portrait_4_3" names the shape by its long side first.
+  if (text.startsWith("portrait") && w > h) [w, h] = [h, w];
+  if (text.startsWith("landscape") && h > w) [w, h] = [h, w];
+  return [w, h];
+}
+
 function RatioGlyph({ value }: { value: unknown }) {
-  const [w, h] = String(value ?? "").split(":").map(Number);
-  const valid = Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0;
-  const scale = valid ? 13 / Math.max(w, h) : 0;
+  const shape = shapeOf(value);
+  const scale = shape ? 13 / Math.max(shape[0], shape[1]) : 0;
   return (
     <span className="grid h-4 w-4 place-items-center">
-      {valid ? (
+      {shape ? (
         <span
           className="rounded-[2px] border-[1.5px] border-current"
           style={{
-            width: Math.max(w * scale, 4),
-            height: Math.max(h * scale, 4),
+            width: Math.max(shape[0] * scale, 4),
+            height: Math.max(shape[1] * scale, 4),
             transition: "width var(--d-slow) var(--ease-spring), height var(--d-slow) var(--ease-spring)",
           }}
         />
       ) : (
-        <Icon name="grid" size={15} />
+        // "Auto": no shape yet, the model picks one.
+        <Icon name="ratio-auto" size={16} />
       )}
     </span>
   );
 }
 
+/**
+ * Each kind of setting with a glyph of its own, matched on the field's key,
+ * so two chips side by side never wear the same one: the style is a
+ * palette, the rendering speed a bolt, the quality a gem.
+ */
 const CHIP_ICON: Array<[RegExp, IconName]> = [
   [/^duration|_seconds$|extend_times|continue_at/, "clock"],
-  [/resolution|^quality$|upscale_factor/, "monitor"],
+  [/^quality$|__tier|^tier$/, "gem"],
+  [/resolution/, "monitor"],
+  [/upscale|scale_factor|^factor$/, "zoom"],
+  [/rendering_speed|^speed$|turbo/, "bolt"],
+  [/style|aesthetic/, "palette"],
+  [/template|effect|preset/, "wand"],
+  [/background/, "backdrop"],
+  [/orientation/, "orient"],
+  [/camera|movement|motion/, "move"],
+  [/^fps$|frame_rate/, "film"],
+  [/language/, "globe"],
+  [/voice|vocal_gender|speaker|audio_id/, "mic"],
+  [/sound_key|^key$|tempo|bpm/, "music"],
+  [/genre|mood|^tags?$/, "tag"],
   [/audio|sound|instrumental|loop/, "audio"],
-  [/^model$|^version$|^generation_type$|^mode$|persona_model/, "layers"],
-  [/voice|vocal_gender|speaker/, "mic"],
-  [/style|rendering_speed|template/, "palette"],
-  [/num_images|max_images|^n$|index/, "hash"],
+  [/^mode$|generation_type/, "switch"],
+  [/^model$|^version$|persona_model/, "layers"],
+  [/num_images|max_images|batch_size|^n$|num_outputs|count/, "photos"],
+  [/index|seed/, "hash"],
 ];
 
 function chipIcon(field: Field, value: unknown): ReactNode {
+  // A size can be a shape ("1:1", "portrait_4_3") or a resolution ("2K").
+  if (/^size$/.test(field.key) && /^\d+(\.\d+)?k$/i.test(String(value ?? ""))) return <Icon name="monitor" size={16} />;
   if (field.kind === "ratio" || /aspect_ratio|^ratio$|image_size|^size$/.test(field.key)) {
     return <RatioGlyph value={value} />;
   }

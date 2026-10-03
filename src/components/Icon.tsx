@@ -47,9 +47,95 @@ export type IconName =
   | "coin"
   | "pause"
   | "list"
-  | "user";
+  | "user"
+  | "gem"
+  | "bolt"
+  | "switch"
+  | "backdrop"
+  | "orient"
+  | "photos"
+  | "globe"
+  | "zoom"
+  | "film"
+  | "wand"
+  | "music"
+  | "tag"
+  | "move"
+  | "ratio-auto";
 
 const PATHS: Record<IconName, ReactElement> = {
+  // The options' own glyphs, one per kind of setting so no two read alike.
+  gem: (
+    <>
+      <path d="M6.5 4.5h11L21 9.5l-9 10-9-10z" />
+      <path d="M3 9.5h18M12 19.5 8.5 9.5l1.8-5M12 19.5l3.5-10-1.8-5" />
+    </>
+  ),
+  bolt: <path d="M13.5 3 5 13.5h6.5L10.5 21 19 10.5h-6.5z" />,
+  switch: (
+    <>
+      <rect x="2.5" y="7" width="19" height="10" rx="5" />
+      <circle cx="16.5" cy="12" r="2.6" />
+    </>
+  ),
+  backdrop: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="3" />
+      <rect x="5" y="5" width="7" height="7" fill="currentColor" stroke="none" opacity="0.45" />
+      <rect x="12" y="12" width="7" height="7" fill="currentColor" stroke="none" opacity="0.45" />
+    </>
+  ),
+  orient: (
+    <>
+      <circle cx="12" cy="7" r="2.6" />
+      <path d="M8.5 20v-4.5a3.5 3.5 0 0 1 7 0V20M4.5 12.5 2.5 15l2 2.5M19.5 12.5l2 2.5-2 2.5" />
+    </>
+  ),
+  photos: (
+    <>
+      <rect x="3" y="7" width="14" height="13" rx="2.5" />
+      <path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16M3 17l4-4 3 3 2-2 5 5" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </>
+  ),
+  zoom: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4M11 8v6M8 11h6" />
+    </>
+  ),
+  film: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M7.5 4v16M16.5 4v16M3 9.5h4.5M3 14.5h4.5M16.5 9.5H21M16.5 14.5H21" />
+    </>
+  ),
+  wand: (
+    <>
+      <path d="M4 20 14.5 9.5" />
+      <path d="M15 3.5v3M13.5 5h3M19.5 8v3M18 9.5h3M18.5 14.5v2M17.5 15.5h2" />
+    </>
+  ),
+  music: (
+    <>
+      <path d="M9 18V6l11-2v12" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="17.5" cy="16" r="2.5" />
+    </>
+  ),
+  tag: (
+    <>
+      <path d="M3.5 12V5A1.5 1.5 0 0 1 5 3.5h7l8.5 8.5-8.5 8.5z" />
+      <circle cx="8" cy="8" r="1.4" />
+    </>
+  ),
+  move: <path d="M12 3v18M3 12h18M9.5 5.5 12 3l2.5 2.5M9.5 18.5 12 21l2.5-2.5M5.5 9.5 3 12l2.5 2.5M18.5 9.5 21 12l-2.5 2.5" />,
+  "ratio-auto": <rect x="4" y="6" width="16" height="12" rx="2.5" strokeDasharray="3 2.6" />,
   image: (
     <>
       <rect x="3" y="4" width="18" height="16" rx="3" />
