@@ -14,7 +14,7 @@ import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
-import { RunFailureNotice } from "@/components/RunFailureNotice";
+import { UpdateWatcher } from "@/components/UpdateWatcher";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
@@ -161,7 +161,7 @@ export function Shell() {
       <ElementEditor />
       <ModelPicker />
       <RunPoller />
-      <RunFailureNotice />
+      <UpdateWatcher />
       <StorageKeeper />
       <RecipeDriver />
       <ThemeSync />

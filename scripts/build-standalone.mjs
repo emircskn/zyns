@@ -25,7 +25,7 @@ const js = await build({
   alias: {
     "@": path.join(root, "src"),
   },
-  define: { "process.env.NODE_ENV": '"production"' },
+  define: { "process.env.NODE_ENV": '"production"', "process.env.NEXT_PUBLIC_BUILD_ID": '""' },
   logLevel: "warning",
 });
 

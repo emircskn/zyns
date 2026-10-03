@@ -1173,11 +1173,12 @@ export function useComposer() {
       if (result.ok) landed = true;
       else if (!failure) failure = result.error ?? "Something went wrong.";
     }
-    // Home has no gallery: a send from there goes on to the page the work
-    // lands on, so it can be watched coming in.
+    // The work must be in view as it comes in, and stay there if it fails:
+    // a send from a page without it (Home, Favorites, Elements, another
+    // category) goes on to the model's own page. Assets shows it too.
     const state = useStudio.getState();
     const category = getModel(sent)?.category;
-    if (landed && state.page === "home" && category) state.setPage(category);
+    if (landed && category && state.page !== category && state.page !== "assets") state.setPage(category);
     // A sent run takes its references with it: the next one starts with an
     // empty strip and the same prompt. The run keeps its own copy, so
     // Recreate brings them back. A send that failed leaves them to retry.

@@ -22,6 +22,7 @@ import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
+import { failureHint } from "@/lib/runErrors";
 import { useStudio, type Run } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
 
@@ -38,6 +39,7 @@ function StatusOverlay({ run }: { run: Run }) {
   // A long reason is cut to a few lines; a tap shows it whole.
   const [whole, setWhole] = useState(false);
   if (run.state === "failed") {
+    const hint = failureHint(run.error);
     // A failed tile has no media to open, so its way out has to be on the
     // tile itself and always showing: a phone has no hover to find it with.
     // The tile is a container, so a narrow one keeps the two actions side by
@@ -45,6 +47,9 @@ function StatusOverlay({ run }: { run: Run }) {
     return (
       <div className="@container absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] p-3 text-center backdrop-blur-sm">
         <Icon name="alert" size={18} className="hidden shrink-0 text-[var(--danger)] @[140px]:block" />
+        {/* Said in so many words, so the tile reads as a failure at a
+            glance rather than as one more picture still on its way. */}
+        <p className="text-[12.5px] font-medium text-t1 @[140px]:text-[13.5px]">Couldn&apos;t make it</p>
         <button
           type="button"
           // Only a message the tile cuts short opens up; one that fits (a
@@ -59,6 +64,7 @@ function StatusOverlay({ run }: { run: Run }) {
         >
           {run.error ?? "Generation failed."}
         </button>
+        {hint && <p className="hidden text-[11.5px] leading-snug text-t3 @[220px]:line-clamp-3">{hint}</p>}
         {/* The whole reason, over the whole tile; a tap puts it away. */}
         {whole && (
           <button
@@ -68,6 +74,7 @@ function StatusOverlay({ run }: { run: Run }) {
             className="no-bar absolute inset-0 z-10 overflow-y-auto bg-surface/95 p-3 text-left text-[12px] leading-snug text-[var(--danger)] backdrop-blur-sm"
           >
             {run.error ?? "Generation failed."}
+            {hint && <span className="mt-2 block text-t3">{hint}</span>}
           </button>
         )}
         <div className="mt-0.5 flex items-center justify-center gap-1.5">
