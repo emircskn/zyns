@@ -27,6 +27,7 @@ import {
 } from "@/lib/reuse";
 import { prefetchMedia, useSave } from "@/lib/download";
 import { restoreRemix } from "@/lib/remix/reuse";
+import { saveMotionClip } from "@/lib/remix/library";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
@@ -487,6 +488,7 @@ export function MediaViewer({
   const projects = useStudio((s) => s.projects);
   const fileUnder = useStudio((s) => s.fileUnder);
   const uploads = useStudio((s) => s.uploads);
+  const motionClips = useStudio((s) => s.motionClips);
   const [more, setMore] = useState(false);
   const moreTile = useRef<HTMLButtonElement>(null);
   const [full, setFull] = useState(false);
@@ -666,6 +668,7 @@ export function MediaViewer({
         }),
       )
     : undefined;
+  const inMotionLibrary = !!shown && motionClips.some((clip) => clip.url === shown);
   const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
   const project = projects.find((p) => p.id === filedIn);
   const entries = ([
@@ -724,6 +727,23 @@ export function MediaViewer({
           openElementEditor({ images: [shown] });
           onClose();
         },
+      },
+    },
+    shown && mediaKind(shown) === "video" && {
+      key: "motion",
+      tile: (
+        <Action
+          key="motion"
+          icon="move"
+          label={inMotionLibrary ? "In motion library" : "Motion clip"}
+          lit={inMotionLibrary}
+          onClick={() => !inMotionLibrary && void saveMotionClip(shown)}
+        />
+      ),
+      row: {
+        icon: "move" as IconName,
+        label: inMotionLibrary ? "In the Motion library" : "Save as motion clip",
+        onClick: () => !inMotionLibrary && void saveMotionClip(shown),
       },
     },
     (run || upload) && {

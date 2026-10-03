@@ -6,6 +6,9 @@ import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ModeTabs } from "@/components/remix/ModeTabs";
 import { Trimmer } from "@/components/remix/Trimmer";
+import { MotionLibrary } from "@/components/remix/MotionLibrary";
+import { Sheet } from "@/components/remix/Restyle";
+import { saveMotionClip } from "@/lib/remix/library";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { mediaSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
@@ -93,6 +96,7 @@ function SourceBox({
   meta,
   limits,
   onPick,
+  onLibrary,
   onClear,
   extra,
 }: {
@@ -100,9 +104,13 @@ function SourceBox({
   meta: MediaMeta | null | undefined;
   limits: SourceLimits;
   onPick: () => void;
+  /** The Motion library, to pick a kept clip. */
+  onLibrary: () => void;
   onClear: () => void;
   extra?: ReactNode;
 }) {
+  const clips = useStudio((s) => s.motionClips);
+  const kept = !!url && clips.some((clip) => clip.url === url);
   const problem = sourceProblem(meta, limits);
   const length = meta?.durationSec;
   const over = !!length && !!limits.max && limits.trims && length > limits.max + 0.05;
@@ -155,21 +163,49 @@ function SourceBox({
             >
               Replace
             </button>
+            {clips.length > 0 && (
+              <button
+                type="button"
+                onClick={onLibrary}
+                className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+              >
+                Library
+              </button>
+            )}
             {extra}
+            <button
+              type="button"
+              onClick={() => url && !kept && void saveMotionClip(url)}
+              disabled={kept}
+              className="ml-auto flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:text-t1 disabled:hover:text-t3"
+            >
+              <Icon name={kept ? "check" : "plus"} size={13} />
+              {kept ? "In library" : "Save to library"}
+            </button>
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={onPick}
-          className="flex w-full flex-col items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 py-7 text-center transition-colors duration-[150ms] hover:bg-t1/[0.04] active:bg-t1/[0.05]"
-        >
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08] text-t2">
-            <Icon name="video" size={18} />
-          </span>
-          <span className="text-[13.5px] text-t2">Add a video</span>
-          <span className="text-[12px] text-t4">Upload, or pick one from Assets</span>
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={onPick}
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 py-7 text-center transition-colors duration-[150ms] hover:bg-t1/[0.04] active:bg-t1/[0.05]"
+          >
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08] text-t2">
+              <Icon name="video" size={18} />
+            </span>
+            <span className="text-[13.5px] text-t2">Add a video</span>
+            <span className="text-[12px] text-t4">Upload, or pick one from Assets</span>
+          </button>
+          <button
+            type="button"
+            onClick={onLibrary}
+            className="flex items-center justify-center gap-1.5 rounded-full bg-t1/[0.06] py-2 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+          >
+            <Icon name="move" size={14} />
+            From the Motion library{clips.length > 0 ? ` (${clips.length})` : ""}
+          </button>
+        </div>
       )}
     </Box>
   );
@@ -327,6 +363,7 @@ export function RemixComposer({
   const [picking, setPicking] = useState<"source" | "refs" | null>(null);
   const [choosing, setChoosing] = useState(false);
   const [trimming, setTrimming] = useState(false);
+  const [library, setLibrary] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const meta = useClipMeta(remix.source);
@@ -395,6 +432,7 @@ export function RemixComposer({
         meta={meta}
         limits={limits}
         onPick={() => setPicking("source")}
+        onLibrary={() => setLibrary(true)}
         onClear={() => patchRemix({ source: null })}
         extra={
           meta?.durationSec && (!limits.min || meta.durationSec > limits.min) ? (
@@ -413,6 +451,9 @@ export function RemixComposer({
           ) : undefined
         }
       />
+      <Sheet open={library} title="Motion library" sub="Clips kept for their motion" onClose={() => setLibrary(false)}>
+        <MotionLibrary onUsed={() => setLibrary(false)} />
+      </Sheet>
       {remix.source && meta?.durationSec ? (
         <Trimmer
           open={trimming}

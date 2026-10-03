@@ -45,6 +45,7 @@ export function StorageKeeper() {
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const favorites = useStudio((s) => s.favorites);
+  const motionClips = useStudio((s) => s.motionClips);
   const copies = useStudio((s) => s.copies);
   const hasKey = useStudio((s) => !!(s.apiKey || s.hfKey));
   const hydrated = useStudio((s) => s.hydrated);
@@ -60,6 +61,7 @@ export function StorageKeeper() {
     if (!settled || !hasKey || !storageAvailable()) return;
     const kinds = new Map<string, "image" | "video" | "audio">();
     for (const upload of uploads) kinds.set(upload.url, upload.kind);
+    for (const clip of motionClips) kinds.set(clip.url, "video");
     const made: string[] = [];
     const given: string[] = [];
     for (const run of runs) {
@@ -67,7 +69,8 @@ export function StorageKeeper() {
       if (run.state === "success") for (const url of run.urls) made.push(url);
       given.push(...inputsOf(run));
     }
-    const wanted = [...new Set([...made, ...uploads.map((u) => u.url), ...favorites, ...given])].filter(
+    const clips = motionClips.map((clip) => clip.url);
+    const wanted = [...new Set([...made, ...uploads.map((u) => u.url), ...favorites, ...given, ...clips])].filter(
       (url) => !copies[url] && !url.startsWith("demo") && /^https:\/\//i.test(url),
     );
     if (wanted.length === 0) return;
@@ -80,7 +83,7 @@ export function StorageKeeper() {
     return () => {
       stopped = true;
     };
-  }, [settled, runs, uploads, favorites, copies, hasKey]);
+  }, [settled, runs, uploads, favorites, motionClips, copies, hasKey]);
 
   return null;
 }

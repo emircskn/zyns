@@ -3,6 +3,7 @@
 import { BeforeAfter } from "@/components/remix/BeforeAfter";
 import { Icon } from "@/components/Icon";
 import { RemixComposer } from "@/components/remix/RemixComposer";
+import { MotionLibrary } from "@/components/remix/MotionLibrary";
 import { RemixHistory } from "@/components/remix/RemixHistory";
 import { RemixPage } from "@/components/remix/RemixPage";
 import { RestyleModelRow, StyleGrid, StyleRow, useRestyleStyle } from "@/components/remix/Restyle";
@@ -100,6 +101,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
       }
       tabs={{
         history: { label: "History", body: <RemixHistory stage={stage} actions={actions} /> },
+        library: { label: "Motion library", body: <MotionLibrary onUsed={toComposer} /> },
         ...(restyle ? { styles: { label: "Styles", body: <StyleGrid /> } } : {}),
       }}
     />

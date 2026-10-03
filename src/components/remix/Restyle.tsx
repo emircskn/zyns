@@ -33,7 +33,7 @@ export function useRestylePresets(): { presets: RestylePreset[] | null; error: s
   return { presets, error };
 }
 
-function Sheet({ open, title, sub, onClose, children }: { open: boolean; title: string; sub?: string; onClose: () => void; children: ReactNode }) {
+export function Sheet({ open, title, sub, onClose, children }: { open: boolean; title: string; sub?: string; onClose: () => void; children: ReactNode }) {
   const { mounted, exiting } = usePresence(open, 240);
   if (!mounted || typeof document === "undefined") return null;
   // On the page's top layer: the composer it opens from is a sticky column
