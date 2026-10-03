@@ -448,6 +448,8 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
               : "flex flex-wrap gap-1.5 [&>*]:w-14"
         }
       >
+        {/* First, so another can be added without scrolling to the end. */}
+        {!full && <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />}
         {urls.map((url, index) => (
           <MediaThumb
             key={`${url}-${index}`}
@@ -456,7 +458,6 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
             onRemove={() => onChange(urls.filter((_, i) => i !== index))}
           />
         ))}
-        {!full && <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />}
       </div>
       {!compact && field.help && <p className="mt-1.5 text-[11.5px] leading-snug text-t4">{field.help}</p>}
       <MediaPicker

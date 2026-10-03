@@ -21,6 +21,9 @@ export interface Box {
   height: number;
   /** Which row the tile landed in, counted from 0. */
   row: number;
+  /** Where it stands in the frame, from its top left corner. */
+  x: number;
+  y: number;
 }
 
 /**
@@ -35,6 +38,7 @@ export function justify(ratios: number[], width: number, target: number, gap: nu
 
   let start = 0;
   let row = 0;
+  let top = 0;
   while (start < shape.length) {
     // Grow the row one tile at a time until it would be wider than the space
     // at the target height, then keep whichever row length puts the row's
@@ -59,7 +63,7 @@ export function justify(ratios: number[], width: number, target: number, gap: nu
     const height = Math.round(ragged ? target : bestHeight);
     let used = 0;
     for (let i = start; i < bestEnd; i++) {
-      const box = { width: Math.floor(shape[i] * height), height, row };
+      const box = { width: Math.floor(shape[i] * height), height, row, x: used + gap * (i - start), y: top };
       used += box.width;
       boxes.push(box);
     }
@@ -68,6 +72,7 @@ export function justify(ratios: number[], width: number, target: number, gap: nu
     if (!ragged) boxes[boxes.length - 1].width += width - gap * (bestEnd - start - 1) - used;
     start = bestEnd;
     row++;
+    top += height + gap;
   }
   return boxes;
 }

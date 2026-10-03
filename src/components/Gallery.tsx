@@ -259,7 +259,7 @@ export function Tile({
       }`}
       style={{
         animationDelay: `${Math.min(index, 10) * 30}ms`,
-        ...(box ? { width: box.width, height: box.height } : null),
+        ...(box ? { position: "absolute", left: box.x, top: box.y, width: box.width, height: box.height } : null),
       }}
     >
       {/* While the run is still queued the box is a slim placeholder; it
@@ -580,7 +580,7 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
           first; a phone keeps a heading for each day the media was made on.
           Either way one container holds every tile, so a tile that moves
           still slides there rather than jumping. */}
-      <div ref={grid} className={`no-text-select flex flex-col ${view === "list" && !phone ? "gap-3" : "gap-6"}`}>
+      <div ref={grid} className={`no-text-select flex flex-col overflow-x-clip ${view === "list" && !phone ? "gap-3" : "gap-6"}`}>
         {view === "list" && !phone ? (
           // Higgsfield's history: each run a row, the media on the left at
           // its own shape and the details on the right.

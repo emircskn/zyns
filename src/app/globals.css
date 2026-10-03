@@ -130,6 +130,9 @@
 html,
 body {
   height: 100%;
+  /* Nothing in the studio scrolls sideways; anything passing the edge for a
+     moment (a tile mid-slide) would otherwise make a phone zoom out. */
+  overflow-x: clip;
 }
 
 body {

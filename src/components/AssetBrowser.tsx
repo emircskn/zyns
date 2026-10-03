@@ -105,7 +105,7 @@ function AssetTile({
       }`}
       style={{
         animationDelay: `${Math.min(index, 12) * 24}ms`,
-        ...(box ? { width: box.width, height: box.height } : null),
+        ...(box ? { position: "absolute", left: box.x, top: box.y, width: box.width, height: box.height } : null),
       }}
     >
       <button
@@ -327,7 +327,10 @@ export function AssetBrowser({
       {/* A desktop lays everything out as one wall, edge to edge; a phone
           keeps a heading for each day. One container either way, so a tile
           moving into the day above still slides there. */}
-      <div ref={grid} className="no-text-select flex flex-col gap-6">
+      {/* Clipped sideways: a tile sliding to its new place when the layout
+          changes passes the edge for a moment, and a phone's browser zooms
+          the whole page out to fit it and stays zoomed. */}
+      <div ref={grid} className="no-text-select flex flex-col gap-6 overflow-x-clip">
         {(byDate && phone
           ? byDay(tiles, (asset) => asset.createdAt)
           : [{ key: "all", label: "", items: tiles }]

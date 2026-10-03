@@ -541,6 +541,45 @@ function optionMatches(option: MentionOption, query: string) {
   return !!option.thumb && /^\d+$/.test(q) && name.split(" ")[1]?.startsWith(q) === true;
 }
 
+/** The text box's properties that decide where a letter lands. */
+const TYPESET = [
+  "box-sizing", "width", "padding-top", "padding-right", "padding-bottom", "padding-left",
+  "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
+  "font-family", "font-size", "font-weight", "font-style", "letter-spacing", "line-height",
+  "text-transform", "word-spacing", "text-indent", "tab-size",
+];
+
+/**
+ * Where character `at` of a textarea sits on screen, and how tall its line
+ * is: a hidden copy of the box is laid out with the same text and type, and
+ * a mark at that character is measured.
+ */
+function caretPoint(node: HTMLTextAreaElement, at: number) {
+  const style = getComputedStyle(node);
+  const copy = document.createElement("div");
+  for (const name of TYPESET) copy.style.setProperty(name, style.getPropertyValue(name));
+  Object.assign(copy.style, {
+    position: "absolute",
+    visibility: "hidden",
+    top: "0",
+    left: "-9999px",
+    whiteSpace: "pre-wrap",
+    overflowWrap: "break-word",
+    wordBreak: style.wordBreak,
+  });
+  copy.textContent = node.value.slice(0, at);
+  const mark = document.createElement("span");
+  mark.textContent = node.value.slice(at, at + 1) || ".";
+  copy.appendChild(mark);
+  document.body.appendChild(copy);
+  const x = mark.offsetLeft;
+  const y = mark.offsetTop;
+  copy.remove();
+  const rect = node.getBoundingClientRect();
+  const line = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.4;
+  return { left: rect.left + x - node.scrollLeft, top: rect.top + y - node.scrollTop, height: line };
+}
+
 /**
  * The prompt textarea with `@` completion: typing `@` lists the elements
  * defined for this model or, for models that take several pictures, the
@@ -602,34 +641,42 @@ export function PromptField({
   const open = !!token && matches.length > 0 && dismissed !== token.start;
 
   // Portalled for the same reason as Popover: inside the bar the beam's glow
-  // layers paint over it. Measured off the prompt row before paint.
+  // layers paint over it. Set just under the line the caret is on, or just
+  // over it when there is no room below (the desktop bar sits at the foot
+  // of the screen); measured before paint, and again as the text moves.
   const row = useRef<HTMLDivElement>(null);
-  const [spot, setSpot] = useState<{ left: number; bottom: number; width: number } | null>(null);
+  const [spot, setSpot] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null);
   useLayoutEffect(() => {
     if (!open) {
       setSpot(null);
       return;
     }
     const measure = () => {
-      const node = row.current;
+      const node = ref.current;
       if (!node) return;
-      const rect = node.getBoundingClientRect();
-      const margin = 20;
+      const margin = 16;
       const w = Math.min(260, window.innerWidth - 2 * margin);
-      setSpot({
-        left: Math.max(margin, Math.min(rect.left, window.innerWidth - margin - w)),
-        bottom: window.innerHeight - rect.top + 6,
-        width: w,
-      });
+      const point = caretPoint(node, token?.start ?? node.selectionStart);
+      // What the keyboard leaves of the screen, on a phone.
+      const view = window.visualViewport;
+      const viewTop = view?.offsetTop ?? 0;
+      const viewBottom = viewTop + (view?.height ?? window.innerHeight);
+      const left = Math.max(margin, Math.min(point.left - 12, window.innerWidth - margin - w));
+      const below = point.top + point.height + 6;
+      const room = viewBottom - below - margin;
+      if (room >= Math.min(200, 56 * matches.length + 40)) setSpot({ left, top: below, width: w });
+      else setSpot({ left, bottom: window.innerHeight - Math.max(viewTop + margin, point.top - 6), width: w });
     };
     measure();
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
+    window.visualViewport?.addEventListener("resize", measure);
     return () => {
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
+      window.visualViewport?.removeEventListener("resize", measure);
     };
-  }, [open]);
+  }, [open, text, token?.start, matches.length]);
 
   useEffect(() => setCursor(0), [token?.query]);
 
@@ -852,7 +899,7 @@ export function PromptField({
         createPortal(
         <div
           className="surface-pop anim-rise fixed z-[90] max-h-[min(340px,50vh)] overflow-y-auto rounded-panel p-1.5"
-          style={{ left: spot.left, bottom: spot.bottom, width: spot.width }}
+          style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width }}
           role="listbox"
         >
           {matches.map((option, i) => (

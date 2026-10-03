@@ -350,10 +350,31 @@ export function ComposerBody({
           style={openStyle}
         >
           <div
-            className={open ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : ""}
-            // A tap on the held prompt opens it; the tap goes on to put the
-            // caret in it, now in the open box.
-            onPointerDown={phone && !expanded ? () => setExpanded(true) : undefined}
+            className={open ? "min-h-0 flex-1 cursor-text overflow-y-auto overscroll-contain" : ""}
+            // The held prompt opens once the tap has put the caret in it.
+            // Opening on the touch itself moved the box out from under the
+            // finger, so the tap landed elsewhere and no keyboard came up.
+            onFocus={
+              phone && !expanded
+                ? (event) => {
+                    if (event.target instanceof HTMLTextAreaElement) setExpanded(true);
+                  }
+                : undefined
+            }
+            // In the open box, a tap on the empty room under the text writes
+            // at its end, as if the text box filled the whole of it.
+            onClick={
+              open
+                ? (event) => {
+                    const target = event.target as HTMLElement;
+                    if (target.closest("textarea, button, a, input")) return;
+                    const node = promptRef.current;
+                    if (!node) return;
+                    node.focus();
+                    node.setSelectionRange(node.value.length, node.value.length);
+                  }
+                : undefined
+            }
           >
             {prompts.shown.map((field, index) => (
               <PromptField

@@ -50,6 +50,18 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
 
   return (
     <div className="anim-swap no-bar -mx-1 mb-2 flex items-start gap-2 overflow-x-auto px-1 pb-1 pt-0.5">
+      {/* First, so it is in reach however many are attached: at the end it
+          went off the edge, and adding another meant scrolling to it. */}
+      {canAdd && (
+        <button
+          type="button"
+          onClick={onAdd}
+          aria-label="Add media"
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1"
+        >
+          <Icon name="plus" size={17} />
+        </button>
+      )}
       {items.map(({ field, url, index }) => (
         <div key={`${field.key}-${url}-${index}`} className="w-14 shrink-0">
           <MediaThumb
@@ -64,16 +76,6 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
           {named && <p className="mt-1 truncate text-center text-[10.5px] leading-tight text-t4">{field.label}</p>}
         </div>
       ))}
-      {canAdd && (
-        <button
-          type="button"
-          onClick={onAdd}
-          aria-label="Add media"
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1"
-        >
-          <Icon name="plus" size={17} />
-        </button>
-      )}
     </div>
   );
 }
@@ -154,6 +156,19 @@ export function AttachPanel({ fields }: { fields: Field[] }) {
         </button>
       ) : (
         <div className="no-bar flex gap-2.5 overflow-x-auto rounded-panel border border-line bg-elevated p-3">
+          {/* First, so another can be added without scrolling to the end. */}
+          {attach.canAdd && (
+            <button
+              type="button"
+              onClick={attach.open}
+              aria-label="Add media"
+              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
+            >
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
+                <Icon name="plus" size={20} />
+              </span>
+            </button>
+          )}
           {items.map(({ field, url, index }) => (
             <div key={`${field.key}-${url}-${index}`} className="w-[88px] shrink-0">
               <MediaThumb
@@ -171,18 +186,6 @@ export function AttachPanel({ fields }: { fields: Field[] }) {
               )}
             </div>
           ))}
-          {attach.canAdd && (
-            <button
-              type="button"
-              onClick={attach.open}
-              aria-label="Add media"
-              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
-            >
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
-                <Icon name="plus" size={20} />
-              </span>
-            </button>
-          )}
         </div>
       )}
       {attach.picker}

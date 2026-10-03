@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { LikeHeart } from "@/components/LikeHeart";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { VendorBadge } from "@/components/VendorMark";
@@ -718,9 +719,18 @@ export function MediaViewer({
             </section>
           )}
 
-          {confirming && (
-            // Asked before it happens: a gallery is the only copy of what it
-            // holds, and a tap is easy to make by accident.
+          {/* Asked before it happens: a gallery is the only copy of what it
+              holds, and a tap is easy to make by accident. A phone asks in
+              a window of its own; a desktop in a line under the actions. */}
+          <ConfirmPopup
+            open={phone && confirming}
+            title="Delete this?"
+            message="It is removed from your studio for good."
+            confirmLabel="Delete"
+            onConfirm={remove}
+            onClose={() => setConfirming(false)}
+          />
+          {confirming && !phone && (
             <div className="anim-pop flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
               <p className="flex-1 text-[13px]" style={{ color: "var(--danger)" }}>
                 Delete this?

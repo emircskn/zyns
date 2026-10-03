@@ -36,13 +36,15 @@ export function JustifiedRows<T>({
     ? justify(items.map((item) => ratioOf(item) ?? 1), width, rowTarget(width, density), ROW_GAP)
     : [];
 
-  // One flat run of siblings that wraps, not a div per row: each full row's
-  // widths add up to exactly the frame, so the browser breaks the lines just
-  // where justify() did, and a tile that moves to another row is the same
-  // element moving rather than a new one mounting (which would restart its
-  // loader and replay its entrance).
+  // One flat run of siblings, each placed where justify() put it, not a div
+  // per row: a tile that moves to another row is the same element moving
+  // rather than a new one mounting (which would restart its loader and
+  // replay its entrance). Placed rather than left to wrap: while a tile's
+  // width eases to a new size a row can run a pixel over, and the browser
+  // then broke the line somewhere else and the order jumped about.
+  const last = boxes[boxes.length - 1];
   return (
-    <div ref={frame} className="flex w-full flex-wrap content-start items-start" style={{ gap: ROW_GAP }}>
+    <div ref={frame} className="relative w-full" style={{ height: last ? last.y + last.height : 0 }}>
       {boxes.map((box, i) => (
         <Fragment key={keyOf(items[i])}>{render(items[i], box)}</Fragment>
       ))}
