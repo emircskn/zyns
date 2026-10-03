@@ -468,7 +468,7 @@ export function MediaViewer({
   /** An uploaded file instead, which can only be looked at and removed. */
   upload?: { id: string; label: string };
   onClose: () => void;
-  /** Everything the view can step through (the arrow keys, a swipe), in order. */
+  /** Everything the view can step through (the arrow keys and buttons), in order. */
   sequence?: string[];
   /** Show another of `sequence` in place of this one. */
   onShow?: (url: string) => void;
@@ -494,9 +494,6 @@ export function MediaViewer({
   const innerOpen = useRef(false);
   innerOpen.current = !!inner;
   const runs = useStudio((s) => s.runs);
-  // A swipe on a phone: how far the media has been pulled sideways.
-  const [slide, setSlide] = useState({ x: 0, glide: false });
-  const swipe = useRef<{ x: number; y: number; dx: number; dir?: "x" | "y" } | null>(null);
 
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
@@ -649,44 +646,6 @@ export function MediaViewer({
     (onBack ?? onClose)();
   }
 
-  // A sideways swipe on a phone shows the one before or after. Pulled past
-  // the end, it gives a little and springs back.
-  const swipeable = phone && !!onShow && !!sequence && sequence.length > 1;
-  function touchStart(event: React.TouchEvent) {
-    if (!swipeable || event.touches.length !== 1) return;
-    swipe.current = { x: event.touches[0].clientX, y: event.touches[0].clientY, dx: 0 };
-  }
-  function touchMove(event: React.TouchEvent) {
-    const s = swipe.current;
-    if (!s || event.touches.length !== 1) return;
-    const dx = event.touches[0].clientX - s.x;
-    const dy = event.touches[0].clientY - s.y;
-    if (!s.dir) {
-      if (Math.hypot(dx, dy) < 10) return;
-      s.dir = Math.abs(dx) > Math.abs(dy) * 1.2 ? "x" : "y";
-    }
-    if (s.dir !== "x") return;
-    const end = (dx > 0 && !prev) || (dx < 0 && !next);
-    s.dx = end ? dx * 0.25 : dx;
-    setSlide({ x: s.dx, glide: false });
-  }
-  function touchEnd() {
-    const s = swipe.current;
-    swipe.current = null;
-    if (!s || s.dir !== "x") return;
-    const target = s.dx < -60 ? next : s.dx > 60 ? prev : undefined;
-    if (!target || !onShow) return setSlide({ x: 0, glide: true });
-    const width = window.innerWidth;
-    const out = s.dx < 0 ? -width : width;
-    setSlide({ x: out, glide: true });
-    window.setTimeout(() => {
-      onShow(target);
-      // The new one comes in from the side the finger pulled from.
-      setSlide({ x: -out * 0.35, glide: false });
-      requestAnimationFrame(() => requestAnimationFrame(() => setSlide({ x: 0, glide: true })));
-    }, 170);
-  }
-
   // Everything this media can do, in reaching order. Six fit in the grid;
   // past that the tail steps behind More, so the rows stay square, and each
   // of those carries the line it reads as in that menu.
@@ -814,14 +773,14 @@ export function MediaViewer({
                 Back
               </button>
             )}
-            {/* The one before and after, for a mouse; the arrow keys do the same. */}
+            {/* The one before and after, on a phone as on a desktop; there the arrow keys do the same. */}
             {prev && onShow && (
               <button
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Previous"
                 title="Previous (←)"
-                className="absolute left-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-t1/[0.08] text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:grid"
+                className="absolute left-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] active:scale-95 md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(90deg)" }} />
               </button>
@@ -832,7 +791,7 @@ export function MediaViewer({
                 onClick={() => step(1)}
                 aria-label="Next"
                 title="Next (→)"
-                className="absolute right-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-t1/[0.08] text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:grid"
+                className="absolute right-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] active:scale-95 md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(-90deg)" }} />
               </button>
@@ -842,23 +801,7 @@ export function MediaViewer({
                 exiting ? "" : "anim-zoom"
               }`}
             >
-              <div
-                className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1"
-                onTouchStart={touchStart}
-                onTouchMove={touchMove}
-                onTouchEnd={touchEnd}
-                onTouchCancel={touchEnd}
-                style={
-                  swipeable
-                    ? {
-                        touchAction: "pan-y pinch-zoom",
-                        transform: slide.x ? `translateX(${slide.x}px)` : undefined,
-                        opacity: 1 - Math.min(Math.abs(slide.x) / window.innerWidth, 1) * 0.6,
-                        transition: slide.glide ? "transform 220ms var(--ease-spring), opacity 220ms ease-out" : "none",
-                      }
-                    : undefined
-                }
-              >
+              <div className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1">
                 <Stage url={shown} />
               </div>
               {run && run.urls.length > 1 && (
