@@ -1115,6 +1115,37 @@ export function MediaViewer({
 }
 
 /**
+ * One of a run's inputs, opened on its own (from the list view's thumbs):
+ * the run that made it or the upload it was, with the usual actions, and
+ * the arrows stepping through the run's other inputs.
+ */
+export function InputViewer({
+  url,
+  inputs,
+  onShow,
+  onClose,
+}: {
+  url: string | null;
+  inputs: string[];
+  onShow: (url: string) => void;
+  onClose: () => void;
+}) {
+  const runs = useStudio((s) => s.runs);
+  const uploads = useStudio((s) => s.uploads);
+  const source = url ? sourceOf(url, runs, uploads) : {};
+  return (
+    <MediaViewer
+      url={url}
+      run={source.run}
+      upload={source.upload ? { id: source.upload.id, label: source.upload.name ?? "Upload" } : undefined}
+      sequence={inputs}
+      onShow={onShow}
+      onClose={onClose}
+    />
+  );
+}
+
+/**
  * A plain zoom, for places that already have their own actions around the
  * media — the picker's thumbnails. No panel, no frame: just the file, big.
  */

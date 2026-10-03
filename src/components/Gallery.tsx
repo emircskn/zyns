@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { LikeHeart } from "@/components/LikeHeart";
-import { MediaViewer, inputMedia } from "@/components/MediaViewer";
+import { InputViewer, MediaViewer, inputMedia } from "@/components/MediaViewer";
 import { chipCaption } from "@/components/controls";
 import { VendorBadge } from "@/components/VendorMark";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
@@ -439,6 +439,8 @@ function RunDetails({ run }: { run: Run }) {
   const removeRun = useStudio((s) => s.removeRun);
   const [copied, setCopied] = useState(false);
   const [asking, setAsking] = useState(false);
+  // One of the inputs, open in the viewer.
+  const [input, setInput] = useState<string | null>(null);
   const inputs = inputMedia(run);
   const chips = model
     ? model.fields
@@ -463,7 +465,14 @@ function RunDetails({ run }: { run: Run }) {
       {inputs.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {inputs.slice(0, 8).map((url) => (
-            <span key={url} className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line">
+            <button
+              key={url}
+              type="button"
+              onClick={() => setInput(url)}
+              title="Open this input"
+              aria-label="Open this input"
+              className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line transition-transform duration-[120ms] hover:scale-105 active:scale-95"
+            >
               {mediaKind(url) === "image" ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
@@ -472,10 +481,11 @@ function RunDetails({ run }: { run: Run }) {
                   <Icon name={mediaKind(url) === "video" ? "video" : "audio"} size={15} />
                 </span>
               )}
-            </span>
+            </button>
           ))}
         </div>
       )}
+      <InputViewer url={input} inputs={inputs} onShow={setInput} onClose={() => setInput(null)} />
       {chips.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {chips.map((chip) => (
