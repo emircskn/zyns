@@ -5,7 +5,8 @@ import { ModelMedia } from "@/components/ModelMedia";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
 import { VendorBadge } from "@/components/VendorMark";
-import { categoriesFor, modelsFor, type Category, type ModelDef, type Provider } from "@/lib/registry";
+import { categoriesFor, getModel, modelsFor, type Category, type ModelDef, type Provider } from "@/lib/registry";
+import { GENJUTSU } from "@/lib/remix/targets";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
 
@@ -66,6 +67,27 @@ function ModelCard({
           {model.name}
         </span>
         <span className="block truncate text-[12px] leading-snug text-t3">{model.tagline}</span>
+      </div>
+    </button>
+  );
+}
+
+/** Remix leads the catalogue: a page of its own rather than one more model. */
+function RemixCard({ onPick }: { onPick: () => void }) {
+  const genjutsu = getModel(GENJUTSU);
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      className="anim-tile lift relative mb-2.5 block w-full overflow-hidden rounded-card bg-surface-2 text-left"
+    >
+      <div className="relative aspect-[16/7]">
+        {genjutsu && <ModelMedia model={genjutsu} own={false} />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-3.5">
+          <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">REMIX</p>
+          <p className="mt-0.5 text-[12.5px] text-white/75">Motion transfer, swap and restyle on a clip you bring</p>
+        </div>
       </div>
     </button>
   );
@@ -142,6 +164,14 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pb-[max(20px,env(safe-area-inset-bottom))] pt-2 sm:px-5 sm:pb-5">
+          {(tab === "all" || tab === "video") && (
+            <RemixCard
+              onPick={() => {
+                setPage("remix");
+                onClose();
+              }}
+            />
+          )}
           <div key={tab} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {shown.map((model, index) => (
               <ModelCard

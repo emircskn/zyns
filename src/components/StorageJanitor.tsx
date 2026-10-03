@@ -19,7 +19,7 @@ function keyHeaders(): Record<string, string> {
 /** Everything in the studio that could still point at a file, as one text to search. */
 function stillUsed(): string {
   const s = useStudio.getState();
-  return JSON.stringify([s.runs, s.uploads, s.elements, s.recipeRuns, s.valuesByModel, s.refsByCategory]);
+  return JSON.stringify([s.runs, s.uploads, s.elements, s.recipeRuns, s.valuesByModel, s.refsByCategory, s.motionClips, s.remix]);
 }
 
 let working = false;

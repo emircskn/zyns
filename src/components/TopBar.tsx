@@ -13,7 +13,12 @@ import { activeKey, useStudio, type Page } from "@/store/studio";
 /** Every page by name, left to right: the ones that make, then the ones that keep. */
 function pagesFor(provider: Provider): { id: Page; label: string }[][] {
   return [
-    [{ id: "home", label: "Home" }, ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label }))],
+    [
+      { id: "home", label: "Home" },
+      ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label })),
+      // Genjutsu's page: a clip remade with your characters, objects or a style.
+      { id: "remix", label: "Remix" },
+    ],
     [
       { id: "assets", label: "Assets" },
       { id: "favorites", label: "Favorites" },

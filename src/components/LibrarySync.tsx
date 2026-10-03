@@ -69,6 +69,7 @@ function localDoc(): LibraryDoc {
     uploads: s.uploads.filter((u) => !u.id.startsWith(DEMO_PREFIX)),
     projects: s.projects,
     elements: s.elements,
+    motionClips: s.motionClips,
     favorites: s.favorites,
     copies: s.copies,
     remotes: s.remotes,
@@ -89,6 +90,7 @@ function apply(doc: LibraryDoc) {
     uploads: [...demoUploads, ...doc.uploads].sort((a, b) => b.createdAt - a.createdAt),
     projects: doc.projects,
     elements: doc.elements,
+    motionClips: doc.motionClips,
     favorites: doc.favorites,
     copies: doc.copies,
     remotes: doc.remotes,
@@ -177,6 +179,7 @@ export function LibrarySync() {
         state.uploads !== prev.uploads ||
         state.projects !== prev.projects ||
         state.elements !== prev.elements ||
+        state.motionClips !== prev.motionClips ||
         state.favorites !== prev.favorites ||
         state.copies !== prev.copies ||
         state.remotes !== prev.remotes ||

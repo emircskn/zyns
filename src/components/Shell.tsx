@@ -27,7 +27,8 @@ import { CreditsPill, TopBar } from "@/components/TopBar";
 import { ThemeSync } from "@/components/ThemeSync";
 import { SIDE_PAGES } from "@/lib/layout";
 import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
-import { isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
+import { RemixStudio } from "@/components/remix/RemixStudio";
+import { isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 /**
@@ -87,11 +88,27 @@ function PageSwap({ page, children }: { page: Page; children: (page: Page) => Re
   );
 }
 
-export function Shell() {
+export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   const [keyOpen, setKeyOpen] = useState(false);
   const createOpen = useStudio((s) => s.createOpen);
   const setCreateOpen = useStudio((s) => s.setCreateOpen);
   const page = useStudio((s) => s.page);
+  const hydrated = useStudio((s) => s.hydrated);
+  // A page with an address of its own (/remix) opens on that page, and the
+  // address follows the page from then on, so a reload stays where it was.
+  const [arrived, setArrived] = useState(!initialPage);
+  useEffect(() => {
+    if (!hydrated || arrived) return;
+    if (initialPage) useStudio.getState().setPage(initialPage);
+    setArrived(true);
+  }, [hydrated, arrived, initialPage]);
+  useEffect(() => {
+    if (!hydrated || !arrived || !/^https?:$/.test(window.location.protocol)) return;
+    const here = window.location.pathname.replace(/\/$/, "") || "/";
+    if (here !== "/" && here !== "/remix") return;
+    const want = page === "remix" ? "/remix" : "/";
+    if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
+  }, [page, hydrated, arrived]);
   // Redraws the studio when Higgsfield's live catalogue changes its models.
   useHiggsfieldCatalog();
 
@@ -109,7 +126,7 @@ export function Shell() {
 
   // Home carries the box in the middle of itself and the browsing pages have
   // none at all; only a page that makes things docks one at the bottom.
-  const composing = !isLibraryPage(page) && page !== "home";
+  const composing = isCategoryPage(page);
   // A phone keeps its prompt card on the library pages too, so the prompt it
   // was writing does not vanish the moment it goes to look at something. The
   // desktop bar has no business there; the card is phone-only already.
@@ -146,6 +163,8 @@ export function Shell() {
               <FavoritesPage />
             ) : shown === "elements" ? (
               <ElementsPage />
+            ) : shown === "remix" ? (
+              <RemixStudio onKeyClick={() => setKeyOpen(true)} />
             ) : (
               // Keyed by page: without it React reuses this element between
               // categories and the empty state's reveal never runs again.

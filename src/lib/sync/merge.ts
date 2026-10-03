@@ -9,6 +9,7 @@
  * written down when it happens, and both sides' deletions are honoured.
  */
 import type { LibraryElement } from "@/lib/elements";
+import type { MotionClip } from "@/lib/remix/types";
 import type { Project, RemoteUrls, Run, StoredCopy, Upload } from "@/store/studio";
 
 export interface LibraryDoc {
@@ -17,6 +18,8 @@ export interface LibraryDoc {
   uploads: Upload[];
   projects: Project[];
   elements: LibraryElement[];
+  /** Clips kept for their motion (Remix's library); left out by older versions. */
+  motionClips: MotionClip[];
   favorites: string[];
   copies: Record<string, StoredCopy>;
   remotes: Record<string, RemoteUrls>;
@@ -29,6 +32,7 @@ export const EMPTY_DOC: LibraryDoc = {
   uploads: [],
   projects: [],
   elements: [],
+  motionClips: [],
   favorites: [],
   copies: {},
   remotes: {},
@@ -98,6 +102,7 @@ export function mergeDocs(base: LibraryDoc, local: LibraryDoc, remote: LibraryDo
     uploads: mergeList(base.uploads, local.uploads, remote.uploads ?? [], deleted),
     projects: mergeList(base.projects, local.projects, remote.projects ?? [], deleted),
     elements: mergeList(base.elements, local.elements, remote.elements ?? [], deleted),
+    motionClips: mergeList(base.motionClips, local.motionClips, remote.motionClips ?? [], deleted),
     favorites: mergeSet(base.favorites, local.favorites, remote.favorites ?? []),
     copies: { ...(remote.copies ?? {}), ...local.copies },
     remotes: { ...(remote.remotes ?? {}), ...local.remotes },
@@ -130,6 +135,7 @@ export function normalizeDoc(raw: unknown): LibraryDoc {
     uploads: Array.isArray(doc.uploads) ? doc.uploads : [],
     projects: Array.isArray(doc.projects) ? doc.projects : [],
     elements: Array.isArray(doc.elements) ? doc.elements : [],
+    motionClips: Array.isArray(doc.motionClips) ? doc.motionClips : [],
     favorites: Array.isArray(doc.favorites) ? doc.favorites : [],
     copies: doc.copies && typeof doc.copies === "object" ? doc.copies : {},
     remotes: doc.remotes && typeof doc.remotes === "object" ? doc.remotes : {},

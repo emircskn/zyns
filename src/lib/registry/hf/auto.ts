@@ -107,6 +107,8 @@ export interface ModeSpec {
   require?: string[];
   /** Values the mode pins; hidden from the UI and injected at build time. */
   fixed?: Record<string, unknown>;
+  /** Sent, but not offered as a tab (a mode another page drives). */
+  hidden?: boolean;
 }
 
 export interface Family {
@@ -712,7 +714,7 @@ export function familyToModel(family: Family): ModelDef {
     tags,
     badge: family.badge,
     docs: units[0]?.spec.doc,
-    modes: family.modes.map(({ id, label, hint }) => ({ id, label, hint })),
+    modes: family.modes.map(({ id, label, hint, hidden }) => ({ id, label, hint, ...(hidden ? { hidden } : {}) })),
     defaultMode: firstMode?.id,
     fields,
     creditHint: family.creditHint,

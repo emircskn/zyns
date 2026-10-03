@@ -603,10 +603,14 @@ export const FAMILIES: Family[] = [
         hint: "A 4 s+ clip drives your images",
       }),
       m("object-swap", "Object swap", "higgsfield/genjutsu/object-swap/v1.0", { hint: "Replace an object in a clip" }),
+      // Remix's own: its style comes from Higgsfield's preset list, which
+      // only the Remix page offers, so the mode is not a tab on Video.
+      m("restyle", "Restyle", "higgsfield/genjutsu/restyle/v1.0", { hint: "A clip in another style", hidden: true }),
     ],
     fields: {
       video_url: { label: "Source video" },
       image_urls: { label: "Reference images" },
+      preset_id: { label: "Style", placement: "panel" },
     },
   },
   {

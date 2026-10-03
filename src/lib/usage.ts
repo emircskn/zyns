@@ -25,7 +25,9 @@ export function usedElsewhere(urls: string[], skip: { runs?: string[]; uploads?:
   const runs = s.runs.filter((run) => !skipRuns.has(run.id) && uses(run)).length;
   if (runs > 0) found.push(runs === 1 ? "another run" : `${runs} other runs`);
   if (s.uploads.some((upload) => !skipUploads.has(upload.id) && uses(upload))) found.push("your uploads");
+  if (s.motionClips.some(uses)) found.push("your motion library");
   if (uses(s.valuesByModel) || uses(s.refsByCategory)) found.push("the prompt box");
+  if (uses(s.remix)) found.push("Remix");
   return found;
 }
 

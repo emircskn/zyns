@@ -9,7 +9,7 @@
  * answers cross-origin requests) with the same client code the routes use.
  */
 import * as hf from "./client";
-import type { Estimate, NormalisedTask, UploadTicket } from "./client";
+import type { Estimate, NormalisedTask, RestylePreset, UploadTicket } from "./client";
 
 declare global {
   interface Window {
@@ -120,6 +120,21 @@ export async function getEstimate(apiKey: string, endpoint: string, payload: unk
     method: "POST",
     body: JSON.stringify({ endpoint, payload }),
   });
+}
+
+let presets: Promise<RestylePreset[]> | null = null;
+
+/** Genjutsu Restyle's styles, asked for once a visit. */
+export function getRestylePresets(apiKey: string): Promise<RestylePreset[]> {
+  presets ??= (
+    isDirect()
+      ? hf.restylePresets(apiKey)
+      : route<{ items: RestylePreset[] }>(apiKey, "/api/higgsfield/presets").then((body) => body.items ?? [])
+  ).catch((error) => {
+    presets = null;
+    throw error;
+  });
+  return presets;
 }
 
 export async function verifyKey(apiKey: string): Promise<void> {

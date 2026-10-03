@@ -237,6 +237,29 @@ export async function verify(apiKey: string): Promise<void> {
   }
 }
 
+/** One of Genjutsu Restyle's styles, as Higgsfield lists them. */
+export interface RestylePreset {
+  id: string;
+  name: string;
+  preview?: string;
+}
+
+/**
+ * Genjutsu Restyle's styles: every system preset the account may use. The
+ * list is Higgsfield's documented one (GET /models/{model}/presets); the
+ * request's `preset_id` must be one of these ids.
+ */
+export async function restylePresets(apiKey: string): Promise<RestylePreset[]> {
+  const body = (await request(apiKey, "/models/higgsfield/genjutsu/restyle/v1.0/presets")) as {
+    items?: Array<{ id?: unknown; name?: unknown; preview_url?: unknown }>;
+  };
+  return (body?.items ?? []).flatMap((item) =>
+    typeof item.id === "string" && typeof item.name === "string"
+      ? [{ id: item.id, name: item.name, preview: typeof item.preview_url === "string" ? item.preview_url : undefined }]
+      : [],
+  );
+}
+
 /** Step one of an upload: a presigned URL to PUT the file to. */
 export async function uploadTicket(apiKey: string, contentType: string): Promise<UploadTicket> {
   const type = contentType === "image/jpg" ? "image/jpeg" : contentType;

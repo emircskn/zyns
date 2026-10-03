@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { LibraryElement } from "@/lib/elements";
 import type { RecipeRun } from "@/lib/recipes/types";
+import { EMPTY_REMIX, type MotionClip, type RemixRunInfo, type RemixState } from "@/lib/remix/types";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { followPictures, imageFields, imageRefs } from "@/lib/mentions";
@@ -86,6 +87,8 @@ export interface Run {
   /** Set when the run is a step of a recipe: which run of it, and which step. */
   recipeRunId?: string;
   recipeStep?: string;
+  /** Made in Remix: its source clip and references, for its card there. */
+  remix?: RemixRunInfo;
 }
 
 /** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
@@ -105,11 +108,16 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "elements" | "home";
+export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix";
 
 /** The pages that keep things rather than make them. */
 export function isLibraryPage(page: Page): page is "assets" | "favorites" | "elements" {
   return page === "assets" || page === "favorites" || page === "elements";
+}
+
+/** The pages of one kind of work, each with its own models and prompt bar. */
+export function isCategoryPage(page: Page): page is Category {
+  return !isLibraryPage(page) && page !== "home" && page !== "remix";
 }
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
@@ -191,7 +199,14 @@ interface StudioState {
   /** The model last chosen for a step, by "category.step" and "category.recipe.step". */
   lastModelByStep: Record<string, string>;
   /** The element being made or edited, if the editor is open: an id to edit, or pictures to start from. */
-  elementEditor: { id?: string; images?: string[] } | null;
+  elementEditor: { id?: string; images?: string[]; kind?: LibraryElement["kind"] } | null;
+  /** The Remix composer, as it was left. */
+  remix: RemixState;
+  patchRemix: (patch: Partial<RemixState> | ((remix: RemixState) => Partial<RemixState>)) => void;
+  /** Clips kept for their motion, newest first. */
+  motionClips: MotionClip[];
+  addMotionClip: (clip: MotionClip) => void;
+  removeMotionClip: (id: string) => void;
   /** Where each kept file was last handed to a service, by its storage key. */
   remotes: Record<string, RemoteUrls>;
   /**
@@ -258,7 +273,7 @@ interface StudioState {
   patchRecipeRun: (id: string, patch: (run: RecipeRun) => RecipeRun) => void;
   rememberStepModel: (keys: string[], modelId: string) => void;
   removeElement: (id: string) => void;
-  openElementEditor: (editor: { id?: string; images?: string[] } | null) => void;
+  openElementEditor: (editor: { id?: string; images?: string[]; kind?: LibraryElement["kind"] } | null) => void;
   setRemote: (key: string, provider: Provider, remote: RemoteUrl) => void;
 
   toggleFavorite: (url: string) => void;
@@ -444,6 +459,8 @@ export const useStudio = create<StudioState>()(
       copies: {},
       elements: [],
       elementEditor: null,
+      remix: EMPTY_REMIX,
+      motionClips: [],
       recipeRuns: [],
       lastModelByStep: {},
       projects: [],
@@ -493,7 +510,7 @@ export const useStudio = create<StudioState>()(
         const state = get();
         if (state.provider === provider) return;
         const page = state.page;
-        const onCategory = !isLibraryPage(page) && page !== "home";
+        const onCategory = isCategoryPage(page);
         const offered = modelsFor(provider).some((m) => m.category === (onCategory ? page : state.category));
         set({
           provider,
@@ -515,7 +532,7 @@ export const useStudio = create<StudioState>()(
       setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
-          if (isLibraryPage(page) || page === "home") return { page, selectMode: false };
+          if (!isCategoryPage(page)) return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
           const id = state.modelByCategory[memoryKey(state.provider, page)] ?? "";
@@ -558,7 +575,7 @@ export const useStudio = create<StudioState>()(
             // Higgsfield run, say) brings that service along.
             provider: providerOf(model),
             category: model.category,
-            page: state.page === "home" ? state.page : model.category,
+            page: state.page === "home" || state.page === "remix" ? state.page : model.category,
             modelByCategory: { ...state.modelByCategory, [memoryKey(providerOf(model), model.category)]: id },
             pickerOpen: false,
             draft: draft === undefined ? state.draft : "",
@@ -751,6 +768,15 @@ export const useStudio = create<StudioState>()(
       removeElement: (id) =>
         set((state) => ({ elements: state.elements.filter((e) => e.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
       openElementEditor: (elementEditor) => set({ elementEditor }),
+      patchRemix: (patch) =>
+        set((state) => ({ remix: { ...state.remix, ...(typeof patch === "function" ? patch(state.remix) : patch) } })),
+      addMotionClip: (clip) =>
+        set((state) => ({ motionClips: [clip, ...state.motionClips.filter((c) => c.url !== clip.url)] })),
+      removeMotionClip: (id) =>
+        set((state) => ({
+          motionClips: state.motionClips.filter((c) => c.id !== id),
+          deleted: { ...state.deleted, [id]: Date.now() },
+        })),
       setCopy: (source, copy) => set((state) => ({ copies: { ...state.copies, [source]: copy } })),
       setRemote: (key, provider, remote) =>
         set((state) => ({ remotes: { ...state.remotes, [key]: { ...state.remotes[key], [provider]: remote } } })),
@@ -825,6 +851,8 @@ export const useStudio = create<StudioState>()(
         projects: state.projects,
         activeProjectId: state.activeProjectId,
         lastModelByStep: state.lastModelByStep,
+        remix: state.remix,
+        motionClips: state.motionClips,
         deleted: state.deleted,
         purge: state.purge,
         remotes: state.remotes,
@@ -884,7 +912,7 @@ if (typeof window !== "undefined") {
       if (kept.length > 0 && kept.length < run.urls.length) state.patchRun(run.id, { urls: kept });
     }
     const page = state.page;
-    if (isLibraryPage(page) || page === "home") return;
+    if (!isCategoryPage(page)) return;
     const model = getModel(state.modelId);
     // A page the service no longer has (Higgsfield's video tools moved from
     // Tools to Video) opens on the model's own page instead, or Home.
@@ -927,7 +955,7 @@ export function useValues(): Values {
  */
 export function openPickerHere() {
   const { page, togglePicker } = useStudio.getState();
-  const scoped = page !== "home" && !isLibraryPage(page);
+  const scoped = isCategoryPage(page);
   togglePicker(true, scoped ? page : "all", scoped);
 }
 
