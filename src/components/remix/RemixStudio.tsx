@@ -42,11 +42,42 @@ function CardAction({
   );
 }
 
+/**
+ * The Remix composer with Restyle's rows wired in: the same on the Remix
+ * page and wherever Genjutsu is chosen on the Video page.
+ */
+export function GenjutsuComposer({
+  onKeyClick,
+  onChangeModel,
+  scroll,
+  onSent,
+}: {
+  onKeyClick: () => void;
+  onChangeModel?: () => void;
+  scroll?: boolean;
+  onSent?: () => void;
+}) {
+  const restyle = useStudio((s) => s.remix.mode) === "restyle";
+  const { style, preset, needs } = useRestyleStyle();
+  return (
+    <RemixComposer
+      onKeyClick={onKeyClick}
+      modelRow={restyle ? <RestyleModelRow /> : undefined}
+      below={restyle ? <StyleRow /> : undefined}
+      style={restyle ? styleInput(style) : undefined}
+      needsStyle={restyle ? needs : null}
+      info={restyle ? { presetName: preset?.name ?? style?.name } : undefined}
+      onChangeModel={onChangeModel}
+      scroll={scroll}
+      onSent={onSent}
+    />
+  );
+}
+
 /** The Remix page with everything it holds wired in. */
 export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const mode = useStudio((s) => s.remix.mode);
   const restyle = mode === "restyle";
-  const { style, preset, needs } = useRestyleStyle();
   const count = useStudio((s) => s.runs.filter((run) => run.remix).length);
 
   const stage = (run: Run, open: (url: string) => void) => (
@@ -91,16 +122,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
     <RemixPage
       onKeyClick={onKeyClick}
       count={count}
-      composer={
-        <RemixComposer
-          onKeyClick={onKeyClick}
-          modelRow={restyle ? <RestyleModelRow /> : undefined}
-          below={restyle ? <StyleRow /> : undefined}
-          style={restyle ? styleInput(style) : undefined}
-          needsStyle={restyle ? needs : null}
-          info={restyle ? { presetName: preset?.name ?? style?.name } : undefined}
-        />
-      }
+      composer={<GenjutsuComposer onKeyClick={onKeyClick} />}
       tabs={{
         history: { label: "History", body: <RemixHistory stage={stage} actions={actions} /> },
         library: { label: "Motion library", body: <MotionLibrary onUsed={toComposer} /> },

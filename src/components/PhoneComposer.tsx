@@ -6,6 +6,8 @@ import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { useComposer } from "@/components/PromptBar";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
+import { GenjutsuComposer } from "@/components/remix/RemixStudio";
+import { GENJUTSU } from "@/lib/remix/targets";
 import { CATEGORIES, categoriesFor, getModel, modelsFor, type Category } from "@/lib/registry";
 import { usePresence } from "@/lib/usePresence";
 import { activeKey, memoryKey, useStudio } from "@/store/studio";
@@ -219,14 +221,28 @@ export function PhoneComposer({ onKey }: { onKey: () => void }) {
 
       {menu && <SectionMenu current={model.category} onPick={switchTo} onClose={() => setMenu(false)} />}
 
-      <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-4 pb-3 pt-1 [&>*]:shrink-0">
-        <ComposerBody composer={composer} variant="phone" onSubmit={() => void generate()} />
-      </div>
+      {model.id === GENJUTSU ? (
+        // Genjutsu is Remix's model: here it brings Remix's own composer.
+        <div className="flex min-h-0 flex-1 flex-col px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-1">
+          <GenjutsuComposer
+            scroll
+            onKeyClick={onKey}
+            onChangeModel={() => useStudio.getState().togglePicker(true, model.category, true)}
+            onSent={close}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain px-4 pb-3 pt-1 [&>*]:shrink-0">
+            <ComposerBody composer={composer} variant="phone" onSubmit={() => void generate()} />
+          </div>
 
-      <footer className="shrink-0 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-        <GenerateButton composer={composer} onClick={() => void generate()} />
-        {why && <p className="mt-2 text-center text-[12.5px] text-t4">{why}</p>}
-      </footer>
+          <footer className="shrink-0 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+            <GenerateButton composer={composer} onClick={() => void generate()} />
+            {why && <p className="mt-2 text-center text-[12.5px] text-t4">{why}</p>}
+          </footer>
+        </>
+      )}
     </div>
   );
 }

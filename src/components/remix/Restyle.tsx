@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ModelRow } from "@/components/ModelPicker";
@@ -127,9 +127,37 @@ export function RestyleModelRow() {
   );
 }
 
+/** A preview clip that plays while it is on screen, muted and looping, over its still. */
+function LoopVideo({ src, poster }: { src: string; poster?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const watch = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? void node.play().catch(() => {}) : node.pause()),
+      { threshold: 0.4 },
+    );
+    watch.observe(node);
+    return () => watch.disconnect();
+  }, [src]);
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      className="absolute inset-0 h-full w-full object-cover"
+    />
+  );
+}
+
 function Tile({
   name,
   preview,
+  video,
   tint,
   active,
   badge,
@@ -137,6 +165,7 @@ function Tile({
 }: {
   name: string;
   preview?: string;
+  video?: string;
   tint?: [string, string];
   active: boolean;
   badge?: string;
@@ -150,10 +179,12 @@ function Tile({
         }`}
         style={tint && !preview ? { background: `linear-gradient(140deg, ${tint[0]}, ${tint[1]})` } : undefined}
       >
-        {preview && (
+        {video ? (
+          <LoopVideo src={video} poster={preview} />
+        ) : preview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-        )}
+        ) : null}
         {badge && (
           <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">{badge}</span>
         )}
@@ -188,6 +219,7 @@ export function StyleGrid({ onPicked }: { onPicked?: () => void }) {
             key={preset.id}
             name={preset.name}
             preview={preset.preview}
+            video={preset.video}
             active={remix.presetId === preset.id}
             onPick={() => {
               patchRemix({ presetId: preset.id });
@@ -265,6 +297,7 @@ export function useRestyleStyle(): { style: ZynsStyle | undefined; preset: Resty
 
 export function StyleRow() {
   const remix = useStudio((s) => s.remix);
+  const setRemixTab = useStudio((s) => s.setRemixTab);
   const [open, setOpen] = useState(false);
   const { style, preset } = useRestyleStyle();
   const native = isNativeRestyle(targetOf(remix));
@@ -276,7 +309,15 @@ export function StyleRow() {
       <Row
         label={native ? "Style" : "Style · optional"}
         value={<span className="truncate">{name ?? (native ? "Choose a style" : "No style")}</span>}
-        onClick={() => setOpen(true)}
+        // The styles open beside the composer (below it on a phone), not over it.
+        onClick={() => {
+          // On Remix the styles open beside the composer (below it on a
+          // phone); from the Video page, over it.
+          const tabs = document.getElementById("remix-tabs");
+          if (!tabs) return setOpen(true);
+          setRemixTab("styles");
+          requestAnimationFrame(() => tabs.scrollIntoView({ behavior: "smooth", block: "start" }));
+        }}
         lead={
         <span
           className="block h-8 w-8 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"

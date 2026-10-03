@@ -25,6 +25,8 @@ import type { Field, ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
 import { ProjectChip } from "@/components/ProjectMenu";
+import { GenjutsuComposer } from "@/components/remix/RemixStudio";
+import { GENJUTSU } from "@/lib/remix/targets";
 import { ModelMedia } from "@/components/ModelMedia";
 import { ErrorPopup } from "@/components/ErrorPopup";
 
@@ -579,6 +581,15 @@ export function SideComposer({ onKey }: { onKey: () => void }) {
     if (!apiKey) return onKey();
     if (busy || blocker) return;
     void run();
+  }
+
+  // Genjutsu is Remix's model: chosen here, it brings Remix's own composer.
+  if (model?.id === GENJUTSU) {
+    return (
+      <aside className="sticky top-[76px] hidden h-[calc(100dvh-92px)] w-[340px] shrink-0 flex-col overflow-hidden rounded-panel border border-line bg-elevated md:flex">
+        <GenjutsuComposer onKeyClick={onKey} onChangeModel={() => togglePicker(true, category, true)} />
+      </aside>
+    );
   }
 
   return (

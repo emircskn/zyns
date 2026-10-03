@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
 import { BLURB } from "@/lib/remix/banner";
@@ -47,7 +47,8 @@ export function RemixPage({
   const mode = useStudio((s) => s.remix.mode);
   const hfKey = useStudio((s) => s.hfKey);
   const offered = (Object.keys(tabs ?? {}) as RemixTab[]).filter((t) => tabs?.[t]);
-  const [tab, setTab] = useState<RemixTab>("history");
+  const tab = useStudio((s) => s.remixTab);
+  const setTab = useStudio((s) => s.setRemixTab);
   const current = offered.includes(tab) ? tab : offered[0];
 
   return (
@@ -64,7 +65,10 @@ export function RemixPage({
         {offered.length > 0 && current && (
           <>
             {/* A slim strip over what is shown, as on the Video page. */}
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-6 md:min-h-[56px] md:px-1 md:py-2.5">
+            <div
+              id="remix-tabs"
+              className="flex scroll-mt-[76px] flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-6 md:min-h-[56px] md:px-1 md:py-2.5"
+            >
               <PillGroup
                 plain
                 value={current}

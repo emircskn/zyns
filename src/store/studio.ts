@@ -203,6 +203,9 @@ interface StudioState {
   /** The Remix composer, as it was left. */
   remix: RemixState;
   patchRemix: (patch: Partial<RemixState> | ((remix: RemixState) => Partial<RemixState>)) => void;
+  /** Which of Remix's tabs is open beside the composer; not kept between visits. */
+  remixTab: "history" | "library" | "styles";
+  setRemixTab: (tab: "history" | "library" | "styles") => void;
   /** Clips kept for their motion, newest first. */
   motionClips: MotionClip[];
   addMotionClip: (clip: MotionClip) => void;
@@ -460,6 +463,7 @@ export const useStudio = create<StudioState>()(
       elements: [],
       elementEditor: null,
       remix: EMPTY_REMIX,
+      remixTab: "history",
       motionClips: [],
       recipeRuns: [],
       lastModelByStep: {},
@@ -768,6 +772,7 @@ export const useStudio = create<StudioState>()(
       removeElement: (id) =>
         set((state) => ({ elements: state.elements.filter((e) => e.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
       openElementEditor: (elementEditor) => set({ elementEditor }),
+      setRemixTab: (remixTab) => set({ remixTab }),
       patchRemix: (patch) =>
         set((state) => ({ remix: { ...state.remix, ...(typeof patch === "function" ? patch(state.remix) : patch) } })),
       addMotionClip: (clip) =>

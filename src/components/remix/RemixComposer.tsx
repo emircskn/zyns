@@ -380,6 +380,9 @@ export function RemixComposer({
   style,
   needsStyle,
   info,
+  onChangeModel,
+  scroll,
+  onSent,
 }: {
   onKeyClick: () => void;
   /** Restyle's model row, in place of the plain one naming the model. */
@@ -392,6 +395,12 @@ export function RemixComposer({
   needsStyle?: string | null;
   /** More for the run to remember (the style's name). */
   info?: Partial<RemixRunInfo>;
+  /** Opened from the Video page: the way back to the catalogue, on the card and the Model row. */
+  onChangeModel?: () => void;
+  /** The body scrolls on its own at every size (the phone's full-screen composer). */
+  scroll?: boolean;
+  /** Called once a run is on its way. */
+  onSent?: () => void;
 }) {
   const remix = useStudio((s) => s.remix);
   const patchRemix = useStudio((s) => s.patchRemix);
@@ -455,6 +464,7 @@ export function RemixComposer({
     });
     setBusy(false);
     if (!result.ok) setError(result.error ?? "Could not send this.");
+    else onSent?.();
   }
 
   const settings = model ? settingFields(model, own) : [];
@@ -469,7 +479,9 @@ export function RemixComposer({
     <>
       {/* The panel's body scrolls on a desktop; the button stays at its foot. */}
       <div
-        className="no-bar flex min-h-0 flex-1 flex-col gap-2.5 md:overflow-y-auto md:p-3 [&>*]:shrink-0"
+        className={`no-bar flex min-h-0 flex-1 flex-col gap-2.5 md:p-3 [&>*]:shrink-0 ${
+          scroll ? "overflow-y-auto overscroll-contain pb-3 md:pb-3" : "md:overflow-y-auto"
+        }`}
         onKeyDown={(event) => {
           if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
             event.preventDefault();
@@ -478,7 +490,7 @@ export function RemixComposer({
         }}
       >
         <ModeTabs />
-        {model && <RemixBanner model={model} mode={remix.mode} />}
+        {model && <RemixBanner model={model} mode={remix.mode} onChange={onChangeModel} />}
         <SourceBox
           url={remix.source}
           meta={meta}
@@ -537,6 +549,7 @@ export function RemixComposer({
           (model && (
             <Row
               label="Model"
+              onClick={onChangeModel}
               value={
                 <>
                   <span className="truncate">{model.id === GENJUTSU ? "Higgsfield Genjutsu" : model.name}</span>
@@ -631,7 +644,7 @@ const GRID_COLS = ["", "grid-cols-1", "grid-cols-2", "grid-cols-3"];
  * its model's card: Higgsfield's own banner for Genjutsu, the model's
  * preview for another Restyle model.
  */
-function RemixBanner({ model, mode }: { model: ModelDef; mode: RemixMode }) {
+function RemixBanner({ model, mode, onChange }: { model: ModelDef; mode: RemixMode; onChange?: () => void }) {
   const media = model.id === GENJUTSU ? bannerOf(mode === "restyle" ? "motion" : mode) : undefined;
   return (
     <div className="relative h-[124px] shrink-0 overflow-hidden rounded-panel bg-surface">
@@ -651,6 +664,16 @@ function RemixBanner({ model, mode }: { model: ModelDef; mode: RemixMode }) {
         <ModelMedia model={model} own={false} />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+      {onChange && (
+        <button
+          type="button"
+          onClick={onChange}
+          className="absolute right-2.5 top-2.5 flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-[12.5px] font-medium text-white backdrop-blur-md transition-colors duration-[120ms] hover:bg-black/70"
+        >
+          <Icon name="sliders" size={13} />
+          Change
+        </button>
+      )}
       <div className="absolute inset-x-3.5 bottom-3 text-white">
         <p className="truncate text-[21px] font-bold uppercase leading-none tracking-[-0.02em]">
           {model.id === GENJUTSU ? "Genjutsu" : model.name}

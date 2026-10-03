@@ -242,6 +242,21 @@ export interface RestylePreset {
   id: string;
   name: string;
   preview?: string;
+  /** A moving preview, where the list gives one (the documented one gives a still). */
+  video?: string;
+}
+
+const VIDEO_URL = /^https:\/\/[^\s]+\.(mp4|webm|mov)(\?[^\s]*)?$/i;
+
+/** The first clip anywhere in a preset's entry, a level or two down ({ preview_video: { url } }). */
+function videoIn(node: unknown, depth = 0): string | undefined {
+  if (typeof node === "string") return VIDEO_URL.test(node) ? node : undefined;
+  if (!node || typeof node !== "object" || depth > 2) return undefined;
+  for (const value of Object.values(node as Record<string, unknown>)) {
+    const found = videoIn(value, depth + 1);
+    if (found) return found;
+  }
+  return undefined;
 }
 
 /**
@@ -251,11 +266,18 @@ export interface RestylePreset {
  */
 export async function restylePresets(apiKey: string): Promise<RestylePreset[]> {
   const body = (await request(apiKey, "/models/higgsfield/genjutsu/restyle/v1.0/presets")) as {
-    items?: Array<{ id?: unknown; name?: unknown; preview_url?: unknown }>;
+    items?: Array<{ id?: unknown; name?: unknown; preview_url?: unknown } & Record<string, unknown>>;
   };
   return (body?.items ?? []).flatMap((item) =>
     typeof item.id === "string" && typeof item.name === "string"
-      ? [{ id: item.id, name: item.name, preview: typeof item.preview_url === "string" ? item.preview_url : undefined }]
+      ? [
+          {
+            id: item.id,
+            name: item.name,
+            preview: typeof item.preview_url === "string" ? item.preview_url : undefined,
+            video: videoIn(item),
+          },
+        ]
       : [],
   );
 }
