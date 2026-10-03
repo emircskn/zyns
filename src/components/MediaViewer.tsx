@@ -30,7 +30,7 @@ import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
 import { actionsFor, applyAction, type ResultAction } from "@/lib/resultActions";
-import { useStudio, type Run } from "@/store/studio";
+import { useStudio, type Run, type Upload } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
 
 /**
@@ -42,16 +42,64 @@ import { mediaSrc } from "@/lib/storage/client";
  * reaches it, and the spec says a listener removed mid-dispatch is not
  * called. That is exactly what happened, so Escape did nothing at all.
  */
-function useEscape(onClose: () => void) {
+function useEscape(onClose: () => void, onArrow?: (by: -1 | 1) => void) {
   const close = useRef(onClose);
   close.current = onClose;
+  const arrow = useRef(onArrow);
+  arrow.current = onArrow;
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") close.current();
+      if ((event.key === "ArrowLeft" || event.key === "ArrowRight") && arrow.current) {
+        const target = event.target as HTMLElement | null;
+        // Not while typing, or when a key moves something of its own (a video's scrubber).
+        if (target?.closest?.("input, textarea, select, [contenteditable], video, audio")) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        event.preventDefault();
+        arrow.current(event.key === "ArrowLeft" ? -1 : 1);
+      }
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+}
+
+/** The kept copy a link stands for, so a run's input can be matched to the upload it was. */
+function storageKeyOf(url: string): string | undefined {
+  const { copies, remotes } = useStudio.getState();
+  return (
+    copies[url]?.key ??
+    Object.entries(remotes).find(([, by]) => Object.values(by).some((remote) => remote?.url === url))?.[0]
+  );
+}
+
+/** Where an input came from: a run that made it, or a file that was uploaded. */
+function sourceOf(url: string, runs: Run[], uploads: Upload[]): { run?: Run; upload?: Upload } {
+  const key = storageKeyOf(url);
+  const same = (other: string) => other === url || (!!key && storageKeyOf(other) === key);
+  const upload = uploads.find((u) => same(u.url));
+  if (upload) return { upload };
+  const run = runs.find((r) => r.state === "success" && r.urls.some(same));
+  return run ? { run } : {};
+}
+
+/** What a file is, for one that came from no run: where from, its type and format, when it was added. */
+function fileDetails(url: string, upload?: Upload): Array<{ label: string; value: string }> {
+  const kind = mediaKind(url);
+  let format = "";
+  try {
+    const ext = new URL(url, "https://x").pathname.split(".").pop() ?? "";
+    if (/^[a-z0-9]{2,5}$/i.test(ext)) format = ext.toUpperCase() === "JPEG" ? "JPG" : ext.toUpperCase();
+  } catch {
+    // A link that is not one: no format to tell.
+  }
+  const rows = [
+    { label: "Source", value: upload ? "Original upload" : "Input" },
+    { label: "Type", value: kind[0].toUpperCase() + kind.slice(1) },
+  ];
+  if (format) rows.push({ label: "Format", value: format });
+  if (upload) rows.push({ label: "Added", value: when(upload.createdAt) });
+  return rows;
 }
 
 /**
@@ -165,7 +213,7 @@ function MoreMenu({
  * the service's own link stops working after some days. A file gone from
  * everywhere shows as such rather than as a broken picture.
  */
-function RefThumb({ url }: { url: string }) {
+function RefThumb({ url, onOpen }: { url: string; onOpen: () => void }) {
   const [gone, setGone] = useState(false);
   const src = mediaSrc(url);
   const kind = mediaKind(url);
@@ -181,12 +229,12 @@ function RefThumb({ url }: { url: string }) {
     );
   }
   return (
-    <a
-      href={src}
-      target="_blank"
-      rel="noreferrer"
+    <button
+      type="button"
+      onClick={onOpen}
       title="Open this input"
-      className={`${box} transition-transform duration-[120ms] hover:scale-105`}
+      aria-label="Open this input"
+      className={`${box} transition-transform duration-[120ms] hover:scale-105 active:scale-95`}
     >
       {kind === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -196,7 +244,7 @@ function RefThumb({ url }: { url: string }) {
           <Icon name={kind === "video" ? "video" : "audio"} size={16} className="text-t3" />
         </span>
       )}
-    </a>
+    </button>
   );
 }
 
@@ -409,6 +457,10 @@ export function MediaViewer({
   run,
   upload,
   onClose,
+  sequence,
+  onShow,
+  onBack,
+  depth = 0,
 }: {
   url: string | null;
   /** The run behind the media, when it came from one. */
@@ -416,6 +468,14 @@ export function MediaViewer({
   /** An uploaded file instead, which can only be looked at and removed. */
   upload?: { id: string; label: string };
   onClose: () => void;
+  /** Everything the view can step through (the arrow keys, a swipe), in order. */
+  sequence?: string[];
+  /** Show another of `sequence` in place of this one. */
+  onShow?: (url: string) => void;
+  /** Opened over another view (a run's input): back goes to that one. */
+  onBack?: () => void;
+  /** How many views this one is opened over. */
+  depth?: number;
 }) {
   const { mounted, exiting } = usePresence(!!url, 220);
   const [shown, setShown] = useState(url);
@@ -429,6 +489,14 @@ export function MediaViewer({
   const [more, setMore] = useState(false);
   const moreTile = useRef<HTMLButtonElement>(null);
   const [full, setFull] = useState(false);
+  // An input of this run, opened in a view over this one.
+  const [inner, setInner] = useState<string | null>(null);
+  const innerOpen = useRef(false);
+  innerOpen.current = !!inner;
+  const runs = useStudio((s) => s.runs);
+  // A swipe on a phone: how far the media has been pulled sideways.
+  const [slide, setSlide] = useState({ x: 0, glide: false });
+  const swipe = useRef<{ x: number; y: number; dx: number; dir?: "x" | "y" } | null>(null);
 
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
@@ -458,12 +526,42 @@ export function MediaViewer({
     setConfirming(false);
     setMore(false);
     setFull(false);
+    setInner(null);
   }, [url]);
 
-  useEscape(onClose);
+  // The neighbours in the order the view steps through.
+  const at = sequence && shown ? sequence.indexOf(shown) : -1;
+  const prev = at > 0 ? sequence![at - 1] : undefined;
+  const next = at >= 0 && at < sequence!.length - 1 ? sequence![at + 1] : undefined;
+
+  function step(by: -1 | 1) {
+    const target = by < 0 ? prev : next;
+    if (target && onShow) onShow(target);
+  }
+
+  // The view over this one has the keys while it is open.
+  useEscape(
+    () => {
+      if (!innerOpen.current) (onBack ?? onClose)();
+    },
+    (by) => {
+      if (!innerOpen.current && !confirming && !filing && !more) step(by);
+    },
+  );
+
+  // The next one along is already loading when it is asked for.
+  useEffect(() => {
+    for (const near of [prev, next]) {
+      if (near && mediaKind(near) === "image") new Image().src = mediaSrc(near);
+    }
+  }, [prev, next]);
 
   const refs = useMemo(() => (run ? inputMedia(run) : []), [run]);
-  const details = useMemo(() => (run ? detailsOf(run) : []), [run]);
+  const uploadRow = upload ? uploads.find((u) => u.id === upload.id) : undefined;
+  const details = useMemo(
+    () => (run ? detailsOf(run) : shown ? fileDetails(shown, uploadRow) : []),
+    [run, shown, uploadRow],
+  );
   const model = run ? getModel(run.modelId) : undefined;
   const active = getModel(modelId);
   const isImage = shown ? mediaKind(shown) === "image" : false;
@@ -548,7 +646,45 @@ export function MediaViewer({
   function remove() {
     if (run) removeRun(run.id);
     else if (upload) removeUpload(upload.id);
-    onClose();
+    (onBack ?? onClose)();
+  }
+
+  // A sideways swipe on a phone shows the one before or after. Pulled past
+  // the end, it gives a little and springs back.
+  const swipeable = phone && !!onShow && !!sequence && sequence.length > 1;
+  function touchStart(event: React.TouchEvent) {
+    if (!swipeable || event.touches.length !== 1) return;
+    swipe.current = { x: event.touches[0].clientX, y: event.touches[0].clientY, dx: 0 };
+  }
+  function touchMove(event: React.TouchEvent) {
+    const s = swipe.current;
+    if (!s || event.touches.length !== 1) return;
+    const dx = event.touches[0].clientX - s.x;
+    const dy = event.touches[0].clientY - s.y;
+    if (!s.dir) {
+      if (Math.hypot(dx, dy) < 10) return;
+      s.dir = Math.abs(dx) > Math.abs(dy) * 1.2 ? "x" : "y";
+    }
+    if (s.dir !== "x") return;
+    const end = (dx > 0 && !prev) || (dx < 0 && !next);
+    s.dx = end ? dx * 0.25 : dx;
+    setSlide({ x: s.dx, glide: false });
+  }
+  function touchEnd() {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s || s.dir !== "x") return;
+    const target = s.dx < -60 ? next : s.dx > 60 ? prev : undefined;
+    if (!target || !onShow) return setSlide({ x: 0, glide: true });
+    const width = window.innerWidth;
+    const out = s.dx < 0 ? -width : width;
+    setSlide({ x: out, glide: true });
+    window.setTimeout(() => {
+      onShow(target);
+      // The new one comes in from the side the finger pulled from.
+      setSlide({ x: -out * 0.35, glide: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => setSlide({ x: 0, glide: true })));
+    }, 170);
   }
 
   // Everything this media can do, in reaching order. Six fit in the grid;
@@ -634,291 +770,377 @@ export function MediaViewer({
   const tiles = (overflowed ? entries.slice(0, 5) : entries).map((entry) => entry.tile);
   const tail = overflowed ? entries.slice(5) : [];
 
-  const title = run?.modelName ?? upload?.label ?? "Media";
+  const title = run?.modelName ?? upload?.label ?? (onBack ? "Input" : "Media");
   const subtitle = run
     ? `${model?.category ?? "run"} · ${run.urls.length > 1 ? `${run.urls.length} outputs` : "1 output"}`
-    : "Uploaded";
+    : upload
+      ? "Uploaded"
+      : "Given to the run";
+  const innerSource = inner ? sourceOf(inner, runs, uploads) : {};
 
-  return createPortal(
-    // A phone scrolls the whole thing — picture, then what to do with it,
-    // then what it is. A desktop keeps the picture still on a stage with the
-    // panel beside it, which is what `md:` switches back on throughout.
-    <div
-      data-viewer="media"
-      // The studio does not go black behind an enlarged picture: it stays
-      // there, blurred out under a dark sheet, so the picture is clearly on
-      // top of the page you were on rather than in a room of its own. A phone
-      // keeps the solid ground, both because a backdrop filter is switched
-      // off at that width for the frame rate and because there is nothing to
-      // see behind a view that fills the screen.
-      className={`fixed inset-0 z-[110] flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep pt-[calc(56px+env(safe-area-inset-top))] md:flex-row md:overflow-hidden md:bg-canvas-deep/70 md:pt-0 md:backdrop-blur-xl ${
-        exiting ? "anim-fade-out" : "anim-fade"
-      }`}
-    >
-      <div className="relative flex shrink-0 items-center justify-center p-3 md:min-h-0 md:flex-1 md:p-8">
-        <button
-          type="button"
-          className="absolute inset-0 hidden md:block"
-          aria-label="Close"
-          onClick={onClose}
-        />
+  return (
+    <>
+      {createPortal(
+        // A phone scrolls the whole thing — picture, then what to do with it,
+        // then what it is. A desktop keeps the picture still on a stage with the
+        // panel beside it, which is what `md:` switches back on throughout.
         <div
-          className={`relative z-10 flex w-full flex-col items-center justify-center gap-3 md:h-full ${
-            exiting ? "" : "anim-zoom"
+          data-viewer="media"
+          // The studio does not go black behind an enlarged picture: it stays
+          // there, blurred out under a dark sheet, so the picture is clearly on
+          // top of the page you were on rather than in a room of its own. A phone
+          // keeps the solid ground, both because a backdrop filter is switched
+          // off at that width for the frame rate and because there is nothing to
+          // see behind a view that fills the screen.
+          style={{ zIndex: 110 + depth * 4 }}
+          className={`fixed inset-0 flex flex-col overflow-y-auto overscroll-contain bg-canvas-deep pt-[calc(56px+env(safe-area-inset-top))] md:flex-row md:overflow-hidden md:bg-canvas-deep/70 md:pt-0 md:backdrop-blur-xl ${
+            exiting ? "anim-fade-out" : "anim-fade"
           }`}
         >
-          <div className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1">
-            <Stage url={shown} />
-          </div>
-          {run && run.urls.length > 1 && (
-            <div className="no-bar relative z-10 flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
-              {run.urls.map((one) => (
-                <button
-                  key={one}
-                  type="button"
-                  onClick={() => setShown(one)}
-                  className={`h-12 w-12 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset transition-all duration-[120ms] ${
-                    one === shown ? "ring-t1/70" : "ring-line hover:ring-line-strong"
-                  }`}
-                >
-                  {mediaKind(one) === "image" ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={one} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="grid h-full w-full place-items-center bg-surface-2">
-                      <Icon name={mediaKind(one) === "video" ? "video" : "audio"} size={15} className="text-t3" />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* A phone scrolls the whole view, and the panel's header belongs to the
-          desktop, so the way out sits in a bar of its own across the top of
-          the screen: pinned there while the view scrolls through the actions
-          and the details, and solid, so nothing of the picture runs under it.
-          The view is padded by the bar's height rather than sliding beneath
-          it. */}
-      <header className="fixed inset-x-0 top-0 z-20 bg-canvas-deep pt-[env(safe-area-inset-top)] md:hidden">
-        <div className="flex h-14 items-center justify-end px-4">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.09] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.16]"
-          >
-            <Icon name="close" size={18} />
-          </button>
-        </div>
-      </header>
-
-      <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
-        <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
-          {model ? (
-            <VendorBadge model={model} size={32} />
-          ) : (
-            <span className="grid h-[32px] w-[32px] place-items-center rounded-chip bg-t1/[0.07]">
-              <Icon name="upload" size={16} className="text-t3" />
-            </span>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[14px] font-medium text-t1">{title}</p>
-            <p className="truncate text-[12px] capitalize text-t3">{subtitle}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
-          >
-            <Icon name="close" size={18} />
-          </button>
-        </header>
-
-        {/* Actions lead on a phone, where they are what the tap was for, and
-            sit under the panel on a desktop, where the hover already had them. */}
-        <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
-          {/* Six tiles the same size, in the order you reach for them. What
-              does not fit goes behind More — and when everything fits, as it
-              does for an upload, More is not there at all. */}
-          <div className="grid grid-cols-3 gap-2">
-            {tiles}
-            {overflowed && (
-              <Action
-                innerRef={moreTile}
-                icon="more"
-                label="More"
-                onClick={() => {
-                  setMore((was) => !was);
-                  setConfirming(false);
-                }}
-              />
+          <div className="relative flex shrink-0 items-center justify-center p-3 md:min-h-0 md:flex-1 md:p-8">
+            <button
+              type="button"
+              className="absolute inset-0 hidden md:block"
+              aria-label={onBack ? "Back" : "Close"}
+              onClick={onBack ?? onClose}
+            />
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="absolute left-5 top-5 z-20 hidden h-9 items-center gap-1 rounded-full bg-t1/[0.09] pl-2.5 pr-3.5 text-[13px] text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:flex"
+              >
+                <Icon name="chevron" size={16} style={{ transform: "rotate(90deg)" }} />
+                Back
+              </button>
             )}
-          </div>
-
-          {overflowed && (
-            <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
-              {tail.map(
-                (entry) =>
-                  entry.row && (
+            {/* The one before and after, for a mouse; the arrow keys do the same. */}
+            {prev && onShow && (
+              <button
+                type="button"
+                onClick={() => step(-1)}
+                aria-label="Previous"
+                title="Previous (←)"
+                className="absolute left-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-t1/[0.08] text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:grid"
+              >
+                <Icon name="chevron" size={20} style={{ transform: "rotate(90deg)" }} />
+              </button>
+            )}
+            {next && onShow && (
+              <button
+                type="button"
+                onClick={() => step(1)}
+                aria-label="Next"
+                title="Next (→)"
+                className="absolute right-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-t1/[0.08] text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:grid"
+              >
+                <Icon name="chevron" size={20} style={{ transform: "rotate(-90deg)" }} />
+              </button>
+            )}
+            <div
+              className={`relative z-10 flex w-full flex-col items-center justify-center gap-3 md:h-full ${
+                exiting ? "" : "anim-zoom"
+              }`}
+            >
+              <div
+                className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1"
+                onTouchStart={touchStart}
+                onTouchMove={touchMove}
+                onTouchEnd={touchEnd}
+                onTouchCancel={touchEnd}
+                style={
+                  swipeable
+                    ? {
+                        touchAction: "pan-y pinch-zoom",
+                        transform: slide.x ? `translateX(${slide.x}px)` : undefined,
+                        opacity: 1 - Math.min(Math.abs(slide.x) / window.innerWidth, 1) * 0.6,
+                        transition: slide.glide ? "transform 220ms var(--ease-spring), opacity 220ms ease-out" : "none",
+                      }
+                    : undefined
+                }
+              >
+                <Stage url={shown} />
+              </div>
+              {run && run.urls.length > 1 && (
+                <div className="no-bar relative z-10 flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
+                  {run.urls.map((one) => (
                     <button
-                      key={entry.key}
+                      key={one}
                       type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setMore(false);
-                        entry.row!.onClick();
-                      }}
-                      style={entry.row.danger ? { color: "var(--danger)" } : undefined}
-                      className={`flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-                        entry.row.danger ? "hover:bg-[#ff6b6b]/10" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
+                      onClick={() => setShown(one)}
+                      className={`h-12 w-12 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset transition-all duration-[120ms] ${
+                        one === shown ? "ring-t1/70" : "ring-line hover:ring-line-strong"
                       }`}
                     >
-                      <Icon name={entry.row.icon} size={15} className="shrink-0" />
-                      <span className="truncate">{entry.row.label}</span>
+                      {mediaKind(one) === "image" ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={one} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center bg-surface-2">
+                          <Icon name={mediaKind(one) === "video" ? "video" : "audio"} size={15} className="text-t3" />
+                        </span>
+                      )}
                     </button>
-                  ),
-              )}
-            </MoreMenu>
-          )}
-
-          {groups.length > 0 && (
-            <section aria-label="Continue with" className="flex flex-col gap-2 pt-1">
-              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-t4">Continue with</p>
-              {groups.map((group) => (
-                <div key={group.model.id} className="flex flex-col gap-1.5">
-                  {groups.length > 1 && (
-                    <p className="flex items-center gap-1.5 text-[12px] text-t3">
-                      <VendorBadge model={group.model} size={14} bare />
-                      {group.model.name}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.items.map((action) => (
-                      <button
-                        key={`${action.model.id}:${action.mode.id}`}
-                        type="button"
-                        onClick={() => follow_(action)}
-                        title={action.mode.hint}
-                        className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
-                      >
-                        {action.mode.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </section>
-          )}
-
-          {/* Asked before it happens, in a window of its own: a gallery is
-              the only copy of what it holds, and a tap is easy to make by
-              accident. */}
-          <ProjectPicker
-            open={filing}
-            current={(run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId) ?? null}
-            count={1}
-            onPick={(projectId) => {
-              setFiling(false);
-              if (shown) fileUnder([shown], projectId);
-            }}
-            onClose={() => setFiling(false)}
-          />
-          <ConfirmPopup
-            open={confirming}
-            title="Delete this?"
-            message={deleteNote ?? "It is removed from your studio for good."}
-            confirmLabel="Delete"
-            onConfirm={remove}
-            onClose={() => setConfirming(false)}
-          />
-        </div>
-
-        <div className="pb-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:pb-0">
-          {run && (run.prompt || refs.length > 0) && (
-            <Section
-              title="Prompt"
-              right={
-                run.prompt ? (
-                  <button
-                    type="button"
-                    onClick={() => copy(run.prompt, "prompt")}
-                    className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1 text-[12px] text-t2 transition-colors duration-[120ms] hover:text-t1"
-                  >
-                    <Icon name={copied === "prompt" ? "check" : "copy"} size={14} />
-                    Copy
-                  </button>
-                ) : undefined
-              }
-            >
-              {refs.length > 0 && (
-                <div className="no-bar mb-2.5 flex gap-1.5 overflow-x-auto">
-                  {refs.map((ref) => (
-                    <RefThumb key={ref} url={ref} />
                   ))}
                 </div>
               )}
-              {run.prompt ? (
-                <>
-                  <p className={`text-[13.5px] leading-relaxed text-t1/85 ${full ? "" : "line-clamp-5"}`}>
-                    {run.prompt}
-                  </p>
-                  {run.prompt.length > 220 && (
-                    <button
-                      type="button"
-                      onClick={() => setFull((was) => !was)}
-                      className="mt-1.5 flex items-center gap-1 text-[13px] text-t3 transition-colors duration-[120ms] hover:text-t1"
-                    >
-                      {full ? "Show less" : "See all"}
-                      <Icon
-                        name="chevron"
-                        size={14}
-                        className="transition-transform duration-[200ms]"
-                        style={{ transform: full ? "rotate(180deg)" : "none" }}
-                      />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <p className="text-[13.5px] leading-relaxed text-t4">
-                  No prompt. This run worked from its inputs.
-                </p>
-              )}
-            </Section>
-          )}
+            </div>
+          </div>
 
-          {details.length > 0 && (
-            <Section title="Details" collapsible>
-              <dl className="flex flex-col gap-1.5">
-                {details.map((row) => (
-                  <div key={row.label} className="flex items-baseline justify-between gap-3">
-                    <dt className="shrink-0 text-[12.5px] text-t3">{row.label}</dt>
-                    <dd className="truncate text-right text-[12.5px] capitalize text-t1/85">{row.value}</dd>
-                  </div>
-                ))}
-                {/* Which project it is filed under, and the way to change it. */}
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="shrink-0 text-[12.5px] text-t3">Project</dt>
-                  <dd className="min-w-0 text-right">
-                    <button
-                      type="button"
-                      onClick={() => setFiling(true)}
-                      className="max-w-full truncate text-[12.5px] text-t1/85 underline decoration-line-strong underline-offset-[3px] hover:text-t1"
-                    >
-                      {project ? project.name : "None · add"}
-                    </button>
-                  </dd>
-                </div>
-              </dl>
-            </Section>
-          )}
-        </div>
-      </aside>
-    </div>,
-    document.body,
+          {/* A phone scrolls the whole view, and the panel's header belongs to the
+              desktop, so the way out sits in a bar of its own across the top of
+              the screen: pinned there while the view scrolls through the actions
+              and the details, and solid, so nothing of the picture runs under it.
+              The view is padded by the bar's height rather than sliding beneath
+              it. */}
+          <header className="fixed inset-x-0 top-0 z-20 bg-canvas-deep pt-[env(safe-area-inset-top)] md:hidden">
+            <div className="flex h-14 items-center justify-between px-4">
+              {onBack ? (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="flex h-10 items-center gap-1 rounded-full bg-t1/[0.09] pl-2.5 pr-4 text-[14px] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.16]"
+                >
+                  <Icon name="chevron" size={18} style={{ transform: "rotate(90deg)" }} />
+                  Back
+                </button>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.09] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.16]"
+              >
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+          </header>
+
+          <aside className="flex w-full shrink-0 flex-col md:h-auto md:w-[348px] md:border-l md:border-line md:bg-canvas">
+            <header className="hidden items-center gap-3 border-b border-line px-4 py-3 md:flex">
+              {model ? (
+                <VendorBadge model={model} size={32} />
+              ) : (
+                <span className="grid h-[32px] w-[32px] place-items-center rounded-chip bg-t1/[0.07]">
+                  <Icon name="upload" size={16} className="text-t3" />
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[14px] font-medium text-t1">{title}</p>
+                <p className="truncate text-[12px] capitalize text-t3">{subtitle}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1"
+              >
+                <Icon name="close" size={18} />
+              </button>
+            </header>
+
+            {/* Actions lead on a phone, where they are what the tap was for, and
+                sit under the panel on a desktop, where the hover already had them. */}
+            <div className="order-first flex shrink-0 flex-col gap-2 p-4 md:order-last md:mt-auto md:border-t md:border-line">
+              {/* Six tiles the same size, in the order you reach for them. What
+                  does not fit goes behind More — and when everything fits, as it
+                  does for an upload, More is not there at all. */}
+              <div className="grid grid-cols-3 gap-2">
+                {tiles}
+                {overflowed && (
+                  <Action
+                    innerRef={moreTile}
+                    icon="more"
+                    label="More"
+                    onClick={() => {
+                      setMore((was) => !was);
+                      setConfirming(false);
+                    }}
+                  />
+                )}
+              </div>
+
+              {overflowed && (
+                <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
+                  {tail.map(
+                    (entry) =>
+                      entry.row && (
+                        <button
+                          key={entry.key}
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setMore(false);
+                            entry.row!.onClick();
+                          }}
+                          style={entry.row.danger ? { color: "var(--danger)" } : undefined}
+                          className={`flex items-center gap-2.5 rounded-chip px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
+                            entry.row.danger ? "hover:bg-[#ff6b6b]/10" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
+                          }`}
+                        >
+                          <Icon name={entry.row.icon} size={15} className="shrink-0" />
+                          <span className="truncate">{entry.row.label}</span>
+                        </button>
+                      ),
+                  )}
+                </MoreMenu>
+              )}
+
+              {groups.length > 0 && (
+                <section aria-label="Continue with" className="flex flex-col gap-2 pt-1">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-t4">Continue with</p>
+                  {groups.map((group) => (
+                    <div key={group.model.id} className="flex flex-col gap-1.5">
+                      {groups.length > 1 && (
+                        <p className="flex items-center gap-1.5 text-[12px] text-t3">
+                          <VendorBadge model={group.model} size={14} bare />
+                          {group.model.name}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.items.map((action) => (
+                          <button
+                            key={`${action.model.id}:${action.mode.id}`}
+                            type="button"
+                            onClick={() => follow_(action)}
+                            title={action.mode.hint}
+                            className="rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+                          >
+                            {action.mode.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* Asked before it happens, in a window of its own: a gallery is
+                  the only copy of what it holds, and a tap is easy to make by
+                  accident. */}
+              <ProjectPicker
+                open={filing}
+                current={(run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId) ?? null}
+                count={1}
+                onPick={(projectId) => {
+                  setFiling(false);
+                  if (shown) fileUnder([shown], projectId);
+                }}
+                onClose={() => setFiling(false)}
+              />
+              <ConfirmPopup
+                open={confirming}
+                title="Delete this?"
+                message={deleteNote ?? "It is removed from your studio for good."}
+                confirmLabel="Delete"
+                onConfirm={remove}
+                onClose={() => setConfirming(false)}
+              />
+            </div>
+
+            <div className="pb-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:pb-0">
+              {run && (run.prompt || refs.length > 0) && (
+                <Section
+                  title="Prompt"
+                  right={
+                    run.prompt ? (
+                      <button
+                        type="button"
+                        onClick={() => copy(run.prompt, "prompt")}
+                        className="flex items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 py-1 text-[12px] text-t2 transition-colors duration-[120ms] hover:text-t1"
+                      >
+                        <Icon name={copied === "prompt" ? "check" : "copy"} size={14} />
+                        Copy
+                      </button>
+                    ) : undefined
+                  }
+                >
+                  {refs.length > 0 && (
+                    <div className="no-bar mb-2.5 flex gap-1.5 overflow-x-auto">
+                      {refs.map((ref) => (
+                        <RefThumb key={ref} url={ref} onOpen={() => setInner(ref)} />
+                      ))}
+                    </div>
+                  )}
+                  {run.prompt ? (
+                    <>
+                      <p className={`text-[13.5px] leading-relaxed text-t1/85 ${full ? "" : "line-clamp-5"}`}>
+                        {run.prompt}
+                      </p>
+                      {run.prompt.length > 220 && (
+                        <button
+                          type="button"
+                          onClick={() => setFull((was) => !was)}
+                          className="mt-1.5 flex items-center gap-1 text-[13px] text-t3 transition-colors duration-[120ms] hover:text-t1"
+                        >
+                          {full ? "Show less" : "See all"}
+                          <Icon
+                            name="chevron"
+                            size={14}
+                            className="transition-transform duration-[200ms]"
+                            style={{ transform: full ? "rotate(180deg)" : "none" }}
+                          />
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-[13.5px] leading-relaxed text-t4">
+                      No prompt. This run worked from its inputs.
+                    </p>
+                  )}
+                </Section>
+              )}
+
+              {details.length > 0 && (
+                <Section title="Details" collapsible>
+                  <dl className="flex flex-col gap-1.5">
+                    {details.map((row) => (
+                      <div key={row.label} className="flex items-baseline justify-between gap-3">
+                        <dt className="shrink-0 text-[12.5px] text-t3">{row.label}</dt>
+                        <dd className="truncate text-right text-[12.5px] capitalize text-t1/85">{row.value}</dd>
+                      </div>
+                    ))}
+                    {/* Which project it is filed under, and the way to change it. */}
+                    {(run || upload) && (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="shrink-0 text-[12.5px] text-t3">Project</dt>
+                        <dd className="min-w-0 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setFiling(true)}
+                            className="max-w-full truncate text-[12.5px] text-t1/85 underline decoration-line-strong underline-offset-[3px] hover:text-t1"
+                          >
+                            {project ? project.name : "None · add"}
+                          </button>
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                </Section>
+              )}
+            </div>
+          </aside>
+        </div>,
+        document.body,
+      )}
+      {/* A run's input, opened over this view: Back returns here, and
+          anything sent from it closes both. */}
+      <MediaViewer
+        url={inner}
+        run={innerSource.run}
+        upload={innerSource.upload ? { id: innerSource.upload.id, label: innerSource.upload.name ?? "Upload" } : undefined}
+        sequence={refs}
+        onShow={setInner}
+        onBack={() => setInner(null)}
+        onClose={() => {
+          setInner(null);
+          onClose();
+        }}
+        depth={depth + 1}
+      />
+    </>
   );
 }
 

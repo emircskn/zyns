@@ -598,6 +598,8 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
   // The run behind the open preview, so the panel beside it knows what it is
   // looking at and what its buttons act on.
   const open = viewer ? runs.find((run) => run.id === viewer.runId) : undefined;
+  // What the open view steps through: every finished output, in the order the gallery shows them.
+  const sequence = shown.flatMap((run) => (run.state === "success" ? run.urls : []));
   const pickedUrls = picked.flatMap((id) => runs.find((run) => run.id === id)?.urls ?? []);
   // The project the picks share, or "" when they are in different ones.
   const pickedProjects = new Set(picked.map((id) => runs.find((run) => run.id === id)?.projectId ?? null));
@@ -681,6 +683,11 @@ export function Gallery({ category, view = "grid" }: { category?: Category; view
         url={open ? viewer?.url ?? null : null}
         run={open}
         onClose={() => setViewer(null)}
+        sequence={sequence}
+        onShow={(url) => {
+          const owner = shown.find((run) => run.state === "success" && run.urls.includes(url));
+          if (owner) setViewer({ url, runId: owner.id });
+        }}
       />
     </>
   );

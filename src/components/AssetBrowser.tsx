@@ -415,6 +415,8 @@ export function AssetBrowser({
         run={run}
         upload={open?.source === "upload" ? { id: open.id, label: open.label } : undefined}
         onClose={() => setViewing(null)}
+        sequence={pickable.map((asset) => asset.url)}
+        onShow={setViewing}
       />
     </>
   );
