@@ -774,9 +774,9 @@ export function MediaViewer({
             </section>
           )}
 
-          {/* Asked before it happens: a gallery is the only copy of what it
-              holds, and a tap is easy to make by accident. A phone asks in
-              a window of its own; a desktop in a line under the actions. */}
+          {/* Asked before it happens, in a window of its own: a gallery is
+              the only copy of what it holds, and a tap is easy to make by
+              accident. */}
           <ProjectPicker
             open={filing}
             current={(run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId) ?? null}
@@ -788,37 +788,13 @@ export function MediaViewer({
             onClose={() => setFiling(false)}
           />
           <ConfirmPopup
-            open={phone && confirming}
+            open={confirming}
             title="Delete this?"
             message={deleteNote ?? "It is removed from your studio for good."}
             confirmLabel="Delete"
             onConfirm={remove}
             onClose={() => setConfirming(false)}
           />
-          {confirming && !phone && deleteNote && (
-            <p className="anim-pop -mb-1 px-1 text-[12px] leading-relaxed text-t3">{deleteNote}</p>
-          )}
-          {confirming && !phone && (
-            <div className="anim-pop flex items-center gap-2 rounded-card bg-[#ff6b6b]/10 p-2 pl-3">
-              <p className="flex-1 text-[13px]" style={{ color: "var(--danger)" }}>
-                Delete this?
-              </p>
-              <button
-                type="button"
-                onClick={() => setConfirming(false)}
-                className="rounded-full px-3 py-1.5 text-[13px] text-t3 transition-colors duration-[120ms] hover:text-t1"
-              >
-                No
-              </button>
-              <button
-                type="button"
-                onClick={remove}
-                className="rounded-full bg-[#ff6b6b]/85 px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-              >
-                Yes, delete
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="pb-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:pb-0">

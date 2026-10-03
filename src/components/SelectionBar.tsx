@@ -7,6 +7,7 @@ import { useStudio } from "@/store/studio";
 import { saveLabel, type SaveResult, type SaveState } from "@/lib/download";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { ProjectPicker } from "@/components/ProjectPicker";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 
 /**
  * The bar that appears once something is picked: what it can do to all of
@@ -100,11 +101,6 @@ export function SelectionBar({
       data-select-bar=""
       className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex flex-col items-center px-3 pb-3 md:pb-5 md:pl-4 md:pr-4"
     >
-      {confirming && note && (
-        <p className="surface-pop anim-pop pointer-events-auto mb-2 max-w-[420px] rounded-card px-3.5 py-2.5 text-center text-[12.5px] leading-relaxed text-t2">
-          {note}
-        </p>
-      )}
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">
           <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
@@ -112,24 +108,7 @@ export function SelectionBar({
           </span>
           {count === 0 ? "Tap to select" : `${count} selected`}
         </span>
-        {confirming ? (
-          <>
-            <span className="whitespace-nowrap px-2 text-[12.5px]" style={{ color: "var(--danger)" }}>
-              Delete {count}?
-            </span>
-            <button type="button" onClick={() => setConfirming(false)} className={button}>
-              No
-            </button>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="flex shrink-0 items-center gap-2 rounded-full bg-[#ff6b6b]/85 px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]"
-            >
-              Yes, delete
-            </button>
-          </>
-        ) : (
-          <>
+        <>
             {count < total && (
               <button type="button" onClick={onSelectAll} aria-label={`Select all ${total}`} className={button}>
                 <Icon name="grid" size={16} />
@@ -180,8 +159,18 @@ export function SelectionBar({
             </button>
             </>
             )}
-          </>
-        )}
+        </>
+        <ConfirmPopup
+          open={confirming}
+          title={count === 1 ? "Delete this?" : `Delete ${count}?`}
+          message={note ?? (count === 1 ? "It is removed from your studio for good." : "They are removed from your studio for good.")}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            setConfirming(false);
+            onDelete();
+          }}
+          onClose={() => setConfirming(false)}
+        />
         {onProject && (
           <ProjectPicker
             open={filing}
