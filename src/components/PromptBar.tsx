@@ -340,12 +340,12 @@ function RatioGlyph({ value }: { value: unknown }) {
 /**
  * Each kind of setting with a glyph of its own, matched on the field's key,
  * so two chips side by side never wear the same one: the style is a
- * palette, the rendering speed a bolt, the quality a gem.
+ * palette, the rendering speed a bolt, the quality and resolution a gem.
  */
 const CHIP_ICON: Array<[RegExp, IconName]> = [
   [/^duration|_seconds$|extend_times|continue_at/, "clock"],
   [/^quality$|__tier|^tier$/, "gem"],
-  [/resolution/, "monitor"],
+  [/resolution/, "gem"],
   [/upscale|scale_factor|^factor$/, "zoom"],
   [/rendering_speed|^speed$|turbo/, "bolt"],
   [/style|aesthetic/, "palette"],
@@ -367,7 +367,7 @@ const CHIP_ICON: Array<[RegExp, IconName]> = [
 
 function chipIcon(field: Field, value: unknown): ReactNode {
   // A size can be a shape ("1:1", "portrait_4_3") or a resolution ("2K").
-  if (/^size$/.test(field.key) && /^\d+(\.\d+)?k$/i.test(String(value ?? ""))) return <Icon name="monitor" size={16} />;
+  if (/^size$/.test(field.key) && /^\d+(\.\d+)?k$/i.test(String(value ?? ""))) return <Icon name="gem" size={16} />;
   if (field.kind === "ratio" || /aspect_ratio|^ratio$|image_size|^size$/.test(field.key)) {
     return <RatioGlyph value={value} />;
   }
