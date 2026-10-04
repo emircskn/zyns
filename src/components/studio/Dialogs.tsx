@@ -255,14 +255,14 @@ function CardGrid({
             >
               {item.preview ? (
                 <span className="absolute inset-0">
-                  <PreviewMedia preview={item.preview} play={over} className="h-full w-full" />
+                  <PreviewMedia preview={item.preview} play={over || on} className="h-full w-full" />
                 </span>
               ) : (
                 <span className="absolute inset-0 grid place-items-center bg-t1/[0.05] text-t3">
                   <Icon name={item.value === "" ? "spark" : "film"} size={22} />
                 </span>
               )}
-              {action && over && item.value !== "" && (
+              {action && over && !on && item.value !== "" && (
                 <span className="cta absolute inset-x-2 bottom-2 rounded-full py-1.5 text-center text-[12px] font-semibold">{action}</span>
               )}
             </span>
@@ -353,10 +353,7 @@ export function CameraDialog({
             square
             action="Put on prompt"
             cols="grid-cols-2 sm:grid-cols-4"
-            onPick={(next) => {
-              onPutMove(next);
-              onClose();
-            }}
+            onPick={onPutMove}
           />
         </>
       ) : null}

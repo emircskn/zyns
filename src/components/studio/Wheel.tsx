@@ -120,19 +120,21 @@ export function Wheel({
                 aria-selected={index === chosen}
                 aria-label={choice.label}
                 onClick={() => turnTo(index)}
-                className={`flex h-[100px] w-full max-w-[156px] flex-col items-center justify-center gap-1 overflow-hidden rounded-full bg-black/30 p-1.5 transition-[opacity,box-shadow] duration-[150ms] ${
+                className={`block h-[100px] w-full max-w-[156px] rounded-full p-[5px] transition-[opacity,box-shadow] duration-[150ms] ${
                   on ? "opacity-100 shadow-[inset_0_0_0_2px_var(--t1)]" : "opacity-60 shadow-[inset_0_0_0_1px_var(--line)]"
                 }`}
               >
-                <span className="grid h-[52px] w-full place-items-center">
+                {/* The picture fills a stadium of its own inside the frame, so it never runs over the ring. */}
+                <span className="relative flex h-full w-full flex-col items-center justify-end overflow-hidden rounded-full bg-black/30 pb-2.5">
                   {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={image} alt="" draggable={false} className="h-full max-w-full object-contain" />
+                    <img src={image} alt="" draggable={false} className="absolute inset-0 h-full w-full scale-[1.15] object-cover" />
                   ) : (
-                    <Icon name={choice.value === "" ? autoIcon : "spark"} size={26} className="text-t2" />
+                    <Icon name={choice.value === "" ? autoIcon : "spark"} size={24} className="absolute left-1/2 top-[34%] -translate-x-1/2 -translate-y-1/2 text-t2" />
                   )}
+                  {image && <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />}
+                  <span className="relative max-w-full truncate px-3 text-[12px] font-semibold text-white">{choice.label}</span>
                 </span>
-                <span className="max-w-full truncate px-2 text-[12px] font-semibold text-t1">{choice.label}</span>
               </button>
             </div>
           );

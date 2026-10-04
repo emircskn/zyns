@@ -13,7 +13,29 @@ import { useStudio } from "@/store/studio";
 
 type Option =
   | { kind: "element"; key: string; label: string; thumb?: string; element: LibraryElement }
-  | { kind: "move"; key: string; label: string; thumb?: string; value: string };
+  | { kind: "move"; key: string; label: string; thumb?: string; video?: string; value: string };
+
+/** A move's loop, playing only while its row is in view, so a long list does not load every clip. */
+function InViewLoop({ poster, video, className }: { poster?: string; video?: string; className: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || !video) return;
+    const watch = new IntersectionObserver(([entry]) => setSeen(entry.isIntersecting), { threshold: 0.4 });
+    watch.observe(node);
+    return () => watch.disconnect();
+  }, [video]);
+  return (
+    <span ref={ref} className={`relative block shrink-0 overflow-hidden bg-t1/[0.07] ${className}`}>
+      {poster && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={poster} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      {video && seen && <video src={video} muted loop autoPlay playsInline className="absolute inset-0 h-full w-full object-cover" />}
+    </span>
+  );
+}
 
 /** `#partial` at the caret, as `mentionAtCaret` finds `@partial`. */
 function hashAtCaret(text: string, caret: number): { start: number; query: string } | null {
@@ -93,7 +115,7 @@ export function StudioPrompt({
     : hash
       ? (move?.choices ?? [])
           .filter((c) => c.value && (c.value.startsWith(q) || c.label.toLowerCase().includes(q)))
-          .map((c) => ({ kind: "move", key: c.value, label: c.label, thumb: previewOf(move!.key, c.value)?.image, value: c.value }))
+          .map((c) => ({ kind: "move", key: c.value, label: c.label, thumb: previewOf(move!.key, c.value)?.image, video: previewOf(move!.key, c.value)?.video, value: c.value }))
       : [];
   const open = !!token && options.length > 0 && dismissed !== token.start;
 
@@ -276,16 +298,18 @@ export function StudioPrompt({
                   i === cursor ? "bg-t1 text-canvas" : "text-t2"
                 }`}
               >
-                {option.thumb ? (
+                {option.kind === "move" ? (
+                  <InViewLoop poster={option.thumb} video={option.video} className="h-9 w-14 rounded-[8px]" />
+                ) : option.thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={option.kind === "element" ? mediaSrc(option.thumb) : option.thumb}
+                    src={mediaSrc(option.thumb)}
                     alt=""
-                    className={`h-8 shrink-0 bg-t1/[0.07] object-cover ${option.kind === "element" ? "w-8 rounded-full" : "w-12 rounded-[8px]"}`}
+                    className="h-8 w-8 shrink-0 rounded-full bg-t1/[0.07] object-cover"
                   />
                 ) : (
                   <span className="grid h-8 w-8 shrink-0 place-items-center">
-                    <Icon name={option.kind === "element" ? "at" : "move"} size={16} />
+                    <Icon name="at" size={16} />
                   </span>
                 )}
                 <span className="truncate">{option.kind === "element" ? `@${option.label}` : option.label}</span>

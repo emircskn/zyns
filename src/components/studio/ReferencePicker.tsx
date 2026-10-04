@@ -129,8 +129,6 @@ export function ReferencePicker({
   const assets = useAssets();
   const favorites = useStudio((s) => s.favorites);
   const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style");
-  const removeUpload = useStudio((s) => s.removeUpload);
-  const uploads = useStudio((s) => s.uploads);
   const openEditor = useStudio((s) => s.openElementEditor);
   const uploader = useUploader(kinds);
   const [tab, setTab] = useState<Tab>(startTab);
@@ -358,7 +356,6 @@ export function ReferencePicker({
                 )}
                 {list.map((asset) => {
                   const on = picked.some((p) => p.url === asset.url);
-                  const upload = asset.source === "upload" ? uploads.find((u) => u.url === asset.url) : undefined;
                   return (
                     <MediaTile
                       key={asset.id}
@@ -367,7 +364,6 @@ export function ReferencePicker({
                       disabled={!on && full(asset.kind as Kind)}
                       onToggle={() => toggle(asset)}
                       onPreview={() => setPreview(asset.url)}
-                      onDelete={upload ? () => removeUpload(upload.id) : undefined}
                     />
                   );
                 })}
