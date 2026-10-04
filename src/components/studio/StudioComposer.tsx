@@ -307,6 +307,12 @@ export function StudioComposer({ onKeyClick, docked }: { onKeyClick: () => void;
   );
 }
 
+/** After a send from Home, the generations page, where the new piece shows up. */
+function showMade() {
+  const store = useStudio.getState();
+  if ((store.studio?.view ?? "home") === "home") store.patchStudio({ view: "generations" });
+}
+
 function useNotice(): [string | null, (text: string) => void] {
   const [notice, setNotice] = useState<string | null>(null);
   useEffect(() => {
@@ -441,6 +447,8 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         setBusy(false);
         return;
       }
+      // On its way: Home hands over to the generations, where it is being made.
+      if (i === 0) showMade();
     }
     setBusy(false);
   }
@@ -734,6 +742,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         setBusy(false);
         return;
       }
+      // On its way: Home hands over to the generations, where it is being made.
+      if (i === 0) showMade();
     }
     setBusy(false);
   }

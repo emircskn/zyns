@@ -179,8 +179,6 @@ export interface StudioUi {
   character: string | null;
   imageCamera: string;
   imageLens: string;
-  /** The last piece opened from the generations, marked on its tile. */
-  lastViewed?: string;
 }
 
 export const EMPTY_STUDIO: StudioUi = {

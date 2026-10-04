@@ -92,7 +92,7 @@ export function compileCinemaPrompt(fields: Field[], values: Values): string {
   const aperture = say("camera_aperture");
   if (camera || lens || aperture) {
     parts.push(
-      `Shot ${camera ? `on ${camera.toLowerCase()}` : ""}${lens ? ` with a ${lens.toLowerCase()} lens` : ""}${aperture ? ` at ${aperture}` : ""}`.replace("Shot  ", "Shot "),
+      `Shot ${camera ? `on ${camera.toLowerCase()}` : ""}${lens ? ` with ${/^[aeiou]/i.test(lens) ? "an" : "a"} ${lens.toLowerCase()} lens` : ""}${aperture ? ` at ${aperture}` : ""}`.replace("Shot  ", "Shot "),
     );
   }
   const move = say(MOVE_KEY);

@@ -325,12 +325,6 @@ export function Tile({
                 <Icon name="play" size={16} fill="currentColor" />
               </span>
             )}
-            {extras?.lastViewed && run.urls.includes(extras.lastViewed) && (
-              <span className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur-md">
-                <Icon name="expand" size={11} />
-                Last viewed
-              </span>
-            )}
           </button>
         ) : run.made ? (
           // A voice has nothing to look at: the tile says what was made.
@@ -693,7 +687,6 @@ export function Gallery({
       leaving={leaving.has(run.id)}
       onOpen={(url) => {
         setViewer({ url, runId: run.id });
-        extras?.onOpened?.(url);
       }}
       picked={picked.includes(run.id)}
       picking={picked.length > 0 || selectMode}

@@ -470,8 +470,6 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const uploads = useStudio((s) => s.uploads);
   const favorites = useStudio((s) => s.favorites);
   const downloaded = useStudio((s) => s.downloaded);
-  const lastViewed = useStudio((s) => s.studio.lastViewed);
-  const patchStudio = useStudio((s) => s.patchStudio);
   const [filter, setFilter] = useState<GenFilter>(favoritesOnly ? { ...NO_FILTER, activity: "liked" } : NO_FILTER);
   const [layout, setLayout] = useState<"square" | "rows">("square");
   const mine = runs.filter((r) => !r.trashedAt && studioOnly(r));
@@ -479,8 +477,8 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [filter, favorites, downloaded]);
   const count = mine.filter(show).length;
   const extras: TileExtrasValue = useMemo(
-    () => ({ onReference: studioReference, lastViewed, onOpened: (url) => patchStudio({ lastViewed: url }) }),
-    [lastViewed, patchStudio],
+    () => ({ onReference: studioReference }),
+    [],
   );
   const uploadsShown = filter.activity === "uploaded";
   const shownUploads = uploads.filter((u) => !u.trashedAt && (filter.type === "all" || u.kind === filter.type));
