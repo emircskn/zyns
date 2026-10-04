@@ -267,7 +267,8 @@ function GenerateButton({
       onClick={onClick}
       disabled={disabled}
       title={blocker ?? undefined}
-      className={`cta flex w-full shrink-0 items-center justify-center rounded-card font-semibold disabled:opacity-40 md:h-auto md:min-h-[80px] md:w-[128px] md:flex-col md:gap-1 ${tall ? "h-[80px] flex-col gap-1" : "h-12 flex-row gap-2"}`}
+      // Drawn as the other pages' Generate is: the same weight and words, the spark and the price beside them.
+      className={`cta flex w-full shrink-0 items-center justify-center rounded-panel font-semibold disabled:opacity-40 md:h-auto md:min-h-[80px] md:w-[128px] md:flex-col md:gap-1 ${tall ? "h-[80px] flex-col gap-1" : "h-12 flex-row gap-2"}`}
     >
       {busy ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -278,11 +279,11 @@ function GenerateButton({
         </span>
       ) : (
         <>
-          <span className="text-[13px] uppercase tracking-[0.04em]">Generate{count > 1 ? ` ×${count}` : ""}</span>
-          <span className="flex items-center gap-1 font-mono text-[12px] font-medium tabular-nums opacity-70">
-            <Icon name="spark" size={12} fill="currentColor" strokeWidth={1.2} />
-            {price ?? "—"}
+          <span className="flex items-center gap-1.5 text-[15.5px]">
+            Generate{count > 1 ? ` ×${count}` : ""}
+            <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
           </span>
+          {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
         </>
       )}
     </button>
