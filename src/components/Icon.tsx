@@ -36,6 +36,10 @@ export type IconName =
   | "mic"
   | "palette"
   | "camera"
+  | "lens"
+  | "aperture"
+  | "frame"
+  | "sort"
   | "expand"
   | "shrink"
   | "hash"
@@ -278,6 +282,26 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M5 11a7 7 0 0014 0M12 18v3" />
     </>
   ),
+  lens: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5.5" />
+      <circle cx="12" cy="12" r="2" />
+    </>
+  ),
+  aperture: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M14.3 3.3 9.6 11.4M20.6 9.5h-9.3M17.8 18.2 13.1 10M9.7 20.7l4.7-8.1M3.4 14.5h9.3M6.2 5.8l4.6 8" />
+    </>
+  ),
+  frame: (
+    <>
+      <path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  sort: <path d="M4 7h11M4 12h7M4 17h4M17 6v12M14.5 15.5 17 18l2.5-2.5" />,
   camera: (
     <>
       <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.8l1.4-2h6.6l1.4 2h1.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z" />

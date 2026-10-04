@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import type { Choice } from "@/lib/registry";
 import { previewOf } from "@/lib/studio/options";
 
-const ITEM = 40;
-const SHOWN = 5;
+const ITEM = 116;
+const SHOWN = 3;
 
 /**
- * A vertical wheel of choices, as a camera body's dial reads: the one in the
- * middle band is the one chosen. Scrolled, tapped or stepped with the arrow
- * keys; it settles on a choice once it stops.
+ * A vertical wheel of choices, as a camera's dial reads: each choice a
+ * stadium-shaped pill with its picture, and the one in the middle is the one
+ * chosen. Scrolled, tapped, stepped with ˄ ˅ or the arrow keys; it settles
+ * on a choice once it stops.
  */
 export function Wheel({
   field,
@@ -19,6 +20,8 @@ export function Wheel({
   choices,
   value,
   onChange,
+  autoIcon = "camera",
+  shaded,
 }: {
   /** The field's key, for the pictures of its choices. */
   field?: string;
@@ -26,6 +29,10 @@ export function Wheel({
   choices: Choice[];
   value: unknown;
   onChange: (value: string) => void;
+  /** What Auto's pill shows, having no picture. */
+  autoIcon?: IconName;
+  /** The middle column sits on a slightly lighter ground. */
+  shaded?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const chosen = Math.max(0, choices.findIndex((c) => c.value === (value ?? "")));
@@ -65,73 +72,73 @@ export function Wheel({
     }
   }
 
+  const step = (by: number, icon: "up" | "down") => (
+    <button
+      type="button"
+      onClick={() => turnTo(live + by)}
+      disabled={live + by < 0 || live + by >= choices.length}
+      aria-label={by < 0 ? `Previous ${label.toLowerCase()}` : `Next ${label.toLowerCase()}`}
+      className="mx-auto grid h-7 w-9 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-30"
+    >
+      <Icon name="chevron" size={15} className={icon === "up" ? "rotate-180" : ""} />
+    </button>
+  );
+
   return (
-    <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2">
-      <p className="text-center text-[11.5px] font-medium uppercase tracking-[0.08em] text-t3">{label}</p>
-      {field && <WheelPicture field={field} choice={choices[live]} />}
-      <div className="relative rounded-panel bg-t1/[0.04]">
-        {/* The band the chosen one sits in. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-1.5 rounded-card bg-t1/[0.09]"
-          style={{ top: ITEM * Math.floor(SHOWN / 2), height: ITEM }}
-        />
-        <div
-          ref={box}
-          role="listbox"
-          aria-label={label}
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-              event.preventDefault();
-              turnTo(live + (event.key === "ArrowDown" ? 1 : -1));
-            }
-          }}
-          onScroll={(event) => {
-            const at = Math.round(event.currentTarget.scrollTop / ITEM);
-            setLive(Math.max(0, Math.min(choices.length - 1, at)));
-            if (steering.current) return;
-            window.clearTimeout(settle.current);
-            settle.current = window.setTimeout(() => pick(at), 140);
-          }}
-          className="no-bar relative snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]"
-          style={{ height: ITEM * SHOWN, paddingBlock: ITEM * Math.floor(SHOWN / 2) }}
-        >
-          {choices.map((choice, index) => {
-            const away = Math.abs(index - live);
-            return (
+    <div className={`flex min-w-0 flex-1 flex-col items-stretch gap-2 rounded-panel py-3 ${shaded ? "bg-t1/[0.03]" : ""}`}>
+      <p className="text-center text-[11px] font-semibold uppercase tracking-[0.1em] text-t3">{label}</p>
+      {step(-1, "up")}
+      <div
+        ref={box}
+        role="listbox"
+        aria-label={label}
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            turnTo(live + (event.key === "ArrowDown" ? 1 : -1));
+          }
+        }}
+        onScroll={(event) => {
+          const at = Math.round(event.currentTarget.scrollTop / ITEM);
+          setLive(Math.max(0, Math.min(choices.length - 1, at)));
+          if (steering.current) return;
+          window.clearTimeout(settle.current);
+          settle.current = window.setTimeout(() => pick(at), 140);
+        }}
+        className="no-bar relative snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none [mask-image:linear-gradient(to_bottom,transparent,black_22%,black_78%,transparent)]"
+        style={{ height: ITEM * SHOWN, paddingBlock: ITEM * Math.floor(SHOWN / 2) }}
+      >
+        {choices.map((choice, index) => {
+          const on = index === live;
+          const image = field ? previewOf(field, choice.value)?.image : undefined;
+          return (
+            <div key={choice.value || "auto"} className="flex snap-center items-center justify-center px-2" style={{ height: ITEM }}>
               <button
-                key={choice.value || "auto"}
                 type="button"
                 role="option"
                 aria-selected={index === chosen}
+                aria-label={choice.label}
                 onClick={() => turnTo(index)}
-                className={`flex w-full snap-center items-center justify-center truncate px-2 text-[13.5px] transition-[color,opacity] duration-[120ms] ${
-                  away === 0 ? "font-medium text-t1" : "text-t3"
+                className={`flex h-[100px] w-full max-w-[156px] flex-col items-center justify-center gap-1 overflow-hidden rounded-full bg-black/30 p-1.5 transition-[opacity,box-shadow] duration-[150ms] ${
+                  on ? "opacity-100 shadow-[inset_0_0_0_2px_var(--t1)]" : "opacity-60 shadow-[inset_0_0_0_1px_var(--line)]"
                 }`}
-                style={{ height: ITEM, opacity: away === 0 ? 1 : away === 1 ? 0.7 : 0.4 }}
               >
-                <span className="truncate">{choice.label}</span>
+                <span className="grid h-[52px] w-full place-items-center">
+                  {image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={image} alt="" draggable={false} className="h-full max-w-full object-contain" />
+                  ) : (
+                    <Icon name={choice.value === "" ? autoIcon : "spark"} size={26} className="text-t2" />
+                  )}
+                </span>
+                <span className="max-w-full truncate px-2 text-[12px] font-semibold text-t1">{choice.label}</span>
               </button>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
-    </div>
-  );
-}
-
-/** The camera body, lens or aperture the wheel is on, pictured over it. */
-function WheelPicture({ field, choice }: { field: string; choice: Choice | undefined }) {
-  const image = choice ? previewOf(field, choice.value)?.image : undefined;
-  return (
-    <div className="grid aspect-[16/10] place-items-center overflow-hidden rounded-panel bg-t1/[0.04]">
-      {image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img key={image} src={image} alt="" draggable={false} className="anim-fade h-full w-full object-contain p-1.5" />
-      ) : (
-        <Icon name={choice?.value === "" ? "camera" : "spark"} size={22} className="text-t3" />
-      )}
+      {step(1, "down")}
     </div>
   );
 }
