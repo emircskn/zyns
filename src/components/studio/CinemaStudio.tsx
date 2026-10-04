@@ -2,14 +2,16 @@
 
 import { useEffect } from "react";
 import { ElementsPage } from "@/components/ElementsPage";
+import { Icon, type IconName } from "@/components/Icon";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer";
 import { GenerationsView, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
 
-const PHONE_NAV: Array<{ id: StudioView; label: string }> = [
-  ...STUDIO_NAV.map((n) => ({ id: n.id, label: n.id === "home" ? "Home" : n.label.replace("My ", "").replace(/^./, (c) => c.toUpperCase()) })),
-  { id: "projects", label: "Projects" },
+/** The side menu's pages as a phone's chips, with the same icons. */
+const PHONE_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
+  ...STUDIO_NAV.map((n) => ({ id: n.id, icon: n.icon, label: n.id === "home" ? "Home" : n.label.replace("My ", "").replace(/^./, (c) => c.toUpperCase()) })),
+  { id: "projects", label: "Projects", icon: "folder" },
 ];
 
 /**
@@ -61,10 +63,11 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               type="button"
               onClick={() => patchStudio({ view: item.id })}
               aria-current={view === item.id || (item.id === "projects" && view === "project") || undefined}
-              className={`h-8 shrink-0 rounded-full px-3.5 text-[13px] transition-colors duration-[120ms] ${
+              className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[120ms] ${
                 view === item.id || (item.id === "projects" && view === "project") ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2"
               }`}
             >
+              <Icon name={item.icon} size={14} />
               {item.label}
             </button>
           ))}
