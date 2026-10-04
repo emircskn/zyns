@@ -109,9 +109,9 @@ function Thumb({
  */
 export function MediaPicker({
   open,
-  accept = "image",
-  multiple = false,
-  taken = [],
+  accept: asked = "image",
+  multiple: askedMultiple = false,
+  taken: askedTaken = [],
   onPick,
   onClose,
 }: {
@@ -125,6 +125,12 @@ export function MediaPicker({
   onClose: () => void;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  // What it was opened for, kept while it closes: a caller that resets its
+  // own state on close (Remix's one picker for clips and pictures) would
+  // otherwise flash the other kind's media during the closing slide.
+  const kept = useRef({ accept: asked, multiple: askedMultiple, taken: askedTaken });
+  if (open) kept.current = { accept: asked, multiple: askedMultiple, taken: askedTaken };
+  const { accept, multiple, taken } = kept.current;
   const assets = useAssets();
   const { pending, error, input, send, accept: mime } = useUploader(accept);
   const [tab, setTab] = useState<Tab>("generated");
