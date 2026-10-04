@@ -10,6 +10,7 @@ import { ElementEditor } from "@/components/ElementEditor";
 import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
+import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
@@ -186,6 +187,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />
       <ElementEditor />
+      <NewProjectDialog />
       <ModelPicker />
       <RunPoller />
       <UpdateWatcher />

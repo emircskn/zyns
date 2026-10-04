@@ -160,7 +160,10 @@ export interface Project {
   brief?: string;
   /** Folders inside it, to sort its work. */
   folders?: Array<{ id: string; name: string }>;
+  /** Private (the default) or public: a label for now, as Zyns has no sharing yet. */
+  visibility?: ProjectVisibility;
 }
+export type ProjectVisibility = "private" | "public";
 
 /** Where Cinema Studio is, and its composer as it was left. */
 export type StudioView = "home" | "generations" | "elements" | "favorites" | "projects" | "project";
@@ -336,7 +339,7 @@ interface StudioState {
   setCopy: (source: string, copy: StoredCopy) => void;
   saveElement: (element: LibraryElement) => void;
   addRecipeRun: (run: RecipeRun) => void;
-  addProject: (name: string) => Project;
+  addProject: (name: string, visibility?: ProjectVisibility) => Project;
   renameProject: (id: string, name: string) => void;
   removeProject: (id: string) => void;
   /** Files what is already made (by its media URLs) under a project, or under none. */
@@ -851,8 +854,13 @@ export const useStudio = create<StudioState>()(
             ? state.elements.map((e) => (e.id === element.id ? element : e))
             : [element, ...state.elements],
         })),
-      addProject: (name) => {
-        const project: Project = { id: `project-${Date.now().toString(36)}`, name: name.trim() || "Untitled", createdAt: Date.now() };
+      addProject: (name, visibility) => {
+        const project: Project = {
+          id: `project-${Date.now().toString(36)}`,
+          name: name.trim() || "Untitled",
+          createdAt: Date.now(),
+          ...(visibility ? { visibility } : {}),
+        };
         set((state) => ({ projects: [project, ...state.projects] }));
         return project;
       },

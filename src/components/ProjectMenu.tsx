@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { Chip } from "@/components/PromptBar";
+import { useNewProject } from "@/lib/newProject";
 import { useStudio } from "@/store/studio";
 
 /** The list of projects with a way to start a new one, shared by the composer and Assets. */
@@ -20,11 +21,9 @@ export function ProjectList({
   close: () => void;
 }) {
   const projects = useStudio((s) => s.projects);
-  const addProject = useStudio((s) => s.addProject);
+  const askNewProject = useNewProject((s) => s.ask);
   const renameProject = useStudio((s) => s.renameProject);
   const removeProject = useStudio((s) => s.removeProject);
-  const [naming, setNaming] = useState(false);
-  const [name, setName] = useState("");
   // The project whose row is open for a new name or deleting, and whether
   // the delete has been asked for once already.
   const [editing, setEditing] = useState<string | null>(null);
@@ -113,34 +112,20 @@ export function ProjectList({
           </div>
         ),
       )}
-      {naming ? (
-        <form
-          className="mt-1 flex items-center gap-1.5 px-1"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!name.trim()) return;
-            const project = addProject(name);
+      <button
+        type="button"
+        className={row(false)}
+        onClick={() =>
+          // Its own window, over this menu; what is made is picked here.
+          askNewProject((project) => {
             onPick(project.id);
             close();
-          }}
-        >
-          <input
-            autoFocus
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Project name"
-            className="min-w-0 flex-1 rounded-full bg-t1/[0.06] px-3 py-1.5 text-[13.5px] text-t1 outline-none placeholder:text-t4"
-          />
-          <button type="submit" className="cta rounded-full px-3 py-1.5 text-[12.5px] font-medium">
-            Add
-          </button>
-        </form>
-      ) : (
-        <button type="button" className={row(false)} onClick={() => setNaming(true)}>
-          <Icon name="plus" size={15} />
-          New project
-        </button>
-      )}
+          })
+        }
+      >
+        <Icon name="plus" size={15} />
+        New project
+      </button>
     </div>
   );
 }

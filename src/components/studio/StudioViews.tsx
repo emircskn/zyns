@@ -14,6 +14,7 @@ import { getModel } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
+import { useNewProject } from "@/lib/newProject";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio, type Project, type Run, type StudioView, type Upload } from "@/store/studio";
 
@@ -91,7 +92,7 @@ export function StudioSidebar() {
   const studio = useStudio((s) => s.studio);
   const patchStudio = useStudio((s) => s.patchStudio);
   const projects = useStudio((s) => s.projects);
-  const addProject = useStudio((s) => s.addProject);
+  const askNewProject = useNewProject((s) => s.ask);
   const [q, setQ] = useState("");
   const [looking, setLooking] = useState(false);
   const [byName, setByName] = useState(false);
@@ -133,10 +134,7 @@ export function StudioSidebar() {
       <NavRow
         icon="plus"
         label="New project"
-        onClick={() => {
-          const project = addProject("New project");
-          patchStudio({ view: "project", projectId: project.id, folderId: "" });
-        }}
+        onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
       />
       <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
         {shown.map((project) => (
@@ -507,7 +505,7 @@ function Empty({ text }: { text: string }) {
 /** Every project, as cards: a new one first. */
 export function ProjectsView() {
   const projects = useStudio((s) => s.projects);
-  const addProject = useStudio((s) => s.addProject);
+  const askNewProject = useNewProject((s) => s.ask);
   const patchStudio = useStudio((s) => s.patchStudio);
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -515,10 +513,7 @@ export function ProjectsView() {
       <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 md:px-1">
         <button
           type="button"
-          onClick={() => {
-            const project = addProject("New project");
-            patchStudio({ view: "project", projectId: project.id, folderId: "" });
-          }}
+          onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
           className="flex flex-col gap-2 text-left"
         >
           <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.08]">
@@ -553,8 +548,8 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       <span className="flex items-center justify-between gap-2">
         <span className="truncate text-[14px] font-medium text-t1">{project.name}</span>
         <span className="flex shrink-0 items-center gap-1 text-[12px] text-t3">
-          <Icon name="key" size={11} />
-          Private
+          <Icon name={project.visibility === "public" ? "globe" : "lock"} size={11} />
+          {project.visibility === "public" ? "Public" : "Private"}
         </span>
       </span>
     </button>

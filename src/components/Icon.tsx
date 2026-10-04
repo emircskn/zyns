@@ -60,6 +60,7 @@ export type IconName =
   | "orient"
   | "photos"
   | "globe"
+  | "lock"
   | "zoom"
   | "film"
   | "wand"
@@ -102,6 +103,12 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <rect x="3" y="7" width="14" height="13" rx="2.5" />
       <path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16M3 17l4-4 3 3 2-2 5 5" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
     </>
   ),
   globe: (
