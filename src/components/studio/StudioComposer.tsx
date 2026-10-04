@@ -5,7 +5,6 @@ import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip } from "@/components/PromptBar";
-import { ProjectChip } from "@/components/ProjectMenu";
 import { Sheet } from "@/components/remix/Restyle";
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
@@ -537,9 +536,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             <span className="shrink-0">
               <BatchChip value={count} onChange={setCount} />
             </span>
-            <span className="shrink-0 empty:hidden">
-              <ProjectChip />
-            </span>
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -778,9 +774,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             ))}
           <span className="shrink-0">
             <BatchChip value={count} onChange={setCount} />
-          </span>
-          <span className="shrink-0 empty:hidden">
-            <ProjectChip />
           </span>
         </div>
         {studio.imageRefs.length > 0 && (

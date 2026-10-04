@@ -8,7 +8,7 @@ import * as hf from "@/lib/higgsfield/transport";
 import { enqueue } from "@/lib/higgsfield/queue";
 import type { PollKind } from "@/lib/kie/client";
 import { getModel, providerOf, validateValues, type ModelDef, type Provider, type Values } from "@/lib/registry";
-import { keyFor, useStudio, type Run } from "@/store/studio";
+import { filingProjectId, keyFor, useStudio, type Run } from "@/store/studio";
 import { withoutInputs } from "@/lib/runInputs";
 import { englishError } from "@/lib/kie/errors";
 import { withLibraryElements } from "@/lib/elements";
@@ -87,7 +87,7 @@ export async function submitModelRun(
     createdAt: Date.now(),
     values: { ...values },
     sent: ready.sent.length > 0 ? ready.sent : undefined,
-    projectId: state.activeProjectId ?? undefined,
+    projectId: filingProjectId(state),
     ...extra,
   };
 

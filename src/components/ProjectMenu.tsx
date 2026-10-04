@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
-import { Chip } from "@/components/PromptBar";
 import { useNewProject } from "@/lib/newProject";
 import { useStudio } from "@/store/studio";
 
@@ -127,28 +126,6 @@ export function ProjectList({
         New project
       </button>
     </div>
-  );
-}
-
-/**
- * The composer's "save to" choice: what is made (and uploaded) while a
- * project is chosen is filed under it. Shown once there is a project to
- * choose; they are started from Assets.
- */
-export function ProjectChip({ full }: { full?: boolean }) {
-  const projects = useStudio((s) => s.projects).filter((p) => !p.trashedAt);
-  const active = useStudio((s) => s.activeProjectId);
-  const setActive = useStudio((s) => s.setActiveProject);
-  if (projects.length === 0) return null;
-  const project = projects.find((p) => p.id === active);
-  return (
-    <Popover
-      full={full}
-      title="Save to project"
-      trigger={(open) => <Chip icon={<Icon name="folder" size={16} />} value={project?.name ?? "No project"} active={open} />}
-    >
-      {(close) => <ProjectList current={active} noneLabel="No project" onPick={setActive} close={close} />}
-    </Popover>
   );
 }
 

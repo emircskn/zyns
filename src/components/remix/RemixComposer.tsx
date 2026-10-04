@@ -6,7 +6,6 @@ import { Control, InputLabel, MediaThumb } from "@/components/controls";
 import { Row } from "@/components/remix/Row";
 import { ModelMedia } from "@/components/ModelMedia";
 import { FieldChip, TileChips } from "@/components/PromptBar";
-import { ProjectChip } from "@/components/ProjectMenu";
 import { BLURB, bannerOf } from "@/lib/remix/banner";
 import { VendorBadge } from "@/components/VendorMark";
 import { Icon } from "@/components/Icon";
@@ -568,9 +567,6 @@ export function RemixComposer({
                 <FieldChip field={field} values={own} onChange={setSetting} />
               </div>
             ))}
-            <div className="min-w-0 empty:hidden">
-              <ProjectChip full />
-            </div>
           </div>
         </TileChips.Provider>
         {built && built.warnings.length > 0 && <p className="px-1 text-[12px] leading-snug text-t4">{built.warnings.join(" ")}</p>}

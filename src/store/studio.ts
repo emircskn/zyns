@@ -119,6 +119,21 @@ export type Theme = "dark" | "light";
 export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio";
 
 /** The pages that keep things rather than make them. */
+/**
+ * The project new work is saved to: the one open in Cinema Studio, and
+ * only while it is open there. Everywhere else, as on Higgsfield, work
+ * belongs to no project until it is moved into one.
+ */
+export function filingProjectId(state: {
+  page: Page;
+  studio?: { view?: string; projectId?: string };
+  projects: Array<{ id: string; trashedAt?: number }>;
+}): string | undefined {
+  const id = state.studio?.projectId;
+  if (state.page !== "studio" || state.studio?.view !== "project" || !id) return undefined;
+  return state.projects.some((p) => p.id === id && !p.trashedAt) ? id : undefined;
+}
+
 export function isLibraryPage(page: Page): page is "assets" | "favorites" | "elements" {
   return page === "assets" || page === "favorites" || page === "elements";
 }
@@ -986,7 +1001,7 @@ export const useStudio = create<StudioState>()(
       addUpload: (upload) =>
         set((state) => ({
           uploads: [
-            { ...upload, projectId: upload.projectId ?? state.activeProjectId ?? undefined },
+            { ...upload, projectId: upload.projectId ?? filingProjectId(state) },
             ...state.uploads.filter((u) => u.url !== upload.url),
           ].slice(0, 200),
         })),

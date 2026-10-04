@@ -35,7 +35,6 @@ import {
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
-import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { inUse, type LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
@@ -1701,8 +1700,6 @@ export function PromptBar({
                 <BatchChip />
               </span>
             )}
-
-            <ProjectChip />
 
             {panelFields.length > 0 && (
               <button

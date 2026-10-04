@@ -25,7 +25,6 @@ import { openingClip, videoDuration } from "@/lib/clips";
 import type { Field, ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
-import { ProjectChip } from "@/components/ProjectMenu";
 import { GenjutsuComposer } from "@/components/remix/RemixStudio";
 import { GENJUTSU } from "@/lib/remix/targets";
 import { ModelMedia } from "@/components/ModelMedia";
@@ -532,9 +531,6 @@ export function ComposerBody({
               </div>
             ))}
             {batchable && <BatchChip />}
-            <div className="min-w-0 empty:hidden">
-              <ProjectChip full />
-            </div>
           </div>
         </TileChips.Provider>
       )}
