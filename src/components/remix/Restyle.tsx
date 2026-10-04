@@ -319,26 +319,77 @@ export function useRestyleStyle(): { style: ZynsStyle | undefined; preset: Resty
 export function StyleRow() {
   const remix = useStudio((s) => s.remix);
   const setRemixTab = useStudio((s) => s.setRemixTab);
+  const patchRemix = useStudio((s) => s.patchRemix);
   const [open, setOpen] = useState(false);
   const { style, preset } = useRestyleStyle();
   const native = isNativeRestyle(targetOf(remix));
   const model = getModel(targetOf(remix).modelId);
   const name = native ? preset?.name : style?.name;
   const preview = native ? preset?.preview : style?.preview;
+  // The styles open beside the composer (below it on a phone) on Remix; from the Video page, over it.
+  const choose = () => {
+    const tabs = document.getElementById("remix-tabs");
+    if (!tabs) return setOpen(true);
+    setRemixTab("styles");
+    requestAnimationFrame(() => tabs.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+  const sheet = (
+    <Sheet
+      open={open}
+      title="Style"
+      sub={native ? "Higgsfield's Restyle styles" : `Zyns styles for ${model?.name ?? "this model"} (${providerOf(model) === "higgsfield" ? "Higgsfield" : "KIE"})`}
+      onClose={() => setOpen(false)}
+    >
+      <StyleGrid onPicked={() => setOpen(false)} />
+    </Sheet>
+  );
+
+  // Chosen: the style with its picture, a way to change it and one to take it off again.
+  if (name) {
+    return (
+      <>
+        <div className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] py-2.5 pl-3 pr-2">
+          <span
+            className="block h-11 w-11 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
+            style={!preview && style ? { background: `linear-gradient(140deg, ${style.tint[0]}, ${style.tint[1]})` } : undefined}
+          >
+            {preview && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={preview} alt="" className="h-full w-full object-cover" />
+            )}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[11.5px] text-t3">Style</span>
+            <span className="line-clamp-2 block text-[14.5px] font-medium leading-snug text-t1">{name}</span>
+          </span>
+          <button
+            type="button"
+            onClick={choose}
+            className="shrink-0 rounded-chip bg-t1/[0.07] px-3 py-1.5 text-[13px] font-medium text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
+          >
+            Change
+          </button>
+          <button
+            type="button"
+            onClick={() => patchRemix(native ? { presetId: undefined } : { styleId: undefined })}
+            aria-label="Remove style"
+            title="Remove style"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.08] hover:text-t1"
+          >
+            <Icon name="close" size={15} />
+          </button>
+        </div>
+        {sheet}
+      </>
+    );
+  }
+
   return (
     <>
       <Row
         label={native ? "Style" : "Style · optional"}
-        value={<span className="truncate">{name ?? (native ? "Choose a style" : "No style")}</span>}
-        // The styles open beside the composer (below it on a phone), not over it.
-        onClick={() => {
-          // On Remix the styles open beside the composer (below it on a
-          // phone); from the Video page, over it.
-          const tabs = document.getElementById("remix-tabs");
-          if (!tabs) return setOpen(true);
-          setRemixTab("styles");
-          requestAnimationFrame(() => tabs.scrollIntoView({ behavior: "smooth", block: "start" }));
-        }}
+        value={<span className="truncate">{native ? "Choose a style" : "No style"}</span>}
+        onClick={choose}
         lead={
         <span
           className="block h-8 w-8 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
@@ -355,14 +406,7 @@ export function StyleRow() {
         </span>
         }
       />
-      <Sheet
-        open={open}
-        title="Style"
-        sub={native ? "Higgsfield's Restyle styles" : `Zyns styles for ${model?.name ?? "this model"} (${providerOf(model) === "higgsfield" ? "Higgsfield" : "KIE"})`}
-        onClose={() => setOpen(false)}
-      >
-        <StyleGrid onPicked={() => setOpen(false)} />
-      </Sheet>
+      {sheet}
     </>
   );
 }
