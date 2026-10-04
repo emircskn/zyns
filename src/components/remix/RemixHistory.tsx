@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { Icon } from "@/components/Icon";
+import { ServiceMark } from "@/components/ServiceBadge";
 import { MediaViewer } from "@/components/MediaViewer";
 import { inFlight } from "@/lib/assets";
 import { MODE_LABEL } from "@/lib/remix/targets";
@@ -63,7 +64,11 @@ function RemixCard({
         {!settled && (
           <GenerationLoader url={url} failed={run.state === "failed"} onFinished={() => setSettled(true)} />
         )}
-        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11.5px] text-white backdrop-blur-md">
+        <span
+          aria-label={`Made with ${(run.provider ?? "kie") === "higgsfield" ? "Higgsfield" : "KIE"}`}
+          className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 py-1 pl-1.5 pr-2.5 text-[11.5px] text-white backdrop-blur-md"
+        >
+          <ServiceMark provider={run.provider ?? "kie"} size={13} />
           {MODE_LABEL[info.mode]}
           {info.presetName ? ` · ${info.presetName}` : ""}
           {working ? " · working" : ""}

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import { ServiceBadge } from "@/components/ServiceBadge";
 import { PillGroup } from "@/components/PillGroup";
 import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
@@ -88,6 +89,7 @@ function Thumb({
           picked ? "ring-2 ring-t1/80" : "ring-1 ring-line group-hover:ring-line-strong"
         }`}
       />
+      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
       {picked && (
         <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
           <Icon name="check" size={13} strokeWidth={2.4} />

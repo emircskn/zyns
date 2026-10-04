@@ -24,6 +24,8 @@ export interface Asset {
   /** The project it was saved to, if any. */
   projectId?: string;
   folderId?: string;
+  /** The service that made it (runs only). */
+  provider?: "kie" | "higgsfield";
 }
 
 export function runAssets(run: Run): Asset[] {
@@ -40,6 +42,7 @@ export function runAssets(run: Run): Asset[] {
     createdAt: run.createdAt,
     projectId: run.projectId,
     folderId: run.folderId,
+    provider: run.provider ?? "kie",
   }));
 }
 

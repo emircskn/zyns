@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
@@ -66,6 +67,7 @@ function MediaTile({
         aria-hidden
         className={`pointer-events-none absolute inset-0 rounded-[10px] ring-inset ${picked ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
       />
+      {asset.source === "run" && asset.provider && <ServiceBadge provider={asset.provider} small />}
       <span
         className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
           picked ? "border-t1 bg-t1 text-canvas opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
