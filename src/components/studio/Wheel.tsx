@@ -41,9 +41,17 @@ export function Wheel({
   // Set while the wheel is turned by us, so the scroll it causes is not read back as a pick.
   const steering = useRef(false);
 
+  // The glide under way, if any: its frame request, so a new turn can take over from it.
+  const glide = useRef<number | null>(null);
+
   useLayoutEffect(() => {
     const node = box.current;
     if (!node) return;
+    // A turn of ours is already gliding there; jumping now would cut it short.
+    if (glide.current !== null) {
+      setLive(chosen);
+      return;
+    }
     if (Math.round(node.scrollTop / ITEM) !== chosen) {
       steering.current = true;
       node.scrollTop = chosen * ITEM;
@@ -52,7 +60,42 @@ export function Wheel({
     setLive(chosen);
   }, [chosen]);
 
-  useEffect(() => () => window.clearTimeout(settle.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(settle.current);
+      if (glide.current !== null) cancelAnimationFrame(glide.current);
+    },
+    [],
+  );
+
+  /** Eases the wheel to a choice, from wherever it is now (mid-glide included). */
+  function glideTo(index: number) {
+    const node = box.current;
+    if (!node) return;
+    if (glide.current !== null) cancelAnimationFrame(glide.current);
+    const from = node.scrollTop;
+    const to = index * ITEM;
+    if (Math.abs(to - from) < 1) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const duration = reduced ? 0 : Math.min(520, 260 + Math.abs(to - from) * 0.6);
+    const start = performance.now();
+    steering.current = true;
+    // Snapping would pull at every frame of the glide; it comes back once it lands.
+    node.style.scrollSnapType = "none";
+    const frame = (now: number) => {
+      const t = duration ? Math.min(1, (now - start) / duration) : 1;
+      const eased = 1 - Math.pow(1 - t, 3);
+      node.scrollTop = from + (to - from) * eased;
+      if (t < 1) {
+        glide.current = requestAnimationFrame(frame);
+        return;
+      }
+      glide.current = null;
+      node.style.scrollSnapType = "";
+      window.setTimeout(() => (steering.current = false), 40);
+    };
+    glide.current = requestAnimationFrame(frame);
+  }
 
   // A mouse wheel turns the dial one choice per notch. Left to the browser,
   // one notch scrolled about a choice's height and the snap then carried it
@@ -94,11 +137,7 @@ export function Wheel({
     const node = box.current;
     const at = Math.max(0, Math.min(choices.length - 1, index));
     pick(at);
-    if (node) {
-      steering.current = true;
-      node.scrollTo({ top: at * ITEM, behavior: "smooth" });
-      window.setTimeout(() => (steering.current = false), 400);
-    }
+    if (node) glideTo(at);
   }
 
   turnRef.current = turnTo;
