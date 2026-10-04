@@ -29,7 +29,7 @@ export interface Asset {
 }
 
 export function runAssets(run: Run): Asset[] {
-  if (run.state !== "success" || run.trashedAt) return [];
+  if (run.state !== "success") return [];
   const category = getModel(run.modelId)?.category;
   return run.urls.map((url, index) => ({
     id: `${run.id}-${index}`,
@@ -40,8 +40,9 @@ export function runAssets(run: Run): Asset[] {
     label: run.modelName,
     prompt: run.prompt,
     createdAt: run.createdAt,
-    projectId: run.projectId,
-    folderId: run.folderId,
+    // In a project's Trash it is out of that project, but still here.
+    projectId: run.trashedAt ? undefined : run.projectId,
+    folderId: run.trashedAt ? undefined : run.folderId,
     provider: run.provider ?? "kie",
   }));
 }
@@ -67,7 +68,7 @@ export function pendingAsset(run: Run): Asset {
     prompt: run.prompt,
     createdAt: run.createdAt,
     run,
-    projectId: run.projectId,
+    projectId: run.trashedAt ? undefined : run.projectId,
   };
 }
 
@@ -79,8 +80,8 @@ export function uploadAsset(upload: Upload): Asset {
     source: "upload",
     label: upload.name ?? "Upload",
     createdAt: upload.createdAt,
-    projectId: upload.projectId,
-    folderId: upload.folderId,
+    projectId: upload.trashedAt ? undefined : upload.projectId,
+    folderId: upload.trashedAt ? undefined : upload.folderId,
   };
 }
 
@@ -88,7 +89,7 @@ export function uploadAsset(upload: Upload): Asset {
 export function useAssets(): Asset[] {
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
-  return [...runs.flatMap(runAssets), ...uploads.filter((u) => !u.trashedAt).map(uploadAsset)].sort(
+  return [...runs.flatMap(runAssets), ...uploads.map(uploadAsset)].sort(
     (a, b) => b.createdAt - a.createdAt,
   );
 }

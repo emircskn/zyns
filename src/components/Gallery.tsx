@@ -29,6 +29,7 @@ import { keptNote, usedElsewhere } from "@/lib/usage";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { useStudio, type Run } from "@/store/studio";
 import { TileExtras } from "@/lib/tileExtras";
+import { useProjectDelete } from "@/lib/newProject";
 import { mediaSrc } from "@/lib/storage/client";
 
 export { TileExtras, type TileExtrasValue } from "@/lib/tileExtras";
@@ -472,7 +473,7 @@ export function Tile({
             icon="trash"
             label={extras?.trash ? "Move to Trash" : "Remove from gallery"}
             danger
-            onClick={() => (extras?.trash ? setTrashed(run.urls, true) : setConfirming(true))}
+            onClick={() => (extras?.trash ? useProjectDelete.getState().open({ runIds: [run.id] }) : setConfirming(true))}
           />
         </div>
 
@@ -648,7 +649,6 @@ export function Gallery({
     () =>
       runs.filter(
         (run) =>
-          !run.trashedAt &&
           (filter
             ? filter(run)
             : modelId
@@ -780,6 +780,19 @@ export function Gallery({
           setPicked([]);
           setSelectMode(false);
         }}
+        // In a project, its own question (to the project's Trash, or everywhere) stands in for the bar's.
+        onDeleteAsk={
+          extras?.trash
+            ? () =>
+                useProjectDelete.getState().open({
+                  runIds: picked,
+                  onDone: () => {
+                    setPicked([]);
+                    setSelectMode(false);
+                  },
+                })
+            : undefined
+        }
         onClose={() => {
           setPicked([]);
           setSelectMode(false);

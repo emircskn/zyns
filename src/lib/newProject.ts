@@ -40,3 +40,17 @@ export const useNewFolder = create<{
   ask: (projectId, options) => set({ projectId, parentId: options?.parentId ?? null, editId: options?.editId ?? null }),
   close: () => set({ projectId: null }),
 }));
+
+/**
+ * Deleting work from a project: to that project's Trash (it stays in My
+ * Generations and Assets), or, with the box ticked, out of the studio for good.
+ */
+export const useProjectDelete = create<{
+  ask: { runIds: string[]; uploadIds: string[]; onDone?: () => void } | null;
+  open: (ask: { runIds?: string[]; uploadIds?: string[]; onDone?: () => void }) => void;
+  close: () => void;
+}>((set) => ({
+  ask: null,
+  open: ({ runIds = [], uploadIds = [], onDone }) => set({ ask: { runIds, uploadIds, onDone } }),
+  close: () => set({ ask: null }),
+}));

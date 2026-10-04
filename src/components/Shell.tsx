@@ -12,6 +12,7 @@ import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
 import { NewFolderDialog } from "@/components/NewFolderDialog";
 import { TrashSweeper } from "@/components/studio/Trash";
+import { ProjectDeleteDialog } from "@/components/ProjectDeleteDialog";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
@@ -192,6 +193,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <NewProjectDialog />
       <NewFolderDialog />
       <TrashSweeper />
+      <ProjectDeleteDialog />
       <ModelPicker />
       <RunPoller />
       <UpdateWatcher />

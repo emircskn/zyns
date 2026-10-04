@@ -14,7 +14,7 @@ import { getModel } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
-import { useNewFolder, useNewProject } from "@/lib/newProject";
+import { useNewFolder, useNewProject, useProjectDelete } from "@/lib/newProject";
 import { FolderMenu, FolderTree, folderRows } from "@/components/studio/Folders";
 import { FolderGlyph, TrashView, type TrashItem, type TrashKind } from "@/components/studio/Trash";
 import { liveProjects, ProjectMenuButton } from "@/components/studio/ProjectActions";
@@ -483,7 +483,7 @@ function UploadGrid({ uploads, extras }: { uploads: Upload[]; extras?: { trash?:
                 </button>
               )}
               {extras?.trash && (
-                <button type="button" title="Move to Trash" aria-label="Move to Trash" onClick={() => setTrashed([upload.url], true)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md hover:bg-[#ff6b6b]/80">
+                <button type="button" title="Move to Trash" aria-label="Move to Trash" onClick={() => useProjectDelete.getState().open({ uploadIds: [upload.id] })} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md hover:bg-[#ff6b6b]/80">
                   <Icon name="trash" size={14} />
                 </button>
               )}
@@ -653,7 +653,13 @@ export function StudioTrash() {
       restore: () => trashProject(p.id, false),
       purge: () => removeProject(p.id),
     }));
-  return <TrashView items={items} note={`Projects can be restored for ${TRASH_DAYS} days. Their work stays in Assets either way.`} />;
+  return (
+    <TrashView
+      items={items}
+      note={`Projects can be restored for ${TRASH_DAYS} days. Their work stays in Assets either way.`}
+      purgeNote="It can no longer be restored. What was made in it stays in My Generations and Assets."
+    />
+  );
 }
 
 function ProjectTrashCover({ project }: { project: Project }) {
@@ -684,6 +690,7 @@ export function ProjectView() {
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
   const restoreFolder = useStudio((s) => s.restoreFolder);
+  const leaveProject = useStudio((s) => s.leaveProject);
   const purgeFolder = useStudio((s) => s.purgeFolder);
   const openEditor = useStudio((s) => s.openElementEditor);
   const assets = useAssets();
@@ -692,7 +699,7 @@ export function ProjectView() {
   const folder = studio.folderId ?? "";
   const pid = project?.id;
   const show = useMemo(
-    () => (run: Run) => run.projectId === pid && (!folder || run.folderId === folder),
+    () => (run: Run) => run.projectId === pid && !run.trashedAt && (!folder || run.folderId === folder),
     [pid, folder],
   );
   const extras: TileExtrasValue = useMemo(
@@ -723,7 +730,7 @@ export function ProjectView() {
         trashedAt: r.trashedAt!,
         preview: <TrashMedia url={r.urls[0]} />,
         restore: () => setTrashed(r.urls, false),
-        purge: () => removeRun(r.id),
+        purge: () => leaveProject(r.urls),
       })),
     ...uploads
       .filter((u) => u.projectId === project.id && u.trashedAt && !u.trashedWith)
@@ -734,7 +741,7 @@ export function ProjectView() {
         trashedAt: u.trashedAt!,
         preview: <TrashMedia url={u.url} />,
         restore: () => setTrashed([u.url], false),
-        purge: () => removeUpload(u.id),
+        purge: () => leaveProject([u.url]),
       })),
     ...(project.folders ?? [])
       .filter((f) => f.trashedAt && !f.trashedWith)
@@ -921,7 +928,12 @@ export function ProjectView() {
         ) : folder === "trash" ? (
           // The Trash draws its own head, so it reaches the page's edges as the head above does.
           <div className="-mx-4 md:-mx-1">
-            <TrashView items={trashItems} tabs={TRASH_TABS} note={`Items can be restored to this project for ${TRASH_DAYS} days.`} />
+            <TrashView
+              items={trashItems}
+              tabs={TRASH_TABS}
+              note={`Items can be restored to this project for ${TRASH_DAYS} days.`}
+              purgeNote="It can no longer be restored to this project. What was made stays in My Generations and Assets."
+            />
           </div>
         ) : myRuns.length + myUploads.length === 0 ? (
           <Empty text={folderName ? "This folder is empty. Move work here from a tile's ⋯ menu." : "Nothing in this project yet. Choose it in the composer's project chip, and what you make is saved here."} />

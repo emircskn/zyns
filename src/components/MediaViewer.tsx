@@ -38,6 +38,7 @@ import { CINEMA } from "@/lib/studio/cinema";
 import { TileExtras } from "@/lib/tileExtras";
 import { useStudio, type Run, type Upload } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
+import { useProjectDelete } from "@/lib/newProject";
 
 /**
  * Escape closes the view, through a listener that is registered once.
@@ -674,9 +675,12 @@ export function MediaViewer({
 
   // In a project, Delete puts it in the project's Trash instead.
   function toTrash() {
-    const urls = run ? run.urls : shown ? [shown] : [];
-    useStudio.getState().setTrashed(urls, true);
-    (onBack ?? onClose)();
+    const uploadId = upload?.id ?? useStudio.getState().uploads.find((u) => u.url === shown)?.id;
+    useProjectDelete.getState().open({
+      runIds: run ? [run.id] : [],
+      uploadIds: !run && uploadId ? [uploadId] : [],
+      onDone: () => (onBack ?? onClose)(),
+    });
   }
 
   function remove() {

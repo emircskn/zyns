@@ -26,6 +26,7 @@ export function SelectionBar({
   onProject,
   project,
   deleteNote,
+  onDeleteAsk,
 }: {
   /** Up with nothing picked yet: a phone's Select button was pressed. */
   open?: boolean;
@@ -47,6 +48,8 @@ export function SelectionBar({
   project?: string | null;
   /** Said while a delete is being confirmed: what else uses the picks' files. */
   deleteNote?: () => string | undefined;
+  /** Asks its own question instead of the bar's, and deletes from there. */
+  onDeleteAsk?: () => void;
 }) {
   const setSelecting = useStudio((s) => s.setSelecting);
   const [confirming, setConfirming] = useState(false);
@@ -147,6 +150,7 @@ export function SelectionBar({
             <button
               type="button"
               onClick={() => {
+                if (onDeleteAsk) return onDeleteAsk();
                 setNote(deleteNote?.());
                 setConfirming(true);
               }}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ConfirmPopup } from "@/components/ConfirmPopup";
+import { ChoiceDialog } from "@/components/ChoiceDialog";
 import { GlideMark } from "@/components/GlideMark";
 import { Icon } from "@/components/Icon";
 import { TRASH_DAYS, useStudio } from "@/store/studio";
@@ -81,7 +81,7 @@ function Card({
         <button type="button" onClick={onRestore} aria-label={`Restore ${item.name}`} title="Restore" className={`${round} hover:bg-black/80`}>
           <Icon name="undo" size={14} />
         </button>
-        <button type="button" onClick={onPurge} aria-label={`Delete ${item.name} for good`} title="Delete for good" className={`${round} hover:bg-[#ff6b6b]/80`}>
+        <button type="button" onClick={onPurge} aria-label={`Delete ${item.name} permanently`} title="Delete permanently" className={`${round} hover:bg-[#ff6b6b]/80`}>
           <Icon name="trash" size={13} />
         </button>
       </div>
@@ -99,8 +99,11 @@ export function TrashView({
   items,
   tabs,
   note,
+  purgeNote,
 }: {
   items: TrashItem[];
+  /** Said before anything goes for good: what that means here. */
+  purgeNote: string;
   /** The kinds this Trash holds, as its tabs after All; none for a single kind. */
   tabs?: Array<{ id: TrashKind; label: string }>;
   note: string;
@@ -115,7 +118,10 @@ export function TrashView({
   const toggle = (key: string) => setPicked((now) => (now.includes(key) ? now.filter((k) => k !== key) : [...now, key]));
   const forGood = (list: TrashItem[], title: string) =>
     setAsking({
-      title,
+      title: title ||
+        (list.length === 1
+          ? `Permanently delete “${list[0].name.length > 40 ? `${list[0].name.slice(0, 38).trimEnd()}…` : list[0].name}”?`
+          : `Permanently delete ${list.length} items?`),
       run: () => {
         for (const item of list) item.purge();
         setPicked((now) => now.filter((k) => !list.some((i) => i.key === k)));
@@ -154,7 +160,7 @@ export function TrashView({
           <button
             type="button"
             disabled={items.length === 0}
-            onClick={() => forGood(items, `Empty the Trash? ${items.length} ${items.length === 1 ? "item goes" : "items go"} for good.`)}
+            onClick={() => forGood(items, "Empty the Trash?")}
             className="cta h-8 rounded-full px-3.5 text-[13px] font-medium disabled:opacity-40"
           >
             Empty trash
@@ -199,7 +205,7 @@ export function TrashView({
                 picked={picked.includes(item.key)}
                 onPick={() => toggle(item.key)}
                 onRestore={item.restore}
-                onPurge={() => forGood([item], `Delete ${item.name} for good?`)}
+                onPurge={() => forGood([item], "")}
               />
             ))}
           </div>
@@ -236,8 +242,8 @@ export function TrashView({
               </button>
               <button
                 type="button"
-                onClick={() => forGood(chosen, `Delete ${chosen.length} for good?`)}
-                aria-label="Delete for good"
+                onClick={() => forGood(chosen, "")}
+                aria-label="Delete permanently"
                 className={`${barButton} hover:!bg-[#ff6b6b]/12 hover:!text-[#ff8f8f]`}
               >
                 <Icon name="trash" size={15} />
@@ -250,11 +256,11 @@ export function TrashView({
           document.body,
         )}
 
-      <ConfirmPopup
+      <ChoiceDialog
         open={!!asking}
         title={asking?.title ?? ""}
-        message="This cannot be undone."
-        confirmLabel="Delete"
+        message={purgeNote}
+        confirmLabel="Delete permanently"
         onConfirm={() => {
           asking?.run();
           setAsking(null);
