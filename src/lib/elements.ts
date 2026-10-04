@@ -20,7 +20,28 @@ export interface LibraryElement {
   images: MediaRef[];
   /** A short description added to the prompt wherever the element is called. */
   notes?: string;
+  /** Which take of it this is ("v1", "v2"), for keeping versions apart. */
+  version?: string;
+  /** Where it stands: a draft, ready to use, or set aside. */
+  status?: ElementStatus;
+  /** Anything else worth saying about it ("eyes": "green"); added to the prompt with the notes. */
+  props?: Record<string, string>;
   createdAt: number;
+}
+
+export type ElementStatus = "draft" | "ready" | "archived";
+export const ELEMENT_STATUSES: Array<{ id: ElementStatus; label: string }> = [
+  { id: "draft", label: "Draft" },
+  { id: "ready", label: "Ready" },
+  { id: "archived", label: "Archived" },
+];
+
+/** What is said about an element in the prompt: its notes, then its own properties. */
+export function elementNotes(element: LibraryElement): string {
+  const props = Object.entries(element.props ?? {})
+    .filter(([k, v]) => k.trim() && v.trim())
+    .map(([k, v]) => `${k.trim()} ${v.trim()}`);
+  return [element.notes?.trim(), ...props].filter(Boolean).join(", ");
 }
 
 export const ELEMENT_KINDS: Array<{ id: ElementKind; label: string; plural: string }> = [
@@ -72,7 +93,7 @@ export function spellElements(text: string, elements: LibraryElement[]): string 
   if (called.length === 0) return text;
   let out = text;
   for (const element of called) out = out.replace(tokenOf(element.name), (_m, lead: string) => `${lead}${element.name}`);
-  const notes = called.filter((e) => e.notes?.trim()).map((e) => `${e.name}: ${e.notes!.trim()}`);
+  const notes = called.filter((e) => elementNotes(e)).map((e) => `${e.name}: ${elementNotes(e)}`);
   return notes.length > 0 ? `${out.trimEnd()}\n\n${notes.join("\n")}` : out;
 }
 

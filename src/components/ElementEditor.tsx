@@ -4,7 +4,16 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
-import { ELEMENT_KINDS, MAX_ELEMENT_IMAGES, elementName, type ElementKind, type LibraryElement } from "@/lib/elements";
+import {
+  ELEMENT_KINDS,
+  ELEMENT_STATUSES,
+  MAX_ELEMENT_IMAGES,
+  elementName,
+  type ElementKind,
+  type ElementStatus,
+  type LibraryElement,
+} from "@/lib/elements";
+import { useUploader } from "@/lib/useUploader";
 import { makeMediaRef, type MediaRef } from "@/lib/media";
 import { mediaSrc } from "@/lib/storage/client";
 import { usePresence } from "@/lib/usePresence";
@@ -45,6 +54,11 @@ function EditorSheet({
   const [name, setName] = useState(existing?.name ?? "");
   const [kind, setKind] = useState<ElementKind>(existing?.kind ?? start.kind ?? "character");
   const [notes, setNotes] = useState(existing?.notes ?? "");
+  const [version, setVersion] = useState(existing?.version ?? "");
+  const [status, setStatus] = useState<ElementStatus | undefined>(existing?.status);
+  const [props, setProps] = useState<Array<[string, string]>>(Object.entries(existing?.props ?? {}));
+  const [dragging, setDragging] = useState(false);
+  const uploader = useUploader("image");
   // Pictures by the address shown; those already kept carry their MediaRef.
   const [images, setImages] = useState<string[]>(
     existing ? existing.images.map((ref) => ref.storageUrl) : (start.images ?? []).slice(0, MAX_ELEMENT_IMAGES),
@@ -81,6 +95,11 @@ function EditorSheet({
         name: slug,
         images: refs,
         notes: notes.trim() || undefined,
+        version: version.trim() || undefined,
+        status,
+        props: props.some(([k, v]) => k.trim() && v.trim())
+          ? Object.fromEntries(props.filter(([k, v]) => k.trim() && v.trim()).map(([k, v]) => [k.trim(), v.trim()]))
+          : undefined,
         createdAt: existing?.createdAt ?? Date.now(),
       };
       saveElement(element);
@@ -95,7 +114,7 @@ function EditorSheet({
   const field = "w-full rounded-chip bg-t1/[0.05] px-3.5 py-2.5 text-[15px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong md:text-[14px]";
 
   return (
-    <div className="fixed inset-0 z-[112] flex items-end justify-center sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[119] flex items-end justify-center sm:items-center sm:p-4">
       <button
         type="button"
         aria-label="Close"
@@ -161,7 +180,26 @@ function EditorSheet({
           <p className="mb-1.5 text-[12px] font-medium text-t3">
             Pictures <span className="font-normal text-t4">· {images.length}/{MAX_ELEMENT_IMAGES}, the first is the cover</span>
           </p>
-          <div className="mb-5 grid grid-cols-4 gap-2 sm:grid-cols-5">
+          <div
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(event) => {
+              event.preventDefault();
+              setDragging(false);
+              const files = Array.from(event.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+              if (files.length > 0) {
+                void uploader.send(files, (urls) =>
+                  setImages((all) => [...all, ...urls.filter((u) => !all.includes(u))].slice(0, MAX_ELEMENT_IMAGES)),
+                );
+              }
+            }}
+            className={`mb-1 grid grid-cols-4 gap-2 rounded-card p-1 transition-colors duration-[120ms] sm:grid-cols-5 ${
+              dragging ? "bg-t1/[0.06] ring-1 ring-inset ring-line-strong" : ""
+            }`}
+          >
             {images.map((url, i) => (
               <div key={url} className="group relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -196,13 +234,18 @@ function EditorSheet({
                 aria-label="Add pictures"
                 className="grid aspect-square place-items-center rounded-chip border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1"
               >
-                <Icon name="plus" size={20} />
+                {uploader.busy ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <Icon name="plus" size={20} />
+                )}
               </button>
             )}
           </div>
+          <p className="mb-5 text-[11.5px] text-t4">Or drop pictures here.</p>
 
           <label className="mb-1.5 block text-[12px] font-medium text-t3" htmlFor="element-notes">
-            Notes <span className="font-normal text-t4">· added to the prompt wherever it is called</span>
+            Description <span className="font-normal text-t4">· added to the prompt wherever it is called</span>
           </label>
           <textarea
             id="element-notes"
@@ -212,6 +255,73 @@ function EditorSheet({
             placeholder="Late twenties, short dark hair, round glasses"
             className={`${field} min-h-[84px] resize-none`}
           />
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-[12px] font-medium text-t3" htmlFor="element-version">
+                Version
+              </label>
+              <input id="element-version" value={version} onChange={(event) => setVersion(event.target.value)} placeholder="v1" className={field} />
+            </div>
+            <div>
+              <p className="mb-1.5 text-[12px] font-medium text-t3">Status</p>
+              <div className="grid grid-cols-3 gap-1">
+                {ELEMENT_STATUSES.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setStatus((now) => (now === s.id ? undefined : s.id))}
+                    aria-pressed={status === s.id}
+                    className={`rounded-chip px-1 py-2.5 text-[12.5px] transition-colors duration-[120ms] ${
+                      status === s.id ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="mb-1.5 mt-5 text-[12px] font-medium text-t3">
+            Custom properties <span className="font-normal text-t4">· also added to the prompt</span>
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {props.map(([key, value], i) => (
+              <div key={i} className="flex gap-1.5">
+                <input
+                  aria-label="Property"
+                  value={key}
+                  onChange={(event) => setProps((all) => all.map((p, j) => (j === i ? [event.target.value, p[1]] : p)))}
+                  placeholder="eyes"
+                  className={`${field} w-[40%]`}
+                />
+                <input
+                  aria-label="Value"
+                  value={value}
+                  onChange={(event) => setProps((all) => all.map((p, j) => (j === i ? [p[0], event.target.value] : p)))}
+                  placeholder="green"
+                  className={`${field} flex-1`}
+                />
+                <button
+                  type="button"
+                  aria-label="Remove property"
+                  onClick={() => setProps((all) => all.filter((_, j) => j !== i))}
+                  className="grid w-10 shrink-0 place-items-center rounded-chip text-t3 hover:bg-t1/[0.06] hover:text-t1"
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setProps((all) => [...all, ["", ""]])}
+              className="flex items-center gap-1.5 self-start rounded-full bg-t1/[0.06] px-3 py-1.5 text-[12.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+            >
+              <Icon name="plus" size={13} />
+              Add custom property
+            </button>
+          </div>
           {problem && <p className="mt-3 text-[13px] text-[#ff8f8f]">{problem}</p>}
         </div>
 
