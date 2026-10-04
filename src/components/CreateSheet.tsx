@@ -9,6 +9,7 @@ import { categoriesFor, getModel, modelsFor, type Category, type ModelDef, type 
 import { GENJUTSU } from "@/lib/remix/targets";
 import { CINEMA } from "@/lib/studio/cinema";
 import { usePresence } from "@/lib/usePresence";
+import { ProviderSwitch } from "@/components/ProviderSwitch";
 import { ownPageOf, useStudio } from "@/store/studio";
 
 type Tab = "all" | Category;
@@ -145,6 +146,8 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
           <h2 className="flex-1 text-[26px] font-semibold leading-none tracking-[-0.03em] text-t1">
             Create
           </h2>
+          {/* The header's service switch is out of reach behind this sheet: the models here follow it. */}
+          <ProviderSwitch size="xs" />
           <button
             type="button"
             onClick={onClose}

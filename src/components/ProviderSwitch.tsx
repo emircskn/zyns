@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef } from "react";
+import { ServiceMark } from "@/components/ServiceBadge";
 import type { Provider } from "@/lib/registry";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import { useStudio } from "@/store/studio";
 
-const OPTIONS: Array<{ id: Provider; label: string; short: string }> = [
-  { id: "kie", label: "KIE AI", short: "KIE" },
-  { id: "higgsfield", label: "Higgsfield", short: "Higgsfield" },
+const OPTIONS: Array<{ id: Provider; label: string }> = [
+  { id: "kie", label: "KIE AI" },
+  { id: "higgsfield", label: "Higgsfield" },
 ];
 
 /**
@@ -66,12 +67,15 @@ export function ProviderSwitch({
               setProvider(option.id);
               onSwitched?.(option.id);
             }}
+            aria-label={option.label}
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
             className={`relative flex items-center justify-center gap-1.5 rounded-full font-medium transition-[color,transform] duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.96] ${
-              size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3" : "h-7 px-2.5"
+              size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3.5" : "h-7 px-3"
             } ${on ? "text-canvas" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-t1" : ""}`}
           >
-            {size === "xs" ? option.short : option.label}
+            {/* Each service by its own mark; the key setup also spells it out. */}
+            <ServiceMark provider={option.id} size={size === "lg" ? 15 : 14} />
+            {size === "lg" && option.label}
             {/* Whether the service has a key yet: left out where room is short. */}
             {size !== "xs" && (
               <span
