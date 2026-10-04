@@ -120,7 +120,8 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
   const provider = useStudio((s) => s.provider);
   const TABS = tabsFor(provider);
   const shown = useMemo(() => {
-    const models = modelsFor(provider);
+    // Genjutsu and Cinema Studio lead as their page cards; not again in the grid.
+    const models = modelsFor(provider).filter((model) => !ownPageOf(model.id));
     return tab === "all" ? models : models.filter((model) => model.category === tab);
   }, [tab, provider]);
 
@@ -168,7 +169,8 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pb-[max(20px,env(safe-area-inset-bottom))] pt-2 sm:px-5 sm:pb-5">
-          {(tab === "all" || tab === "video") && (
+          {/* Both pages run on Higgsfield: KIE's list is KIE's models alone. */}
+          {provider === "higgsfield" && (tab === "all" || tab === "video") && (
             <>
               <PageCard
                 modelId={GENJUTSU}
