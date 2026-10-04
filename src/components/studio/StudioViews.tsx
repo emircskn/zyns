@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
-import { PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
+import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { Gallery, TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
 import { MediaPreview } from "@/components/MediaViewer";
@@ -241,7 +241,7 @@ export function ViewHead({ title, sub, children }: { title: string; sub?: string
 
 function MenuButton({ icon, label, count }: { icon: IconName; label: string; count?: number }) {
   return (
-    <span className="flex h-9 items-center gap-1.5 rounded-full bg-t1/[0.07] px-3.5 text-[13.5px] text-t1 md:h-8 md:rounded-chip md:bg-t1/[0.06] md:px-3 md:text-[13px] md:text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1">
+    <span className="flex h-9 items-center gap-1.5 rounded-full bg-t1/[0.07] px-3.5 text-[13.5px] text-t1 md:h-8 md:bg-t1/[0.07] md:px-3 md:text-[13px] md:text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1">
       <Icon name={icon} size={14} />
       {label}
       {count ? <span className="rounded-full bg-t1 px-1.5 text-[10.5px] font-semibold text-canvas">{count}</span> : null}
@@ -366,41 +366,6 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
   );
 }
 
-/** View: squares or the masonry wall, and how big the cards are. */
-function ViewMenu({ layout, onLayout }: { layout: "square" | "rows"; onLayout: (layout: "square" | "rows") => void }) {
-  return (
-    <Popover width={240} align="end" title="View" trigger={() => <MenuButton icon={layout === "square" ? "grid" : "layers"} label="View" />}>
-      <div className="flex flex-col">
-        <p className="px-2.5 pb-0.5 pt-1.5 text-[11.5px] font-medium text-t3">Layout</p>
-        <Choice on={layout === "square"} label="Square" onClick={() => onLayout("square")} />
-        <Choice on={layout === "rows"} label="Masonry" onClick={() => onLayout("rows")} />
-        <p className="px-2.5 pb-1 pt-2.5 text-[11.5px] font-medium text-t3">Card size</p>
-        <div className="px-1.5 pb-1.5">
-          <CardSize />
-        </div>
-      </div>
-    </Popover>
-  );
-}
-
-/** The gallery's density as a slider: fewer, bigger cards to the right. */
-function CardSize() {
-  const density = useStudio((s) => s.density);
-  const setDensity = useStudio((s) => s.setDensity);
-  return (
-    <input
-      type="range"
-      aria-label="Card size"
-      min={2}
-      max={6}
-      step={1}
-      value={8 - density}
-      onChange={(event) => setDensity(8 - Number(event.target.value))}
-      className="w-full accent-[var(--t1)]"
-    />
-  );
-}
-
 const DAY = 24 * 60 * 60 * 1000;
 
 function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string[]): boolean {
@@ -471,7 +436,6 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const favorites = useStudio((s) => s.favorites);
   const downloaded = useStudio((s) => s.downloaded);
   const [filter, setFilter] = useState<GenFilter>(favoritesOnly ? { ...NO_FILTER, activity: "liked" } : NO_FILTER);
-  const [layout, setLayout] = useState<"square" | "rows">("square");
   const mine = runs.filter((r) => !r.trashedAt && studioOnly(r));
   const models = [...new Map(mine.map((r) => [r.modelId, { id: r.modelId, name: getModel(r.modelId)?.name ?? r.modelName }])).values()];
   const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [filter, favorites, downloaded]);
@@ -497,9 +461,8 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
         <span className="md:hidden">
           <PhoneGridToggle />
         </span>
-        <span className="hidden md:block">
-          <ViewMenu layout={layout} onLayout={setLayout} />
-        </span>
+        {/* A desktop: Filter, then the tile size, as Assets and Favorites have it. */}
+        <DensitySlider />
       </ViewHead>
       <div className="md:px-1">
         {uploadsShown ? (
@@ -508,7 +471,7 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
           <Empty text={favoritesOnly ? "Nothing liked yet. Tap the heart on a shot to keep it here." : "Nothing here yet. What you make in Cinema Studio shows up here."} />
         ) : (
           <TileExtras.Provider value={extras}>
-            <Gallery filter={show} layout={layout} />
+            <Gallery filter={show} />
           </TileExtras.Provider>
         )}
       </div>
