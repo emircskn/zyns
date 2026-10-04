@@ -7,7 +7,7 @@ import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
-import type { LibraryElement } from "@/lib/elements";
+import { inUse, type LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
@@ -130,7 +130,7 @@ export function ReferencePicker({
   const { mounted, exiting } = usePresence(open, 240);
   const assets = useAssets();
   const favorites = useStudio((s) => s.favorites);
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style");
+  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
   const openEditor = useStudio((s) => s.openElementEditor);
   const uploader = useUploader(kinds);
   const [tab, setTab] = useState<Tab>(startTab);

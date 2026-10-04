@@ -36,7 +36,7 @@ import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
-import type { LibraryElement } from "@/lib/elements";
+import { inUse, type LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
@@ -674,7 +674,7 @@ export function PromptField({
   const [dismissed, setDismissed] = useState<number | null>(null);
 
   const refs = model && names.length === 0 ? imageRefs(model, values) : [];
-  const library = useStudio((s) => s.elements);
+  const library = useStudio((s) => s.elements).filter(inUse);
   const own: MentionOption[] =
     names.length > 0 ? names.map((name) => ({ name })) : refs.map((url, i) => ({ name: imageName(i), thumb: url }));
   const options: MentionOption[] = [

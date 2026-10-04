@@ -1,5 +1,6 @@
 "use client";
 
+import { inUse } from "@/lib/elements";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
 import { Row } from "@/components/remix/Row";
@@ -323,7 +324,7 @@ function RefsBox({
 
 /** Library elements, to bring their pictures in as references. */
 function ElementChooser({ open, onPick, onClose }: { open: boolean; onPick: (urls: string[]) => void; onClose: () => void }) {
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style");
+  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
   if (!open) return null;
   return (
     <div className="anim-fade rounded-panel border border-line bg-elevated p-3">

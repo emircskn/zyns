@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { insertMention, mentionAtCaret } from "@/lib/mentions";
 import type { Field } from "@/lib/registry";
-import type { LibraryElement } from "@/lib/elements";
+import { inUse, type LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { movesIn, putMove } from "@/lib/studio/compose";
 import { previewOf } from "@/lib/studio/options";
@@ -92,7 +92,7 @@ export function StudioPrompt({
   inputRef?: (node: HTMLTextAreaElement | null) => void;
   rows?: number;
 }) {
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style");
+  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
   const ref = useRef<HTMLTextAreaElement>(null);
   const mirror = useRef<HTMLDivElement>(null);
   const [caret, setCaret] = useState<number | null>(null);

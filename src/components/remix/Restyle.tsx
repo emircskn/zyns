@@ -1,5 +1,6 @@
 "use client";
 
+import { inUse } from "@/lib/elements";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
@@ -221,7 +222,7 @@ function Tile({
 export function StyleGrid({ onPicked }: { onPicked?: () => void }) {
   const remix = useStudio((s) => s.remix);
   const patchRemix = useStudio((s) => s.patchRemix);
-  const elements = useStudio((s) => s.elements);
+  const elements = useStudio((s) => s.elements).filter(inUse);
   const openElementEditor = useStudio((s) => s.openElementEditor);
   const native = isNativeRestyle(targetOf(remix));
   const { presets, error } = useRestylePresets();

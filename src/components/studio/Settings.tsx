@@ -1,5 +1,6 @@
 "use client";
 
+import { inUse } from "@/lib/elements";
 import { Icon } from "@/components/Icon";
 import { mediaSrc } from "@/lib/storage/client";
 import type { OptionPreview } from "@/lib/studio/options";
@@ -30,7 +31,7 @@ export function PreviewMedia({ preview, play, className = "" }: { preview: Optio
 
 /** Library elements, whose pictures come in as references. */
 export function ElementGrid({ onPick }: { onPick: (urls: string[], name: string) => void }) {
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style");
+  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
   if (elements.length === 0) {
     return <p className="py-6 text-center text-[13px] text-t4">No characters, places or products yet. Make one on the Elements page.</p>;
   }

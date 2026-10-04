@@ -36,6 +36,11 @@ export const ELEMENT_STATUSES: Array<{ id: ElementStatus; label: string }> = [
   { id: "archived", label: "Archived" },
 ];
 
+/** Archived elements stay in the library but are not offered anywhere to pick. */
+export function inUse(element: LibraryElement): boolean {
+  return element.status !== "archived";
+}
+
 /** What is said about an element in the prompt: its notes, then its own properties. */
 export function elementNotes(element: LibraryElement): string {
   const props = Object.entries(element.props ?? {})

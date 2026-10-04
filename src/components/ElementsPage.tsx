@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
-import { ELEMENT_KINDS, type ElementKind } from "@/lib/elements";
+import { ELEMENT_KINDS, inUse, type ElementKind } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { useStudio } from "@/store/studio";
 
-type Filter = "all" | ElementKind;
+type Filter = "all" | ElementKind | "archived";
 
 /**
  * The Elements library: the characters, places, products and styles kept
@@ -17,7 +17,10 @@ export function ElementsPage() {
   const elements = useStudio((s) => s.elements);
   const openEditor = useStudio((s) => s.openElementEditor);
   const [filter, setFilter] = useState<Filter>("all");
-  const shown = elements.filter((e) => filter === "all" || e.kind === filter);
+  const saveElement = useStudio((s) => s.saveElement);
+  const archived = elements.filter((e) => !inUse(e));
+  // Archived ones keep to their own tab, out of the way of the ones in use.
+  const shown = elements.filter((e) => (filter === "archived" ? !inUse(e) : inUse(e) && (filter === "all" || e.kind === filter)));
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
@@ -47,7 +50,11 @@ export function ElementsPage() {
 
       {elements.length > 0 && (
         <div role="tablist" aria-label="Filter elements" className="no-bar mb-3 flex gap-2 overflow-x-auto px-4">
-          {[{ id: "all" as Filter, plural: "All" }, ...ELEMENT_KINDS].map((kind) => {
+          {[
+            { id: "all" as Filter, plural: "All" },
+            ...ELEMENT_KINDS,
+            ...(archived.length > 0 ? [{ id: "archived" as Filter, plural: `Archived · ${archived.length}` }] : []),
+          ].map((kind) => {
             const on = kind.id === filter;
             return (
               <button
@@ -89,7 +96,9 @@ export function ElementsPage() {
           </Stagger>
         </div>
       ) : shown.length === 0 ? (
-        <p className="px-4 py-16 text-center text-[13px] text-t4">None of this kind yet.</p>
+        <p className="px-4 py-16 text-center text-[13px] text-t4">
+          {filter === "archived" ? "Nothing archived." : "None of this kind yet."}
+        </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 px-4 pb-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {shown.map((element) => {
@@ -120,7 +129,29 @@ export function ElementsPage() {
                 </span>
                 <span className="block px-3 py-2.5">
                   <span className="block truncate text-[14px] font-medium text-t1">@{element.name}</span>
-                  <span className="block truncate text-[12px] text-t3">{kind?.label}</span>
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="truncate text-[12px] text-t3">{kind?.label}</span>
+                    {!inUse(element) && (
+                      // A span, not a button: the card itself is one.
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          saveElement({ ...element, status: undefined });
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter" && event.key !== " ") return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          saveElement({ ...element, status: undefined });
+                        }}
+                        className="shrink-0 rounded-full bg-t1/[0.08] px-2.5 py-1 text-[11.5px] text-t1 hover:bg-t1/[0.14]"
+                      >
+                        Restore
+                      </span>
+                    )}
+                  </span>
                 </span>
               </button>
             );
