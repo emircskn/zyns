@@ -206,7 +206,7 @@ export function SelectMark({ on }: { on: boolean }) {
   return (
     <span
       className={`grid h-[22px] w-[22px] place-items-center rounded-[7px] border-[1.5px] transition-all duration-[120ms] ${
-        on ? "border-transparent bg-t1 text-canvas" : "border-white/70 bg-black/35 text-transparent backdrop-blur-sm"
+        on ? "border-transparent bg-t1 text-canvas" : "border-white/70 bg-black/35 text-transparent"
       }`}
     >
       <Icon name="check" size={15} strokeWidth={2.4} />

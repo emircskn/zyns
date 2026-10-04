@@ -54,7 +54,7 @@ function ModelCard({
             <span />
           )}
           {/* On a dark, blurred disc: over a preview the plain tile washed out. */}
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white">
             <VendorBadge model={model} size={15} bare />
           </span>
         </div>

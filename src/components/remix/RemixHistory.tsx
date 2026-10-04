@@ -66,7 +66,7 @@ function RemixCard({
         )}
         <span
           aria-label={`Made with ${(run.provider ?? "kie") === "higgsfield" ? "Higgsfield" : "KIE"}`}
-          className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 py-1 pl-1.5 pr-2.5 text-[11.5px] text-white backdrop-blur-md"
+          className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 py-1 pl-1.5 pr-2.5 text-[11.5px] text-white"
         >
           <ServiceMark provider={run.provider ?? "kie"} size={13} />
           {MODE_LABEL[info.mode]}

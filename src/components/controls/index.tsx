@@ -279,8 +279,8 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
         aria-label="Remove"
         className={
           roomy
-            ? "absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms] active:scale-90"
-            : "hover-reveal absolute right-1 top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 backdrop-blur-sm transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
+            ? "absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-transform duration-[120ms] active:scale-90"
+            : "hover-reveal absolute right-1 top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
         }
       >
         <Icon name="close" size={roomy ? 15 : 11} />

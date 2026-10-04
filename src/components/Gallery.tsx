@@ -54,7 +54,7 @@ function StatusOverlay({ run }: { run: Run }) {
     // The tile is a container, so a narrow one keeps the two actions side by
     // side as icons and only a roomy one spells them out.
     return (
-      <div className="@container absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] p-3 text-center backdrop-blur-sm">
+      <div className="@container absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] p-3 text-center">
         <Icon name="alert" size={18} className="hidden shrink-0 text-[var(--danger)] @[140px]:block" />
         {/* Said in so many words, so the tile reads as a failure at a
             glance rather than as one more picture still on its way. */}
@@ -80,7 +80,7 @@ function StatusOverlay({ run }: { run: Run }) {
             type="button"
             onClick={() => setWhole(false)}
             aria-label="Hide the full error"
-            className="no-bar absolute inset-0 z-10 overflow-y-auto bg-surface/95 p-3 text-left text-[12px] leading-snug text-[var(--danger)] backdrop-blur-sm"
+            className="no-bar absolute inset-0 z-10 overflow-y-auto bg-surface/95 p-3 text-left text-[12px] leading-snug text-[var(--danger)]"
           >
             {run.error ?? "Generation failed."}
             {hint && <span className="mt-2 block text-t3">{hint}</span>}
@@ -193,7 +193,7 @@ function TileAction({
   /** A heart that is already given reads as solid. */
   filled?: boolean;
 }) {
-  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/80"
   }`;
   return (
@@ -322,7 +322,7 @@ export function Tile({
           >
             <Media url={url} run={run} compact={square} />
             {extras && mediaKind(url) === "video" && (
-              <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+              <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white">
                 <Icon name="play" size={16} fill="currentColor" />
               </span>
             )}
@@ -337,7 +337,7 @@ export function Tile({
           <div className="pending-surface h-full w-full" />
         )}
         {run.made && (
-          <span className="pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-16px)] truncate rounded-full bg-black/60 px-2.5 py-1 text-[11.5px] text-white backdrop-blur-md">
+          <span className="pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-16px)] truncate rounded-full bg-black/60 px-2.5 py-1 text-[11.5px] text-white">
             {run.made.kind === "voice" ? "Voice" : "Character"}
             {run.made.name ? ` · ${run.made.name}` : ""}
           </span>
@@ -420,7 +420,7 @@ export function Tile({
               size={14}
               title={kept ? "Remove from favorites" : "Add to favorites"}
               onToggle={() => toggleFavorite(url)}
-              className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
+              className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/80"
             />
           )}
           {url && <SaveTileAction url={url} />}
@@ -443,7 +443,7 @@ export function Tile({
               title="Move to folder"
               align="end"
               trigger={() => (
-                <span title="More" aria-label="More" className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80">
+                <span title="More" aria-label="More" className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/80">
                   <Icon name="more" size={14} />
                 </span>
               )}

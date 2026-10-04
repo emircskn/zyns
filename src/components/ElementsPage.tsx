@@ -122,7 +122,7 @@ export function ElementsPage() {
                     />
                   )}
                   {element.images.length > 1 && (
-                    <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] tabular-nums text-white backdrop-blur-md">
+                    <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] tabular-nums text-white">
                       {element.images.length}
                     </span>
                   )}

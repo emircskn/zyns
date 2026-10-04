@@ -47,7 +47,7 @@ export function ServiceBadge({ provider, small, hidden }: { provider: Provider; 
       role="img"
       aria-label={`Made with ${provider === "higgsfield" ? "Higgsfield" : "KIE"}`}
       title={provider === "higgsfield" ? "Higgsfield" : "KIE"}
-      className={`pointer-events-none absolute left-2 top-2 z-[5] grid place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-opacity duration-[150ms] ${
+      className={`pointer-events-none absolute left-2 top-2 z-[5] grid place-items-center rounded-full bg-black/60 text-white transition-opacity duration-[150ms] ${
         small ? "h-5 w-5" : "h-6 w-6"
       } ${hidden ? "opacity-0" : "group-hover:opacity-0"}`}
     >

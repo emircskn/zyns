@@ -20,7 +20,7 @@ export function ProviderTag({ model, onMedia }: { model: ModelDef; onMedia?: boo
   return (
     <span
       className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-medium ${
-        onMedia ? "bg-black/55 text-white/90 backdrop-blur-md" : "bg-t1/[0.07] text-t3"
+        onMedia ? "bg-black/55 text-white/90" : "bg-t1/[0.07] text-t3"
       }`}
     >
       {model.provider === "higgsfield" ? "Higgsfield" : "KIE"}

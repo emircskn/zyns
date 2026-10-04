@@ -55,7 +55,7 @@ function Card({
 }) {
   // Shown on hover and while picked; always where there is no hover.
   const reveal = picked ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100";
-  const round = "grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-colors duration-[120ms]";
+  const round = "grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-colors duration-[120ms]";
   return (
     <div className="group relative aspect-[4/5] overflow-hidden rounded-card bg-t1/[0.04]">
       <button type="button" onClick={onPick} aria-pressed={picked} aria-label={`Select ${item.name}`} className="absolute inset-0 grid place-items-center pb-7">

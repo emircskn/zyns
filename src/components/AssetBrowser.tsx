@@ -40,7 +40,7 @@ function TileButton({
   danger?: boolean;
   filled?: boolean;
 }) {
-  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 ${
+  const className = `grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 ${
     danger ? "hover:bg-[#ff6b6b]/80" : "hover:bg-black/85"
   }`;
   return (
@@ -217,7 +217,7 @@ function AssetTile({
               size={14}
               title={kept ? "Remove from favorites" : "Add to favorites"}
               onToggle={() => toggleFavorite(asset.url)}
-              className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
+              className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
             />
             <SaveTileButton url={asset.url} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}

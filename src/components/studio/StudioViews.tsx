@@ -478,12 +478,12 @@ function UploadGrid({ uploads, extras }: { uploads: Upload[]; extras?: { trash?:
             </button>
             <div className="hover-reveal absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               {upload.kind === "image" && (
-                <button type="button" title="Use as reference" aria-label="Use as reference" onClick={() => studioReference(upload.url)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md hover:bg-black/80">
+                <button type="button" title="Use as reference" aria-label="Use as reference" onClick={() => studioReference(upload.url)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white hover:bg-black/80">
                   <Icon name="layers" size={14} />
                 </button>
               )}
               {extras?.trash && (
-                <button type="button" title="Move to Trash" aria-label="Move to Trash" onClick={() => useProjectDelete.getState().open({ uploadIds: [upload.id] })} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md hover:bg-[#ff6b6b]/80">
+                <button type="button" title="Move to Trash" aria-label="Move to Trash" onClick={() => useProjectDelete.getState().open({ uploadIds: [upload.id] })} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white hover:bg-[#ff6b6b]/80">
                   <Icon name="trash" size={14} />
                 </button>
               )}
@@ -629,11 +629,11 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       </span>
     </button>
       {/* Its menu, over the picture's corner: on hover, and always on a phone. */}
-      <span className="absolute right-2 top-2 rounded-full bg-black/45 opacity-0 backdrop-blur-md transition-opacity duration-[120ms] group-hover:opacity-100 group-focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 pointer-coarse:opacity-100">
+      <span className="absolute right-2 top-2 rounded-full bg-black/45 opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100 group-focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 pointer-coarse:opacity-100">
         <ProjectMenuButton project={project} align="end" className="!text-white" />
       </span>
       {project.pinned && (
-        <span className="pointer-events-none absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+        <span className="pointer-events-none absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/45 text-white">
           <Icon name="pin" size={12} />
         </span>
       )}

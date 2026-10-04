@@ -119,7 +119,8 @@ function EditorSheet({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className={`absolute inset-0 bg-canvas-deep/75 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
+        // Under the picture picker's own dimming the blur is never seen, and redrawing it costs frames.
+        className={`absolute inset-0 bg-canvas-deep/75 ${picking ? "" : "backdrop-blur-md"} ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
         role="dialog"
@@ -205,14 +206,14 @@ function EditorSheet({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
                 {i === 0 ? (
-                  <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-px text-[10px] text-white backdrop-blur-md">
+                  <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-px text-[10px] text-white">
                     Cover
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setImages((all) => [url, ...all.filter((u) => u !== url)])}
-                    className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-px text-[10px] text-white opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100 max-md:opacity-100"
+                    className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-px text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 max-md:opacity-100"
                   >
                     Make cover
                   </button>
@@ -221,7 +222,7 @@ function EditorSheet({
                   type="button"
                   onClick={() => setImages((all) => all.filter((u) => u !== url))}
                   aria-label="Remove picture"
-                  className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md"
+                  className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
                 >
                   <Icon name="close" size={12} />
                 </button>

@@ -34,7 +34,7 @@ function TileAction({
         event.stopPropagation();
         onClick();
       }}
-      className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
+      className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
     >
       <Icon name={icon} size={15} />
     </button>
@@ -241,7 +241,8 @@ export function MediaPicker({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${
+        // Over the element editor the page is blurred already: a second blur over it only costs frames.
+        className={`absolute inset-0 bg-canvas-deep/80 ${above ? "" : "backdrop-blur-md"} ${
           exiting ? "anim-fade-out" : "anim-fade"
         }`}
       />

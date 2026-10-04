@@ -81,7 +81,7 @@ function MediaTile({
           type="button"
           onClick={onPreview}
           aria-label="View full size"
-          className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80"
+          className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"
         >
           <Icon name="expand" size={13} />
         </button>
@@ -90,7 +90,7 @@ function MediaTile({
             type="button"
             onClick={onDelete}
             aria-label="Delete upload"
-            className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-[#ff6b6b]/80"
+            className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-[#ff6b6b]/80"
           >
             <Icon name="trash" size={13} />
           </button>
