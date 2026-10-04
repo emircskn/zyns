@@ -6,7 +6,7 @@ import { ElementsPage } from "@/components/ElementsPage";
 import { Icon, type IconName } from "@/components/Icon";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer";
-import { GenerationsView, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
+import { GenerationsView, ProjectGrid, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
 
 /** The side menu's pages as a phone's chips, with the same icons. */
@@ -81,11 +81,25 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
       </div>
       <main className="flex min-w-0 flex-1 flex-col">
         {view === "home" ? (
-          <div key="home" className="anim-fade flex flex-1 flex-col items-center justify-center gap-8 px-4 pb-10 pt-4 md:px-0 md:pt-10">
-            <h1 className="studio-title text-center text-[34px] font-bold uppercase leading-[1.02] tracking-[-0.03em] md:text-[56px]">
-              Direct every shot
-            </h1>
-            <div className="w-full max-w-[1040px]">{composer}</div>
+          <div key="home" className="anim-fade flex flex-1 flex-col items-center px-4 pb-12 pt-4 md:px-0 md:pt-[12vh]">
+            <div className="flex w-full flex-col items-center gap-8">
+              <h1 className="studio-title text-center text-[34px] font-bold uppercase leading-[1.02] tracking-[-0.03em] md:text-[56px]">
+                Direct every shot
+              </h1>
+              <div className="w-full max-w-[1040px]">{composer}</div>
+            </div>
+            {/* Under the composer, the projects to go on with; the heading opens them all. */}
+            <section className="mt-14 w-full md:mt-20 md:px-2">
+              <button
+                type="button"
+                onClick={() => patchStudio({ view: "projects" })}
+                className="group mb-4 flex items-center gap-1 text-[16px] font-semibold text-t1"
+              >
+                My projects
+                <Icon name="chevron" size={15} className="-rotate-90 text-t3 transition-transform duration-[120ms] group-hover:translate-x-0.5" />
+              </button>
+              <ProjectGrid className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" />
+            </section>
           </div>
         ) : (
           <>

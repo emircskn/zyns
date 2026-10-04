@@ -214,7 +214,7 @@ function ProjectSidebar() {
         onClick={() => {
           // Leaving the project: what is made next is no longer saved to it.
           useStudio.getState().setActiveProject(null);
-          patchStudio({ view: "projects" });
+          patchStudio({ view: "home" });
         }}
       />
       <div className="flex items-center gap-2 px-2 pb-2 pt-2">
@@ -571,28 +571,36 @@ function Empty({ text }: { text: string }) {
 /** Every project, as cards: a new one first. */
 export function ProjectsView() {
   const projects = liveProjects(useStudio((s) => s.projects));
-  const askNewProject = useNewProject((s) => s.ask);
-  const patchStudio = useStudio((s) => s.patchStudio);
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <ViewHead title="My projects" sub={`${projects.length} ${projects.length === 1 ? "project" : "projects"}`} />
-      <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 md:px-1">
-        <button
-          type="button"
-          onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
-          className="flex flex-col gap-2 text-left"
-        >
-          <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.08]">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-t1/[0.1] text-t1">
-              <Icon name="folder" size={20} />
-            </span>
+      <ProjectGrid className="grid-cols-2 px-4 md:grid-cols-3 md:px-1" />
+    </div>
+  );
+}
+
+/** Every project as a card, a new one first; `className` sets its columns. */
+export function ProjectGrid({ className }: { className: string }) {
+  const projects = liveProjects(useStudio((s) => s.projects));
+  const askNewProject = useNewProject((s) => s.ask);
+  const patchStudio = useStudio((s) => s.patchStudio);
+  return (
+    <div className={`grid gap-3 ${className}`}>
+      <button
+        type="button"
+        onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
+        className="flex flex-col gap-2 text-left"
+      >
+        <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.08]">
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-t1/[0.1] text-t1">
+            <Icon name="folder-plus" size={20} />
           </span>
-          <span className="text-[14px] font-medium text-t1">Create new project</span>
-        </button>
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} onOpen={() => patchStudio({ view: "project", projectId: project.id, folderId: "" })} />
-        ))}
-      </div>
+        </span>
+        <span className="text-[14px] font-medium text-t1">Create new project</span>
+      </button>
+      {projects.map((project) => (
+        <ProjectCard key={project.id} project={project} onOpen={() => patchStudio({ view: "project", projectId: project.id, folderId: "" })} />
+      ))}
     </div>
   );
 }
@@ -621,12 +629,8 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       </span>
     </button>
       {/* Its menu, over the picture's corner: on hover, and always on a phone. */}
-      <span className="absolute right-2 top-2 rounded-full bg-black/45 backdrop-blur-md">
-        <ProjectMenuButton
-          project={project}
-          align="end"
-          className="!text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
-        />
+      <span className="absolute right-2 top-2 rounded-full bg-black/45 opacity-0 backdrop-blur-md transition-opacity duration-[120ms] group-hover:opacity-100 group-focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 pointer-coarse:opacity-100">
+        <ProjectMenuButton project={project} align="end" className="!text-white" />
       </span>
       {project.pinned && (
         <span className="pointer-events-none absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
