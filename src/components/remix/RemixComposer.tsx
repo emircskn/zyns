@@ -1,8 +1,8 @@
 "use client";
 
-import { inUse } from "@/lib/elements";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
+import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { Row } from "@/components/remix/Row";
 import { ModelMedia } from "@/components/ModelMedia";
 import { FieldChip, TileChips } from "@/components/PromptBar";
@@ -16,7 +16,7 @@ import { MotionLibrary } from "@/components/remix/MotionLibrary";
 import { Sheet } from "@/components/remix/Restyle";
 import { saveMotionClip } from "@/lib/remix/library";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { mediaSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { getModel, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
@@ -321,45 +321,6 @@ function RefsBox({
   );
 }
 
-/** Library elements, to bring their pictures in as references. */
-function ElementChooser({ open, onPick, onClose }: { open: boolean; onPick: (urls: string[]) => void; onClose: () => void }) {
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
-  if (!open) return null;
-  return (
-    <div className="anim-fade rounded-panel border border-line bg-elevated p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[12.5px] text-t2">Add from Elements</span>
-        <button type="button" onClick={onClose} aria-label="Close" className="text-t4 hover:text-t1">
-          <Icon name="close" size={16} />
-        </button>
-      </div>
-      {elements.length === 0 ? (
-        <p className="py-3 text-center text-[12.5px] text-t4">No characters, places or products yet. Make one on the Elements page.</p>
-      ) : (
-        <div className="grid grid-cols-4 gap-2">
-          {elements.map((element) => (
-            <button
-              key={element.id}
-              type="button"
-              onClick={() => onPick(element.images.map((ref) => ref.storageUrl))}
-              title={`@${element.name}`}
-              className="group flex flex-col items-center gap-1"
-            >
-              <span className="block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.03]">
-                {element.images[0] && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={thumbSrc(element.images[0].storageUrl, 256)} alt="" className="h-full w-full object-cover" />
-                )}
-              </span>
-              <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 /** What a send would cost: Genjutsu by the source's seconds, other models by their own estimate. */
 function usePrice(model: ModelDef | undefined, values: Values, blocker: string | null, length: number | undefined) {
   const higgsfield = providerOf(model) === "higgsfield";
@@ -518,16 +479,24 @@ export function RemixComposer({
             required={!!refsField.required}
             onChange={(refs) => patchRemix({ refs })}
             onAdd={() => setPicking("refs")}
-            onElements={() => setChoosing((was) => !was)}
+            onElements={() => setChoosing(true)}
           />
         )}
-        <ElementChooser
+        {/* Elements come in as their pictures, in the Elements window the Video page's prompt opens. */}
+        <ReferencePicker
           open={choosing}
           onClose={() => setChoosing(false)}
-          onPick={(urls) => {
-            patchRemix((r) => ({ refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) }));
-            setChoosing(false);
-          }}
+          elementsOnly
+          styles={false}
+          room={{ image: 0, video: 0, audio: 0 }}
+          taken={[]}
+          onAdd={() => undefined}
+          onElements={(chosen) =>
+            patchRemix((r) => {
+              const urls = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl));
+              return { refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) };
+            })
+          }
         />
         {below}
         <div className="rounded-panel bg-t1/[0.05] px-3.5 pb-2.5 pt-3">

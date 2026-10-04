@@ -116,6 +116,7 @@ export function ReferencePicker({
   startTab = "uploads",
   kinds = ["image", "video", "audio"],
   elementsOnly,
+  styles = elementsOnly,
   modelElements,
 }: {
   open: boolean;
@@ -135,13 +136,15 @@ export function ReferencePicker({
    * (styles included, as they are words there rather than pictures).
    */
   elementsOnly?: boolean;
+  /** Style elements among them; left out where elements come in as pictures. */
+  styles?: boolean;
   /** A model's own elements (Kling's), shown above yours: a pick goes straight into the prompt. */
   modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   const assets = useAssets();
   const favorites = useStudio((s) => s.favorites);
-  const elements = useStudio((s) => s.elements).filter((e) => (elementsOnly || e.kind !== "style") && inUse(e));
+  const elements = useStudio((s) => s.elements).filter((e) => (styles || e.kind !== "style") && inUse(e));
   const openEditor = useStudio((s) => s.openElementEditor);
   const uploader = useUploader(kinds);
   const [tab, setTab] = useState<Tab>(startTab);
@@ -261,7 +264,7 @@ export function ReferencePicker({
         {tab === "elements" ? (
           <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-[20px] sm:bg-elevated sm:p-1.5">
             <nav className="hidden w-[170px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
-              {ELEMENT_KINDS.filter((k) => elementsOnly || k.id !== "style").map((k) => (
+              {ELEMENT_KINDS.filter((k) => styles || k.id !== "style").map((k) => (
                 <button
                   key={k.id}
                   type="button"
@@ -328,7 +331,7 @@ export function ReferencePicker({
                 <PillGroup
                   value={elementKind}
                   onChange={setElementKind}
-                  items={ELEMENT_KINDS.filter((k) => elementsOnly || k.id !== "style").map((k) => ({ id: k.id, label: k.label }))}
+                  items={ELEMENT_KINDS.filter((k) => styles || k.id !== "style").map((k) => ({ id: k.id, label: k.label }))}
                 />
               </div>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
