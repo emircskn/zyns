@@ -249,7 +249,6 @@ function GenerateButton({
   price,
   count,
   needsKey,
-  place,
 }: {
   onClick: () => void;
   busy: boolean;
@@ -258,37 +257,37 @@ function GenerateButton({
   price: string | null;
   count: number;
   needsKey: string | null;
-  /**
-   * The same button as the other pages' Generate: at the end of the prompt's
-   * row on a desktop ("row"), across the foot of the composer on a phone ("foot").
-   */
-  place: "row" | "foot";
 }) {
+  // The send button the Image, Video and Audio bars have: round, with the arrow, at the end of the prompt.
+  const what = needsKey ? `Add your ${needsKey} key` : `Generate${count > 1 ? ` ×${count}` : ""}${price ? ` · ${price}` : ""} (⌘↵)`;
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      title={blocker ?? undefined}
-      className={`cta shrink-0 items-center justify-center gap-2 font-semibold disabled:opacity-40 ${
-        place === "row" ? "ml-auto hidden h-10 rounded-full px-5 md:flex" : "flex h-12 w-full rounded-panel md:hidden"
-      }`}
+      aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
+      title={blocker ?? what}
+      className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.12] disabled:cursor-not-allowed disabled:text-t4 disabled:hover:bg-t1/[0.07]"
     >
       {busy ? (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
       ) : needsKey ? (
-        <span className="flex items-center gap-1.5 px-2 text-[13.5px]">
-          <Icon name="key" size={15} />
-          Add {needsKey} key
-        </span>
+        <Icon name="key" size={16} />
       ) : (
-        <>
-          <span className={place === "row" ? "text-[14.5px]" : "text-[15.5px]"}>Generate{count > 1 ? ` ×${count}` : ""}</span>
-          <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
-          {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
-        </>
+        <Icon name="arrow-up" size={17} strokeWidth={2} />
       )}
     </button>
+  );
+}
+
+/** What the send costs, at the end of the settings row, as the bars show it. */
+function PriceHint({ price, count }: { price: string | null; count: number }) {
+  if (!price) return null;
+  return (
+    <span className="ml-auto shrink-0 pl-2 font-mono text-[11.5px] tabular-nums text-t3">
+      {price}
+      {count > 1 ? ` · ×${count}` : ""}
+    </span>
   );
 }
 
@@ -518,16 +517,29 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
       )}
       <div className="flex flex-col gap-1.5 md:flex-row">
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[20px] bg-t1/[0.05] p-3">
-          <StudioPrompt
-            text={prompt}
-            placeholder="Describe your scene. Use @ for characters and places, # for a camera move"
-            onText={setPrompt}
-            onElement={(element) => addElements([element], false)}
-            onMoveReplaced={() => setNotice("This model takes one camera move per shot, so the new one took the old one's place.")}
-            onSubmit={() => void generate()}
-            move={moveField}
-            inputRef={setInput}
-          />
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <StudioPrompt
+                text={prompt}
+                placeholder="Describe your scene. Use @ for characters and places, # for a camera move"
+                onText={setPrompt}
+                onElement={(element) => addElements([element], false)}
+                onMoveReplaced={() => setNotice("This model takes one camera move per shot, so the new one took the old one's place.")}
+                onSubmit={() => void generate()}
+                move={moveField}
+                inputRef={setInput}
+              />
+            </div>
+            <GenerateButton
+              onClick={() => void generate()}
+              busy={busy}
+              disabled={!!key && (busy || !!blocker)}
+              blocker={blocker}
+              price={price}
+              count={count}
+              needsKey={key ? null : PROVIDER_NAME[provider]}
+            />
+          </div>
           <div className="no-bar flex items-center gap-1.5 overflow-x-auto md:flex-wrap md:overflow-visible">
             <ToolChip icon="plus" label="Add references" onClick={() => setRefsOpen("uploads")} />
             <ToolChip icon="at" label="Add an element" onClick={() => setRefsOpen("elements")} />
@@ -544,16 +556,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <BatchChip value={count} onChange={setCount} />
               </span>
             )}
-            <GenerateButton
-              place="row"
-              onClick={() => void generate()}
-              busy={busy}
-              disabled={!!key && (busy || !!blocker)}
-              blocker={blocker}
-              price={price}
-              count={count}
-              needsKey={key ? null : PROVIDER_NAME[provider]}
-            />
+            <PriceHint price={price} count={count} />
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -566,16 +569,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </p>
           )}
         </div>
-        <GenerateButton
-          place="foot"
-          onClick={() => void generate()}
-          busy={busy}
-          disabled={!!key && (busy || !!blocker)}
-          blocker={blocker}
-          price={price}
-          count={count}
-          needsKey={key ? null : PROVIDER_NAME[provider]}
-        />
       </div>
       {key && blocker && <p className="px-2 pb-0.5 text-[11.5px] text-t4 md:hidden">{blocker}</p>}
 
@@ -778,12 +771,25 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   return (
     <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row">
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[20px] bg-t1/[0.05] p-3">
-        <StudioPrompt
-          text={studio.imagePrompt}
-          placeholder="Describe the picture. Use @ for characters and places"
-          onText={(text) => patchStudio({ imagePrompt: text })}
-          onSubmit={() => void generate()}
-        />
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <StudioPrompt
+              text={studio.imagePrompt}
+              placeholder="Describe the picture. Use @ for characters and places"
+              onText={(text) => patchStudio({ imagePrompt: text })}
+              onSubmit={() => void generate()}
+            />
+          </div>
+          <GenerateButton
+            onClick={() => void generate()}
+            busy={busy}
+            disabled={!!key && (busy || !!blocker)}
+            blocker={blocker}
+            price={price}
+            count={count}
+            needsKey={key ? null : PROVIDER_NAME[provider]}
+          />
+        </div>
         <div className="no-bar flex items-center gap-1.5 overflow-x-auto md:flex-wrap md:overflow-visible">
           <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} text={studio.imageRefs.length ? String(studio.imageRefs.length) : undefined} />
           <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
@@ -799,16 +805,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <BatchChip value={count} onChange={setCount} />
             </span>
           )}
-          <GenerateButton
-            place="row"
-            onClick={() => void generate()}
-            busy={busy}
-            disabled={!!key && (busy || !!blocker)}
-            blocker={blocker}
-            price={price}
-            count={count}
-            needsKey={key ? null : PROVIDER_NAME[provider]}
-          />
+          <PriceHint price={price} count={count} />
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
@@ -862,16 +859,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </span>
         </button>
       </div>
-      <GenerateButton
-        place="foot"
-        onClick={() => void generate()}
-        busy={busy}
-        disabled={!!key && (busy || !!blocker)}
-        blocker={blocker}
-        price={price}
-        count={count}
-        needsKey={key ? null : PROVIDER_NAME[provider]}
-      />
 
       <StudioDialog
         open={cameraOpen}
