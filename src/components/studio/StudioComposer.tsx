@@ -330,7 +330,8 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const setCount = useStudio((s) => s.setStudioCount);
   const defaults = useMemo(() => (cinema ? defaultValues(cinema) : {}), [cinema]);
   const values: Values = stored ?? defaults;
-  const models = useMemo(() => studioVideoModels(), []);
+  const provider_ = useStudio((s) => s.provider);
+  const models = useMemo(() => studioVideoModels(provider_), [provider_]);
   const model = models.find((m) => m.id === studio.videoModelId) ?? cinema;
   const isCinema = model?.id === CINEMA;
   const own: Values = model && !isCinema ? (valuesByModel[model.id] ?? defaultValues(model)) : values;
@@ -679,7 +680,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const hfKey = useStudio((s) => s.hfKey);
   const count = useStudio((s) => s.studioCount);
   const setCount = useStudio((s) => s.setStudioCount);
-  const models = useMemo(() => studioImageModels(), []);
+  const provider_ = useStudio((s) => s.provider);
+  const models = useMemo(() => studioImageModels(provider_), [provider_]);
   const model = models.find((m) => m.id === studio.imageModelId) ?? models[0];
   const own: Values = model ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
   const character = elements.find((e) => e.id === studio.character);

@@ -270,12 +270,13 @@ export interface GenFilter {
   status: "all" | "done" | "running" | "failed";
   hideFailed: boolean;
   activity: "all" | "generated" | "uploaded" | "liked" | "downloaded";
+  service: "all" | "kie" | "higgsfield";
 }
-export const NO_FILTER: GenFilter = { type: "all", model: "", date: "all", status: "all", hideFailed: false, activity: "all" };
+export const NO_FILTER: GenFilter = { type: "all", model: "", date: "all", status: "all", hideFailed: false, activity: "all", service: "all" };
 
 function activeFilters(f: GenFilter): number {
   return (
-    Number(f.type !== "all") + Number(!!f.model) + Number(f.date !== "all") + Number(f.status !== "all") + Number(f.hideFailed) + Number(f.activity !== "all")
+    Number(f.type !== "all") + Number(!!f.model) + Number(f.date !== "all") + Number(f.status !== "all") + Number(f.hideFailed) + Number(f.activity !== "all") + Number(f.service !== "all")
   );
 }
 
@@ -294,6 +295,16 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
         {group(
           "Type",
           (["all", "image", "video"] as const).map((t) => <Choice key={t} on={filter.type === t} label={t === "all" ? "All types" : t === "image" ? "Images" : "Videos"} onClick={() => set({ type: t })} />),
+        )}
+        {group(
+          "Service",
+          (
+            [
+              ["all", "All services"],
+              ["kie", "KIE"],
+              ["higgsfield", "Higgsfield"],
+            ] as const
+          ).map(([id, label]) => <Choice key={id} on={filter.service === id} label={label} onClick={() => set({ service: id })} />),
         )}
         {group("Model", [
           <Choice key="all" on={!filter.model} label="All models" onClick={() => set({ model: "" })} />,
@@ -395,6 +406,7 @@ const DAY = 24 * 60 * 60 * 1000;
 function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string[]): boolean {
   if (f.type !== "all" && run.output !== f.type) return false;
   if (f.model && run.modelId !== f.model) return false;
+  if (f.service !== "all" && (run.provider ?? "kie") !== f.service) return false;
   const age = Date.now() - run.createdAt;
   if (f.date === "today" && new Date(run.createdAt).toDateString() !== new Date().toDateString()) return false;
   if (f.date === "week" && age > 7 * DAY) return false;

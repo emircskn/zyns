@@ -383,6 +383,17 @@ export function Tile({
         <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
       )}
 
+      {/* Which service made it, small in the corner; the select mark takes its place on hover. */}
+      {url && (
+        <span
+          aria-label={`Made with ${(run.provider ?? "kie") === "higgsfield" ? "Higgsfield" : "KIE"}`}
+          className={`pointer-events-none absolute left-2 top-2 z-[5] rounded-full bg-black/55 font-medium leading-none text-white/90 backdrop-blur-md transition-opacity duration-[150ms] ${
+            square ? "px-1.5 py-[3px] text-[9.5px]" : "px-2 py-1 text-[10.5px]"
+          } ${picking ? "opacity-0" : "group-hover:opacity-0"}`}
+        >
+          {(run.provider ?? "kie") === "higgsfield" ? (square ? "HF" : "Higgsfield") : "KIE"}
+        </span>
+      )}
       {url && (
         <button
           type="button"

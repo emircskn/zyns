@@ -8,7 +8,7 @@
  * sent as `camera_movement` (Cinema Studio takes one per shot).
  */
 import { mapParams } from "@/lib/recipes/paramMap";
-import { ALL_MODELS, activeFields, getModel, modesFor, type Field, type ModelDef, type Values } from "@/lib/registry";
+import { activeFields, getModel, modelsFor, modesFor, type Field, type ModelDef, type Provider, type Values } from "@/lib/registry";
 import { ownPageOf } from "@/store/studio";
 import { CINEMA, labelOf } from "./cinema";
 
@@ -18,10 +18,13 @@ function promptField(model: ModelDef, values: Values): Field | undefined {
   return activeFields(model, values).find((f) => f.placement === "prompt");
 }
 
-/** The video models the composer can send to: Cinema Studio first, then any that takes a prompt. */
-export function studioVideoModels(): ModelDef[] {
+/**
+ * The video models the composer can send to: Cinema Studio first (the page
+ * is built around it), then the chosen service's models that take a prompt.
+ */
+export function studioVideoModels(provider: Provider): ModelDef[] {
   const cinema = getModel(CINEMA);
-  const others = ALL_MODELS.filter((m) => {
+  const others = modelsFor(provider).filter((m) => {
     if (m.category !== "video" || m.id === CINEMA || ownPageOf(m.id)) return false;
     const mode = modesFor(m, "image-to-video")[0];
     const values = mapParams(m, mode, {}).values;
@@ -30,9 +33,9 @@ export function studioVideoModels(): ModelDef[] {
   return cinema ? [cinema, ...others] : others;
 }
 
-/** The image models image mode can send to: any that makes a picture from a prompt. */
-export function studioImageModels(): ModelDef[] {
-  return ALL_MODELS.filter((m) => {
+/** The chosen service's image models that make a picture from a prompt. */
+export function studioImageModels(provider: Provider): ModelDef[] {
+  return modelsFor(provider).filter((m) => {
     if (m.category !== "image" || ownPageOf(m.id)) return false;
     return !!promptField(m, mapParams(m, undefined, {}).values);
   });
