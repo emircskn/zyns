@@ -86,10 +86,12 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               <h1 className="studio-title text-center text-[34px] font-bold uppercase leading-[1.02] tracking-[-0.03em] md:text-[56px]">
                 Direct every shot
               </h1>
-              <div className="w-full max-w-[1040px]">{composer}</div>
+              {/* Held at the image composer's height in both modes: the taller video one reaches
+                  into the space below, so My projects stays put when the mode changes. */}
+              <div className="w-full max-w-[1040px] md:h-[170px]">{composer}</div>
             </div>
             {/* Under the composer, the projects to go on with; the heading opens them all. */}
-            <section className="mt-14 w-full md:mt-20 md:px-2">
+            <section className="mt-14 w-full md:mt-24 md:px-2">
               <button
                 type="button"
                 onClick={() => patchStudio({ view: "projects" })}
