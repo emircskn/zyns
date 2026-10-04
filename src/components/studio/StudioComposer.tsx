@@ -250,6 +250,7 @@ function GenerateButton({
   price,
   count,
   needsKey,
+  tall,
 }: {
   onClick: () => void;
   busy: boolean;
@@ -258,6 +259,8 @@ function GenerateButton({
   price: string | null;
   count: number;
   needsKey: string | null;
+  /** Beside the image composer's tiles: as tall as they are, on a phone too. */
+  tall?: boolean;
 }) {
   return (
     <button
@@ -265,7 +268,7 @@ function GenerateButton({
       onClick={onClick}
       disabled={disabled}
       title={blocker ?? undefined}
-      className="cta flex h-12 w-full shrink-0 flex-row items-center justify-center gap-2 rounded-card font-semibold disabled:opacity-40 md:h-auto md:min-h-[80px] md:w-[128px] md:flex-col md:gap-1"
+      className={`cta flex w-full shrink-0 items-center justify-center rounded-card font-semibold disabled:opacity-40 md:h-auto md:min-h-[80px] md:w-[128px] md:flex-col md:gap-1 ${tall ? "h-[80px] flex-col gap-1" : "h-12 flex-row gap-2"}`}
     >
       {busy ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -831,7 +834,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {bodyLabel ?? "Auto"} / {lensLabel ?? "Auto"}
           </span>
         </button>
-        <div className="flex-1 md:flex-none">
+        <div className="min-w-0 flex-1 md:flex-none">
           <GenerateButton
             onClick={() => void generate()}
             busy={busy}
@@ -840,6 +843,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             price={price}
             count={count}
             needsKey={key ? null : PROVIDER_NAME[provider]}
+            tall
           />
         </div>
       </div>
