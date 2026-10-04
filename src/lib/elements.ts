@@ -6,6 +6,7 @@
  * own per-request elements (a field kind of the registry); in the studio
  * both are simply Elements.
  */
+import type { IconName } from "@/components/Icon";
 import { activeFields, type ModelDef, type Values } from "@/lib/registry";
 import type { MediaRef } from "@/lib/media";
 
@@ -49,11 +50,11 @@ export function elementNotes(element: LibraryElement): string {
   return [element.notes?.trim(), ...props].filter(Boolean).join(", ");
 }
 
-export const ELEMENT_KINDS: Array<{ id: ElementKind; label: string; plural: string }> = [
-  { id: "character", label: "Character", plural: "Characters" },
-  { id: "location", label: "Location", plural: "Locations" },
-  { id: "product", label: "Product", plural: "Products" },
-  { id: "style", label: "Style", plural: "Styles" },
+export const ELEMENT_KINDS: Array<{ id: ElementKind; label: string; plural: string; icon: IconName }> = [
+  { id: "character", label: "Character", plural: "Characters", icon: "smile" },
+  { id: "location", label: "Location", plural: "Locations", icon: "landscape" },
+  { id: "product", label: "Product", plural: "Products", icon: "shapes" },
+  { id: "style", label: "Style", plural: "Styles", icon: "palette" },
 ];
 
 export const MAX_ELEMENT_IMAGES = 10;

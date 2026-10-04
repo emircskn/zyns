@@ -62,6 +62,9 @@ export type IconName =
   | "globe"
   | "lock"
   | "pencil"
+  | "smile"
+  | "landscape"
+  | "shapes"
   | "pin"
   | "undo"
   | "folder-plus"
@@ -112,6 +115,28 @@ const PATHS: Record<IconName, ReactElement> = {
   ),
   pin: <path d="M9 4h6l-1 5 3.5 3.5v1.5h-11v-1.5L10 9 9 4zM12 14v6" />,
   undo: <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />,
+  smile: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" />
+      <circle cx="9" cy="9.75" r="1" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="9.75" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  landscape: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="m3.5 16.5 5-5 4 4 2.5-2.5 5.5 5.5" />
+      <circle cx="16" cy="9" r="1.5" />
+    </>
+  ),
+  shapes: (
+    <>
+      <circle cx="7" cy="7" r="3.2" />
+      <rect x="14" y="4" width="6.5" height="6.5" rx="1.5" />
+      <path d="M12 14.5 16 21H8z" />
+    </>
+  ),
   pencil: <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4zM13.5 6.5l4 4" />,
   "folder-plus": (
     <>

@@ -169,11 +169,12 @@ function EditorSheet({
                 type="button"
                 onClick={() => setKind(k.id)}
                 aria-pressed={kind === k.id}
-                className={`rounded-chip px-2 py-2 text-[13px] transition-colors duration-[120ms] ${
+                className={`flex min-w-0 items-center justify-center gap-1.5 rounded-chip px-1.5 py-2 text-[13px] transition-colors duration-[120ms] max-sm:flex-col max-sm:gap-1 max-sm:text-[12px] ${
                   kind === k.id ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
                 }`}
               >
-                {k.label}
+                <Icon name={k.icon} size={15} className="shrink-0" />
+                <span className="truncate">{k.label}</span>
               </button>
             ))}
           </div>
