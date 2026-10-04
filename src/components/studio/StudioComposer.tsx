@@ -249,7 +249,7 @@ function GenerateButton({
   price,
   count,
   needsKey,
-  tall,
+  place,
 }: {
   onClick: () => void;
   busy: boolean;
@@ -258,8 +258,11 @@ function GenerateButton({
   price: string | null;
   count: number;
   needsKey: string | null;
-  /** Beside the image composer's tiles: as tall as they are, on a phone too. */
-  tall?: boolean;
+  /**
+   * The same button as the other pages' Generate: at the end of the prompt's
+   * row on a desktop ("row"), across the foot of the composer on a phone ("foot").
+   */
+  place: "row" | "foot";
 }) {
   return (
     <button
@@ -267,22 +270,21 @@ function GenerateButton({
       onClick={onClick}
       disabled={disabled}
       title={blocker ?? undefined}
-      // Drawn as the other pages' Generate is: the same weight and words, the spark and the price beside them.
-      className={`cta flex w-full shrink-0 items-center justify-center rounded-panel font-semibold disabled:opacity-40 md:h-auto md:min-h-[80px] md:w-[128px] md:flex-col md:gap-1 ${tall ? "h-[80px] flex-col gap-1" : "h-12 flex-row gap-2"}`}
+      className={`cta shrink-0 items-center justify-center gap-2 font-semibold disabled:opacity-40 ${
+        place === "row" ? "ml-auto hidden h-10 rounded-full px-5 md:flex" : "flex h-12 w-full rounded-panel md:hidden"
+      }`}
     >
       {busy ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       ) : needsKey ? (
-        <span className="flex items-center gap-1.5 px-2 text-[12.5px]">
+        <span className="flex items-center gap-1.5 px-2 text-[13.5px]">
           <Icon name="key" size={15} />
           Add {needsKey} key
         </span>
       ) : (
         <>
-          <span className="flex items-center gap-1.5 text-[15.5px]">
-            Generate{count > 1 ? ` ×${count}` : ""}
-            <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
-          </span>
+          <span className={place === "row" ? "text-[14.5px]" : "text-[15.5px]"}>Generate{count > 1 ? ` ×${count}` : ""}</span>
+          <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
           {price && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{price}</span>}
         </>
       )}
@@ -542,6 +544,16 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <BatchChip value={count} onChange={setCount} />
               </span>
             )}
+            <GenerateButton
+              place="row"
+              onClick={() => void generate()}
+              busy={busy}
+              disabled={!!key && (busy || !!blocker)}
+              blocker={blocker}
+              price={price}
+              count={count}
+              needsKey={key ? null : PROVIDER_NAME[provider]}
+            />
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -555,6 +567,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           )}
         </div>
         <GenerateButton
+          place="foot"
           onClick={() => void generate()}
           busy={busy}
           disabled={!!key && (busy || !!blocker)}
@@ -786,6 +799,16 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <BatchChip value={count} onChange={setCount} />
             </span>
           )}
+          <GenerateButton
+            place="row"
+            onClick={() => void generate()}
+            busy={busy}
+            disabled={!!key && (busy || !!blocker)}
+            blocker={blocker}
+            price={price}
+            count={count}
+            needsKey={key ? null : PROVIDER_NAME[provider]}
+          />
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
@@ -838,19 +861,17 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {bodyLabel ?? "Auto"} / {lensLabel ?? "Auto"}
           </span>
         </button>
-        <div className="min-w-0 flex-1 md:flex-none">
-          <GenerateButton
-            onClick={() => void generate()}
-            busy={busy}
-            disabled={!!key && (busy || !!blocker)}
-            blocker={blocker}
-            price={price}
-            count={count}
-            needsKey={key ? null : PROVIDER_NAME[provider]}
-            tall
-          />
-        </div>
       </div>
+      <GenerateButton
+        place="foot"
+        onClick={() => void generate()}
+        busy={busy}
+        disabled={!!key && (busy || !!blocker)}
+        blocker={blocker}
+        price={price}
+        count={count}
+        needsKey={key ? null : PROVIDER_NAME[provider]}
+      />
 
       <StudioDialog
         open={cameraOpen}

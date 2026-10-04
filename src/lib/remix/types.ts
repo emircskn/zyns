@@ -30,13 +30,13 @@ export interface RemixState {
   presetId?: string;
   /** A Zyns style for the other Restyle models: a built-in one's id, or a style element's. */
   styleId?: string;
-  /** The prompt's switch: off, what is written stays but is not sent. Unset, it is on once something is written. */
+  /** The prompt's switch, off until turned on: off, what is written stays but is not sent. */
   promptOn?: boolean;
 }
 
 /** Whether the prompt goes with the run. */
 export function promptIsOn(remix: RemixState): boolean {
-  return remix.promptOn ?? Boolean((remix.prompts[remix.mode] ?? "").trim());
+  return remix.promptOn === true;
 }
 
 /** What a run made in Remix remembers, so its card can compare and try again. */
