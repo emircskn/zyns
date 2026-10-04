@@ -249,6 +249,8 @@ interface StudioState {
   /** Which service the studio makes things with: its models, its key. */
   provider: Provider;
   theme: Theme;
+  /** A phone drawn at a desktop's width, to see the desktop's layout. */
+  desktopView: boolean;
   credits: number | null;
   category: Category;
   page: Page;
@@ -336,6 +338,7 @@ interface StudioState {
   setHfKey: (key: string) => void;
   setProvider: (provider: Provider) => void;
   setTheme: (theme: Theme) => void;
+  setDesktopView: (on: boolean) => void;
   setCredits: (credits: number | null) => void;
   setCategory: (category: Category) => void;
   setPage: (page: Page) => void;
@@ -568,6 +571,7 @@ export const useStudio = create<StudioState>()(
       hfKey: "",
       provider: "kie",
       theme: "dark",
+      desktopView: false,
       credits: null,
       category: "image",
       page: "home",
@@ -653,6 +657,7 @@ export const useStudio = create<StudioState>()(
         if (onCategory && offered) get().setPage(page);
       },
       setTheme: (theme) => set({ theme }),
+      setDesktopView: (desktopView) => set({ desktopView }),
       setCredits: (credits) => set({ credits }),
       setCategory: (category) => set({ category }),
 
@@ -1109,6 +1114,7 @@ export const useStudio = create<StudioState>()(
         hfKey: state.hfKey,
         provider: state.provider,
         theme: state.theme,
+        desktopView: state.desktopView,
         category: state.category,
         page: state.page,
         density: state.density,

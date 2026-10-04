@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
+import { smallScreen } from "@/components/ViewportSync";
 import { refreshCredits } from "@/lib/generate";
 import { categoriesFor, type Provider } from "@/lib/registry";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
@@ -188,6 +189,8 @@ export function AccountMenu({
   const apiKey = useStudio(activeKey);
   const theme = useStudio((s) => s.theme);
   const setTheme = useStudio((s) => s.setTheme);
+  const desktopView = useStudio((s) => s.desktopView);
+  const setDesktopView = useStudio((s) => s.setDesktopView);
   const runs = useStudio((s) => s.runs);
   const loadDemo = useStudio((s) => s.loadDemo);
   const clearDemo = useStudio((s) => s.clearDemo);
@@ -288,6 +291,10 @@ export function AccountMenu({
             label={theme === "dark" ? "Light theme" : "Dark theme"}
             onClick={act(() => setTheme(theme === "dark" ? "light" : "dark"))}
           />
+          {/* A phone can be shown the desktop's layout, and back; a desktop has no use for it. */}
+          {(desktopView || smallScreen()) && (
+            <MenuRow icon="monitor" label="Desktop view" pressed={desktopView} onClick={act(() => setDesktopView(!desktopView))} />
+          )}
           {/* The studio full of sample media before there is a key, and the way back out. */}
           {hydrated && !apiKey && (
             <MenuRow icon="palette" label="Sample media" pressed={demo} onClick={act(demo ? clearDemo : loadDemo)} />
