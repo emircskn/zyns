@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
+import { SidePanel, canHover } from "@/components/SidePanel";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { useNewFolder } from "@/lib/newProject";
@@ -83,46 +83,6 @@ function MenuRow({
       {more && <Icon name="chevron" size={13} className="-rotate-90 text-t4" />}
       {on && !more && <Icon name="check" size={13} className="text-t1" />}
     </button>
-  );
-}
-
-/** Whether this screen has a pointer that hovers; a phone's finger does not. */
-function canHover() {
-  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-}
-
-/**
- * A menu row's own panel beside the menu, as a desktop menu opens one on
- * hover. Drawn over everything, marked so the menu does not read a press
- * in it as a press outside.
- */
-function SidePanel({ anchor, children, onEnter, onLeave }: { anchor: HTMLElement; children: ReactNode; onEnter: () => void; onLeave: () => void }) {
-  const panel = useRef<HTMLDivElement>(null);
-  const [place, setPlace] = useState<{ left: number; top: number; maxHeight: number } | null>(null);
-  useLayoutEffect(() => {
-    const row = anchor.getBoundingClientRect();
-    // The menu's own edge, so the panel sits beside the whole menu and not over it.
-    const menu = (anchor.closest(".surface-pop") as HTMLElement | null)?.getBoundingClientRect() ?? row;
-    const width = panel.current?.offsetWidth ?? 200;
-    const height = panel.current?.offsetHeight ?? 0;
-    const room = window.innerWidth - menu.right;
-    const left = room >= width + 12 ? menu.right + 6 : Math.max(8, menu.left - width - 6);
-    const view = window.visualViewport?.height ?? window.innerHeight;
-    const top = Math.max(8, Math.min(row.top - 6, view - height - 8));
-    setPlace({ left, top, maxHeight: view - 16 });
-  }, [anchor]);
-  return createPortal(
-    <div
-      ref={panel}
-      data-popover-keep=""
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      className="surface-pop anim-rise no-bar fixed z-[95] w-[200px] overflow-y-auto rounded-panel p-1.5"
-      style={place ? { left: place.left, top: place.top, maxHeight: place.maxHeight } : { left: -9999, top: 0 }}
-    >
-      {children}
-    </div>,
-    document.body,
   );
 }
 

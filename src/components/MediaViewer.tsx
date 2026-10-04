@@ -14,6 +14,7 @@ import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { ProjectPicker } from "@/components/ProjectPicker";
+import { MoveToProject } from "@/components/MoveToProject";
 import { keptNote, usedElsewhere } from "@/lib/usage";
 import { LikeHeart } from "@/components/LikeHeart";
 import { SaveGlyph } from "@/components/SaveGlyph";
@@ -178,6 +179,8 @@ function MoreMenu({
     function onPointerDown(event: MouseEvent) {
       const target = event.target as Node;
       if (panel.current?.contains(target) || anchor.current?.contains(target)) return;
+      // A row's own side panel (Move to's projects) counts as inside.
+      if (target instanceof Element && target.closest("[data-popover-keep]")) return;
       onClose();
     }
     function onKey(event: KeyboardEvent) {
@@ -738,8 +741,8 @@ export function MediaViewer({
     },
     (run || upload) && {
       key: "project",
-      tile: <Action key="project" icon="folder" label={project ? project.name : "Project"} lit={!!project} onClick={() => setFiling(true)} />,
-      row: { icon: "folder" as IconName, label: project ? `Project · ${project.name}` : "Add to project", onClick: () => setFiling(true) },
+      tile: <Action key="project" icon="folder" label={project ? project.name : "Move to"} lit={!!project} onClick={() => setFiling(true)} />,
+      row: { icon: "transfer" as IconName, label: "Move to", onClick: () => setFiling(true) },
     },
     isImage && shown && {
       key: "element",
@@ -984,6 +987,19 @@ export function MediaViewer({
                 <MoreMenu open={more} anchor={moreTile} onClose={() => setMore(false)}>
                   {tail.map(
                     (entry) =>
+                      entry.key === "project" && shown ? (
+                        // Its projects open beside the menu on hover.
+                        <MoveToProject
+                          key="project"
+                          urls={run ? run.urls : [shown]}
+                          current={filedIn ?? null}
+                          onFallback={() => {
+                            setMore(false);
+                            setFiling(true);
+                          }}
+                          onDone={() => setMore(false)}
+                        />
+                      ) : (
                       entry.row && (
                         <button
                           key={entry.key}
@@ -1001,7 +1017,7 @@ export function MediaViewer({
                           <Icon name={entry.row.icon} size={15} className="shrink-0" />
                           <span className="truncate">{entry.row.label}</span>
                         </button>
-                      ),
+                      )),
                   )}
                 </MoreMenu>
               )}
