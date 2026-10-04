@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { Row } from "@/components/remix/Row";
@@ -35,7 +35,7 @@ import {
   type SourceLimits,
   type StyleInput,
 } from "@/lib/remix/targets";
-import { targetKey, type RemixMode, type RemixRunInfo } from "@/lib/remix/types";
+import { promptIsOn, targetKey, type RemixMode, type RemixRunInfo } from "@/lib/remix/types";
 import { useEstimate } from "@/lib/useEstimate";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 import { keyFor, useStudio } from "@/store/studio";
@@ -245,6 +245,43 @@ function SourceBox({
   );
 }
 
+/**
+ * The prompt as Higgsfield's Genjutsu has it: a "Prompt" line with a
+ * switch, and the box opening smoothly under it when it is on. Off, what
+ * was written stays but does not go with the run.
+ */
+function PromptBox({ on, onFlip, children }: { on: boolean; onFlip: () => void; children: ReactNode }) {
+  return (
+    <div className="rounded-panel bg-t1/[0.05]">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-label="Prompt"
+        onClick={onFlip}
+        className="flex w-full items-center justify-between gap-3 px-3.5 py-3 text-left"
+      >
+        <span className="text-[14px] font-medium text-t1">Prompt</span>
+        <span aria-hidden="true" className={`relative h-[20px] w-[34px] shrink-0 rounded-full transition-colors duration-[250ms] ${on ? "bg-t1" : "bg-t1/[0.18]"}`}>
+          <span
+            className={`absolute top-[2px] h-4 w-4 rounded-full transition-all duration-[250ms] ${on ? "bg-canvas" : "bg-t1/80"}`}
+            style={{ left: on ? 16 : 2, transitionTimingFunction: "var(--ease-spring)" }}
+          />
+        </span>
+      </button>
+      {/* Grows from nothing to its height and back, rather than appearing. */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-[300ms] ease-[var(--ease)] motion-reduce:transition-none ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        aria-hidden={!on}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className={`px-3.5 pb-3 transition-opacity duration-[250ms] ${on ? "opacity-100 delay-75" : "opacity-0"}`}>{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** The pictures the result takes its characters (or objects) from, in the order the model reads them. */
 function RefsBox({
   label,
@@ -430,6 +467,8 @@ export function RemixComposer({
 
   const settings = model ? settingFields(model, own) : [];
   const promptText = remix.prompts[remix.mode] ?? "";
+  const promptOn = promptIsOn(remix);
+  const promptBox = useRef<HTMLTextAreaElement>(null);
 
   const tiles = model ? settings : [];
   // As on Video: the tiles share the row; the project chip takes a cell only when it shows.
@@ -499,10 +538,20 @@ export function RemixComposer({
           }
         />
         {below}
-        <div className="rounded-panel bg-t1/[0.05] px-3.5 pb-2.5 pt-3">
+        <PromptBox
+          on={promptOn}
+          onFlip={() => {
+            const next = !promptOn;
+            patchRemix({ promptOn: next });
+            // Opened, the caret is put in it once it has room.
+            if (next) window.setTimeout(() => promptBox.current?.focus(), 260);
+          }}
+        >
           <textarea
+            ref={promptBox}
             value={promptText}
-            rows={3}
+            rows={4}
+            tabIndex={promptOn ? 0 : -1}
             placeholder={
               remix.mode === "swap"
                 ? "Optional: what to swap, and for what"
@@ -511,9 +560,9 @@ export function RemixComposer({
                   : "Optional: describe the new scene"
             }
             onChange={(event) => patchRemix((r) => ({ prompts: { ...r.prompts, [r.mode]: event.target.value } }))}
-            className="w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+            className="min-h-[104px] w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
           />
-        </div>
+        </PromptBox>
         {modelRow ??
           (model && (
             <Row

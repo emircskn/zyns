@@ -17,7 +17,7 @@ import {
   type Values,
 } from "@/lib/registry";
 import { getSpec } from "@/lib/registry/hf/auto";
-import { targetKey, type RemixMode, type RemixState, type RemixTarget } from "./types";
+import { promptIsOn, targetKey, type RemixMode, type RemixState, type RemixTarget } from "./types";
 
 export const GENJUTSU = "hf-genjutsu";
 export const MOTION: RemixTarget = { modelId: GENJUTSU, mode: "motion-transfer" };
@@ -194,7 +194,8 @@ export function remixValues(
   style?: StyleInput,
 ): { values: Values; warnings: string[] } {
   const own = baseValues(model, target, remix);
-  const typed = (remix.prompts[remix.mode] ?? "").trim();
+  // Switched off, the prompt stays written but does not go.
+  const typed = promptIsOn(remix) ? (remix.prompts[remix.mode] ?? "").trim() : "";
   const prompt = [typed, style?.prompt?.trim()].filter(Boolean).join(". ");
   const images = [...remix.refs, ...(style?.images ?? [])];
   const room = referenceRoom(model, own);
