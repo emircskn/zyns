@@ -2,6 +2,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Popover } from "@/components/Popover";
+import { ServiceBadge } from "@/components/ServiceBadge";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { LikeHeart } from "@/components/LikeHeart";
@@ -384,16 +385,7 @@ export function Tile({
       )}
 
       {/* Which service made it, small in the corner; the select mark takes its place on hover. */}
-      {url && (
-        <span
-          aria-label={`Made with ${(run.provider ?? "kie") === "higgsfield" ? "Higgsfield" : "KIE"}`}
-          className={`pointer-events-none absolute left-2 top-2 z-[5] rounded-full bg-black/55 font-medium leading-none text-white/90 backdrop-blur-md transition-opacity duration-[150ms] ${
-            square ? "px-1.5 py-[3px] text-[9.5px]" : "px-2 py-1 text-[10.5px]"
-          } ${picking ? "opacity-0" : "group-hover:opacity-0"}`}
-        >
-          {(run.provider ?? "kie") === "higgsfield" ? (square ? "HF" : "Higgsfield") : "KIE"}
-        </span>
-      )}
+      {url && <ServiceBadge provider={run.provider ?? "kie"} small={square} hidden={picking} />}
       {url && (
         <button
           type="button"

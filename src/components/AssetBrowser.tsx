@@ -19,6 +19,7 @@ import { type Box } from "@/lib/justify";
 import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
 import { Tile } from "@/components/Gallery";
+import { ServiceBadge } from "@/components/ServiceBadge";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
@@ -182,6 +183,9 @@ function AssetTile({
       {picked && (
         <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
       )}
+
+      {/* Which service made it; uploads came from no service. */}
+      {run && asset.source === "run" && <ServiceBadge provider={run.provider ?? "kie"} small={square} hidden={picking} />}
 
       <button
         type="button"
