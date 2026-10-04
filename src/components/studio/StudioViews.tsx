@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
-import { DensityControl } from "@/components/DensityControl";
+import { PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { Gallery, TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
 import { MediaPreview } from "@/components/MediaViewer";
@@ -241,7 +241,7 @@ export function ViewHead({ title, sub, children }: { title: string; sub?: string
 
 function MenuButton({ icon, label, count }: { icon: IconName; label: string; count?: number }) {
   return (
-    <span className="flex h-8 items-center gap-1.5 rounded-chip bg-t1/[0.06] px-3 text-[13px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1">
+    <span className="flex h-9 items-center gap-1.5 rounded-full bg-t1/[0.07] px-3.5 text-[13.5px] text-t1 md:h-8 md:rounded-chip md:bg-t1/[0.06] md:px-3 md:text-[13px] md:text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1">
       <Icon name={icon} size={14} />
       {label}
       {count ? <span className="rounded-full bg-t1 px-1.5 text-[10.5px] font-semibold text-canvas">{count}</span> : null}
@@ -489,9 +489,17 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
         title={favoritesOnly ? "My favorites" : "My generations"}
         sub={uploadsShown ? `${shownUploads.length} uploads` : `${count.toLocaleString()} ${count === 1 ? "piece" : "pieces"}`}
       >
-        {layout === "rows" && <span className="md:hidden"><DensityControl /></span>}
+        {/* A phone: Select, Filter, then its two layouts, as Assets and Favorites have them. */}
+        <span className="md:hidden">
+          <SelectToggle />
+        </span>
         <FilterMenu filter={filter} onChange={setFilter} models={models} />
-        <ViewMenu layout={layout} onLayout={setLayout} />
+        <span className="md:hidden">
+          <PhoneGridToggle />
+        </span>
+        <span className="hidden md:block">
+          <ViewMenu layout={layout} onLayout={setLayout} />
+        </span>
       </ViewHead>
       <div className="md:px-1">
         {uploadsShown ? (

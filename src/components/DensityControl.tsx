@@ -13,48 +13,14 @@ const STEPS = [2, 3, 4, 5, 6];
 export function DensityControl() {
   const density = useStudio((s) => s.density);
   const setDensity = useStudio((s) => s.setDensity);
-  const phoneGrid = useStudio((s) => s.phoneGrid);
-  const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
-  const selectMode = useStudio((s) => s.selectMode);
-  const setSelectMode = useStudio((s) => s.setSelectMode);
 
   return (
     <>
       {/* A phone picks through this rather than a long press, which iOS
           also reads as selecting text or opening the picture's own menu. */}
       <div className="flex items-center gap-1.5 md:hidden">
-        <button
-          type="button"
-          onClick={() => setSelectMode(!selectMode)}
-          aria-pressed={selectMode}
-          className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
-            selectMode ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1"
-          }`}
-        >
-          {selectMode ? "Cancel" : "Select"}
-        </button>
-        {/* Two answers on a phone, side by side so both are in view: one
-            piece of media at its own size, or everything at once. */}
-        <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-full bg-t1/[0.07] p-1">
-          {([
-            [false, "square", "One at a time"],
-            [true, "grid", "Grid"],
-          ] as const).map(([grid, icon, label]) => (
-            <button
-              key={icon}
-              type="button"
-              role="radio"
-              aria-checked={phoneGrid === grid}
-              aria-label={label}
-              onClick={() => setPhoneGrid(grid)}
-              className={`grid h-7 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
-                phoneGrid === grid ? "bg-t1/[0.14] text-t1" : "text-t3"
-              }`}
-            >
-              <Icon name={icon} size={15} />
-            </button>
-          ))}
-        </div>
+        <SelectToggle />
+        <PhoneGridToggle />
       </div>
 
     {/* A slider rather than a stepper: the tiles resize under the thumb as
@@ -79,5 +45,54 @@ export function DensityControl() {
       <Icon name="expand" size={14} className="shrink-0 text-t4" />
     </label>
     </>
+  );
+}
+
+/** A phone's Select: tiles pick on a tap until it is pressed again (Cancel). */
+export function SelectToggle() {
+  const selectMode = useStudio((s) => s.selectMode);
+  const setSelectMode = useStudio((s) => s.setSelectMode);
+  return (
+    <button
+      type="button"
+      onClick={() => setSelectMode(!selectMode)}
+      aria-pressed={selectMode}
+      className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
+        selectMode ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1"
+      }`}
+    >
+      {selectMode ? "Cancel" : "Select"}
+    </button>
+  );
+}
+
+/**
+ * A phone's two layouts, side by side so both are in view: one piece of
+ * media at its own size, or everything at once in a grid.
+ */
+export function PhoneGridToggle() {
+  const phoneGrid = useStudio((s) => s.phoneGrid);
+  const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
+  return (
+    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-full bg-t1/[0.07] p-1">
+      {([
+        [false, "square", "One at a time"],
+        [true, "grid", "Grid"],
+      ] as const).map(([grid, icon, label]) => (
+        <button
+          key={icon}
+          type="button"
+          role="radio"
+          aria-checked={phoneGrid === grid}
+          aria-label={label}
+          onClick={() => setPhoneGrid(grid)}
+          className={`grid h-7 w-8 place-items-center rounded-full transition-colors duration-[120ms] ${
+            phoneGrid === grid ? "bg-t1/[0.14] text-t1" : "text-t3"
+          }`}
+        >
+          <Icon name={icon} size={15} />
+        </button>
+      ))}
+    </div>
   );
 }
