@@ -22,6 +22,8 @@ interface Placement {
   /** Above the trigger (the composer's chips), or below it near the top of the screen. */
   bottom?: number;
   top?: number;
+  /** How tall its list may be, to stay on screen. */
+  maxHeight: number;
 }
 
 export function Popover({ trigger, children, align = "start", width = 264, title, full }: Props) {
@@ -72,12 +74,26 @@ export function Popover({ trigger, children, align = "start", width = 264, title
             : rect.left;
       // Opens upward, as from the composer at the foot of the screen; a
       // trigger in the top half (a page's toolbar) opens downward instead.
-      const below = rect.top < window.innerHeight / 2;
+      // Whichever way it opens, it is held to the room on that side (and
+      // turns to the other side when that one has much more), so its top
+      // never runs off the screen.
+      const view = window.visualViewport;
+      const viewTop = view?.offsetTop ?? 0;
+      const viewBottom = viewTop + (view?.height ?? window.innerHeight);
+      const roomAbove = rect.top - viewTop - 10 - margin;
+      const roomBelow = viewBottom - rect.bottom - 10 - margin;
+      let below = rect.top < window.innerHeight / 2;
+      if (below && roomBelow < 280 && roomAbove > roomBelow) below = false;
+      if (!below && roomAbove < 280 && roomBelow > roomAbove) below = true;
+      // The panel's own padding and title row take about this much.
+      const chrome = (title ? 34 : 0) + 12;
+      const ceiling = Math.min(420, window.innerHeight * 0.58);
       setPlace({
         // Nudged back inside when a chip sits near an edge.
         left: Math.max(margin, Math.min(left, window.innerWidth - margin - w)),
         ...(below ? { top: rect.bottom + 10 } : { bottom: window.innerHeight - rect.top + 10 }),
         width: w,
+        maxHeight: Math.max(120, Math.min(ceiling, (below ? roomBelow : roomAbove) - chrome)),
       });
     };
     measure();
@@ -87,7 +103,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [mounted, align, width]);
+  }, [mounted, align, width, title]);
 
   return (
     <div className={full ? "relative w-full" : "relative"} ref={root}>
@@ -109,7 +125,10 @@ export function Popover({ trigger, children, align = "start", width = 264, title
                 {title}
               </div>
             )}
-            <div className="max-h-[min(58vh,420px)] overflow-y-auto">
+            <div
+              className="overflow-y-auto"
+              style={{ maxHeight: place.maxHeight, ["--pop-max" as string]: `${place.maxHeight}px` }}
+            >
               {typeof children === "function" ? children(() => setOpen(false)) : children}
             </div>
           </div>,

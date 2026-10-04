@@ -179,7 +179,7 @@ function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: Model
       )}
     >
       {(close) => (
-        <div className="flex max-h-[min(420px,60vh)] flex-col">
+        <div className="flex max-h-[var(--pop-max,420px)] flex-col">
           <label className="mb-1.5 flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-t1/[0.06] px-3 text-t3">
             <Icon name="search" size={14} />
             <input
