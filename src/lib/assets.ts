@@ -23,10 +23,11 @@ export interface Asset {
   run?: Run;
   /** The project it was saved to, if any. */
   projectId?: string;
+  folderId?: string;
 }
 
 export function runAssets(run: Run): Asset[] {
-  if (run.state !== "success") return [];
+  if (run.state !== "success" || run.trashedAt) return [];
   const category = getModel(run.modelId)?.category;
   return run.urls.map((url, index) => ({
     id: `${run.id}-${index}`,
@@ -38,6 +39,7 @@ export function runAssets(run: Run): Asset[] {
     prompt: run.prompt,
     createdAt: run.createdAt,
     projectId: run.projectId,
+    folderId: run.folderId,
   }));
 }
 
@@ -75,6 +77,7 @@ export function uploadAsset(upload: Upload): Asset {
     label: upload.name ?? "Upload",
     createdAt: upload.createdAt,
     projectId: upload.projectId,
+    folderId: upload.folderId,
   };
 }
 
@@ -82,7 +85,7 @@ export function uploadAsset(upload: Upload): Asset {
 export function useAssets(): Asset[] {
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
-  return [...runs.flatMap(runAssets), ...uploads.map(uploadAsset)].sort(
+  return [...runs.flatMap(runAssets), ...uploads.filter((u) => !u.trashedAt).map(uploadAsset)].sort(
     (a, b) => b.createdAt - a.createdAt,
   );
 }

@@ -160,6 +160,8 @@ async function share(files: File[], urls: string[]): Promise<SaveResult> {
  */
 export async function saveMedia(urls: string[]): Promise<SaveResult> {
   if (urls.length === 0) return "cancelled";
+  // Remembered for Cinema Studio's "Downloaded" filter.
+  useStudio.getState().markDownloaded(urls);
 
   // Everything already in hand: share straight from the tap, nothing awaited
   // first, so the browser still counts it as the user's own.

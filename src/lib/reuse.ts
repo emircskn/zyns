@@ -1,6 +1,7 @@
 "use client";
 
 import { restoreRemix } from "@/lib/remix/reuse";
+import { isStudioRun, studioRecreate } from "@/lib/studio/reuse";
 import { GENJUTSU } from "@/lib/remix/targets";
 import {
   modelsFor,
@@ -131,14 +132,8 @@ export function recreateRun(run: Run): boolean {
     return true;
   }
   // Cinema Studio's go back to its page, with every setting they had.
-  if (ownPageOf(run.modelId) === "studio") {
-    const studio = getModel(run.modelId);
-    if (!studio) return false;
-    const store = useStudio.getState();
-    store.setModelValues(run.modelId, { ...defaultValues(studio), ...run.values }, true);
-    store.setPage("studio");
-    return true;
-  }
+  // Cinema Studio's runs (its own model, or another picked in it) go back to its composer.
+  if (isStudioRun(run)) return studioRecreate(run);
   const model = getModel(run.modelId);
   const store = useStudio.getState();
   store.selectModel(run.modelId);

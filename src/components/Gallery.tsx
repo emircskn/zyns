@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Popover } from "@/components/Popover";
 import { GenerationLoader } from "@/components/GenerationLoader";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { LikeHeart } from "@/components/LikeHeart";
@@ -26,7 +27,10 @@ import { failureHint } from "@/lib/runErrors";
 import { keptNote, usedElsewhere } from "@/lib/usage";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { useStudio, type Run } from "@/store/studio";
+import { TileExtras } from "@/lib/tileExtras";
 import { mediaSrc } from "@/lib/storage/client";
+
+export { TileExtras, type TileExtrasValue } from "@/lib/tileExtras";
 
 const STATE_LABEL: Record<Run["state"], string> = {
   queued: "Submitting",
@@ -237,8 +241,11 @@ export function Tile({
   onPick: () => void;
 }) {
   const removeRun = useStudio((s) => s.removeRun);
+  const setTrashed = useStudio((s) => s.setTrashed);
   const favorites = useStudio((s) => s.favorites);
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
+  const extras = useContext(TileExtras);
+  const [copied, setCopied] = useState(false);
   const url = run.urls[0];
   const kept = !!url && favorites.includes(url);
   const [loading, setLoading] = useState(false);
@@ -312,6 +319,17 @@ export function Tile({
             className="block h-full w-full cursor-zoom-in"
           >
             <Media url={url} run={run} compact={square} />
+            {extras && mediaKind(url) === "video" && (
+              <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                <Icon name="play" size={16} fill="currentColor" />
+              </span>
+            )}
+            {extras?.lastViewed && run.urls.includes(extras.lastViewed) && (
+              <span className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-white backdrop-blur-md">
+                <Icon name="expand" size={11} />
+                Last viewed
+              </span>
+            )}
           </button>
         ) : run.made ? (
           // A voice has nothing to look at: the tile says what was made.
@@ -408,8 +426,57 @@ export function Tile({
             />
           )}
           {url && <SaveTileAction url={url} />}
+          {extras && run.prompt && (
+            <TileAction
+              icon={copied ? "check" : "copy"}
+              label={copied ? "Copied" : "Copy prompt"}
+              onClick={() => {
+                void navigator.clipboard?.writeText(run.prompt).then(() => {
+                  setCopied(true);
+                  window.setTimeout(() => setCopied(false), 1400);
+                });
+              }}
+            />
+          )}
           <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
-          <TileAction icon="trash" label="Remove from gallery" danger onClick={() => setConfirming(true)} />
+          {extras?.folders && extras.onFolder && url && (
+            <Popover
+              width={220}
+              title="Move to folder"
+              align="end"
+              trigger={() => (
+                <span title="More" aria-label="More" className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md transition-all duration-[120ms] hover:scale-110 hover:bg-black/80">
+                  <Icon name="more" size={14} />
+                </span>
+              )}
+            >
+              {(close) => (
+                <div className="flex flex-col">
+                  <p className="px-2.5 pb-1 pt-1 text-[11.5px] text-t3">Move to folder</p>
+                  {[{ id: "", name: "No folder" }, ...extras.folders!].map((folder) => (
+                    <button
+                      key={folder.id || "none"}
+                      type="button"
+                      onClick={() => {
+                        extras.onFolder!(url, folder.id || undefined);
+                        close();
+                      }}
+                      className="flex items-center justify-between rounded-chip px-2.5 py-2 text-left text-[13px] text-t2 hover:bg-t1/[0.06] hover:text-t1"
+                    >
+                      {folder.name}
+                      {(run.folderId ?? "") === folder.id && <Icon name="check" size={14} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Popover>
+          )}
+          <TileAction
+            icon="trash"
+            label={extras?.trash ? "Move to Trash" : "Remove from gallery"}
+            danger
+            onClick={() => (extras?.trash ? setTrashed(run.urls, true) : setConfirming(true))}
+          />
         </div>
 
         {url && mediaKind(url) === "image" && (
@@ -418,7 +485,7 @@ export function Tile({
               coarse || picking ? "pointer-events-none" : "pointer-events-auto"
             }`}
           >
-            <TileAction icon="layers" label="Use as reference" onClick={() => sendReference(url)} />
+            <TileAction icon="layers" label="Use as reference" onClick={() => (extras?.onReference ? extras.onReference(url) : sendReference(url))} />
           </div>
         )}
       </div>
@@ -548,11 +615,17 @@ export function Gallery({
   category,
   view = "grid",
   modelId,
+  filter,
+  layout = "rows",
 }: {
   category?: Category;
   view?: "list" | "grid";
   /** Only one model's runs (a page of its own, as Cinema Studio has). */
   modelId?: string;
+  /** Which runs to show, in place of the category or model (keep it stable: it is memoized on). */
+  filter?: (run: Run) => boolean;
+  /** A desktop's wall: justified rows (each tile its own shape) or a grid of squares. */
+  layout?: "rows" | "square";
 }) {
   const runs = useStudio((s) => s.runs);
   const hydrated = useStudio((s) => s.hydrated);
@@ -562,6 +635,8 @@ export function Gallery({
   const setFavorites = useStudio((s) => s.setFavorites);
   const removeRun = useStudio((s) => s.removeRun);
   const fileUnder = useStudio((s) => s.fileUnder);
+  const density = useStudio((s) => s.density);
+  const extras = useContext(TileExtras);
   const [viewer, setViewer] = useState<{ url: string; runId: string } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   // A phone's Select button: tiles pick on a tap before anything is picked.
@@ -574,12 +649,18 @@ export function Gallery({
 
   const shown = useMemo(
     () =>
-      modelId
-        ? runs.filter((run) => run.modelId === modelId)
-        : category
-          ? runs.filter((run) => getModel(run.modelId)?.category === category)
-          : runs,
-    [runs, category, modelId],
+      runs.filter(
+        (run) =>
+          !run.trashedAt &&
+          (filter
+            ? filter(run)
+            : modelId
+              ? run.modelId === modelId
+              : category
+                ? getModel(run.modelId)?.category === category
+                : true),
+      ),
+    [runs, category, modelId, filter],
   );
   // A deleted run holds its cell while it shrinks out of it, rather than the
   // grid closing over it between two frames.
@@ -605,9 +686,12 @@ export function Gallery({
       run={run}
       box={box}
       index={tiles.indexOf(run)}
-      square={phone && phoneGrid}
+      square={(phone && phoneGrid) || (!phone && layout === "square")}
       leaving={leaving.has(run.id)}
-      onOpen={(url) => setViewer({ url, runId: run.id })}
+      onOpen={(url) => {
+        setViewer({ url, runId: run.id });
+        extras?.onOpened?.(url);
+      }}
       picked={picked.includes(run.id)}
       picking={picked.length > 0 || selectMode}
       onPick={() =>
@@ -660,6 +744,10 @@ export function Gallery({
               </div>
             </section>
           ))
+        ) : layout === "square" ? (
+          <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${density}, minmax(0, 1fr))` }}>
+            {tiles.map((run) => tile(run))}
+          </div>
         ) : (
           // Justified rows, as tall as the density step asks, each tile as
           // wide as its shape.

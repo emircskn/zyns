@@ -89,6 +89,12 @@ export interface Run {
   recipeStep?: string;
   /** Made in Remix: its source clip and references, for its card there. */
   remix?: RemixRunInfo;
+  /** Made in Cinema Studio, in which of its modes (its own model, or another one picked there). */
+  studio?: "video" | "image";
+  /** The folder of its project it sits in. */
+  folderId?: string;
+  /** Put in the Trash: hidden everywhere until restored or deleted for good. */
+  trashedAt?: number;
 }
 
 /** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
@@ -140,6 +146,8 @@ export interface Upload {
   createdAt: number;
   /** The project it was saved to, if any. */
   projectId?: string;
+  folderId?: string;
+  trashedAt?: number;
 }
 
 /** A folder of work: what is made while it is chosen in the composer is saved to it. */
@@ -148,7 +156,44 @@ export interface Project {
   name: string;
   coverUrl?: string;
   createdAt: number;
+  /** What the project is for, in a few lines. */
+  brief?: string;
+  /** Folders inside it, to sort its work. */
+  folders?: Array<{ id: string; name: string }>;
 }
+
+/** Where Cinema Studio is, and its composer as it was left. */
+export type StudioView = "home" | "generations" | "elements" | "favorites" | "projects" | "project";
+export interface StudioUi {
+  view: StudioView;
+  /** The project open on the project page, and the folder in it ("" for all of it, "trash" for its Trash). */
+  projectId?: string;
+  folderId?: string;
+  mode: "video" | "image";
+  /** The video model the composer sends to: Cinema Studio itself, or another one. */
+  videoModelId: string;
+  /** Image mode's model, prompt, pictures and camera. */
+  imageModelId: string;
+  imagePrompt: string;
+  imageRefs: string[];
+  character: string | null;
+  imageCamera: string;
+  imageLens: string;
+  /** The last piece opened from the generations, marked on its tile. */
+  lastViewed?: string;
+}
+
+export const EMPTY_STUDIO: StudioUi = {
+  view: "home",
+  mode: "video",
+  videoModelId: "hf-cinema-studio-4",
+  imageModelId: "",
+  imagePrompt: "",
+  imageRefs: [],
+  character: null,
+  imageCamera: "",
+  imageLens: "",
+};
 
 interface StudioState {
   /** The KIE key. */
@@ -269,6 +314,16 @@ interface StudioState {
   setModelValues: (modelId: string, patch: Values, replace?: boolean) => void;
   /** How many runs Cinema Studio sends at once, each its own request. */
   studioCount: number;
+  studio: StudioUi;
+  patchStudio: (patch: Partial<StudioUi> | ((studio: StudioUi) => Partial<StudioUi>)) => void;
+  patchProject: (id: string, patch: Partial<Project>) => void;
+  /** Media saved to the device, by URL, for the "Downloaded" filter. */
+  downloaded: string[];
+  markDownloaded: (urls: string[]) => void;
+  /** Put runs and uploads (by media URL) in the Trash, or take them out. */
+  setTrashed: (urls: string[], trashed: boolean) => void;
+  /** Move what is made (by media URL) into a folder of its project, or out of one. */
+  fileInFolder: (urls: string[], folderId: string | undefined) => void;
   setStudioCount: (count: number) => void;
   resetValues: () => void;
   /** Empty a model's media inputs, as a sent run does; the prompt stays. */
@@ -667,6 +722,31 @@ export const useStudio = create<StudioState>()(
           },
         })),
       studioCount: 1,
+      studio: EMPTY_STUDIO,
+      patchStudio: (patch) =>
+        set((state) => ({ studio: { ...state.studio, ...(typeof patch === "function" ? patch(state.studio) : patch) } })),
+      patchProject: (id, patch) =>
+        set((state) => ({ projects: state.projects.map((p) => (p.id === id ? { ...p, ...patch } : p)) })),
+      downloaded: [],
+      markDownloaded: (urls) =>
+        set((state) => ({ downloaded: [...urls.filter((u) => !state.downloaded.includes(u)), ...state.downloaded].slice(0, 2000) })),
+      setTrashed: (urls, trashed) =>
+        set((state) => {
+          const picked = new Set(urls);
+          const at = trashed ? Date.now() : undefined;
+          return {
+            runs: state.runs.map((run) => (run.urls.some((u) => picked.has(u)) ? { ...run, trashedAt: at } : run)),
+            uploads: state.uploads.map((upload) => (picked.has(upload.url) ? { ...upload, trashedAt: at } : upload)),
+          };
+        }),
+      fileInFolder: (urls, folderId) =>
+        set((state) => {
+          const picked = new Set(urls);
+          return {
+            runs: state.runs.map((run) => (run.urls.some((u) => picked.has(u)) ? { ...run, folderId } : run)),
+            uploads: state.uploads.map((upload) => (picked.has(upload.url) ? { ...upload, folderId } : upload)),
+          };
+        }),
       setStudioCount: (studioCount) => set({ studioCount: Math.min(4, Math.max(1, Math.round(studioCount))) }),
       setValues: (given) =>
         set((state) => {
@@ -880,6 +960,8 @@ export const useStudio = create<StudioState>()(
         draft: state.draft,
         batch: state.batch,
         studioCount: state.studioCount,
+        studio: state.studio,
+        downloaded: state.downloaded,
         modelByCategory: state.modelByCategory,
         promptByCategory: state.promptByCategory,
         refsByCategory: state.refsByCategory,

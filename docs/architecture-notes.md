@@ -239,3 +239,18 @@ Spec'ten sapmalar ve nedenleri:
 - **Şema kontrolü:** `src/lib/studio/schema.ts` → `schemaProblems(top, body)`: zorunlu alan, tip, enum, min/max, liste uzunluğu, bilinmeyen anahtar. `submitModelRun(..., { schema: true })` gövdeyi tam gidecek haliyle (medya yüklendikten sonra) kataloğun `top` şemasına göre kontrol eder; hata varsa istek gitmez ve composer'da yazar.
 - **Seçenek önizlemeleri (2026-10-03):** `data/cinema-studio-options.json` (Higgsfield web arayüzünden Emir'in aldığı snapshot, bkz. `docs/zyns-studio-ref/STUDIO-UI.md`) `src/lib/studio/options.ts` ile okunur. Seçenekler hâlâ şemadan; JSON sadece değere göre resim/video/renk ekler. Şemada olup JSON'da olmayan değer yazıyla görünür, JSON'da olup şemada olmayan görünmez. Medyalar `cdn.higgsfield.ai`'den (public) doğrudan yüklenir; videolar sadece üzerine gelince ya da seçiliyken oynar. STUDIO-UI.md'deki düzen/renk/font değişiklikleri ve Zyns'te olmayan özellikler Emir'in kararını bekliyor (uygulanmadı).
 
+### Studio arayüzü, Emir'in seçtikleri (2026-10-04)
+
+Emir STUDIO-UI.md'deki 19 maddeden hepsini seçti; tasarım dili (renk, font, yuvarlaklar) Zyns'in kendisi kaldı.
+
+- **Sayfa:** `src/components/studio/CinemaStudio.tsx`. Masaüstünde Studio'nun kendi sol menüsü (`StudioViews.tsx` → `StudioSidebar`: Home, My generations, My elements, My favorites, Projects); telefonda başlık + yatay chip'ler. Home = büyük başlık ("Direct every shot") + composer; diğer sayfalarda composer altta yüzer (sadece masaüstü). Durum `studio` (`StudioUi`, store'da kalıcı).
+- **Composer:** `StudioComposer.tsx`. Image/Video anahtarı. Video: 5 kart (References x/50, Film setup, Camera, Palette, Lighting), prompt + araç satırı (+, @, kare yakala, model chip'i, ayar chip'leri, adet, proje), büyük Generate. Model chip'inde Cinema Studio dışındaki video modelleri de var; seçilince kart ayarları `compileCinemaPrompt` ile prompt'a yazılır, kartlarda "in prompt" yazar. Image: prompt + model + karakter + kamera/lens (prompt'a yazılır).
+- **Prompt:** `StudioPrompt.tsx`. `@` element, `#` kamera hareketi. İkisi de mavi chip (`.mention-chip`, `--mention`), tek Backspace ile silinir. Hareket chip'i `camera_movement`'a yazılır, gönderirken metinden çıkar; ikinci hareket ilkinin yerine geçer ve kısa not çıkar.
+- **Pencereler:** `Dialogs.tsx` (sol menülü kabuk + Reset all), `FilmPickers.tsx` (Genre yay, Era cetvel, Tempo şerit), `Wheel.tsx` (resimli stadyum butonlar), hareket ızgarası "Put on prompt".
+- **Referanslar:** `ReferencePicker.tsx` (Uploads · Elements · Generations · Liked; Recent/All/Images/Videos/Audio; tür başına limit). `FrameGrab.tsx` videodan kare alır.
+- **Element:** `version`, `status`, `props` eklendi; `elementNotes` açıklama + özellikleri prompt'a ekler. Editörde sürükle-bırak.
+- **Üretimler:** Filter (tür, model, tarih, durum, başarısızları gizle, Generated/Uploaded/Liked/Downloaded), View (Square/Masonry + kart boyutu). Kartta prompt kopyala, video play ikonu, "Last viewed". İndirilenler `downloaded` listesinde tutulur.
+- **Detay:** Cinema Studio çalışmalarında Genre…Palette satırları; Recreate/Reference/Turn to video Studio composer'ına gider (`src/lib/studio/reuse.ts`).
+- **Proje sayfası:** Back, ad + menü, Brief, Settings (ad, kapak, silme), Elements, klasörler (Add folder), Trash (geri al / kalıcı sil). Projede silmek Trash'e atar (`trashedAt`). Projeye girince üretimler o projeye kaydolur, Back ile çıkınca bırakılır.
+- **Yapılmayanlar:** Higgsfield'ın kampanya/kredi/topluluk öğeleri; hero carousel'i (Emir: sadece başlık yeter).
+

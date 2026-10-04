@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -32,6 +33,9 @@ import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { usePhone } from "@/lib/usePhone";
 import { actionsFor, applyAction, type ResultAction } from "@/lib/resultActions";
+import { isStudioRun, studioRecreate, studioReference, studioSettingsOf, studioTurnToVideo } from "@/lib/studio/reuse";
+import { CINEMA } from "@/lib/studio/cinema";
+import { TileExtras } from "@/lib/tileExtras";
 import { useStudio, type Run, type Upload } from "@/store/studio";
 import { mediaSrc } from "@/lib/storage/client";
 
@@ -287,7 +291,7 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
       if (mode) rows.push({ label: "Mode", value: mode.label });
     }
     for (const field of model.fields) {
-      if (field.placement !== "bar" || rows.length >= 7) continue;
+      if (field.placement !== "bar" || rows.length >= (run.modelId === CINEMA ? 12 : 7)) continue;
       const value = run.values[field.key];
       if (value === undefined || value === null || value === "" || typeof value === "object") continue;
       if (rows.some((row) => row.label === field.label)) continue;
@@ -295,6 +299,8 @@ function detailsOf(run: Run): Array<{ label: string; value: string }> {
       rows.push({ label: field.label, value: choice?.label ?? String(value) });
     }
   }
+  // A Cinema Studio shot lists the director's choices it was made with.
+  for (const row of studioSettingsOf(run)) if (!rows.some((r) => r.label === row.label)) rows.push(row);
   rows.push({ label: "Created", value: when(run.createdAt) });
   // The charge as KIE reported it; the estimate before the run is only that.
   if (run.credits !== undefined) {
@@ -504,6 +510,7 @@ export function MediaViewer({
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const modelId = useStudio((s) => s.modelId);
   const saver = useSave();
+  const extras = useContext(TileExtras);
   const phone = usePhone();
   const resetSaver = saver.reset;
 
@@ -584,7 +591,13 @@ export function MediaViewer({
   }
 
   function turnToVideo() {
-    if (!videoModel || !shown) return;
+    if (!shown) return;
+    if (isStudioRun(run)) {
+      studioTurnToVideo(shown);
+      onClose();
+      return;
+    }
+    if (!videoModel) return;
     // The model comes first: mode and values both belong to whichever model
     // is active, and the picture rides in as that model's reference.
     useStudio.getState().selectModel(videoModel.id);
@@ -595,6 +608,11 @@ export function MediaViewer({
 
   function recreate() {
     if (!run) return;
+    if (isStudioRun(run)) {
+      studioRecreate(run);
+      onClose();
+      return;
+    }
     // A remix goes back to Remix, with its clip and its pictures.
     if (run.remix) {
       restoreRemix(run);
@@ -608,6 +626,11 @@ export function MediaViewer({
 
   function reference() {
     if (!shown) return;
+    if (isStudioRun(run) || useStudio.getState().page === "studio") {
+      studioReference(shown);
+      onClose();
+      return;
+    }
     if (!sendReference(shown)) return;
     onClose();
     readyToWrite();
@@ -649,6 +672,13 @@ export function MediaViewer({
     readyToWrite();
   }
 
+  // In a project, Delete puts it in the project's Trash instead.
+  function toTrash() {
+    const urls = run ? run.urls : shown ? [shown] : [];
+    useStudio.getState().setTrashed(urls, true);
+    (onBack ?? onClose)();
+  }
+
   function remove() {
     if (run) removeRun(run.id);
     else if (upload) removeUpload(upload.id);
@@ -672,9 +702,9 @@ export function MediaViewer({
   const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
   const project = projects.find((p) => p.id === filedIn);
   const entries = ([
-    videoModel && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
+    (videoModel || (isImage && isStudioRun(run))) && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
     run && { key: "recreate", tile: <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} /> },
-    canReference && { key: "reference", tile: <Action key="reference" icon="layers" label="Reference" onClick={reference} /> },
+    (canReference || (isImage && isStudioRun(run))) && { key: "reference", tile: <Action key="reference" icon="layers" label="Reference" onClick={reference} /> },
     {
       key: "favorite",
       tile: (
@@ -746,11 +776,25 @@ export function MediaViewer({
         onClick: () => !inMotionLibrary && void saveMotionClip(shown),
       },
     },
-    (run || upload) && {
-      key: "delete",
-      tile: <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />,
-      row: { icon: "trash" as IconName, label: "Delete", onClick: () => setConfirming(true), danger: true },
-    },
+    ...(extras?.folders && extras.onFolder && shown
+      ? extras.folders.map((folder: { id: string; name: string }) => ({
+          key: `folder-${folder.id}`,
+          tile: <Action key={`folder-${folder.id}`} icon="folder" label={folder.name} onClick={() => extras.onFolder!(shown, folder.id)} />,
+          row: { icon: "folder" as IconName, label: `Move to ${folder.name}`, onClick: () => extras.onFolder!(shown, folder.id) },
+        }))
+      : []),
+    (run || upload) &&
+      (extras?.trash
+        ? {
+            key: "delete",
+            tile: <Action key="delete" icon="trash" label="Trash" danger onClick={toTrash} />,
+            row: { icon: "trash" as IconName, label: "Move to Trash", onClick: toTrash, danger: true },
+          }
+        : {
+            key: "delete",
+            tile: <Action key="delete" icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />,
+            row: { icon: "trash" as IconName, label: "Delete", onClick: () => setConfirming(true), danger: true },
+          }),
   ] as Array<Entry | false | "" | null | undefined>).filter((entry): entry is Entry => !!entry);
   const overflowed = entries.length > 6;
   const tiles = (overflowed ? entries.slice(0, 5) : entries).map((entry) => entry.tile);
