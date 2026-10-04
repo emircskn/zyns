@@ -54,6 +54,35 @@ export function Wheel({
 
   useEffect(() => () => window.clearTimeout(settle.current), []);
 
+  // A mouse wheel turns the dial one choice per notch. Left to the browser,
+  // one notch scrolled about a choice's height and the snap then carried it
+  // on to the next one, so it moved two. A trackpad's stream of small deltas
+  // is added up into steps the same way.
+  const liveRef = useRef(live);
+  liveRef.current = live;
+  const turnRef = useRef<(index: number) => void>(() => {});
+  useEffect(() => {
+    const node = box.current;
+    if (!node) return;
+    let gathered = 0;
+    let last = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey) return;
+      event.preventDefault();
+      const now = performance.now();
+      if (now - last > 220) gathered = 0;
+      gathered += event.deltaMode === 1 ? event.deltaY * 40 : event.deltaY;
+      // One notch, or a trackpad's swipe of about one step; then a short pause before the next.
+      if (Math.abs(gathered) < 30 || now - last < 160) return;
+      last = now;
+      const by = gathered > 0 ? 1 : -1;
+      gathered = 0;
+      turnRef.current(liveRef.current + by);
+    };
+    node.addEventListener("wheel", onWheel, { passive: false });
+    return () => node.removeEventListener("wheel", onWheel);
+  }, []);
+
   function pick(index: number) {
     const choice = choices[Math.max(0, Math.min(choices.length - 1, index))];
     if (!choice) return;
@@ -71,6 +100,8 @@ export function Wheel({
       window.setTimeout(() => (steering.current = false), 400);
     }
   }
+
+  turnRef.current = turnTo;
 
   const step = (by: number, icon: "up" | "down") => (
     <button
