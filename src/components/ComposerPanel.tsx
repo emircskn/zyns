@@ -463,7 +463,8 @@ export function ComposerBody({
             ))}
           </div>
           <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
-          {mentionable && firstPrompt && (
+          {/* Where the Elements chip is, the model's own elements are inside it rather than a row of their own. */}
+          {mentionable && firstPrompt && !elementsChip && (
             <MentionStrip
               names={names}
               text={(values[firstPrompt.key] as string) ?? ""}
@@ -473,7 +474,21 @@ export function ComposerBody({
           )}
           {(toggles.length > 0 || elementsChip) && !full && (
             <div className="mt-1 flex flex-wrap gap-1.5">
-              {elementsChip && <ElementsChip onPick={insertToken} />}
+              {elementsChip && (
+                <ElementsChip
+                  onPick={insertToken}
+                  model={
+                    mentionable && firstPrompt
+                      ? {
+                          label: model.name,
+                          names,
+                          text: (values[firstPrompt.key] as string) ?? "",
+                          onDefine: definedInPanel ? () => toggleSettings(true) : undefined,
+                        }
+                      : undefined
+                  }
+                />
+              )}
               {toggles.map((field) => (
                 <FieldChip key={field.key} field={field} />
               ))}

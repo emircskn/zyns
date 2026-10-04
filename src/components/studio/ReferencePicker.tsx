@@ -25,6 +25,7 @@ const ELEMENT_KINDS = [
   { id: "character", label: "Characters" },
   { id: "location", label: "Locations" },
   { id: "product", label: "Props" },
+  { id: "style", label: "Styles" },
 ] as const;
 
 function MediaTile({
@@ -114,6 +115,8 @@ export function ReferencePicker({
   onElements,
   startTab = "uploads",
   kinds = ["image", "video", "audio"],
+  elementsOnly,
+  modelElements,
 }: {
   open: boolean;
   onClose: () => void;
@@ -127,11 +130,18 @@ export function ReferencePicker({
   startTab?: Tab;
   /** What this composer takes at all (image mode takes pictures only). */
   kinds?: Kind[];
+  /**
+   * Only the Elements part, for calling elements into a prompt by name
+   * (styles included, as they are words there rather than pictures).
+   */
+  elementsOnly?: boolean;
+  /** A model's own elements (Kling's), shown above yours: a pick goes straight into the prompt. */
+  modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   const assets = useAssets();
   const favorites = useStudio((s) => s.favorites);
-  const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && inUse(e));
+  const elements = useStudio((s) => s.elements).filter((e) => (elementsOnly || e.kind !== "style") && inUse(e));
   const openEditor = useStudio((s) => s.openElementEditor);
   const uploader = useUploader(kinds);
   const [tab, setTab] = useState<Tab>(startTab);
@@ -145,10 +155,11 @@ export function ReferencePicker({
 
   useEffect(() => {
     if (!open) return;
-    setTab(startTab);
+    setTab(elementsOnly ? "elements" : startTab);
     setPicked([]);
     setPickedElements([]);
     setSearch("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startTab]);
 
   useEffect(() => {
@@ -232,7 +243,11 @@ export function ReferencePicker({
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <header className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] sm:pt-3.5">
-          <PillGroup value={tab} onChange={setTab} items={tabs} />
+          {elementsOnly ? (
+            <h2 className="pl-1 text-[17px] font-semibold text-t1">Elements</h2>
+          ) : (
+            <PillGroup value={tab} onChange={setTab} items={tabs} />
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -246,7 +261,7 @@ export function ReferencePicker({
         {tab === "elements" ? (
           <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-[20px] sm:bg-elevated sm:p-1.5">
             <nav className="hidden w-[170px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
-              {ELEMENT_KINDS.map((k) => (
+              {ELEMENT_KINDS.filter((k) => elementsOnly || k.id !== "style").map((k) => (
                 <button
                   key={k.id}
                   type="button"
@@ -261,6 +276,42 @@ export function ReferencePicker({
               ))}
             </nav>
             <div className="no-bar min-w-0 flex-1 overflow-y-auto px-3 pb-3 pt-1 sm:p-3">
+              {modelElements && (modelElements.names.length > 0 || modelElements.onDefine) && (
+                <div className="mb-4 border-b border-line pb-4">
+                  <p className="mb-2 text-[14px] font-semibold text-t1">{modelElements.label}&apos;s own elements</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {modelElements.names.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => {
+                          modelElements.onPick(name);
+                          onClose();
+                        }}
+                        title={modelElements.used.has(name) ? `@${name} is in the prompt` : `Insert @${name}`}
+                        className={`h-8 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
+                          modelElements.used.has(name) ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+                        }`}
+                      >
+                        @{name}
+                      </button>
+                    ))}
+                    {modelElements.onDefine && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          modelElements.onDefine!();
+                        }}
+                        className="flex h-8 items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+                      >
+                        <Icon name="plus" size={13} />
+                        {modelElements.names.length === 0 ? `Define a ${modelElements.label} element` : "Define another"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <p className="text-[14px] font-semibold text-t1">My elements</p>
                 <label className="flex h-8 w-[200px] items-center gap-1.5 rounded-full bg-t1/[0.06] px-3 text-t3">
@@ -274,7 +325,11 @@ export function ReferencePicker({
                 </label>
               </div>
               <div className="mb-3 sm:hidden">
-                <PillGroup value={elementKind} onChange={setElementKind} items={ELEMENT_KINDS.map((k) => ({ id: k.id, label: k.label }))} />
+                <PillGroup
+                  value={elementKind}
+                  onChange={setElementKind}
+                  items={ELEMENT_KINDS.filter((k) => elementsOnly || k.id !== "style").map((k) => ({ id: k.id, label: k.label }))}
+                />
               </div>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                 <button
@@ -392,8 +447,10 @@ export function ReferencePicker({
 
         <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
           <p className="font-mono text-[11.5px] tabular-nums text-t3">
-            {kinds.map((k) => `${KIND_NAME[k]} ${count(k)}/${room[k]}`).join(" · ")}
-            {pickedElements.length > 0 ? ` · ${pickedElements.length} element${pickedElements.length === 1 ? "" : "s"}` : ""}
+            {elementsOnly
+              ? `${pickedElements.length} element${pickedElements.length === 1 ? "" : "s"} picked`
+              : kinds.map((k) => `${KIND_NAME[k]} ${count(k)}/${room[k]}`).join(" · ")}
+            {!elementsOnly && pickedElements.length > 0 ? ` · ${pickedElements.length} element${pickedElements.length === 1 ? "" : "s"}` : ""}
           </p>
           <button
             type="button"

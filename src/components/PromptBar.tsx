@@ -20,6 +20,7 @@ import { Control, InputLabel, chipCaption, sourceItems } from "@/components/cont
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
+import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { submitRun } from "@/lib/generate";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import {
@@ -37,7 +38,7 @@ import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { inUse, type LibraryElement } from "@/lib/elements";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { mediaSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
@@ -427,69 +428,46 @@ export function Chip({
 }
 
 /**
- * "@ Elements" by the prompt: the elements to call, as pictures with their
- * names; picking one writes `@name` where the caret was, as typing `@`
- * would. With none yet, a way to make the first.
+ * "@ Elements" by the prompt: opens the Elements window (as Cinema Studio's
+ * references have it) to pick any number; each comes into the prompt as
+ * `@name` where the caret was, as typing `@` would. A model with elements
+ * of its own (Kling's) lists those above yours, with the way to define
+ * another, so the prompt box has one place for both rather than two rows.
  */
-export function ElementsChip({ onPick }: { onPick: (name: string) => void }) {
-  const elements = useStudio((s) => s.elements).filter(inUse);
-  const openElementEditor = useStudio((s) => s.openElementEditor);
+export function ElementsChip({
+  onPick,
+  model,
+}: {
+  onPick: (name: string) => void;
+  /** The model's own elements: their names, the prompt (to mark those in use) and where more are defined. */
+  model?: { label: string; names: string[]; text: string; onDefine?: () => void };
+}) {
+  const [open, setOpen] = useState(false);
+  const used = model ? usedMentions(model.text, model.names) : new Set<string>();
   return (
-    <Popover
-      width={300}
-      title="Elements"
-      trigger={(open) => (
-        <span
-          className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full pl-2.5 pr-3 text-[12.5px] transition-colors duration-[120ms] md:h-[34px] md:text-[13px] ${
-            open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
-          }`}
-        >
-          <Icon name="at" size={15} />
-          Elements
-        </span>
-      )}
-    >
-      {(close) =>
-        elements.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-3 py-5 text-center">
-            <p className="text-[13px] text-t3">No elements yet. Make a character, place, product or style to call by name.</p>
-            <button
-              type="button"
-              onClick={() => {
-                close();
-                openElementEditor({});
-              }}
-              className="rounded-full bg-t1/[0.08] px-3.5 py-1.5 text-[12.5px] text-t1 hover:bg-t1/[0.12]"
-            >
-              New element
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-4 gap-2 p-1">
-            {elements.map((element) => (
-              <button
-                key={element.id}
-                type="button"
-                onClick={() => {
-                  onPick(element.name);
-                  close();
-                }}
-                title={`@${element.name}`}
-                className="group flex min-w-0 flex-col items-center gap-1"
-              >
-                <span className="block aspect-square w-full overflow-hidden rounded-chip bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.04]">
-                  {element.images[0] && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={thumbSrc(element.images[0].storageUrl, 256)} alt="" className="h-full w-full object-cover" />
-                  )}
-                </span>
-                <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>
-              </button>
-            ))}
-          </div>
-        )
-      }
-    </Popover>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full pl-2.5 pr-3 text-[12.5px] transition-colors duration-[120ms] md:h-[34px] md:text-[13px] ${
+          open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+        }`}
+      >
+        <Icon name="at" size={15} />
+        Elements
+      </button>
+      <ReferencePicker
+        open={open}
+        onClose={() => setOpen(false)}
+        elementsOnly
+        room={{ image: 0, video: 0, audio: 0 }}
+        taken={[]}
+        onAdd={() => undefined}
+        // Several at once go in together: written one by one, each would start from the same old prompt.
+        onElements={(chosen) => chosen.length > 0 && onPick(chosen.map((e) => e.name).join(" @"))}
+        modelElements={model && (model.names.length > 0 || model.onDefine) ? { label: model.label, names: model.names, used, onPick, onDefine: model.onDefine } : undefined}
+      />
+    </>
   );
 }
 
