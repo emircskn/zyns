@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
-import { BatchChip, FieldChip } from "@/components/PromptBar";
+import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
 import { Sheet } from "@/components/remix/Restyle";
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
@@ -337,7 +337,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const setModelValues = useStudio((s) => s.setModelValues);
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
-  const count = useStudio((s) => s.studioCount);
+  const studioCount = useStudio((s) => s.studioCount);
   const setCount = useStudio((s) => s.setStudioCount);
   const defaults = useMemo(() => (cinema ? defaultValues(cinema) : {}), [cinema]);
   const values: Values = stored ?? defaults;
@@ -346,6 +346,9 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const model = models.find((m) => m.id === studio.videoModelId) ?? cinema;
   const isCinema = model?.id === CINEMA;
   const own: Values = model && !isCinema ? (valuesByModel[model.id] ?? defaultValues(model)) : values;
+  // A model with its own count (how many per run) keeps it; ours then sends one run.
+  const selfCount = !!model && hasOwnCount(activeFields(model, own));
+  const count = selfCount ? 1 : studioCount;
 
   const [dialog, setDialog] = useState<OpenDialog>(null);
   const [refsOpen, setRefsOpen] = useState<null | "uploads" | "elements">(null);
@@ -533,9 +536,11 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <FieldChip field={field} values={isCinema ? values : own} onChange={isCinema ? set : setOwn} />
               </span>
             ))}
-            <span className="shrink-0">
-              <BatchChip value={count} onChange={setCount} />
-            </span>
+            {!selfCount && (
+              <span className="shrink-0">
+                <BatchChip value={count} onChange={setCount} />
+              </span>
+            )}
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -688,12 +693,15 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const elements = useStudio((s) => s.elements);
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
-  const count = useStudio((s) => s.studioCount);
+  const studioCount = useStudio((s) => s.studioCount);
   const setCount = useStudio((s) => s.setStudioCount);
   const provider_ = useStudio((s) => s.provider);
   const models = useMemo(() => studioImageModels(provider_), [provider_]);
   const model = models.find((m) => m.id === studio.imageModelId) ?? models[0];
   const own: Values = model ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
+  // A model with its own count (how many per run) keeps it; ours then sends one run.
+  const selfCount = !!model && hasOwnCount(activeFields(model, own));
+  const count = selfCount ? 1 : studioCount;
   const character = elements.find((e) => e.id === studio.character);
   const [refsOpen, setRefsOpen] = useState<null | "uploads" | "elements">(null);
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -772,9 +780,11 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <FieldChip field={field} values={own} onChange={(k, v) => setModelValues(model.id, { [k]: v })} />
               </span>
             ))}
-          <span className="shrink-0">
-            <BatchChip value={count} onChange={setCount} />
-          </span>
+          {!selfCount && (
+            <span className="shrink-0">
+              <BatchChip value={count} onChange={setCount} />
+            </span>
+          )}
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">

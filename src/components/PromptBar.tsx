@@ -521,6 +521,12 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
   );
 }
 
+/** A model's own "how many" setting: where it has one, ours (the batch) stays out of the way. */
+const OWN_COUNT = /^(num_images|max_images|batch_size|n|num_outputs|num_generations|number_of_images)$/;
+export function hasOwnCount(fields: Field[]): boolean {
+  return fields.some((f) => OWN_COUNT.test(f.key));
+}
+
 /**
  * How many copies of this run to send. Most image models return one picture
  * a call, so the count is ours to keep rather than a field on the request:
@@ -1181,8 +1187,7 @@ export function useComposer() {
 
   // A picture at a time, and nothing in the request that asks for more: then
   // the count is ours to send. Models with their own count keep it.
-  const batchable =
-    !!model && model.output === "image" && !fields.some((f) => /^num_images$|^n$|^batch_size$/.test(f.key));
+  const batchable = !!model && model.output === "image" && !hasOwnCount(fields);
   const blocker = model ? validateValues(model, values) : "Choose a model to start";
   // What the send will cost: a KIE model from KIE's price list, where every
   // copy of a batch is a run of its own; a Higgsfield model from Higgsfield's
