@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
+import { GlideMark } from "@/components/GlideMark";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { Gallery, TileExtras, type TileExtrasValue } from "@/components/Gallery";
@@ -39,14 +40,30 @@ function CoverThumb({ project, size }: { project: Project; size: string }) {
   );
 }
 
-function NavRow({ icon, label, on, onClick, trailing }: { icon: IconName | ReactNode; label: string; on?: boolean; onClick: () => void; trailing?: ReactNode }) {
+function NavRow({
+  icon,
+  label,
+  on,
+  onClick,
+  trailing,
+  pill,
+}: {
+  icon: IconName | ReactNode;
+  label: string;
+  on?: boolean;
+  onClick: () => void;
+  trailing?: ReactNode;
+  /** Its id for the menu's sliding highlight, which then draws the chosen one's ground. */
+  pill?: string;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-pill={pill}
       aria-current={on || undefined}
-      className={`flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 pl-1.5 pr-3 text-left text-[14px] font-medium transition-colors duration-[120ms] ${
-        on ? "bg-t1/[0.1] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
+      className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 pl-1.5 pr-3 text-left text-[14px] font-medium transition-colors duration-[200ms] ${
+        on ? `${pill ? "" : "bg-t1/[0.1]"} text-t1` : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
       {typeof icon === "string" ? (
@@ -83,13 +100,15 @@ export function StudioSidebar() {
     .sort((a, b) => (byName ? a.name.localeCompare(b.name) : b.createdAt - a.createdAt))
     .slice(0, 8);
 
+  const menu = useRef<HTMLDivElement>(null);
   if (studio.view === "project" && studio.projectId) return <ProjectSidebar />;
 
   return (
-    <div className="flex h-full flex-col gap-1 p-2">
+    <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
+      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" />
       <p className="px-2 pb-1.5 pt-1 text-[15px] font-semibold tracking-[-0.01em] text-t1">Cinema Studio</p>
       {STUDIO_NAV.map((item) => (
-        <NavRow key={item.id} icon={item.icon} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
+        <NavRow key={item.id} pill={item.id} icon={item.icon} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
       ))}
       <div className="mt-4 flex items-center justify-between px-2 pb-1">
         <span className="text-[12px] font-medium text-t3">Projects</span>
@@ -129,7 +148,7 @@ export function StudioSidebar() {
           />
         ))}
       </div>
-      <NavRow icon="folder" label="All projects" on={studio.view === "projects"} onClick={() => patchStudio({ view: "projects" })} trailing={<Icon name="chevron" size={14} className="-rotate-90 text-t3" />} />
+      <NavRow pill="projects" icon="folder" label="All projects" on={studio.view === "projects"} onClick={() => patchStudio({ view: "projects" })} trailing={<Icon name="chevron" size={14} className="-rotate-90 text-t3" />} />
     </div>
   );
 }
@@ -143,6 +162,7 @@ function ProjectSidebar() {
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const [naming, setNaming] = useState(false);
+  const menu = useRef<HTMLDivElement>(null);
   if (!project) return null;
   const inProject = (x: { projectId?: string; trashedAt?: number }) => x.projectId === project.id && !x.trashedAt;
   const all = runs.filter(inProject).length + uploads.filter(inProject).length;
@@ -152,7 +172,8 @@ function ProjectSidebar() {
   const at = studio.folderId ?? "";
   const go = (folderId: string) => patchStudio({ folderId });
   return (
-    <div className="flex h-full flex-col gap-1 p-2">
+    <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
+      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[project.folders?.length]} />
       <NavRow
         icon={
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07]">
@@ -191,14 +212,14 @@ function ProjectSidebar() {
           )}
         </Popover>
       </div>
-      <NavRow icon="list" label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
-      <NavRow icon="sliders" label="Settings" on={at === "settings"} onClick={() => go("settings")} />
-      <NavRow icon="at" label="Elements" on={at === "elements"} onClick={() => go("elements")} />
+      <NavRow pill="brief" icon="list" label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
+      <NavRow pill="settings" icon="sliders" label="Settings" on={at === "settings"} onClick={() => go("settings")} />
+      <NavRow pill="elements" icon="at" label="Elements" on={at === "elements"} onClick={() => go("elements")} />
       <p className="mt-4 px-2 pb-1 text-[12px] font-medium text-t3">Folders</p>
-      <NavRow icon="grid" label="All assets" on={at === ""} onClick={() => go("")} trailing={<span className="font-mono text-[11.5px] text-t4">{all}</span>} />
+      <NavRow pill="all" icon="grid" label="All assets" on={at === ""} onClick={() => go("")} trailing={<span className="font-mono text-[11.5px] text-t4">{all}</span>} />
       <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
         {(project.folders ?? []).map((folder) => (
-          <NavRow key={folder.id} icon="folder" label={folder.name} on={at === folder.id} onClick={() => go(folder.id)} trailing={<span className="font-mono text-[11.5px] text-t4">{inFolder(folder.id)}</span>} />
+          <NavRow key={folder.id} pill={folder.id} icon="folder" label={folder.name} on={at === folder.id} onClick={() => go(folder.id)} trailing={<span className="font-mono text-[11.5px] text-t4">{inFolder(folder.id)}</span>} />
         ))}
         {naming ? (
           <input
@@ -221,7 +242,7 @@ function ProjectSidebar() {
           <NavRow icon="plus" label="Add folder" onClick={() => setNaming(true)} />
         )}
       </div>
-      <NavRow icon="trash" label="Trash" on={at === "trash"} onClick={() => go("trash")} trailing={trashed ? <span className="font-mono text-[11.5px] text-t4">{trashed}</span> : undefined} />
+      <NavRow pill="trash" icon="trash" label="Trash" on={at === "trash"} onClick={() => go("trash")} trailing={trashed ? <span className="font-mono text-[11.5px] text-t4">{trashed}</span> : undefined} />
     </div>
   );
 }
@@ -641,7 +662,7 @@ export function ProjectView() {
           event.target.value = "";
         }}
       />
-      <div className="px-4 md:px-1">
+      <div key={folder || "all"} className="anim-fade px-4 md:px-1">
         {folder === "brief" ? (
           <textarea
             aria-label="Project brief"

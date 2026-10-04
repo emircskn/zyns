@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { GlideMark } from "@/components/GlideMark";
 import { ElementsPage } from "@/components/ElementsPage";
 import { Icon, type IconName } from "@/components/Icon";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
@@ -21,6 +22,7 @@ const PHONE_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
  * menu is a row of chips over the page.
  */
 export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
+  const chips = useRef<HTMLDivElement>(null);
   const hfKey = useStudio((s) => s.hfKey);
   const studio = useStudioUi();
   const patchStudio = useStudio((s) => s.patchStudio);
@@ -56,15 +58,17 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
       <div className="px-4 pb-2 pt-1 md:hidden">
         <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1">Cinema Studio</h2>
-        <div className="no-bar -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4">
+        <div ref={chips} className="no-bar relative -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4">
+          <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
           {PHONE_NAV.map((item) => (
             <button
               key={item.id}
+              data-pill={item.id}
               type="button"
               onClick={() => patchStudio({ view: item.id })}
               aria-current={view === item.id || (item.id === "projects" && view === "project") || undefined}
-              className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[120ms] ${
-                view === item.id || (item.id === "projects" && view === "project") ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2"
+              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] ${
+                view === item.id || (item.id === "projects" && view === "project") ? "text-canvas" : "bg-t1/[0.07] text-t2"
               }`}
             >
               <Icon name={item.icon} size={14} />
@@ -75,7 +79,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
       </div>
       <main className="flex min-w-0 flex-1 flex-col">
         {view === "home" ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 pb-10 pt-4 md:px-0 md:pt-10">
+          <div key="home" className="anim-fade flex flex-1 flex-col items-center justify-center gap-8 px-4 pb-10 pt-4 md:px-0 md:pt-10">
             <h1 className="studio-title text-center text-[34px] font-bold uppercase leading-[1.02] tracking-[-0.03em] md:text-[56px]">
               Direct every shot
             </h1>
@@ -83,7 +87,8 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
           </div>
         ) : (
           <>
-            <div className="flex-1 pb-6">
+            {/* Keyed by the page, so each one fades in as the other pages do. */}
+            <div key={view === "project" ? `project-${studio.projectId}` : view} className="anim-fade flex-1 pb-6">
               {view === "generations" ? (
                 <GenerationsView />
               ) : view === "favorites" ? (

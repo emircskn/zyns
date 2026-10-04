@@ -119,6 +119,12 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
 
   const provider = useStudio((s) => s.provider);
   const TABS = tabsFor(provider);
+  // A new service starts on All: the tab open before may not exist for it.
+  const [tabProvider, setTabProvider] = useState(provider);
+  if (tabProvider !== provider) {
+    setTabProvider(provider);
+    setTab("all");
+  }
   const shown = useMemo(() => {
     // Genjutsu and Cinema Studio lead as their page cards; not again in the grid.
     const models = modelsFor(provider).filter((model) => !ownPageOf(model.id));

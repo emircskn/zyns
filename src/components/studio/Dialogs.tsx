@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { GlideMark } from "@/components/GlideMark";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
@@ -49,6 +50,7 @@ export function StudioDialog({
   children: ReactNode;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  const side = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -102,15 +104,17 @@ export function StudioDialog({
         )}
         <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:mb-1.5 sm:rounded-[20px] sm:bg-elevated sm:p-1.5">
           {menu && (
-            <nav className="hidden w-[184px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
+            <nav ref={side} className="relative hidden w-[184px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
+              <GlideMark value={tab ?? nav[0].id} className="rounded-[12px] bg-t1/[0.1]" deps={[mounted]} />
               {nav.map((item) => (
                 <button
                   key={item.id}
+                  data-pill={item.id}
                   type="button"
                   onClick={() => onTab?.(item.id)}
                   aria-current={tab === item.id || undefined}
-                  className={`flex h-9 items-center gap-2 rounded-[12px] px-2.5 text-[14px] transition-colors duration-[120ms] ${
-                    tab === item.id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
+                  className={`relative flex h-9 items-center gap-2 rounded-[12px] px-2.5 text-[14px] transition-colors duration-[200ms] ${
+                    tab === item.id ? "text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
                   }`}
                 >
                   <Icon name={item.icon} size={16} />
@@ -120,7 +124,9 @@ export function StudioDialog({
               ))}
             </nav>
           )}
-          <div className="no-bar min-w-0 flex-1 overflow-y-auto px-3 pb-[max(16px,env(safe-area-inset-bottom))] pt-1 sm:p-3">{children}</div>
+          <div key={tab} className="anim-fade no-bar min-w-0 flex-1 overflow-y-auto px-3 pb-[max(16px,env(safe-area-inset-bottom))] pt-1 sm:p-3">
+            {children}
+          </div>
         </div>
       </div>
     </div>,

@@ -67,7 +67,8 @@ function MediaTile({
         aria-hidden
         className={`pointer-events-none absolute inset-0 rounded-[10px] ring-inset ${picked ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
       />
-      {asset.source === "run" && asset.provider && <ServiceBadge provider={asset.provider} small />}
+      {/* The check takes the corner once picked, so the service mark steps aside. */}
+      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
       <span
         className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
           picked ? "border-t1 bg-t1 text-canvas opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
@@ -296,13 +297,24 @@ export function ReferencePicker({
                       onClick={() => setPickedElements((now) => (on ? now.filter((id) => id !== element.id) : [...now, element.id]))}
                       className="group flex flex-col gap-1 text-left"
                     >
-                      <span
-                        className={`relative block aspect-square w-full overflow-hidden rounded-[10px] bg-surface-2 ring-inset ${on ? "ring-2 ring-t1" : "ring-1 ring-line"}`}
-                      >
+                      <span className="relative block aspect-square w-full overflow-hidden rounded-[10px] bg-surface-2">
                         {element.images[0] && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-full w-full object-cover" />
                         )}
+                        {/* Marked as the media tiles are: a frame over the picture and a check in its corner. */}
+                        <span
+                          aria-hidden
+                          className={`pointer-events-none absolute inset-0 rounded-[10px] ring-inset ${on ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
+                        />
+                        <span
+                          aria-hidden
+                          className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
+                            on ? "border-t1 bg-t1 text-canvas opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          <Icon name="check" size={12} strokeWidth={2.6} />
+                        </span>
                       </span>
                       <span className="truncate text-[12px] text-t2">@{element.name}</span>
                     </button>

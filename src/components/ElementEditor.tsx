@@ -256,7 +256,7 @@ function EditorSheet({
             className={`${field} min-h-[84px] resize-none`}
           />
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-5 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3">
             <div>
               <label className="mb-1.5 block text-[12px] font-medium text-t3" htmlFor="element-version">
                 Version
@@ -272,7 +272,7 @@ function EditorSheet({
                     type="button"
                     onClick={() => setStatus((now) => (now === s.id ? undefined : s.id))}
                     aria-pressed={status === s.id}
-                    className={`rounded-chip px-1 py-2.5 text-[12.5px] transition-colors duration-[120ms] ${
+                    className={`min-w-0 truncate whitespace-nowrap rounded-chip px-1 py-2.5 text-[12.5px] transition-colors duration-[120ms] ${
                       status === s.id ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
                     }`}
                   >
@@ -288,26 +288,26 @@ function EditorSheet({
           </p>
           <div className="flex flex-col gap-1.5">
             {props.map(([key, value], i) => (
-              <div key={i} className="flex gap-1.5">
+              <div key={i} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_40px] gap-1.5">
                 <input
                   aria-label="Property"
                   value={key}
                   onChange={(event) => setProps((all) => all.map((p, j) => (j === i ? [event.target.value, p[1]] : p)))}
                   placeholder="eyes"
-                  className={`${field} w-[40%]`}
+                  className={`${field} min-w-0`}
                 />
                 <input
                   aria-label="Value"
                   value={value}
                   onChange={(event) => setProps((all) => all.map((p, j) => (j === i ? [p[0], event.target.value] : p)))}
                   placeholder="green"
-                  className={`${field} flex-1`}
+                  className={`${field} min-w-0`}
                 />
                 <button
                   type="button"
                   aria-label="Remove property"
                   onClick={() => setProps((all) => all.filter((_, j) => j !== i))}
-                  className="grid w-10 shrink-0 place-items-center rounded-chip text-t3 hover:bg-t1/[0.06] hover:text-t1"
+                  className="grid place-items-center rounded-chip text-t3 hover:bg-t1/[0.06] hover:text-t1"
                 >
                   <Icon name="close" size={14} />
                 </button>

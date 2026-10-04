@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip } from "@/components/PromptBar";
@@ -220,10 +221,11 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
   const item = (id: "image" | "video", icon: IconName, label: string) => (
     <button
       type="button"
+      data-pill={id}
       onClick={() => onMode(id)}
       aria-pressed={mode === id}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-[18px] text-[12px] font-semibold transition-colors duration-[120ms] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
-        mode === id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
+      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[18px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
+        mode === id ? "text-t1" : "text-t3 hover:text-t1"
       }`}
     >
       <Icon name={icon} size={16} />
@@ -231,7 +233,8 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
     </button>
   );
   return (
-    <div className="flex shrink-0 gap-1 rounded-panel border border-line bg-elevated p-1 md:flex-col">
+    <div className="relative flex shrink-0 gap-1 rounded-panel border border-line bg-elevated p-1 md:flex-col">
+      <GlideMark value={mode} className="rounded-[18px] bg-t1/[0.1]" />
       {item("image", "image", "Image")}
       {item("video", "video", "Video")}
     </div>
@@ -300,7 +303,7 @@ export function StudioComposer({ onKeyClick, docked }: { onKeyClick: () => void;
   return (
     <div className={`flex flex-col gap-2 md:flex-row md:items-end ${docked ? "" : ""}`}>
       <ModeSwitch mode={mode} onMode={(next) => patchStudio({ mode: next })} />
-      <div className="min-w-0 flex-1">
+      <div key={mode} className="anim-fade min-w-0 flex-1">
         {mode === "video" ? <VideoComposer onKeyClick={onKeyClick} /> : <ImageComposer onKeyClick={onKeyClick} />}
       </div>
     </div>
