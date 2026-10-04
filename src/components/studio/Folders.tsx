@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { useNewFolder } from "@/lib/newProject";
@@ -37,13 +38,44 @@ export function folderRows(all: ProjectFolder[], byName = false): Array<{ folder
 
 type Page = "main" | "color" | "move";
 
-function MenuRow({ icon, label, onClick, danger, more, dot, on }: { icon?: IconName; label: string; onClick: () => void; danger?: boolean; more?: boolean; dot?: string; on?: boolean }) {
+function MenuRow({
+  icon,
+  label,
+  onClick,
+  danger,
+  more,
+  dot,
+  on,
+  open,
+  onHover,
+  rowRef,
+}: {
+  icon?: IconName;
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+  more?: boolean;
+  dot?: string;
+  on?: boolean;
+  /** Its side panel is out. */
+  open?: boolean;
+  onHover?: () => void;
+  rowRef?: (node: HTMLButtonElement | null) => void;
+}) {
   return (
     <button
+      ref={rowRef}
       type="button"
       onClick={onClick}
+      onMouseEnter={onHover}
       className={`flex w-full items-center gap-2.5 rounded-chip px-2.5 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-        danger ? "text-[#ff8f8f] hover:bg-[#ff6b6b]/10" : on ? "bg-t1/[0.08] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"
+        danger
+          ? "text-[#ff8f8f] hover:bg-[#ff6b6b]/10"
+          : on
+            ? "bg-t1/[0.08] text-t1"
+            : open
+              ? "bg-t1/[0.06] text-t1"
+              : "text-t2 hover:bg-t1/[0.06] hover:text-t1"
       }`}
     >
       {dot ? <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: dot }} /> : icon && <Icon name={icon} size={15} />}
@@ -54,13 +86,57 @@ function MenuRow({ icon, label, onClick, danger, more, dot, on }: { icon?: IconN
   );
 }
 
+/** Whether this screen has a pointer that hovers; a phone's finger does not. */
+function canHover() {
+  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
+/**
+ * A menu row's own panel beside the menu, as a desktop menu opens one on
+ * hover. Drawn over everything, marked so the menu does not read a press
+ * in it as a press outside.
+ */
+function SidePanel({ anchor, children, onEnter, onLeave }: { anchor: HTMLElement; children: ReactNode; onEnter: () => void; onLeave: () => void }) {
+  const panel = useRef<HTMLDivElement>(null);
+  const [place, setPlace] = useState<{ left: number; top: number; maxHeight: number } | null>(null);
+  useLayoutEffect(() => {
+    const row = anchor.getBoundingClientRect();
+    // The menu's own edge, so the panel sits beside the whole menu and not over it.
+    const menu = (anchor.closest(".surface-pop") as HTMLElement | null)?.getBoundingClientRect() ?? row;
+    const width = panel.current?.offsetWidth ?? 200;
+    const height = panel.current?.offsetHeight ?? 0;
+    const room = window.innerWidth - menu.right;
+    const left = room >= width + 12 ? menu.right + 6 : Math.max(8, menu.left - width - 6);
+    const view = window.visualViewport?.height ?? window.innerHeight;
+    const top = Math.max(8, Math.min(row.top - 6, view - height - 8));
+    setPlace({ left, top, maxHeight: view - 16 });
+  }, [anchor]);
+  return createPortal(
+    <div
+      ref={panel}
+      data-popover-keep=""
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      className="surface-pop anim-rise no-bar fixed z-[95] w-[200px] overflow-y-auto rounded-panel p-1.5"
+      style={place ? { left: place.left, top: place.top, maxHeight: place.maxHeight } : { left: -9999, top: 0 }}
+    >
+      {children}
+    </div>,
+    document.body,
+  );
+}
+
 /**
  * What can be done to a folder: edit it, change its colour, add a folder
- * inside it, move it under another one, or delete it. The colours and the
- * places to move to open in the same menu, with a way back.
+ * inside it, move it under another one, or delete it. With a mouse the
+ * colours and the places to move to open beside the menu on hover; on a
+ * phone they open in the menu itself, with a way back.
  */
 export function FolderMenu({ project, folder, close }: { project: Project; folder: ProjectFolder; close: () => void }) {
   const [page, setPage] = useState<Page>("main");
+  const [side, setSide] = useState<Exclude<Page, "main"> | null>(null);
+  const rows = useRef<Record<string, HTMLButtonElement | null>>({});
+  const leaving = useRef<ReturnType<typeof setTimeout> | null>(null);
   const patchProject = useStudio((s) => s.patchProject);
   const ask = useNewFolder((s) => s.ask);
   const trashFolder = useStudio((s) => s.trashFolder);
@@ -68,40 +144,84 @@ export function FolderMenu({ project, folder, close }: { project: Project; folde
   const patch = (change: Partial<ProjectFolder>) =>
     patchProject(project.id, { folders: folders.map((f) => (f.id === folder.id ? { ...f, ...change } : f)) });
 
-  if (page !== "main") {
+  useEffect(() => () => {
+    if (leaving.current) clearTimeout(leaving.current);
+  }, []);
+  const stay = () => {
+    if (leaving.current) clearTimeout(leaving.current);
+    leaving.current = null;
+  };
+  // A moment's grace, so the pointer can cross from the row to its panel.
+  const leave = () => {
+    stay();
+    leaving.current = setTimeout(() => setSide(null), 180);
+  };
+  const hover = (which: Exclude<Page, "main"> | null) => () => {
+    if (!canHover()) return;
+    stay();
+    setSide(which);
+  };
+  const choose = (which: Exclude<Page, "main">) => () => (canHover() ? setSide((now) => (now === which ? null : which)) : setPage(which));
+
+  const list = (which: Exclude<Page, "main">) => {
+    if (which === "color")
+      return FOLDER_COLORS.map((c) => (
+        <MenuRow key={c.hex} dot={c.hex} label={c.name} on={(folder.color ?? "") === c.hex} onClick={() => (patch({ color: c.hex }), close())} />
+      ));
     const inside = folderAndInside(folders, folder.id);
+    return [
+      <MenuRow key="top" icon="spark" label="All assets" on={!folder.parentId} onClick={() => (patch({ parentId: undefined }), close())} />,
+      ...folderRows(folders)
+        .filter(({ folder: f }) => !inside.has(f.id))
+        .map(({ folder: f, depth }) => (
+          <span key={f.id} className="block" style={{ paddingLeft: depth * 12 }}>
+            <MenuRow dot={f.color ?? "var(--t3)"} label={f.name} on={folder.parentId === f.id} onClick={() => (patch({ parentId: f.id }), close())} />
+          </span>
+        )),
+    ];
+  };
+
+  if (page !== "main") {
     return (
       <div className="flex flex-col">
         <button type="button" onClick={() => setPage("main")} className="mb-1 flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium text-t3 hover:text-t1">
           <Icon name="chevron" size={13} className="rotate-90" />
           {page === "color" ? "Color" : "Move to"}
         </button>
-        {page === "color"
-          ? FOLDER_COLORS.map((c) => (
-              <MenuRow key={c.hex} dot={c.hex} label={c.name} on={(folder.color ?? "") === c.hex} onClick={() => (patch({ color: c.hex }), close())} />
-            ))
-          : [
-              <MenuRow key="top" icon="spark" label="All assets" on={!folder.parentId} onClick={() => (patch({ parentId: undefined }), close())} />,
-              ...folderRows(folders)
-                .filter(({ folder: f }) => !inside.has(f.id))
-                .map(({ folder: f, depth }) => (
-                  <span key={f.id} style={{ paddingLeft: depth * 12 }}>
-                    <MenuRow dot={f.color ?? "var(--t3)"} label={f.name} on={folder.parentId === f.id} onClick={() => (patch({ parentId: f.id }), close())} />
-                  </span>
-                )),
-            ]}
+        {list(page)}
       </div>
     );
   }
   return (
-    <div className="flex flex-col">
-      <MenuRow icon="pencil" label="Edit" onClick={() => (ask(project.id, { editId: folder.id }), close())} />
-      <MenuRow icon="palette" label="Color" more onClick={() => setPage("color")} />
-      <MenuRow icon="folder-plus" label="Add folder" onClick={() => (ask(project.id, { parentId: folder.id }), close())} />
-      <MenuRow icon="transfer" label="Move to" more onClick={() => setPage("move")} />
+    <div className="flex flex-col" onMouseLeave={side ? leave : undefined}>
+      <MenuRow icon="pencil" label="Edit" onHover={hover(null)} onClick={() => (ask(project.id, { editId: folder.id }), close())} />
+      <MenuRow
+        icon="palette"
+        label="Color"
+        more
+        open={side === "color"}
+        rowRef={(node) => (rows.current.color = node)}
+        onHover={hover("color")}
+        onClick={choose("color")}
+      />
+      <MenuRow icon="folder-plus" label="Add folder" onHover={hover(null)} onClick={() => (ask(project.id, { parentId: folder.id }), close())} />
+      <MenuRow
+        icon="transfer"
+        label="Move to"
+        more
+        open={side === "move"}
+        rowRef={(node) => (rows.current.move = node)}
+        onHover={hover("move")}
+        onClick={choose("move")}
+      />
       <span className="my-1 h-px bg-line" />
       {/* To the Trash, with what is in it: it can be brought back from there. */}
-      <MenuRow icon="trash" label="Delete" danger onClick={() => (close(), trashFolder(project.id, folder.id))} />
+      <MenuRow icon="trash" label="Delete" danger onHover={hover(null)} onClick={() => (close(), trashFolder(project.id, folder.id))} />
+      {side && rows.current[side] && (
+        <SidePanel key={side} anchor={rows.current[side]!} onEnter={stay} onLeave={leave}>
+          {list(side)}
+        </SidePanel>
+      )}
     </div>
   );
 }

@@ -40,6 +40,8 @@ export function Popover({ trigger, children, align = "start", width = 264, title
       const target = event.target as Node;
       // The panel lives in a portal now, so it is not inside the trigger.
       if (root.current?.contains(target) || panel.current?.contains(target)) return;
+      // A side panel a menu opens (its own portal) counts as inside it.
+      if (target instanceof Element && target.closest("[data-popover-keep]")) return;
       setOpen(false);
     }
     function onKey(event: KeyboardEvent) {
