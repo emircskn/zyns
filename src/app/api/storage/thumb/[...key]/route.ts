@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import sharp from "sharp";
-import { StorageError, isStorageKey, presign, putObject } from "@/lib/storage/r2";
+import { StorageError, THUMB_WIDTHS, isStorageKey, presign, putObject, thumbKey as thumbKeyOf } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** The widths a tile asks for; anything else is rounded up to one of them. */
-const WIDTHS = [256, 384, 512, 768, 1024] as const;
 const PICTURE = /\.(jpe?g|png|webp|gif)$/i;
 /** Kept files never change (each has its own random name), so neither does a picture of one. */
 const FOREVER = "public, max-age=31536000, s-maxage=31536000, immutable";
@@ -23,8 +21,9 @@ export async function GET(request: Request, context: { params: Promise<{ key: st
   const original = new URL(`/api/storage/file/${key}`, request.url);
   if (!isStorageKey(key) || !PICTURE.test(key)) return NextResponse.redirect(original, 302);
   const asked = Number(new URL(request.url).searchParams.get("w")) || 384;
-  const width = WIDTHS.find((w) => w >= asked) ?? WIDTHS[WIDTHS.length - 1];
-  const thumbKey = `thumbs/${width}/${key.replace(/\.[a-z0-9]+$/i, "")}.webp`;
+  // Any other width is rounded up to one of these, so each image has only a few.
+  const width = THUMB_WIDTHS.find((w) => w >= asked) ?? THUMB_WIDTHS[THUMB_WIDTHS.length - 1];
+  const thumbKey = thumbKeyOf(key, width);
 
   try {
     // Made before: straight from storage.

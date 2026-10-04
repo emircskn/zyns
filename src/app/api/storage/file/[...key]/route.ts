@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { refuseUnlessTrusted } from "@/lib/storage/guard";
-import { StorageError, deleteObject, isStorageKey, presign } from "@/lib/storage/r2";
+import { StorageError, deleteObject, isStorageKey, presign, thumbKeysOf } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,6 +58,8 @@ export async function DELETE(request: Request, context: { params: Promise<{ key:
   if (refusal) return refusal;
   try {
     await deleteObject(key);
+    // Its small pictures go with it; one never made is simply not there.
+    await Promise.all(thumbKeysOf(key).map((thumb) => deleteObject(thumb).catch(() => undefined)));
   } catch (error) {
     const status = error instanceof StorageError ? error.status : 502;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Storage failed." }, { status });

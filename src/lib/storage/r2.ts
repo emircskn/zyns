@@ -49,6 +49,19 @@ export function isStorageKey(key: string): boolean {
   return KEY.test(key);
 }
 
+/** The widths a kept image's small pictures are made at (see /api/storage/thumb). */
+export const THUMB_WIDTHS = [256, 384, 512, 768, 1024] as const;
+
+/** Where a kept image's small picture of `width` lives. */
+export function thumbKey(key: string, width: number): string {
+  return `thumbs/${width}/${key.replace(/\.[a-z0-9]+$/i, "")}.webp`;
+}
+
+/** Every small picture a kept file may have. */
+export function thumbKeysOf(key: string): string[] {
+  return THUMB_WIDTHS.map((w) => thumbKey(key, w));
+}
+
 const hmac = (key: Buffer | string, data: string) => createHmac("sha256", key).update(data).digest();
 const sha256 = (data: string) => createHash("sha256").update(data).digest("hex");
 /** RFC 3986, as SigV4 wants it: encodeURIComponent leaves !'()* alone. */
