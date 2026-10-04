@@ -159,11 +159,22 @@ export interface Project {
   /** What the project is for, in a few lines. */
   brief?: string;
   /** Folders inside it, to sort its work. */
-  folders?: Array<{ id: string; name: string }>;
+  folders?: ProjectFolder[];
   /** Private (the default) or public: a label for now, as Zyns has no sharing yet. */
   visibility?: ProjectVisibility;
 }
 export type ProjectVisibility = "private" | "public";
+export interface ProjectFolder {
+  id: string;
+  name: string;
+  /** A line or two on what goes in it. */
+  description?: string;
+  /** Its mark's colour, one of FOLDER_COLORS. */
+  color?: string;
+  createdAt?: number;
+}
+/** The colours a folder can be marked with; the first is the default. */
+export const FOLDER_COLORS = ["#d4f521", "#4fdcf5", "#e2e8f0", "#a593f7", "#c17bf5", "#ff6fae", "#fbe58a"] as const;
 
 /** Where Cinema Studio is, and its composer as it was left. */
 export type StudioView = "home" | "generations" | "elements" | "favorites" | "projects" | "project";

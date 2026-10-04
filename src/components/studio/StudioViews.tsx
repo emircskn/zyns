@@ -14,7 +14,7 @@ import { getModel } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
-import { useNewProject } from "@/lib/newProject";
+import { useNewFolder, useNewProject } from "@/lib/newProject";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio, type Project, type Run, type StudioView, type Upload } from "@/store/studio";
 
@@ -152,6 +152,18 @@ export function StudioSidebar() {
 }
 
 /** Inside a project: back, its name and menu, its brief, settings, elements, folders and Trash. */
+/** A folder's mark: its folder icon in its own colour. */
+export function FolderMark({ color, size = "h-6 w-6" }: { color?: string; size?: string }) {
+  return (
+    <span
+      className={`grid ${size} shrink-0 place-items-center rounded-[8px] ${color ? "" : "bg-t1/[0.07]"}`}
+      style={color ? { backgroundColor: `${color}26`, color } : undefined}
+    >
+      <Icon name="folder" size={13} />
+    </span>
+  );
+}
+
 function ProjectSidebar() {
   const studio = useStudio((s) => s.studio);
   const patchStudio = useStudio((s) => s.patchStudio);
@@ -159,9 +171,15 @@ function ProjectSidebar() {
   const patchProject = useStudio((s) => s.patchProject);
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
-  const [naming, setNaming] = useState(false);
+  const askFolder = useNewFolder((s) => s.ask);
+  const [q, setQ] = useState("");
+  const [looking, setLooking] = useState(false);
+  const [byName, setByName] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
   if (!project) return null;
+  const folders = (project.folders ?? [])
+    .filter((f) => !q.trim() || f.name.toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b) => (byName ? a.name.localeCompare(b.name) : 0));
   const inProject = (x: { projectId?: string; trashedAt?: number }) => x.projectId === project.id && !x.trashedAt;
   const all = runs.filter(inProject).length + uploads.filter(inProject).length;
   const inFolder = (id: string) =>
@@ -171,7 +189,7 @@ function ProjectSidebar() {
   const go = (folderId: string) => patchStudio({ folderId });
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[project.folders?.length]} />
+      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[folders.map((f) => f.id).join(), looking]} />
       <NavRow
         icon={
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07]">
@@ -213,32 +231,61 @@ function ProjectSidebar() {
       <NavRow pill="brief" icon="list" label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
       <NavRow pill="settings" icon="sliders" label="Settings" on={at === "settings"} onClick={() => go("settings")} />
       <NavRow pill="elements" icon="at" label="Elements" on={at === "elements"} onClick={() => go("elements")} />
-      <p className="mt-4 px-2 pb-1 text-[12px] font-medium text-t3">Folders</p>
-      <NavRow pill="all" icon="grid" label="All assets" on={at === ""} onClick={() => go("")} trailing={<span className="font-mono text-[11.5px] text-t4">{all}</span>} />
-      <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-        {(project.folders ?? []).map((folder) => (
-          <NavRow key={folder.id} pill={folder.id} icon="folder" label={folder.name} on={at === folder.id} onClick={() => go(folder.id)} trailing={<span className="font-mono text-[11.5px] text-t4">{inFolder(folder.id)}</span>} />
-        ))}
-        {naming ? (
-          <input
-            autoFocus
-            placeholder="Folder name"
-            onBlur={() => setNaming(false)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") setNaming(false);
-              if (event.key !== "Enter") return;
-              const name = event.currentTarget.value.trim();
-              setNaming(false);
-              if (!name) return;
-              const folder = { id: `folder-${Date.now().toString(36)}`, name };
-              patchProject(project.id, { folders: [...(project.folders ?? []), folder] });
-              go(folder.id);
-            }}
-            className="mx-1 h-8 rounded-full bg-t1/[0.06] px-3 text-[13px] text-t1 outline-none placeholder:text-t4"
+      <div className="mt-4 flex items-center justify-between px-2 pb-1">
+        <span className="text-[12px] font-medium text-t3">Folders</span>
+        <span className="flex gap-0.5">
+          <button type="button" aria-label="Search folders" onClick={() => setLooking((l) => !l)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${looking ? "text-t1" : "text-t3"}`}>
+            <Icon name="search" size={13} />
+          </button>
+          <button type="button" aria-label={byName ? "Sort folders by newest" : "Sort folders by name"} onClick={() => setByName((b) => !b)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${byName ? "text-t1" : "text-t3"}`}>
+            <Icon name="sort" size={13} />
+          </button>
+        </span>
+      </div>
+      {looking && (
+        <input
+          autoFocus
+          value={q}
+          onChange={(event) => setQ(event.target.value)}
+          placeholder="Search folders"
+          className="mx-1 mb-1 h-8 shrink-0 rounded-full bg-t1/[0.06] px-3 text-[13px] text-t1 outline-none placeholder:text-t4"
+        />
+      )}
+      <NavRow
+        pill="all"
+        icon={
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.1] text-t1">
+            <Icon name="spark" size={13} fill="currentColor" strokeWidth={1.2} />
+          </span>
+        }
+        label="All assets"
+        on={at === ""}
+        onClick={() => go("")}
+        trailing={<span className="font-mono text-[11.5px] text-t4">{all}</span>}
+      />
+      {/* The folders hang under All assets, as its parts. */}
+      <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pl-3">
+        {folders.map((folder) => (
+          <NavRow
+            key={folder.id}
+            pill={folder.id}
+            icon={<FolderMark color={folder.color} />}
+            label={folder.name}
+            on={at === folder.id}
+            onClick={() => go(folder.id)}
+            trailing={<span className="font-mono text-[11.5px] text-t4">{inFolder(folder.id)}</span>}
           />
-        ) : (
-          <NavRow icon="plus" label="Add folder" onClick={() => setNaming(true)} />
-        )}
+        ))}
+        {q.trim() && folders.length === 0 && <p className="px-2 py-1.5 text-[12.5px] text-t4">No folder by that name</p>}
+        <NavRow
+          icon={
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-t1/[0.07]">
+              <Icon name="plus" size={13} />
+            </span>
+          }
+          label="Add folder"
+          onClick={() => askFolder(project.id)}
+        />
       </div>
       <NavRow pill="trash" icon="trash" label="Trash" on={at === "trash"} onClick={() => go("trash")} trailing={trashed ? <span className="font-mono text-[11.5px] text-t4">{trashed}</span> : undefined} />
     </div>
@@ -558,6 +605,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
 
 /** A project open: its assets (all, or a folder's), its brief, settings, elements or Trash. */
 export function ProjectView() {
+  const askFolder = useNewFolder((s) => s.ask);
   const studio = useStudio((s) => s.studio);
   const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId));
   const runs = useStudio((s) => s.runs);
@@ -594,7 +642,8 @@ export function ProjectView() {
   if (!project) {
     return <Empty text="This project is gone." />;
   }
-  const folderName = project.folders?.find((f) => f.id === folder)?.name;
+  const openFolder = project.folders?.find((f) => f.id === folder);
+  const folderName = openFolder?.name;
   const isAssets = folder === "" || !!folderName;
   const myUploads = uploads.filter((u) => u.projectId === project.id && !u.trashedAt && (!folder || u.folderId === folder));
   const myRuns = runs.filter((r) => r.projectId === project.id && !r.trashedAt && (!folder || r.folderId === folder));
@@ -611,22 +660,31 @@ export function ProjectView() {
       {/* A phone has no side menu: the project's parts are a row of chips. */}
       <div className="no-bar flex gap-1.5 overflow-x-auto px-4 pb-2 md:hidden">
         {[
-          ["", "All assets"],
-          ...(project.folders ?? []).map((f) => [f.id, f.name]),
-          ["brief", "Brief"],
-          ["settings", "Settings"],
-          ["elements", "Elements"],
-          ["trash", "Trash"],
-        ].map(([id, label]) => (
+          { id: "", label: "All assets" },
+          ...(project.folders ?? []).map((f) => ({ id: f.id, label: f.name, color: f.color })),
+          { id: "brief", label: "Brief" },
+          { id: "settings", label: "Settings" },
+          { id: "elements", label: "Elements" },
+          { id: "trash", label: "Trash" },
+        ].map(({ id, label, color }: { id: string; label: string; color?: string }) => (
           <button
             key={id || "all"}
             type="button"
             onClick={() => patchStudio({ folderId: id })}
-            className={`h-8 shrink-0 rounded-full px-3 text-[12.5px] ${folder === id ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2"}`}
+            className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12.5px] ${folder === id ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2"}`}
           >
+            {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />}
             {label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => askFolder(project.id)}
+          className="flex h-8 shrink-0 items-center gap-1 rounded-full bg-t1/[0.07] pl-2.5 pr-3 text-[12.5px] text-t2"
+        >
+          <Icon name="plus" size={13} />
+          Add folder
+        </button>
       </div>
       <ViewHead title={title} sub={isAssets ? `${myRuns.length + myUploads.length} assets` : undefined}>
         {isAssets && (
@@ -640,6 +698,7 @@ export function ProjectView() {
           </button>
         )}
       </ViewHead>
+      {openFolder?.description && <p className="-mt-1 max-w-[640px] whitespace-pre-line px-4 pb-3 text-[13px] leading-relaxed text-t3 md:px-1">{openFolder.description}</p>}
       <input
         ref={uploader.input}
         type="file"

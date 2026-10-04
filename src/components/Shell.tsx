@@ -10,6 +10,7 @@ import { ElementEditor } from "@/components/ElementEditor";
 import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
+import { NewFolderDialog } from "@/components/NewFolderDialog";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
@@ -188,6 +189,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <SettingsPanel />
       <ElementEditor />
       <NewProjectDialog />
+      <NewFolderDialog />
       <ModelPicker />
       <RunPoller />
       <UpdateWatcher />

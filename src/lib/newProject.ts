@@ -17,3 +17,14 @@ export const useNewProject = create<{
   ask: (onCreated) => set({ open: true, onCreated: onCreated ?? null }),
   close: () => set({ open: false }),
 }));
+
+/** The "New folder" window, for the project that is open. */
+export const useNewFolder = create<{
+  projectId: string | null;
+  ask: (projectId: string) => void;
+  close: () => void;
+}>((set) => ({
+  projectId: null,
+  ask: (projectId) => set({ projectId }),
+  close: () => set({ projectId: null }),
+}));
