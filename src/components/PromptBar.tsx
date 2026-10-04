@@ -37,7 +37,7 @@ import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { ProjectChip } from "@/components/ProjectMenu";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { inUse, type LibraryElement } from "@/lib/elements";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
@@ -427,6 +427,73 @@ export function Chip({
 }
 
 /**
+ * "@ Elements" by the prompt: the elements to call, as pictures with their
+ * names; picking one writes `@name` where the caret was, as typing `@`
+ * would. With none yet, a way to make the first.
+ */
+export function ElementsChip({ onPick }: { onPick: (name: string) => void }) {
+  const elements = useStudio((s) => s.elements).filter(inUse);
+  const openElementEditor = useStudio((s) => s.openElementEditor);
+  return (
+    <Popover
+      width={300}
+      title="Elements"
+      trigger={(open) => (
+        <span
+          className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full pl-2.5 pr-3 text-[12.5px] transition-colors duration-[120ms] md:h-[34px] md:text-[13px] ${
+            open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+          }`}
+        >
+          <Icon name="at" size={15} />
+          Elements
+        </span>
+      )}
+    >
+      {(close) =>
+        elements.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-3 py-5 text-center">
+            <p className="text-[13px] text-t3">No elements yet. Make a character, place, product or style to call by name.</p>
+            <button
+              type="button"
+              onClick={() => {
+                close();
+                openElementEditor({});
+              }}
+              className="rounded-full bg-t1/[0.08] px-3.5 py-1.5 text-[12.5px] text-t1 hover:bg-t1/[0.12]"
+            >
+              New element
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-2 p-1">
+            {elements.map((element) => (
+              <button
+                key={element.id}
+                type="button"
+                onClick={() => {
+                  onPick(element.name);
+                  close();
+                }}
+                title={`@${element.name}`}
+                className="group flex min-w-0 flex-col items-center gap-1"
+              >
+                <span className="block aspect-square w-full overflow-hidden rounded-chip bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.04]">
+                  {element.images[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={thumbSrc(element.images[0].storageUrl, 256)} alt="" className="h-full w-full object-cover" />
+                  )}
+                </span>
+                <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </Popover>
+  );
+}
+
+/**
  * A flag on the bar, like a model's own audio: the chip names it and a
  * switch inside says whether it is on. A chip that simply turned white read
  * as pressed rather than as on, and it was not plain that tapping it again
@@ -651,6 +718,7 @@ export function PromptField({
   inputRef,
   large,
   clamp,
+  tall,
 }: {
   field: Field;
   index: number;
@@ -662,6 +730,8 @@ export function PromptField({
   large?: boolean;
   /** Held to a few lines, fading out where a long prompt goes on. */
   clamp?: boolean;
+  /** A few lines of room from the start, as the video composer gives its prompt. */
+  tall?: boolean;
 }) {
   const model = useModel();
   const values = useValues();
@@ -932,7 +1002,7 @@ export function PromptField({
           rows={large ? (index === 0 ? 6 : 2) : index === 0 ? 2 : 1}
           placeholder={field.placeholder ?? `${field.label}…`}
           className={`relative block w-full resize-none bg-transparent text-t1 outline-none placeholder:text-t4 ${type} ${
-            large ? "min-h-[104px] placeholder:font-normal" : "max-h-40"
+            large ? "min-h-[104px] placeholder:font-normal" : tall && index === 0 ? "min-h-[92px] max-h-60" : "max-h-40"
           } ${clamp ? "no-bar max-h-[122px] overflow-hidden" : ""} ${
             overflowing ? "[mask-image:linear-gradient(to_bottom,black_62%,transparent)]" : ""
           } ${chipped ? "no-bar text-transparent caret-t1" : ""}`}

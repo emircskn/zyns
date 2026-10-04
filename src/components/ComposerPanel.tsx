@@ -9,6 +9,7 @@ import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import {
   BatchChip,
+  ElementsChip,
   FieldChip,
   MentionStrip,
   ModeStrip,
@@ -375,6 +376,8 @@ export function ComposerBody({
   // A phone heads only video with the model's card; everywhere else on a
   // phone the model is a line at the foot of the prompt box.
   const promptBox = promptFields.length > 0 || toggles.length > 0;
+  // Video's prompt has its elements a tap away, beside its switches.
+  const elementsChip = model.category === "video" && !!firstPrompt;
   const inlineModel = phone && model.category !== "video" && promptBox;
 
   return (
@@ -452,6 +455,7 @@ export function ComposerBody({
                 index={index}
                 names={names}
                 large={phone}
+                tall={model.category === "video"}
                 clamp={phone && !expanded}
                 onSubmit={onSubmit}
                 inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
@@ -467,8 +471,9 @@ export function ComposerBody({
               onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
             />
           )}
-          {toggles.length > 0 && !full && (
+          {(toggles.length > 0 || elementsChip) && !full && (
             <div className="mt-1 flex flex-wrap gap-1.5">
+              {elementsChip && <ElementsChip onPick={insertToken} />}
               {toggles.map((field) => (
                 <FieldChip key={field.key} field={field} />
               ))}
