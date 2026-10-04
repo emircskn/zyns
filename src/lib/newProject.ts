@@ -9,22 +9,34 @@ import type { Project } from "@/store/studio";
 export const useNewProject = create<{
   open: boolean;
   onCreated: ((project: Project) => void) | null;
+  /** The project being edited instead, when it is one already there. */
+  editId: string | null;
   ask: (onCreated?: (project: Project) => void) => void;
+  edit: (projectId: string) => void;
   close: () => void;
 }>((set) => ({
   open: false,
   onCreated: null,
-  ask: (onCreated) => set({ open: true, onCreated: onCreated ?? null }),
+  editId: null,
+  ask: (onCreated) => set({ open: true, onCreated: onCreated ?? null, editId: null }),
+  edit: (editId) => set({ open: true, onCreated: null, editId }),
   close: () => set({ open: false }),
 }));
 
-/** The "New folder" window, for the project that is open. */
+/**
+ * The folder window, for the project that is open: a new folder (under
+ * another, when `parentId` is given) or, with `editId`, one already there.
+ */
 export const useNewFolder = create<{
   projectId: string | null;
-  ask: (projectId: string) => void;
+  parentId: string | null;
+  editId: string | null;
+  ask: (projectId: string, options?: { parentId?: string; editId?: string }) => void;
   close: () => void;
 }>((set) => ({
   projectId: null,
-  ask: (projectId) => set({ projectId }),
+  parentId: null,
+  editId: null,
+  ask: (projectId, options) => set({ projectId, parentId: options?.parentId ?? null, editId: options?.editId ?? null }),
   close: () => set({ projectId: null }),
 }));

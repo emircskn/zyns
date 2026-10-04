@@ -20,10 +20,10 @@ export function ProjectList({
   onPick: (id: string | null) => void;
   close: () => void;
 }) {
-  const projects = useStudio((s) => s.projects);
+  const projects = useStudio((s) => s.projects).filter((p) => !p.trashedAt);
   const askNewProject = useNewProject((s) => s.ask);
   const renameProject = useStudio((s) => s.renameProject);
-  const removeProject = useStudio((s) => s.removeProject);
+  const trashProject = useStudio((s) => s.trashProject);
   // The project whose row is open for a new name or deleting, and whether
   // the delete has been asked for once already.
   const [editing, setEditing] = useState<string | null>(null);
@@ -72,11 +72,11 @@ export function ProjectList({
             <ConfirmPopup
               open={confirming}
               title={`Delete ${project.name}?`}
-              message="What is in it stays in your studio; it just belongs to no project any more."
+              message="It goes to Cinema Studio's Trash, where it can be restored for 30 days. What is in it stays in your studio."
               confirmLabel="Delete"
               onConfirm={() => {
                 setConfirming(false);
-                removeProject(project.id);
+                trashProject(project.id, true);
                 if (current === project.id) onPick(null);
                 setEditing(null);
               }}
@@ -136,7 +136,7 @@ export function ProjectList({
  * choose; they are started from Assets.
  */
 export function ProjectChip({ full }: { full?: boolean }) {
-  const projects = useStudio((s) => s.projects);
+  const projects = useStudio((s) => s.projects).filter((p) => !p.trashedAt);
   const active = useStudio((s) => s.activeProjectId);
   const setActive = useStudio((s) => s.setActiveProject);
   if (projects.length === 0) return null;
@@ -163,7 +163,7 @@ export function ProjectFilter({
   /** A phone's: a round folder button, lit while a project is chosen. */
   compact?: boolean;
 }) {
-  const projects = useStudio((s) => s.projects);
+  const projects = useStudio((s) => s.projects).filter((p) => !p.trashedAt);
   const project = projects.find((p) => p.id === value);
   return (
     <Popover

@@ -107,7 +107,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
 
   return (
     <div className={full ? "relative w-full" : "relative"} ref={root}>
-      <button ref={button} type="button" onClick={() => setOpen((v) => !v)} className={full ? "block w-full text-left" : "block"}>
+      <button ref={button} type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)} className={full ? "block w-full text-left" : "block"}>
         {trigger(open)}
       </button>
       {mounted &&

@@ -8,13 +8,16 @@ import { usePresence } from "@/lib/usePresence";
 import { FOLDER_COLORS, useStudio } from "@/store/studio";
 
 /**
- * Adding a folder to the open project: the same small window as a new
- * project's. Its name large in the middle, a description to open if wanted,
- * a colour for its mark, and Create at the foot once it has a name. The
- * project then opens on the new folder.
+ * A folder of the open project, new or being edited: the same small window
+ * as a new project's. Its name large in the middle, a description to open
+ * if wanted, a colour for its mark, and Create (or Save) at the foot once it
+ * has a name. A new folder (inside another one, when asked from that one)
+ * then opens.
  */
 export function NewFolderDialog() {
   const projectId = useNewFolder((s) => s.projectId);
+  const parentId = useNewFolder((s) => s.parentId);
+  const editId = useNewFolder((s) => s.editId);
   const close = useNewFolder((s) => s.close);
   const project = useStudio((s) => s.projects.find((p) => p.id === projectId));
   const patchProject = useStudio((s) => s.patchProject);
@@ -24,16 +27,19 @@ export function NewFolderDialog() {
   const [name, setName] = useState("");
   const [describing, setDescribing] = useState(false);
   const [description, setDescription] = useState("");
-  const [color, setColor] = useState<string>(FOLDER_COLORS[0]);
+  const [color, setColor] = useState<string>(FOLDER_COLORS[0].hex);
+  const editing = project?.folders?.find((f) => f.id === editId);
+  const parent = project?.folders?.find((f) => f.id === parentId);
 
-  // Each time it opens, it starts blank.
+  // Each time it opens: blank for a new folder, as it is for one being edited.
   useEffect(() => {
     if (!open) return;
-    setName("");
-    setDescribing(false);
-    setDescription("");
-    setColor(FOLDER_COLORS[0]);
-  }, [open]);
+    setName(editing?.name ?? "");
+    setDescribing(!!editing?.description);
+    setDescription(editing?.description ?? "");
+    setColor(editing?.color ?? FOLDER_COLORS[0].hex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editId]);
 
   useEffect(() => {
     if (!open) return;
@@ -50,11 +56,18 @@ export function NewFolderDialog() {
 
   const create = () => {
     if (!name.trim() || !project) return;
+    if (editing) {
+      const next = { ...editing, name: name.trim(), color, description: describing && description.trim() ? description.trim() : undefined };
+      patchProject(project.id, { folders: (project.folders ?? []).map((f) => (f.id === editing.id ? next : f)) });
+      close();
+      return;
+    }
     const folder = {
       id: `folder-${Date.now().toString(36)}`,
       name: name.trim(),
       color,
       createdAt: Date.now(),
+      ...(parent ? { parentId: parent.id } : {}),
       ...(describing && description.trim() ? { description: description.trim() } : {}),
     };
     patchProject(project.id, { folders: [...(project.folders ?? []), folder] });
@@ -67,7 +80,7 @@ export function NewFolderDialog() {
       className="fixed inset-0 z-[150] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="New folder"
+      aria-label={editing ? "Edit folder" : "New folder"}
       onMouseDown={(event) => event.stopPropagation()}
     >
       <button
@@ -87,7 +100,10 @@ export function NewFolderDialog() {
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[17px] font-semibold text-t1">New folder</h2>
+          <h2 className="min-w-0 truncate text-[17px] font-semibold text-t1">
+            {editing ? "Edit folder" : "New folder"}
+            {parent && !editing && <span className="font-normal text-t3"> in {parent.name}</span>}
+          </h2>
           <button
             type="button"
             onClick={close}
@@ -137,16 +153,17 @@ export function NewFolderDialog() {
           <div role="radiogroup" aria-label="Color" className="flex gap-1.5">
             {FOLDER_COLORS.map((c) => (
               <button
-                key={c}
+                key={c.hex}
                 type="button"
                 role="radio"
-                aria-checked={color === c}
-                aria-label={`Color ${c}`}
-                onClick={() => setColor(c)}
+                aria-checked={color === c.hex}
+                aria-label={c.name}
+                title={c.name}
+                onClick={() => setColor(c.hex)}
                 className={`h-[22px] w-[22px] rounded-full transition-transform duration-[120ms] active:scale-90 ${
-                  color === c ? "ring-2 ring-t1 ring-offset-2 ring-offset-[var(--elevated)]" : ""
+                  color === c.hex ? "ring-2 ring-t1 ring-offset-2 ring-offset-[var(--elevated)]" : ""
                 }`}
-                style={{ backgroundColor: c }}
+                style={{ backgroundColor: c.hex }}
               />
             ))}
           </div>
@@ -157,7 +174,7 @@ export function NewFolderDialog() {
           disabled={!name.trim()}
           className="cta mt-6 h-12 w-full rounded-card text-[15px] font-semibold disabled:opacity-40"
         >
-          Create
+          {editing ? "Save" : "Create"}
         </button>
       </form>
     </div>,

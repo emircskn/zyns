@@ -61,6 +61,11 @@ export type IconName =
   | "photos"
   | "globe"
   | "lock"
+  | "pencil"
+  | "pin"
+  | "undo"
+  | "folder-plus"
+  | "transfer"
   | "zoom"
   | "film"
   | "wand"
@@ -105,6 +110,16 @@ const PATHS: Record<IconName, ReactElement> = {
       <path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16M3 17l4-4 3 3 2-2 5 5" />
     </>
   ),
+  pin: <path d="M9 4h6l-1 5 3.5 3.5v1.5h-11v-1.5L10 9 9 4zM12 14v6" />,
+  undo: <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />,
+  pencil: <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4zM13.5 6.5l4 4" />,
+  "folder-plus": (
+    <>
+      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+      <path d="M12 10v6M9 13h6" />
+    </>
+  ),
+  transfer: <path d="M4 8h15m0 0-3.5-3.5M19 8l-3.5 3.5M20 16H5m0 0 3.5-3.5M5 16l3.5 3.5" />,
   lock: (
     <>
       <rect x="5" y="10.5" width="14" height="10" rx="2.5" />

@@ -95,6 +95,8 @@ export interface Run {
   folderId?: string;
   /** Put in the Trash: hidden everywhere until restored or deleted for good. */
   trashedAt?: number;
+  /** Went to the Trash with this folder, and comes back with it. */
+  trashedWith?: string;
 }
 
 /** A file kept in the studio's storage (Cloudflare R2), read at `/api/storage/file/<key>`. */
@@ -148,6 +150,7 @@ export interface Upload {
   projectId?: string;
   folderId?: string;
   trashedAt?: number;
+  trashedWith?: string;
 }
 
 /** A folder of work: what is made while it is chosen in the composer is saved to it. */
@@ -162,6 +165,10 @@ export interface Project {
   folders?: ProjectFolder[];
   /** Private (the default) or public: a label for now, as Zyns has no sharing yet. */
   visibility?: ProjectVisibility;
+  /** Kept at the top of the project lists. */
+  pinned?: boolean;
+  /** In the Trash: hidden from the lists until restored or deleted for good. */
+  trashedAt?: number;
 }
 export type ProjectVisibility = "private" | "public";
 export interface ProjectFolder {
@@ -172,12 +179,39 @@ export interface ProjectFolder {
   /** Its mark's colour, one of FOLDER_COLORS. */
   color?: string;
   createdAt?: number;
+  /** The folder it sits in; none for one directly under All assets. */
+  parentId?: string;
+  trashedAt?: number;
+  /** Went to the Trash inside this (outer) folder, and comes back with it. */
+  trashedWith?: string;
 }
+
+/** How long the Trash keeps something before it goes for good. */
+export const TRASH_DAYS = 30;
 /** The colours a folder can be marked with; the first is the default. */
-export const FOLDER_COLORS = ["#d4f521", "#4fdcf5", "#e2e8f0", "#a593f7", "#c17bf5", "#ff6fae", "#fbe58a"] as const;
+export const FOLDER_COLORS = [
+  { name: "Lime", hex: "#d4f521" },
+  { name: "Cyan", hex: "#4fdcf5" },
+  { name: "Slate", hex: "#e2e8f0" },
+  { name: "Violet", hex: "#a593f7" },
+  { name: "Purple", hex: "#c17bf5" },
+  { name: "Pink", hex: "#ff6fae" },
+  { name: "Yellow", hex: "#fbe58a" },
+] as const;
+
+/** A folder and every folder inside it, however deep. */
+export function folderAndInside(folders: ProjectFolder[], id: string): Set<string> {
+  const out = new Set([id]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const f of folders) if (f.parentId && out.has(f.parentId) && !out.has(f.id)) (out.add(f.id), (grew = true));
+  }
+  return out;
+}
 
 /** Where Cinema Studio is, and its composer as it was left. */
-export type StudioView = "home" | "generations" | "elements" | "favorites" | "projects" | "project";
+export type StudioView = "home" | "generations" | "elements" | "favorites" | "projects" | "project" | "trash";
 export interface StudioUi {
   view: StudioView;
   /** The project open on the project page, and the folder in it ("" for all of it, "trash" for its Trash). */
@@ -336,6 +370,16 @@ interface StudioState {
   setTrashed: (urls: string[], trashed: boolean) => void;
   /** Move what is made (by media URL) into a folder of its project, or out of one. */
   fileInFolder: (urls: string[], folderId: string | undefined) => void;
+  /** A folder to the Trash, with the folders and work inside it. */
+  trashFolder: (projectId: string, folderId: string) => void;
+  /** Back from the Trash, with what went with it. */
+  restoreFolder: (projectId: string, folderId: string) => void;
+  /** Gone for good: the folder, the folders inside it and the work that went to the Trash with it. */
+  purgeFolder: (projectId: string, folderId: string) => void;
+  /** A project to the Trash, or back. Its work stays where it is. */
+  trashProject: (id: string, trashed: boolean) => void;
+  /** Deletes for good whatever has been in the Trash longer than TRASH_DAYS. */
+  sweepTrash: () => void;
   setStudioCount: (count: number) => void;
   resetValues: () => void;
   /** Empty a model's media inputs, as a sent run does; the prompt stays. */
@@ -751,6 +795,81 @@ export const useStudio = create<StudioState>()(
             uploads: state.uploads.map((upload) => (picked.has(upload.url) ? { ...upload, trashedAt: at } : upload)),
           };
         }),
+      trashFolder: (projectId, folderId) =>
+        set((state) => {
+          const project = state.projects.find((p) => p.id === projectId);
+          if (!project) return {};
+          const gone = folderAndInside((project.folders ?? []).filter((f) => !f.trashedAt || f.id === folderId), folderId);
+          const at = Date.now();
+          const take = <T extends { projectId?: string; folderId?: string; trashedAt?: number }>(x: T): T =>
+            x.projectId === projectId && x.folderId && gone.has(x.folderId) && !x.trashedAt ? { ...x, trashedAt: at, trashedWith: folderId } : x;
+          return {
+            projects: state.projects.map((p) =>
+              p.id === projectId
+                ? {
+                    ...p,
+                    folders: (p.folders ?? []).map((f) =>
+                      f.id === folderId ? { ...f, trashedAt: at } : gone.has(f.id) ? { ...f, trashedAt: at, trashedWith: folderId } : f,
+                    ),
+                  }
+                : p,
+            ),
+            runs: state.runs.map(take),
+            uploads: state.uploads.map(take),
+            studio: state.studio.folderId && gone.has(state.studio.folderId) ? { ...state.studio, folderId: "" } : state.studio,
+          };
+        }),
+      restoreFolder: (projectId, folderId) =>
+        set((state) => {
+          const back = <T extends { trashedAt?: number; trashedWith?: string }>(x: T): T =>
+            x.trashedWith === folderId ? { ...x, trashedAt: undefined, trashedWith: undefined } : x;
+          return {
+            projects: state.projects.map((p) => {
+              if (p.id !== projectId) return p;
+              const folders = p.folders ?? [];
+              return {
+                ...p,
+                folders: folders.map((f) => {
+                  if (f.id !== folderId) return back(f);
+                  // Its outer folder may have gone since: it then comes back at the top.
+                  const outer = folders.find((o) => o.id === f.parentId);
+                  return { ...f, trashedAt: undefined, trashedWith: undefined, parentId: outer && !outer.trashedAt ? f.parentId : undefined };
+                }),
+              };
+            }),
+            runs: state.runs.map(back),
+            uploads: state.uploads.map(back),
+          };
+        }),
+      purgeFolder: (projectId, folderId) => {
+        const state = get();
+        const project = state.projects.find((p) => p.id === projectId);
+        if (!project) return;
+        const gone = folderAndInside(project.folders ?? [], folderId);
+        for (const run of state.runs) if (run.trashedWith === folderId) state.removeRun(run.id);
+        for (const upload of state.uploads) if (upload.trashedWith === folderId) state.removeUpload(upload.id);
+        set((now) => ({
+          projects: now.projects.map((p) => (p.id === projectId ? { ...p, folders: (p.folders ?? []).filter((f) => !gone.has(f.id)) } : p)),
+          // Anything else that was filed there (it was trashed on its own) is simply no longer in a folder.
+          runs: now.runs.map((r) => (r.projectId === projectId && r.folderId && gone.has(r.folderId) ? { ...r, folderId: undefined } : r)),
+          uploads: now.uploads.map((u) => (u.projectId === projectId && u.folderId && gone.has(u.folderId) ? { ...u, folderId: undefined } : u)),
+        }));
+      },
+      trashProject: (id, trashed) =>
+        set((state) => ({
+          projects: state.projects.map((p) => (p.id === id ? { ...p, trashedAt: trashed ? Date.now() : undefined } : p)),
+          activeProjectId: trashed && state.activeProjectId === id ? null : state.activeProjectId,
+        })),
+      sweepTrash: () => {
+        const state = get();
+        const old = Date.now() - TRASH_DAYS * 86_400_000;
+        for (const p of state.projects) {
+          if (p.trashedAt && p.trashedAt < old) state.removeProject(p.id);
+          else for (const f of p.folders ?? []) if (f.trashedAt && !f.trashedWith && f.trashedAt < old) get().purgeFolder(p.id, f.id);
+        }
+        for (const run of get().runs) if (run.trashedAt && !run.trashedWith && run.trashedAt < old) get().removeRun(run.id);
+        for (const upload of get().uploads) if (upload.trashedAt && !upload.trashedWith && upload.trashedAt < old) get().removeUpload(upload.id);
+      },
       fileInFolder: (urls, folderId) =>
         set((state) => {
           const picked = new Set(urls);

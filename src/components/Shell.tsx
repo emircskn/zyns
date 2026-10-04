@@ -11,6 +11,7 @@ import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
 import { NewFolderDialog } from "@/components/NewFolderDialog";
+import { TrashSweeper } from "@/components/studio/Trash";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { HomePage } from "@/components/HomePage";
 import { MobileNav } from "@/components/MobileNav";
@@ -190,6 +191,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <ElementEditor />
       <NewProjectDialog />
       <NewFolderDialog />
+      <TrashSweeper />
       <ModelPicker />
       <RunPoller />
       <UpdateWatcher />

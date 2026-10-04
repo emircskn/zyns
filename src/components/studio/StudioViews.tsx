@@ -15,8 +15,11 @@ import { mediaSrc } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
 import { useNewFolder, useNewProject } from "@/lib/newProject";
+import { FolderMenu, FolderTree, folderRows } from "@/components/studio/Folders";
+import { FolderGlyph, TrashView, type TrashItem, type TrashKind } from "@/components/studio/Trash";
+import { liveProjects, ProjectMenuButton } from "@/components/studio/ProjectActions";
 import { useUploader } from "@/lib/useUploader";
-import { useStudio, type Project, type Run, type StudioView, type Upload } from "@/store/studio";
+import { TRASH_DAYS, useStudio, type Project, type Run, type StudioView, type Upload } from "@/store/studio";
 
 /** A project's cover: the one chosen, or the first thing made in it. */
 export function useCover(project: Project): string | undefined {
@@ -91,14 +94,16 @@ export const STUDIO_NAV: Array<{ id: StudioView; label: string; icon: IconName }
 export function StudioSidebar() {
   const studio = useStudio((s) => s.studio);
   const patchStudio = useStudio((s) => s.patchStudio);
-  const projects = useStudio((s) => s.projects);
+  const allProjects = useStudio((s) => s.projects);
+  const projects = liveProjects(allProjects);
+  const trashedProjects = allProjects.length - projects.length;
   const askNewProject = useNewProject((s) => s.ask);
   const [q, setQ] = useState("");
   const [looking, setLooking] = useState(false);
   const [byName, setByName] = useState(false);
   const shown = projects
     .filter((p) => !q.trim() || p.name.toLowerCase().includes(q.trim().toLowerCase()))
-    .sort((a, b) => (byName ? a.name.localeCompare(b.name) : b.createdAt - a.createdAt))
+    .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || (byName ? a.name.localeCompare(b.name) : b.createdAt - a.createdAt))
     .slice(0, 8);
 
   const menu = useRef<HTMLDivElement>(null);
@@ -138,36 +143,44 @@ export function StudioSidebar() {
       />
       <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
         {shown.map((project) => (
-          <NavRow
-            key={project.id}
-            icon={<CoverThumb project={project} size="h-6 w-6 rounded-[8px]" />}
-            label={project.name}
-            onClick={() => patchStudio({ view: "project", projectId: project.id, folderId: "" })}
-          />
+          <div key={project.id} className="group relative shrink-0">
+            <NavRow
+              icon={<CoverThumb project={project} size="h-6 w-6 rounded-[8px]" />}
+              label={project.name}
+              onClick={() => patchStudio({ view: "project", projectId: project.id, folderId: "" })}
+              trailing={
+                <span className="grid w-6 shrink-0 place-items-center text-t4 transition-opacity duration-[120ms] group-hover:opacity-0 group-focus-within:opacity-0 group-has-[[aria-expanded=true]]:opacity-0 pointer-coarse:opacity-0">
+                  {project.pinned && <Icon name="pin" size={12} />}
+                </span>
+              }
+            />
+            <span className="absolute right-1 top-1/2 -translate-y-1/2">
+              <ProjectMenuButton
+                project={project}
+                className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
+              />
+            </span>
+          </div>
         ))}
       </div>
+      <NavRow
+        pill="trash"
+        icon="trash"
+        label="Trash"
+        on={studio.view === "trash"}
+        onClick={() => patchStudio({ view: "trash" })}
+        trailing={trashedProjects ? <span className="font-mono text-[11.5px] text-t4">{trashedProjects}</span> : undefined}
+      />
       <NavRow pill="projects" icon="folder" label="All projects" on={studio.view === "projects"} onClick={() => patchStudio({ view: "projects" })} trailing={<Icon name="chevron" size={14} className="-rotate-90 text-t3" />} />
     </div>
   );
 }
 
 /** Inside a project: back, its name and menu, its brief, settings, elements, folders and Trash. */
-/** A folder's mark: its folder icon in its own colour. */
-export function FolderMark({ color, size = "h-6 w-6" }: { color?: string; size?: string }) {
-  return (
-    <span
-      className={`grid ${size} shrink-0 place-items-center rounded-[8px] ${color ? "" : "bg-t1/[0.07]"}`}
-      style={color ? { backgroundColor: `${color}26`, color } : undefined}
-    >
-      <Icon name="folder" size={13} />
-    </span>
-  );
-}
-
 function ProjectSidebar() {
   const studio = useStudio((s) => s.studio);
   const patchStudio = useStudio((s) => s.patchStudio);
-  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId));
+  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
   const patchProject = useStudio((s) => s.patchProject);
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
@@ -177,19 +190,20 @@ function ProjectSidebar() {
   const [byName, setByName] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
   if (!project) return null;
-  const folders = (project.folders ?? [])
-    .filter((f) => !q.trim() || f.name.toLowerCase().includes(q.trim().toLowerCase()))
-    .sort((a, b) => (byName ? a.name.localeCompare(b.name) : 0));
+
   const inProject = (x: { projectId?: string; trashedAt?: number }) => x.projectId === project.id && !x.trashedAt;
   const all = runs.filter(inProject).length + uploads.filter(inProject).length;
   const inFolder = (id: string) =>
     runs.filter((r) => inProject(r) && r.folderId === id).length + uploads.filter((u) => inProject(u) && u.folderId === id).length;
-  const trashed = runs.filter((r) => r.projectId === project.id && r.trashedAt).length + uploads.filter((u) => u.projectId === project.id && u.trashedAt).length;
+  const trashed =
+    runs.filter((r) => r.projectId === project.id && r.trashedAt && !r.trashedWith).length +
+    uploads.filter((u) => u.projectId === project.id && u.trashedAt && !u.trashedWith).length +
+    (project.folders ?? []).filter((f) => f.trashedAt && !f.trashedWith).length;
   const at = studio.folderId ?? "";
   const go = (folderId: string) => patchStudio({ folderId });
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[folders.map((f) => f.id).join(), looking]} />
+      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, byName]} />
       <NavRow
         icon={
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07]">
@@ -265,18 +279,7 @@ function ProjectSidebar() {
       />
       {/* The folders hang under All assets, as its parts. */}
       <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pl-3">
-        {folders.map((folder) => (
-          <NavRow
-            key={folder.id}
-            pill={folder.id}
-            icon={<FolderMark color={folder.color} />}
-            label={folder.name}
-            on={at === folder.id}
-            onClick={() => go(folder.id)}
-            trailing={<span className="font-mono text-[11.5px] text-t4">{inFolder(folder.id)}</span>}
-          />
-        ))}
-        {q.trim() && folders.length === 0 && <p className="px-2 py-1.5 text-[12.5px] text-t4">No folder by that name</p>}
+        <FolderTree project={project} at={at} onOpen={go} count={inFolder} q={q} byName={byName} />
         <NavRow
           icon={
             <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-t1/[0.07]">
@@ -545,13 +548,29 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   );
 }
 
+const TRASH_TABS: Array<{ id: TrashKind; label: string }> = [
+  { id: "generation", label: "Generations" },
+  { id: "upload", label: "Uploads" },
+  { id: "folder", label: "Folders" },
+];
+
+/** A picture, clip or sound in the Trash, filling its card. */
+function TrashMedia({ url }: { url?: string }) {
+  if (url && mediaKind(url) === "image")
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={mediaSrc(url)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
+  if (url && mediaKind(url) === "video")
+    return <video src={mediaSrc(url)} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
+  return <Icon name="audio" size={24} className="text-t3" />;
+}
+
 function Empty({ text }: { text: string }) {
   return <p className="px-4 py-16 text-center text-[13px] text-t3">{text}</p>;
 }
 
 /** Every project, as cards: a new one first. */
 export function ProjectsView() {
-  const projects = useStudio((s) => s.projects);
+  const projects = liveProjects(useStudio((s) => s.projects));
   const askNewProject = useNewProject((s) => s.ask);
   const patchStudio = useStudio((s) => s.patchStudio);
   return (
@@ -581,7 +600,8 @@ export function ProjectsView() {
 function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const cover = useCover(project);
   return (
-    <button type="button" onClick={onOpen} className="group flex min-w-0 flex-col gap-2 text-left">
+    <div className="group relative min-w-0">
+    <button type="button" onClick={onOpen} className="flex w-full min-w-0 flex-col gap-2 text-left">
       <span className="block aspect-[16/10] w-full overflow-hidden rounded-card bg-t1/[0.05]">
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -600,6 +620,49 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
         </span>
       </span>
     </button>
+      {/* Its menu, over the picture's corner: on hover, and always on a phone. */}
+      <span className="absolute right-2 top-2 rounded-full bg-black/45 backdrop-blur-md">
+        <ProjectMenuButton
+          project={project}
+          align="end"
+          className="!text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
+        />
+      </span>
+      {project.pinned && (
+        <span className="pointer-events-none absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+          <Icon name="pin" size={12} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Cinema Studio's own Trash: the projects deleted, kept a while. */
+export function StudioTrash() {
+  const projects = useStudio((s) => s.projects);
+  const trashProject = useStudio((s) => s.trashProject);
+  const removeProject = useStudio((s) => s.removeProject);
+  const items: TrashItem[] = projects
+    .filter((p) => p.trashedAt)
+    .map((p) => ({
+      key: p.id,
+      kind: "project" as const,
+      name: p.name,
+      trashedAt: p.trashedAt!,
+      preview: <ProjectTrashCover project={p} />,
+      restore: () => trashProject(p.id, false),
+      purge: () => removeProject(p.id),
+    }));
+  return <TrashView items={items} note={`Projects can be restored for ${TRASH_DAYS} days. Their work stays in Assets either way.`} />;
+}
+
+function ProjectTrashCover({ project }: { project: Project }) {
+  const cover = useCover(project);
+  return cover ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={mediaSrc(cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />
+  ) : (
+    <FolderGlyph />
   );
 }
 
@@ -607,19 +670,21 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
 export function ProjectView() {
   const askFolder = useNewFolder((s) => s.ask);
   const studio = useStudio((s) => s.studio);
-  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId));
+  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const elements = useStudio((s) => s.elements);
   const patchStudio = useStudio((s) => s.patchStudio);
   const patchProject = useStudio((s) => s.patchProject);
   const renameProject = useStudio((s) => s.renameProject);
-  const removeProject = useStudio((s) => s.removeProject);
+  const trashProject = useStudio((s) => s.trashProject);
   const fileUnder = useStudio((s) => s.fileUnder);
   const fileInFolder = useStudio((s) => s.fileInFolder);
   const setTrashed = useStudio((s) => s.setTrashed);
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
+  const restoreFolder = useStudio((s) => s.restoreFolder);
+  const purgeFolder = useStudio((s) => s.purgeFolder);
   const openEditor = useStudio((s) => s.openElementEditor);
   const assets = useAssets();
   const uploader = useUploader(["image", "video", "audio"]);
@@ -633,7 +698,7 @@ export function ProjectView() {
   const extras: TileExtrasValue = useMemo(
     () => ({
       trash: true,
-      folders: project?.folders ?? [],
+      folders: (project?.folders ?? []).filter((f) => !f.trashedAt),
       onFolder: (url, id) => fileInFolder([url], id),
       onReference: studioReference,
     }),
@@ -647,8 +712,42 @@ export function ProjectView() {
   const isAssets = folder === "" || !!folderName;
   const myUploads = uploads.filter((u) => u.projectId === project.id && !u.trashedAt && (!folder || u.folderId === folder));
   const myRuns = runs.filter((r) => r.projectId === project.id && !r.trashedAt && (!folder || r.folderId === folder));
-  const trashedRuns = runs.filter((r) => r.projectId === project.id && r.trashedAt);
-  const trashedUploads = uploads.filter((u) => u.projectId === project.id && u.trashedAt);
+  // What went to the Trash with a folder is inside that folder's card, not beside it.
+  const trashItems: TrashItem[] = [
+    ...runs
+      .filter((r) => r.projectId === project.id && r.trashedAt && !r.trashedWith)
+      .map((r) => ({
+        key: r.id,
+        kind: "generation" as const,
+        name: r.prompt.trim() || r.modelName,
+        trashedAt: r.trashedAt!,
+        preview: <TrashMedia url={r.urls[0]} />,
+        restore: () => setTrashed(r.urls, false),
+        purge: () => removeRun(r.id),
+      })),
+    ...uploads
+      .filter((u) => u.projectId === project.id && u.trashedAt && !u.trashedWith)
+      .map((u) => ({
+        key: u.id,
+        kind: "upload" as const,
+        name: u.name || "Upload",
+        trashedAt: u.trashedAt!,
+        preview: <TrashMedia url={u.url} />,
+        restore: () => setTrashed([u.url], false),
+        purge: () => removeUpload(u.id),
+      })),
+    ...(project.folders ?? [])
+      .filter((f) => f.trashedAt && !f.trashedWith)
+      .map((f) => ({
+        key: f.id,
+        kind: "folder" as const,
+        name: f.name,
+        trashedAt: f.trashedAt!,
+        preview: <FolderGlyph color={f.color} />,
+        restore: () => restoreFolder(project.id, f.id),
+        purge: () => purgeFolder(project.id, f.id),
+      })),
+  ];
   const called = calledElements(runs.filter((r) => r.projectId === project.id).map((r) => r.prompt).join(" \n "), elements);
   const field = "w-full rounded-chip bg-t1/[0.05] px-3.5 py-2.5 text-[15px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong md:text-[14px]";
 
@@ -661,7 +760,7 @@ export function ProjectView() {
       <div className="no-bar flex gap-1.5 overflow-x-auto px-4 pb-2 md:hidden">
         {[
           { id: "", label: "All assets" },
-          ...(project.folders ?? []).map((f) => ({ id: f.id, label: f.name, color: f.color })),
+          ...folderRows(project.folders ?? []).map(({ folder: f, depth }) => ({ id: f.id, label: depth ? `› ${f.name}` : f.name, color: f.color })),
           { id: "brief", label: "Brief" },
           { id: "settings", label: "Settings" },
           { id: "elements", label: "Elements" },
@@ -686,7 +785,25 @@ export function ProjectView() {
           Add folder
         </button>
       </div>
+      {folder !== "trash" && (
       <ViewHead title={title} sub={isAssets ? `${myRuns.length + myUploads.length} assets` : undefined}>
+        {openFolder && (
+          <Popover
+            width={220}
+            align="end"
+            title={openFolder.name}
+            trigger={(open) => (
+              <span
+                aria-label={`${openFolder.name} menu`}
+                className={`grid h-8 w-8 place-items-center rounded-chip transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${open ? "bg-t1/[0.1] text-t1" : "bg-t1/[0.06] text-t2"}`}
+              >
+                <Icon name="more" size={15} />
+              </span>
+            )}
+          >
+            {(close) => <FolderMenu project={project} folder={openFolder} close={close} />}
+          </Popover>
+        )}
         {isAssets && (
           <button
             type="button"
@@ -698,6 +815,7 @@ export function ProjectView() {
           </button>
         )}
       </ViewHead>
+      )}
       {openFolder?.description && <p className="-mt-1 max-w-[640px] whitespace-pre-line px-4 pb-3 text-[13px] leading-relaxed text-t3 md:px-1">{openFolder.description}</p>}
       <input
         ref={uploader.input}
@@ -765,11 +883,11 @@ export function ProjectView() {
             <ConfirmPopup
               open={deleting}
               title={`Delete ${project.name}?`}
-              message="The project goes; what was made in it stays in your studio."
+              message={`It goes to Cinema Studio's Trash for ${TRASH_DAYS} days; what was made in it stays in your studio.`}
               confirmLabel="Delete"
               onConfirm={() => {
                 setDeleting(false);
-                removeProject(project.id);
+                trashProject(project.id, true);
                 patchStudio({ view: "projects" });
               }}
               onClose={() => setDeleting(false)}
@@ -801,39 +919,10 @@ export function ProjectView() {
             </div>
           </div>
         ) : folder === "trash" ? (
-          trashedRuns.length + trashedUploads.length === 0 ? (
-            <Empty text="The Trash is empty." />
-          ) : (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-              {[...trashedRuns.map((r) => ({ id: r.id, url: r.urls[0], urls: r.urls, run: r as Run | undefined, upload: undefined as Upload | undefined })),
-                ...trashedUploads.map((u) => ({ id: u.id, url: u.url, urls: [u.url], run: undefined as Run | undefined, upload: u as Upload | undefined }))].map((item) => (
-                <div key={item.id} className="flex flex-col gap-1.5">
-                  <span className="block aspect-square overflow-hidden rounded-card bg-surface">
-                    {item.url && mediaKind(item.url) === "image" ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaSrc(item.url)} alt="" className="h-full w-full object-cover opacity-70" />
-                    ) : item.url && mediaKind(item.url) === "video" ? (
-                      <video src={mediaSrc(item.url)} muted playsInline preload="metadata" className="h-full w-full object-cover opacity-70" />
-                    ) : (
-                      <span className="grid h-full w-full place-items-center text-t3"><Icon name="audio" size={20} /></span>
-                    )}
-                  </span>
-                  <div className="flex gap-1">
-                    <button type="button" onClick={() => setTrashed(item.urls, false)} className="flex-1 rounded-full bg-t1/[0.07] py-1.5 text-[12px] text-t2 hover:text-t1">
-                      Restore
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => (item.run ? removeRun(item.run.id) : item.upload && removeUpload(item.upload.id))}
-                      className="flex-1 rounded-full py-1.5 text-[12px] text-[#ff8f8f] hover:bg-[#ff6b6b]/10"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
+          // The Trash draws its own head, so it reaches the page's edges as the head above does.
+          <div className="-mx-4 md:-mx-1">
+            <TrashView items={trashItems} tabs={TRASH_TABS} note={`Items can be restored to this project for ${TRASH_DAYS} days.`} />
+          </div>
         ) : myRuns.length + myUploads.length === 0 ? (
           <Empty text={folderName ? "This folder is empty. Move work here from a tile's ⋯ menu." : "Nothing in this project yet. Choose it in the composer's project chip, and what you make is saved here."} />
         ) : (

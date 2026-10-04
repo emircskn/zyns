@@ -491,7 +491,7 @@ export function MediaViewer({
   const [confirming, setConfirming] = useState(false);
   // Choosing the project this belongs to.
   const [filing, setFiling] = useState(false);
-  const projects = useStudio((s) => s.projects);
+  const projects = useStudio((s) => s.projects).filter((p) => !p.trashedAt);
   const fileUnder = useStudio((s) => s.fileUnder);
   const uploads = useStudio((s) => s.uploads);
   const motionClips = useStudio((s) => s.motionClips);

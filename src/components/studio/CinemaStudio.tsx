@@ -6,13 +6,14 @@ import { ElementsPage } from "@/components/ElementsPage";
 import { Icon, type IconName } from "@/components/Icon";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer";
-import { GenerationsView, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar } from "@/components/studio/StudioViews";
+import { GenerationsView, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
 
 /** The side menu's pages as a phone's chips, with the same icons. */
 const PHONE_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
   ...STUDIO_NAV.map((n) => ({ id: n.id, icon: n.icon, label: n.id === "home" ? "Home" : n.label.replace("My ", "").replace(/^./, (c) => c.toUpperCase()) })),
   { id: "projects", label: "Projects", icon: "folder" },
+  { id: "trash", label: "Trash", icon: "trash" },
 ];
 
 /**
@@ -27,8 +28,9 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const studio = useStudioUi();
   const patchStudio = useStudio((s) => s.patchStudio);
   const setActiveProject = useStudio((s) => s.setActiveProject);
-  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId));
+  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
   const view = studio.view === "project" && !project ? "projects" : studio.view;
+  const inTrash = view === "trash" || (view === "project" && studio.folderId === "trash");
 
   // Inside a project, what is made is saved to it.
   useEffect(() => {
@@ -97,16 +99,21 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
                 <ElementsPage />
               ) : view === "projects" ? (
                 <ProjectsView />
+              ) : view === "trash" ? (
+                <StudioTrash />
               ) : (
                 <ProjectView />
               )}
             </div>
-            {/* Docked at the page's foot, as on Higgsfield's own pages; a phone keeps it on Home. */}
-            <div className="sticky bottom-4 z-30 mx-auto hidden w-full max-w-[1040px] pb-2 md:block">
-              <div className="rounded-panel" style={{ boxShadow: "var(--shadow-bar)" }}>
-                {composer}
+            {/* Docked at the page's foot, as on Higgsfield's own pages; a phone keeps it on Home.
+                A Trash is for bringing things back, and its bar takes the foot instead. */}
+            {!inTrash && (
+              <div className="sticky bottom-4 z-30 mx-auto hidden w-full max-w-[1040px] pb-2 md:block">
+                <div className="rounded-panel" style={{ boxShadow: "var(--shadow-bar)" }}>
+                  {composer}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </main>

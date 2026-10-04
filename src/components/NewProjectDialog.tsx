@@ -16,17 +16,21 @@ export function NewProjectDialog() {
   const open = useNewProject((s) => s.open);
   const onCreated = useNewProject((s) => s.onCreated);
   const close = useNewProject((s) => s.close);
+  const editId = useNewProject((s) => s.editId);
+  const editing = useStudio((s) => s.projects.find((p) => p.id === editId));
   const addProject = useStudio((s) => s.addProject);
+  const patchProject = useStudio((s) => s.patchProject);
   const { mounted, exiting } = usePresence(open, 180);
   const [name, setName] = useState("");
   const [visibility, setVisibility] = useState<ProjectVisibility>("private");
 
-  // Each time it opens, it starts blank and private.
+  // Each time it opens: blank and private, or as the project being edited is.
   useEffect(() => {
     if (!open) return;
-    setName("");
-    setVisibility("private");
-  }, [open]);
+    setName(editing?.name ?? "");
+    setVisibility(editing?.visibility ?? "private");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editId]);
 
   useEffect(() => {
     if (!open) return;
@@ -44,6 +48,11 @@ export function NewProjectDialog() {
 
   const create = () => {
     if (!name.trim()) return;
+    if (editing) {
+      patchProject(editing.id, { name: name.trim(), visibility });
+      close();
+      return;
+    }
     const project = addProject(name, visibility);
     close();
     onCreated?.(project);
@@ -55,7 +64,7 @@ export function NewProjectDialog() {
       className="fixed inset-0 z-[150] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="New project"
+      aria-label={editing ? "Edit project" : "New project"}
       // Its own: a menu it was opened from must not read a press in here as a press outside.
       onMouseDown={(event) => event.stopPropagation()}
     >
@@ -76,7 +85,7 @@ export function NewProjectDialog() {
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[17px] font-semibold text-t1">New project</h2>
+          <h2 className="text-[17px] font-semibold text-t1">{editing ? "Edit project" : "New project"}</h2>
           <button
             type="button"
             onClick={close}
@@ -111,7 +120,7 @@ export function NewProjectDialog() {
           disabled={!name.trim()}
           className="cta mt-10 h-12 w-full rounded-card text-[15px] font-semibold disabled:opacity-40"
         >
-          Create
+          {editing ? "Save" : "Create"}
         </button>
       </form>
     </div>,
