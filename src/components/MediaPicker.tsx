@@ -116,6 +116,7 @@ export function MediaPicker({
   taken: askedTaken = [],
   onPick,
   onClose,
+  above,
 }: {
   open: boolean;
   /** One kind, or several for the bar's "+", which files each where it goes. */
@@ -125,6 +126,8 @@ export function MediaPicker({
   /** The picked urls, and the kind of each. */
   onPick: (urls: string[], kinds: Kind[]) => void;
   onClose: () => void;
+  /** Opened from a window that itself sits over the page's other windows (the element editor). */
+  above?: boolean;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   // What it was opened for, kept while it closes: a caller that resets its
@@ -233,7 +236,7 @@ export function MediaPicker({
   // block for anything fixed inside it. The dialog has to leave that subtree
   // to cover the page at all.
   return createPortal(
-    <div className="fixed inset-0 z-[117] flex items-end justify-center sm:items-center sm:p-4">
+    <div className={`fixed inset-0 ${above ? "z-[121]" : "z-[117]"} flex items-end justify-center sm:items-center sm:p-4`}>
       <button
         type="button"
         aria-label="Close"

@@ -367,6 +367,7 @@ function EditorSheet({
 
       <MediaPicker
         open={picking}
+        above
         accept="image"
         multiple
         taken={images}
