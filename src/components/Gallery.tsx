@@ -30,7 +30,7 @@ import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { useStudio, type Run } from "@/store/studio";
 import { TileExtras } from "@/lib/tileExtras";
 import { useProjectDelete } from "@/lib/newProject";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 
 export { TileExtras, type TileExtrasValue } from "@/lib/tileExtras";
 
@@ -166,7 +166,7 @@ function Media({ url, run, small, compact }: { url: string; run?: Run; small?: b
   // eslint-disable-next-line @next/next/no-img-element
   return (
     <img
-      src={mediaSrc(url)}
+      src={thumbSrc(url, 1024)}
       alt=""
       loading="lazy"
       draggable={false}
@@ -540,7 +540,7 @@ function RunDetails({ run }: { run: Run }) {
             >
               {mediaKind(url) === "image" ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
               ) : (
                 <span className="grid h-full w-full place-items-center text-t3">
                   <Icon name={mediaKind(url) === "video" ? "video" : "audio"} size={15} />

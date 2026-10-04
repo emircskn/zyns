@@ -11,7 +11,7 @@ import { Popover } from "@/components/Popover";
 import { useAssets } from "@/lib/assets";
 import { calledElements } from "@/lib/elements";
 import { getModel } from "@/lib/registry";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
 import { useNewFolder, useNewProject, useProjectDelete } from "@/lib/newProject";
@@ -36,7 +36,7 @@ function CoverThumb({ project, size }: { project: Project; size: string }) {
     <span className={`grid shrink-0 place-items-center overflow-hidden bg-t1/[0.07] text-t3 ${size}`}>
       {cover ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={mediaSrc(cover)} alt="" className="h-full w-full object-cover" />
+        <img src={thumbSrc(cover, 256)} alt="" className="h-full w-full object-cover" />
       ) : (
         <Icon name="folder" size={14} />
       )}
@@ -467,7 +467,7 @@ function UploadGrid({ uploads, extras }: { uploads: Upload[]; extras?: { trash?:
             <button type="button" onClick={() => setPreview(upload.url)} className="block h-full w-full cursor-zoom-in">
               {upload.kind === "image" ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={mediaSrc(upload.url)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img src={thumbSrc(upload.url, 512)} alt="" loading="lazy" className="h-full w-full object-cover" />
               ) : upload.kind === "video" ? (
                 <video src={mediaSrc(upload.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
               ) : (
@@ -558,7 +558,7 @@ const TRASH_TABS: Array<{ id: TrashKind; label: string }> = [
 function TrashMedia({ url }: { url?: string }) {
   if (url && mediaKind(url) === "image")
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={mediaSrc(url)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
+    return <img src={thumbSrc(url, 512)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
   if (url && mediaKind(url) === "video")
     return <video src={mediaSrc(url)} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
   return <Icon name="audio" size={24} className="text-t3" />;
@@ -613,7 +613,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       <span className="block aspect-[16/10] w-full overflow-hidden rounded-card bg-t1/[0.05]">
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={mediaSrc(cover)} alt="" className="h-full w-full object-cover transition-transform duration-[300ms] group-hover:scale-[1.02]" />
+          <img src={thumbSrc(cover, 768)} alt="" className="h-full w-full object-cover transition-transform duration-[300ms] group-hover:scale-[1.02]" />
         ) : (
           <span className="grid h-full w-full place-items-center text-t4">
             <Icon name="folder" size={24} />
@@ -670,7 +670,7 @@ function ProjectTrashCover({ project }: { project: Project }) {
   const cover = useCover(project);
   return cover ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={mediaSrc(cover)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />
+    <img src={thumbSrc(cover, 512)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />
   ) : (
     <FolderGlyph />
   );
@@ -878,7 +878,7 @@ export function ProjectView() {
                       className={`aspect-square overflow-hidden rounded-chip ring-inset ${project.coverUrl === a.url ? "ring-2 ring-t1" : "ring-1 ring-line"}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mediaSrc(a.url)} alt="" className="h-full w-full object-cover" />
+                      <img src={thumbSrc(a.url, 256)} alt="" className="h-full w-full object-cover" />
                     </button>
                   ))}
               </div>
@@ -921,7 +921,7 @@ export function ProjectView() {
                   <span className="block aspect-square overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line">
                     {element.images[0] && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-full w-full object-cover" />
+                      <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
                     )}
                   </span>
                   <span className="truncate text-[12px] text-t2">@{element.name}</span>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
 import { ELEMENT_KINDS, inUse, type ElementKind } from "@/lib/elements";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { useStudio } from "@/store/studio";
 
 type Filter = "all" | ElementKind | "archived";
@@ -115,7 +115,7 @@ export function ElementsPage() {
                   {cover && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={mediaSrc(cover.storageUrl)}
+                      src={thumbSrc(cover.storageUrl, 512)}
                       alt=""
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.03]"

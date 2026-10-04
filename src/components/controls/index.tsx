@@ -13,7 +13,7 @@ export { sourceItems };
 import { useUploader } from "@/lib/useUploader";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 
 interface ControlProps {
@@ -265,7 +265,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
     >
       {kind === "image" && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={mediaSrc(url)} alt="" draggable={false} className="h-full w-full object-cover" />
+        <img src={thumbSrc(url, 256)} alt="" draggable={false} className="h-full w-full object-cover" />
       )}
       {kind === "video" && <video src={mediaSrc(url)} className="h-full w-full object-cover" muted playsInline />}
       {kind === "audio" && (

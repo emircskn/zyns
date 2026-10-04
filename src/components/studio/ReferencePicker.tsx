@@ -8,7 +8,7 @@ import { MediaPreview } from "@/components/MediaViewer";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
 import { inUse, type LibraryElement } from "@/lib/elements";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
@@ -54,7 +54,7 @@ function MediaTile({
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={mediaSrc(asset.url)} alt="" loading="lazy" className="h-full w-full object-contain" />
+          <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-contain" />
         ) : asset.kind === "video" ? (
           <video src={mediaSrc(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
         ) : (
@@ -300,7 +300,7 @@ export function ReferencePicker({
                       <span className="relative block aspect-square w-full overflow-hidden rounded-[10px] bg-surface-2">
                         {element.images[0] && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-full w-full object-cover" />
+                          <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
                         )}
                         {/* Marked as the media tiles are: a frame over the picture and a check in its corner. */}
                         <span

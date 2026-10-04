@@ -39,6 +39,19 @@ export function mediaSrc(url: string | undefined): string | undefined {
   return copy ? storageUrl(copy.key) : url;
 }
 
+/**
+ * A small picture of an image for a grid tile, `width` pixels at most: the
+ * kept copy's thumbnail where there is one (made once by the server), the
+ * image itself otherwise. Decoding dozens of full-size originals at once is
+ * what made the pickers stutter.
+ */
+export function thumbSrc(url: string, width = 384): string {
+  const src = mediaSrc(url);
+  const key = storageKeyOf(src);
+  if (!key || !storageAvailable() || !/\.(jpe?g|png|webp|gif)$/i.test(key)) return src;
+  return `/api/storage/thumb/${key}?w=${width}`;
+}
+
 function keyHeaders(): Record<string, string> {
   const { apiKey, hfKey } = useStudio.getState();
   return { ...(apiKey ? { "x-kie-key": apiKey } : {}), ...(hfKey ? { "x-hf-key": hfKey } : {}) };

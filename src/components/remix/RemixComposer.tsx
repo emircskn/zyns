@@ -17,7 +17,7 @@ import { MotionLibrary } from "@/components/remix/MotionLibrary";
 import { Sheet } from "@/components/remix/Restyle";
 import { saveMotionClip } from "@/lib/remix/library";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { readMediaMeta, type MediaMeta } from "@/lib/mediaMeta";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { getModel, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
@@ -349,7 +349,7 @@ function ElementChooser({ open, onPick, onClose }: { open: boolean; onPick: (url
               <span className="block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.03]">
                 {element.images[0] && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-full w-full object-cover" />
+                  <img src={thumbSrc(element.images[0].storageUrl, 256)} alt="" className="h-full w-full object-cover" />
                 )}
               </span>
               <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>

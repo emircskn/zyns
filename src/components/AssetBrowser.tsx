@@ -22,7 +22,7 @@ import { Tile } from "@/components/Gallery";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 
 function TileButton({
   icon,
@@ -141,7 +141,7 @@ function AssetTile({
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={mediaSrc(asset.url)}
+            src={thumbSrc(asset.url, 1024)}
             alt=""
             loading="lazy"
             draggable={false}

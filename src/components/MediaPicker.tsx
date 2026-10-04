@@ -10,7 +10,7 @@ import { useAssets, type Asset } from "@/lib/assets";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio } from "@/store/studio";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 
 type Kind = "image" | "video" | "audio";
 type Tab = "generated" | "uploads" | "liked";
@@ -68,7 +68,7 @@ function Thumb({
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={mediaSrc(asset.url)} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : asset.kind === "video" ? (
           <video src={mediaSrc(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
         ) : (

@@ -2,7 +2,7 @@
 
 import { inUse } from "@/lib/elements";
 import { Icon } from "@/components/Icon";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import type { OptionPreview } from "@/lib/studio/options";
 import { useStudio } from "@/store/studio";
 
@@ -48,7 +48,7 @@ export function ElementGrid({ onPick }: { onPick: (urls: string[], name: string)
           <span className="block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.03]">
             {element.images[0] && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-full w-full object-cover" />
+              <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
             )}
           </span>
           <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>

@@ -19,7 +19,7 @@ import type { LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { activeFields, defaultValues, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { CINEMA, bottomFields, cardFields, cinemaModel, cinemaSpec, labelOf, listOf, referenceFields } from "@/lib/studio/cinema";
 import {
   MOVE_KEY,
@@ -488,7 +488,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                     <span key={url} className="h-9 w-9 shrink-0 overflow-hidden rounded-[10px] bg-surface">
                       {mediaKind(url) === "image" ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                        <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <span className="grid h-full w-full place-items-center text-t3">
                           <Icon name={mediaKind(url) === "video" ? "video" : "audio"} size={14} />
@@ -660,7 +660,7 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
         <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-surface ring-1 ring-inset ring-line">
           {mediaKind(url) === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+            <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
           ) : mediaKind(url) === "video" ? (
             <video src={mediaSrc(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
           ) : (
@@ -788,7 +788,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {studio.imageRefs.map((url) => (
               <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] ring-1 ring-inset ring-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 <button
                   type="button"
                   aria-label="Remove picture"
@@ -811,7 +811,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         <button type="button" onClick={() => setChoosing(true)} className={tile} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
           {character?.images[0] ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaSrc(character.images[0].storageUrl)} alt="" className="h-10 w-10 rounded-full object-cover" />
+            <img src={thumbSrc(character.images[0].storageUrl, 256)} alt="" className="h-10 w-10 rounded-full object-cover" />
           ) : (
             <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t2">
               <Icon name="plus" size={16} />

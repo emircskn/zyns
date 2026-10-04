@@ -15,7 +15,7 @@ import {
 } from "@/lib/elements";
 import { useUploader } from "@/lib/useUploader";
 import { makeMediaRef, type MediaRef } from "@/lib/media";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { usePresence } from "@/lib/usePresence";
 import { useStudio } from "@/store/studio";
 
@@ -204,7 +204,7 @@ function EditorSheet({
             {images.map((url, i) => (
               <div key={url} className="group relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 {i === 0 ? (
                   <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-px text-[10px] text-white">
                     Cover
