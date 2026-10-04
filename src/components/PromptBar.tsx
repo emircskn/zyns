@@ -341,7 +341,11 @@ function RatioGlyph({ value }: { value: unknown }) {
  * so two chips side by side never wear the same one: the style is a
  * palette, the rendering speed a bolt, the quality and resolution a gem.
  */
+/** Switches whose icon says it all: the chip drops its long name and keeps the icon and the switch. */
+const ICON_ONLY = /enhance|prompt_extend|prompt_optimi[sz]er|magic_prompt|expand_prompt/;
+
 const CHIP_ICON: Array<[RegExp, IconName]> = [
+  [ICON_ONLY, "wand"],
   [/^duration|_seconds$|extend_times|continue_at/, "clock"],
   [/^quality$|__tier|^tier$/, "gem"],
   [/resolution/, "gem"],
@@ -478,6 +482,7 @@ export function ElementsChip({
  */
 function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: () => void }) {
   const large = useContext(LargeChips);
+  const iconOnly = ICON_ONLY.test(field.key);
   return (
     <button
       type="button"
@@ -485,7 +490,7 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
       aria-checked={on}
       aria-label={field.label}
       onClick={onFlip}
-      title={field.help}
+      title={iconOnly ? `${field.label}: ${on ? "on" : "off"}${field.help ? ` · ${field.help}` : ""}` : field.help}
       className={`flex select-none items-center whitespace-nowrap rounded-full bg-t1/[0.07] transition-colors duration-[120ms] hover:bg-t1/[0.12] ${
         on ? "text-t1" : "text-t3 hover:text-t1"
       } ${
@@ -495,7 +500,7 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
       }`}
     >
       {chipIcon(field, on)}
-      {field.label}
+      {!iconOnly && field.label}
       <span
         aria-hidden="true"
         className={`relative ml-0.5 shrink-0 rounded-full transition-colors duration-[200ms] ${
