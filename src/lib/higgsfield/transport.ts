@@ -137,6 +137,17 @@ export function getRestylePresets(apiKey: string): Promise<RestylePreset[]> {
   return presets;
 }
 
+/** One page of Marketing Studio's presets; `cursor` is the one the page before gave. */
+export function getMarketingPresets(
+  apiKey: string,
+  cursor?: string,
+): Promise<{ items: hf.MarketingPresetItem[]; cursor: string | null }> {
+  if (isDirect()) return hf.marketingPresets(apiKey, cursor);
+  const query = new URLSearchParams({ size: "50" });
+  if (cursor) query.set("cursor", cursor);
+  return route(apiKey, `/api/higgsfield/marketing-presets?${query}`);
+}
+
 export async function verifyKey(apiKey: string): Promise<void> {
   if (isDirect()) return hf.verify(apiKey);
   await route(apiKey, "/api/higgsfield/verify");

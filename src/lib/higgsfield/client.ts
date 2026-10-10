@@ -282,6 +282,60 @@ export async function restylePresets(apiKey: string): Promise<RestylePreset[]> {
   );
 }
 
+/** A Marketing Studio preset, cut to what the page shows. */
+export interface MarketingPresetItem {
+  id: string;
+  name: string;
+  type: string;
+  preview?: string;
+  previewKind?: "image" | "video";
+}
+
+/** The first picture or clip a preset carries, in the order the docs give. */
+function presetPreview(item: Record<string, unknown>): { url: string; kind: "image" | "video" } | undefined {
+  const url = (value: unknown): string | undefined =>
+    typeof value === "string" && /^https?:\/\//.test(value) ? value : undefined;
+  const nested = (key: string) => {
+    const node = item[key];
+    return node && typeof node === "object" ? url((node as Record<string, unknown>).url) : undefined;
+  };
+  const found = nested("media") ?? nested("cover_image") ?? url(item.preview_url) ?? url(item.image_url) ?? url(item.thumbnail_url);
+  if (!found) return undefined;
+  const mediaType = item.media && typeof item.media === "object" ? (item.media as Record<string, unknown>).type : item.preview_type;
+  const kind = mediaType === "video" || VIDEO_URL.test(found) ? "video" : "image";
+  return { url: found, kind };
+}
+
+/**
+ * One page of Marketing Studio's presets (GET /marketing-studio/image/presets),
+ * as the account may use them. They live in Higgsfield's CMS and change, so
+ * nothing about them is kept in the code; `cursor` is the next page's.
+ */
+export async function marketingPresets(
+  apiKey: string,
+  cursor?: string,
+  size = 50,
+): Promise<{ items: MarketingPresetItem[]; cursor: string | null }> {
+  const query = new URLSearchParams({ size: String(Math.max(1, Math.min(100, size))) });
+  if (cursor) query.set("cursor", cursor);
+  const body = (await request(apiKey, `/marketing-studio/image/presets?${query}`)) as Record<string, unknown> | null;
+  const list = (body?.items ?? body?.presets ?? body?.data ?? []) as Array<Record<string, unknown>>;
+  const items = (Array.isArray(list) ? list : []).flatMap((item) => {
+    if (typeof item.id !== "string") return [];
+    const preview = presetPreview(item);
+    return [
+      {
+        id: item.id,
+        name: typeof item.name === "string" && item.name.trim() ? item.name.trim() : "Untitled",
+        type: typeof item.type === "string" && item.type.trim() ? item.type.trim() : "other",
+        ...(preview ? { preview: preview.url, previewKind: preview.kind } : {}),
+      },
+    ];
+  });
+  const next = body?.next_cursor ?? body?.cursor ?? body?.next;
+  return { items, cursor: typeof next === "string" && next ? next : null };
+}
+
 /** Step one of an upload: a presigned URL to PUT the file to. */
 export async function uploadTicket(apiKey: string, contentType: string): Promise<UploadTicket> {
   const type = contentType === "image/jpg" ? "image/jpeg" : contentType;
