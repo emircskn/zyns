@@ -14,7 +14,7 @@ import { keepCopy } from "@/lib/storage/client";
 import { getRecipe } from "@/recipes";
 import { useStudio } from "@/store/studio";
 import { mapParams, type CommonParams } from "./paramMap";
-import { holds, resolveTemplate, type TemplateContext } from "./template";
+import { resolveTemplate, stepRuns, type TemplateContext } from "./template";
 import type { Recipe, RecipeInputs, RecipeRun, Step, StepState } from "./types";
 
 /** The models that can run a step, KIE's and Higgsfield's together. */
@@ -48,6 +48,20 @@ export function rememberedModel(recipe: Recipe, step: Step): string | undefined 
 
 export function chooseStepModel(recipe: Recipe, step: Step, modelId: string): void {
   useStudio.getState().rememberStepModel(stepMemoryKeys(recipe, step), modelId);
+}
+
+/**
+ * The steps these inputs will run, as far as the inputs alone tell (a voice
+ * step is left out when a recording was brought); only these need a model.
+ */
+export function stepsNeeded(recipe: Recipe, inputs: RecipeInputs): Step[] {
+  const ctx = { ...inputs, steps: {} };
+  return recipe.steps.filter((step) => {
+    const ownOnly = (t?: string) => !t || !/steps\./.test(t);
+    // A condition on an earlier step's output can only be known when it runs.
+    if (!ownOnly(step.when) || !ownOnly(step.unless)) return true;
+    return stepRuns(step, ctx);
+  });
 }
 
 /** What is wrong with the inputs, as one message, or null. */
@@ -103,7 +117,7 @@ export function startRecipe(
 ): string | null {
   const problem = checkSlots(recipe, inputs);
   if (problem) throw new Error(problem);
-  for (const step of recipe.steps) {
+  for (const step of stepsNeeded(recipe, inputs)) {
     if (!step.fixedModel && !models[step.id]) throw new Error(`Choose a model for ${step.label ?? step.id}.`);
   }
   const run: RecipeRun = {
@@ -128,10 +142,10 @@ export function runAgain(previous: RecipeRun): string | null {
 }
 
 /**
- * Runs one step again, on another model if given, and everything after it;
- * the steps before keep their outputs.
+ * Runs one step again, on another model if given, and everything after it
+ * (or, with `only`, that step alone); the steps before keep their outputs.
  */
-export function retryStep(recipeRunId: string, stepId: string, modelId?: string): void {
+export function retryStep(recipeRunId: string, stepId: string, modelId?: string, only = false): void {
   useStudio.getState().patchRecipeRun(recipeRunId, (run) => {
     const at = run.stepStates.findIndex((s) => s.stepId === stepId);
     if (at < 0) return run;
@@ -141,7 +155,8 @@ export function retryStep(recipeRunId: string, stepId: string, modelId?: string)
       models: modelId ? { ...run.models, [stepId]: modelId } : run.models,
       // Settings belong to a model; another model starts from its own defaults.
       settings: modelId && modelId !== run.models[stepId] ? { ...run.settings, [stepId]: {} } : run.settings,
-      stepStates: run.stepStates.map((s, i): StepState => (i >= at ? { stepId: s.stepId, status: "idle" } : s)),
+      // Just this one when asked (the steps after keep what they made), else it and everything after.
+      stepStates: run.stepStates.map((s, i): StepState => (i === at || (!only && i > at) ? { stepId: s.stepId, status: "idle" } : s)),
     };
   });
   void advance(recipeRunId);
@@ -200,7 +215,7 @@ export async function advance(recipeRunId: string): Promise<void> {
       }
 
       // Idle, or "running" without a run (a page that closed while sending): start it.
-      if (!holds(step.when, context(run))) {
+      if (!stepRuns(step, context(run))) {
         patchStep(recipeRunId, step.id, { status: "skipped" });
         continue;
       }

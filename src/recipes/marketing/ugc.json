@@ -1,0 +1,45 @@
+{
+  "id": "marketing-ugc",
+  "name": "UGC video",
+  "category": "ugc",
+  "description": "A person talking to the camera about your product: the script, a voice for it (or your own recording), a still of them with the product, then the talking clip.",
+  "output": "video",
+  "slots": [
+    { "key": "avatar", "type": "image", "label": "Person", "required": true, "min": 1, "max": 1, "elementKind": "character" },
+    { "key": "product", "type": "image", "label": "Product", "required": true, "min": 1, "max": 2, "elementKind": "product" },
+    { "key": "script", "type": "text", "label": "Script", "required": true, "placeholder": "Okay, I have to show you this. I've been using it every morning for two weeks and…" },
+    { "key": "audio", "type": "audio", "label": "Your own recording", "required": false },
+    { "key": "setting", "type": "text", "label": "Where they are", "required": false, "placeholder": "In a bright kitchen, morning light, phone held at arm's length" }
+  ],
+  "choices": [{ "key": "ratio", "label": "Aspect ratio", "options": ["9:16", "1:1", "16:9"], "default": "9:16" }],
+  "steps": [
+    {
+      "id": "voice",
+      "label": "Voice",
+      "capability": "text-to-speech",
+      "unless": "{{slots.audio}}",
+      "params": { "prompt": "{{slots.script}}" }
+    },
+    {
+      "id": "frame",
+      "label": "Frame",
+      "capability": "image-edit-multi",
+      "params": {
+        "prompt": "A natural, candid smartphone selfie-style photo for a UGC ad: the person from the first image holding the product from the second image towards the camera, product label clearly visible and unchanged, the person looking into the lens. {{slots.setting}}",
+        "images": ["{{slots.avatar}}", "{{slots.product}}"],
+        "aspect_ratio": "{{choices.ratio}}"
+      }
+    },
+    {
+      "id": "talk",
+      "label": "Talking video",
+      "capability": "lipsync-from-audio",
+      "params": {
+        "prompt": "The person talks to the camera naturally, holding the product. {{slots.script}}",
+        "images": ["{{steps.frame.output.url}}"],
+        "audio": "{{slots.audio || steps.voice.output.url}}",
+        "aspect_ratio": "{{choices.ratio}}"
+      }
+    }
+  ]
+}

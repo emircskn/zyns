@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
 import { ModelRow } from "@/components/ModelPicker";
@@ -55,9 +56,10 @@ export function StepModelPicker({
     const q = query.trim().toLowerCase();
     return q ? all.filter((m) => `${m.name} ${m.vendor} ${m.provider ?? "kie"}`.toLowerCase().includes(q)) : all;
   }, [step, query]);
-  if (!mounted || !step) return null;
+  if (!mounted || !step || typeof document === "undefined") return null;
 
-  return (
+  // Over everything: opened from a sticky side panel, it must not be held inside it.
+  return createPortal(
     <div className="fixed inset-0 z-[116] flex items-stretch justify-center sm:items-center sm:p-4">
       <button
         type="button"
@@ -118,6 +120,7 @@ export function StepModelPicker({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

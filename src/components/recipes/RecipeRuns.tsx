@@ -90,11 +90,20 @@ export function RecipeRuns({ recipe }: { recipe: Recipe }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => retryStep(run.id, step.id)}
+                        onClick={() => retryStep(run.id, step.id, undefined, true)}
                         className="px-2.5 text-[11.5px] text-t3 hover:text-t1"
                       >
-                        Retry from here
+                        Redo this step
                       </button>
+                      {step.id !== recipe.steps[recipe.steps.length - 1].id && (
+                        <button
+                          type="button"
+                          onClick={() => retryStep(run.id, step.id)}
+                          className="px-2.5 text-[11.5px] text-t3 hover:text-t1"
+                        >
+                          Redo from here
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -110,7 +119,8 @@ export function RecipeRuns({ recipe }: { recipe: Recipe }) {
         onPick={(modelId) => {
           if (!retrying) return;
           chooseStepModel(recipe, retrying.step, modelId);
-          retryStep(retrying.run.id, retrying.step.id, modelId);
+          // Another model for this step alone; "Redo from here" carries it on.
+          retryStep(retrying.run.id, retrying.step.id, modelId, true);
         }}
         onClose={() => setRetrying(null)}
       />

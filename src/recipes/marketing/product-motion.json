@@ -1,0 +1,36 @@
+{
+  "id": "marketing-product-motion",
+  "name": "Product motion",
+  "category": "product-motion",
+  "description": "A product shot made from your product's photo, then brought to life as a short clip.",
+  "output": "video",
+  "slots": [
+    { "key": "product", "type": "image", "label": "Product", "required": true, "min": 1, "max": 4, "elementKind": "product" },
+    { "key": "scene", "type": "text", "label": "Scene", "required": false, "placeholder": "On wet black stone, soft rim light, drops of water" },
+    { "key": "motion", "type": "text", "label": "Motion", "required": false, "placeholder": "Slow orbit around the product, light sweeping across it" }
+  ],
+  "choices": [{ "key": "ratio", "label": "Aspect ratio", "options": ["9:16", "1:1", "16:9"], "default": "9:16" }],
+  "steps": [
+    {
+      "id": "frame",
+      "label": "Frame",
+      "capability": "image-edit-multi",
+      "params": {
+        "prompt": "A premium commercial product photograph of the product in the reference image, kept exactly as it is: same shape, colours, label and logo. {{slots.scene}}",
+        "images": ["{{slots.product}}"],
+        "aspect_ratio": "{{choices.ratio}}"
+      }
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "capability": "image-to-video",
+      "params": {
+        "prompt": "Commercial product shot. {{slots.motion}}. The product keeps its exact shape, label and logo throughout.",
+        "images": ["{{steps.frame.output.url}}"],
+        "aspect_ratio": "{{choices.ratio}}",
+        "duration": 5
+      }
+    }
+  ]
+}

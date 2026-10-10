@@ -10,10 +10,20 @@ export interface TemplateContext extends RecipeInputs {
   steps: Record<string, { output: { url?: string; urls: string[] } }>;
 }
 
-const WHOLE = /^\s*\{\{\s*([\w.-]+)\s*\}\}\s*$/;
-const ANY = /\{\{\s*([\w.-]+)\s*\}\}/g;
+// `{{a || b}}`: the first of them that holds something.
+const WHOLE = /^\s*\{\{\s*([\w.-]+(?:\s*\|\|\s*[\w.-]+)*)\s*\}\}\s*$/;
+const ANY = /\{\{\s*([\w.-]+(?:\s*\|\|\s*[\w.-]+)*)\s*\}\}/g;
 
-function lookup(context: TemplateContext, path: string): unknown {
+function lookup(context: TemplateContext, expression: string): unknown {
+  const paths = expression.split("||").map((p) => p.trim());
+  if (paths.length > 1) {
+    for (const path of paths) {
+      const found = lookup(context, path);
+      if (found !== undefined && found !== null && found !== "" && !(Array.isArray(found) && found.length === 0)) return found;
+    }
+    return undefined;
+  }
+  const path = paths[0];
   let node: unknown = context;
   for (const part of path.split(".")) {
     if (node === null || node === undefined || typeof node !== "object") return undefined;
@@ -39,6 +49,11 @@ export function resolveTemplate(value: unknown, context: TemplateContext): unkno
       .filter((item) => item !== undefined && item !== null && item !== "");
   }
   return value;
+}
+
+/** Whether a step runs: its `when` holds and its `unless` does not. */
+export function stepRuns(step: { when?: string; unless?: string }, context: TemplateContext): boolean {
+  return holds(step.when, context) && !(step.unless && holds(step.unless, context));
 }
 
 /** Whether a step's `when` lets it run. */

@@ -40,6 +40,8 @@ export interface Step {
   params: Record<string, Template | Template[] | number | boolean>;
   /** Skipped when this resolves to nothing. */
   when?: Template;
+  /** Skipped when this resolves to something (a voice step skipped when a recording was brought). */
+  unless?: Template;
 }
 
 export interface Recipe {

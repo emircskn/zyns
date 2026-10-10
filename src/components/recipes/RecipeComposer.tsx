@@ -12,9 +12,11 @@ import {
   rememberedModel,
   startRecipe,
   stepCost,
+  stepsNeeded,
   stepValues,
 } from "@/lib/recipes/engine";
 import type { Recipe, RecipeInputs, Step } from "@/lib/recipes/types";
+import { inUse, type LibraryElement } from "@/lib/elements";
 import { activeFields, getModel, providerOf, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { keyFor, useStudio } from "@/store/studio";
@@ -43,7 +45,8 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
   const keys = { apiKey, hfKey };
 
   const inputs: RecipeInputs = { slots, choices };
-  const missingModel = recipe.steps.find((s) => !s.fixedModel && !models[s.id]);
+  const needed = stepsNeeded(recipe, inputs);
+  const missingModel = needed.find((s) => !s.fixedModel && !models[s.id]);
   const slotProblem = checkSlots(recipe, inputs);
 
   function send() {
@@ -111,6 +114,18 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
               </button>
             </div>
           )}
+          {slot.type === "image" && slot.elementKind && (
+            <ElementRow
+              kind={slot.elementKind}
+              onPick={(urls) =>
+                setSlots((all) => {
+                  const now = (Array.isArray(all[slot.key]) ? all[slot.key] : all[slot.key] ? [all[slot.key]] : []) as string[];
+                  const room = (slot.max ?? 10) - now.length;
+                  return { ...all, [slot.key]: room > 0 ? [...now, ...urls.filter((u) => !now.includes(u)).slice(0, room)] : now };
+                })
+              }
+            />
+          )}
         </div>
       ))}
 
@@ -136,7 +151,11 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
 
       <div className="flex flex-col gap-2">
         <p className="text-[12px] font-medium text-t3">Steps</p>
-        {recipe.steps.map((step, index) => (
+        {recipe.steps.map((step, index) => !needed.includes(step) ? (
+          <p key={step.id} className="rounded-card bg-t1/[0.03] px-3.5 py-3 text-[12.5px] text-t4">
+            {index + 1}. {step.label ?? step.id}: skipped, your own {step.capability === "text-to-speech" ? "recording" : "input"} is used
+          </p>
+        ) : (
           <StepRow
             key={step.id}
             index={index}
@@ -198,6 +217,29 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
         }}
         onClose={() => setMediaFor(null)}
       />
+    </div>
+  );
+}
+
+/** The library's elements of a kind, as covers to tap: a product's pictures, a character's face. */
+function ElementRow({ kind, onPick }: { kind: LibraryElement["kind"]; onPick: (urls: string[]) => void }) {
+  const all = useStudio((s) => s.elements);
+  const elements = all.filter((e) => e.kind === kind && inUse(e) && e.images.length > 0);
+  if (elements.length === 0) return null;
+  return (
+    <div className="no-bar mt-2 flex gap-1.5 overflow-x-auto">
+      {elements.map((element) => (
+        <button
+          key={element.id}
+          type="button"
+          onClick={() => onPick(element.images.map((r) => r.storageUrl))}
+          title={`@${element.name}`}
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-t1/[0.05] py-1 pl-1 pr-2.5 text-[12px] text-t2 hover:text-t1"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mediaSrc(element.images[0].storageUrl)} alt="" className="h-6 w-6 rounded-full object-cover" />@{element.name}
+        </button>
+      ))}
     </div>
   );
 }
