@@ -42,7 +42,7 @@ export function useStudioUi(): StudioUi {
 }
 
 /** "12 cr" for one, made "48 cr" for four. */
-function times(hint: string | null, count: number): string | null {
+export function times(hint: string | null, count: number): string | null {
   if (!hint || count <= 1) return hint;
   const match = /([\d,]+(?:\.\d+)?)/.exec(hint);
   if (!match) return hint;
@@ -52,7 +52,7 @@ function times(hint: string | null, count: number): string | null {
 }
 
 /** What one send costs: Higgsfield's estimate, or KIE's price list. */
-function usePrice(model: ModelDef | undefined, values: Values, blocker: string | null): string | null {
+export function usePrice(model: ModelDef | undefined, values: Values, blocker: string | null): string | null {
   const higgsfield = providerOf(model) === "higgsfield";
   const quoted = useEstimate(higgsfield ? model : undefined, values, blocker);
   if (!model) return null;
@@ -241,7 +241,7 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
 }
 
 /** The large Generate at the composer's end, with what it costs. */
-function GenerateButton({
+export function GenerateButton({
   onClick,
   busy,
   disabled,
@@ -281,7 +281,7 @@ function GenerateButton({
 }
 
 /** What the send costs, at the end of the settings row, as the bars show it. */
-function PriceHint({ price, count }: { price: string | null; count: number }) {
+export function PriceHint({ price, count }: { price: string | null; count: number }) {
   if (!price) return null;
   return (
     <span className="ml-auto shrink-0 pl-2 font-mono text-[11.5px] tabular-nums text-t3">

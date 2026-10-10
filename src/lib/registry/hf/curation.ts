@@ -68,6 +68,9 @@ const marketingModes = (model: string): ModeSpec[] => [
     hide: ["preset_id", "enhance_prompt"],
     require: ["image_urls"],
   }),
+  // Marketing Studio's own page sends through a preset: enhance_prompt on,
+  // the preset's id, the product first and an optional model second.
+  m("preset", "Preset", model, { hidden: true, require: ["image_urls", "preset_id"] }),
 ];
 
 const recraft = (id: string, name: string, model: string, tagline: string): Family => ({
