@@ -5,6 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import type { LibraryElement } from "@/lib/elements";
 import type { RecipeRun } from "@/lib/recipes/types";
 import { EMPTY_REMIX, type MotionClip, type RemixRunInfo, type RemixState } from "@/lib/remix/types";
+import { EMPTY_MARKETING, type MarketingRunInfo, type MarketingUi } from "@/lib/marketing/types";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { followPictures, imageFields, imageRefs } from "@/lib/mentions";
@@ -91,6 +92,8 @@ export interface Run {
   remix?: RemixRunInfo;
   /** Made in Cinema Studio, in which of its modes (its own model, or another one picked there). */
   studio?: "video" | "image";
+  /** Made in Marketing Studio: how, and with which preset and pictures. */
+  marketing?: MarketingRunInfo;
   /** The folder of its project it sits in. */
   folderId?: string;
   /** Put in the Trash: hidden everywhere until restored or deleted for good. */
@@ -116,7 +119,7 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio";
+export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio" | "marketing";
 
 /** The pages that keep things rather than make them. */
 /**
@@ -151,7 +154,7 @@ export function ownPageOf(id: string | undefined): Page | undefined {
 
 /** The pages of one kind of work, each with its own models and prompt bar. */
 export function isCategoryPage(page: Page): page is Category {
-  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio";
+  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio" && page !== "marketing";
 }
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
@@ -380,6 +383,9 @@ interface StudioState {
   studioCount: number;
   studio: StudioUi;
   patchStudio: (patch: Partial<StudioUi> | ((studio: StudioUi) => Partial<StudioUi>)) => void;
+  /** Marketing Studio's page and composer as they were left. */
+  marketing: MarketingUi;
+  patchMarketing: (patch: Partial<MarketingUi> | ((marketing: MarketingUi) => Partial<MarketingUi>)) => void;
   patchProject: (id: string, patch: Partial<Project>) => void;
   /** Media saved to the device, by URL, for the "Downloaded" filter. */
   downloaded: string[];
@@ -800,6 +806,9 @@ export const useStudio = create<StudioState>()(
           },
         })),
       studioCount: 1,
+      marketing: EMPTY_MARKETING,
+      patchMarketing: (patch) =>
+        set((state) => ({ marketing: { ...state.marketing, ...(typeof patch === "function" ? patch(state.marketing) : patch) } })),
       studio: EMPTY_STUDIO,
       patchStudio: (patch) =>
         set((state) => ({ studio: { ...state.studio, ...(typeof patch === "function" ? patch(state.studio) : patch) } })),
@@ -1140,6 +1149,7 @@ export const useStudio = create<StudioState>()(
         batch: state.batch,
         studioCount: state.studioCount,
         studio: state.studio,
+        marketing: state.marketing,
         downloaded: state.downloaded,
         modelByCategory: state.modelByCategory,
         promptByCategory: state.promptByCategory,

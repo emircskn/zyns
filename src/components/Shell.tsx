@@ -34,6 +34,7 @@ import { SIDE_PAGES } from "@/lib/layout";
 import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
 import { RemixStudio } from "@/components/remix/RemixStudio";
 import { CinemaStudio } from "@/components/studio/CinemaStudio";
+import { MarketingStudio } from "@/components/marketing/MarketingStudio";
 import { isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
@@ -111,8 +112,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   useEffect(() => {
     if (!hydrated || !arrived || !/^https?:$/.test(window.location.protocol)) return;
     const here = window.location.pathname.replace(/\/$/, "") || "/";
-    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio") return;
-    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : "/";
+    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio" && here !== "/marketing") return;
+    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : "/";
     if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
   }, [page, hydrated, arrived]);
   // Redraws the studio when Higgsfield's live catalogue changes its models.
@@ -150,13 +151,13 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
         // A page that makes things, and the library pages, are a wall of
         // media edge to edge; each pads its own toolbar and empty state.
         className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
-          composing || browsing || page === "remix" || page === "studio" ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
+          composing || browsing || page === "remix" || page === "studio" || page === "marketing" ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
         } ${
           composing
             ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}`
             : browsing
               ? "below-card max-md:pt-[max(14px,env(safe-area-inset-top))]"
-              : page === "remix" || page === "studio"
+              : page === "remix" || page === "studio" || page === "marketing"
                 ? "below-nav md:pb-6"
                 : "below-nav"
         }`}
@@ -175,6 +176,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
               <RemixStudio onKeyClick={() => setKeyOpen(true)} />
             ) : shown === "studio" ? (
               <CinemaStudio onKeyClick={() => setKeyOpen(true)} />
+            ) : shown === "marketing" ? (
+              <MarketingStudio onKeyClick={() => setKeyOpen(true)} />
             ) : (
               // Keyed by page: without it React reuses this element between
               // categories and the empty state's reveal never runs again.

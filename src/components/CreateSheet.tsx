@@ -203,6 +203,17 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
               />
             </>
           )}
+          {provider === "higgsfield" && (tab === "all" || tab === "image") && (
+            <PageCard
+              modelId="hf-marketing-studio-flare"
+              title="MARKETING STUDIO"
+              line="Product shots, ads and listings, and video made from them"
+              onPick={() => {
+                setPage("marketing");
+                onClose();
+              }}
+            />
+          )}
           <div key={tab} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {shown.map((model, index) => (
               <ModelCard
