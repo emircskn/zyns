@@ -73,8 +73,12 @@
   --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
   --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
 
-  /* Motion: one easing for everything that settles, one that overshoots. */
+  /* Motion: one easing for everything that settles (critically damped,
+     no overshoot), its mirror for leaving the way it came, and one that
+     overshoots, kept for things a flick or a press sets moving. Menus,
+     dialogs and popovers that simply appear never bounce. */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-exit: cubic-bezier(0.55, 0, 1, 0.45);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   /* The phone's bottom row, which the prompt bar and every page sit above.
      Zero on a desktop, where the row is not there at all. */
@@ -157,9 +161,9 @@ body {
 button,
 [role="button"] {
   font-weight: 450;
-  transition-property: transform, background-color, color, opacity, box-shadow;
+  transition-property: transform, scale, background-color, color, opacity, box-shadow;
   transition-duration: var(--d-fast);
-  transition-timing-function: var(--ease-spring);
+  transition-timing-function: var(--ease);
   letter-spacing: -0.01em;
 }
 
@@ -352,13 +356,13 @@ h3 {
 }
 
 .anim-pop {
-  animation: pop-in var(--d-base) var(--ease-spring) both;
+  animation: pop-in var(--d-base) var(--ease) both;
 }
 .anim-pop-out {
-  animation: pop-out var(--d-base) var(--ease) both;
+  animation: pop-out var(--d-base) var(--ease-exit) both;
 }
 .anim-fade-out {
-  animation: fade-out var(--d-base) var(--ease) both;
+  animation: fade-out var(--d-base) var(--ease-exit) both;
 }
 /* Full-screen sheets slide up on phones and settle in from scale on desks. */
 .anim-sheet {
@@ -384,26 +388,56 @@ h3 {
 }
 @media (min-width: 640px) {
   .anim-sheet {
-    animation: pop-in var(--d-slow) var(--ease-spring) both;
+    animation: pop-in var(--d-slow) var(--ease) both;
   }
   .anim-sheet-out {
-    animation: pop-out var(--d-base) var(--ease) both;
+    animation: pop-out var(--d-base) var(--ease-exit) both;
   }
 }
 .anim-zoom {
-  animation: zoom-in var(--d-slow) var(--ease-spring) both;
+  animation: zoom-in var(--d-slow) var(--ease) both;
 }
 .anim-zoom-out {
-  animation: zoom-out var(--d-base) var(--ease) both;
+  animation: zoom-out var(--d-base) var(--ease-exit) both;
 }
-/* Popovers grow out of the chip that opened them. */
+/* Popovers grow out of the chip that opened them (the popover sets the
+   exact origin: over its trigger, on the side it opened from). */
 .anim-rise {
   transform-origin: bottom center;
-  animation: rise-in var(--d-slow) var(--ease-spring) both;
+  animation: rise-in var(--d-slow) var(--ease) both;
 }
 .anim-rise-out {
   transform-origin: bottom center;
-  animation: rise-out 160ms var(--ease) both;
+  animation: rise-out 160ms var(--ease-exit) both;
+}
+/* Opened downward, it comes down out of its trigger and goes back up into it. */
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes drop-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.94);
+  }
+}
+.anim-drop {
+  transform-origin: top center;
+  animation: drop-in var(--d-slow) var(--ease) both;
+}
+.anim-drop-out {
+  transform-origin: top center;
+  animation: drop-out 160ms var(--ease-exit) both;
 }
 .anim-fade {
   animation: fade-in var(--d-base) var(--ease) both;
@@ -1449,4 +1483,39 @@ html {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* ------------------------------------------------------------------ *
+ * Press
+ *
+ * A button answers the moment it is pressed, not when it is let go: it
+ * gives a little under the finger. Utilities that set their own scale win
+ * (this sits in the base layer), and a button laid over a picture (absolute,
+ * a tile's hit area) does not shrink away from the picture under it.
+ * ------------------------------------------------------------------ */
+@layer base {
+  :where(button, [role="button"]):active:not(:disabled):not([aria-disabled="true"]):not(.absolute):not([data-no-press]) {
+    scale: 0.97;
+    transition-duration: 60ms;
+  }
+}
+
+/* Asked for less see-through: the glass turns solid. */
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Asked for more contrast: firmer edges and quieter text read stronger. */
+@media (prefers-contrast: more) {
+  :root,
+  [data-theme="light"] {
+    --line: color-mix(in oklab, var(--t1) 28%, transparent);
+    --line-strong: color-mix(in oklab, var(--t1) 45%, transparent);
+  }
 }

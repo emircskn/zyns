@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
@@ -142,6 +143,8 @@ export function MediaPicker({
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheet, onClose);
   const scroller = useRef<HTMLDivElement>(null);
   const lastHeight = useRef<number | null>(null);
 
@@ -253,7 +256,9 @@ export function MediaPicker({
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center gap-2 px-4 pt-4 sm:px-5">
+        {/* The grip: says it can be pulled down. */}
+        <span aria-hidden className="mx-auto -mb-2 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
+        <header {...swipe} className="flex items-center gap-2 px-4 pt-4 sm:px-5">
           <h2 className="flex-1 text-[17px] font-semibold tracking-[-0.02em] text-t1">
             {kinds.length > 1
               ? "Add media"

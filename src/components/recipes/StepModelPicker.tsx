@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
 import { ModelRow } from "@/components/ModelPicker";
 import { modelsForStep } from "@/lib/recipes/engine";
@@ -42,6 +43,9 @@ export function StepModelPicker({
   onClose: () => void;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
   const [query, setQuery] = useState("");
   useEffect(() => {
     if (open) setQuery("");
@@ -62,12 +66,13 @@ export function StepModelPicker({
         className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
+        ref={sheetRef}
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(620px,84vh)] sm:max-w-[560px] sm:rounded-panel sm:border sm:border-line ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="border-b border-line px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:pt-4">
+        <header {...swipe} className="border-b border-line px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:pt-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[16px] text-t1">{step.label ?? step.id}</p>

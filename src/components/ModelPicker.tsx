@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
 import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, modelsFor, searchModels, type Category, type ModelDef } from "@/lib/registry";
@@ -100,6 +101,9 @@ export function ModelPicker() {
   // the rest: an image page picks among image models.
   const scope: Category | "all" = locked ? storedTab : "all";
   const { mounted, exiting } = usePresence(open, 300);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, () => togglePicker(false));
 
   // Every opening starts from a clean search, so a stale query never hides
   // the list.
@@ -144,12 +148,13 @@ export function ModelPicker() {
         }`}
       />
       <div
+        ref={sheetRef}
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(620px,84vh)] sm:max-w-[560px] sm:rounded-panel sm:border sm:border-line ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center gap-2 border-b border-line px-3 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:py-3">
+        <header {...swipe} className="flex items-center gap-2 border-b border-line px-3 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:py-3">
           <div className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full bg-t1/[0.05] px-3.5">
             <Icon name="search" size={17} className="shrink-0 text-t4" />
             <input

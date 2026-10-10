@@ -24,6 +24,8 @@ interface Placement {
   top?: number;
   /** How tall its list may be, to stay on screen. */
   maxHeight: number;
+  /** Where it grows from: over the trigger, on the side facing it. */
+  origin: string;
 }
 
 export function Popover({ trigger, children, align = "start", width = 264, title, full }: Props) {
@@ -90,9 +92,11 @@ export function Popover({ trigger, children, align = "start", width = 264, title
       // The panel's own padding and title row take about this much.
       const chrome = (title ? 34 : 0) + 12;
       const ceiling = Math.min(420, window.innerHeight * 0.58);
+      // Nudged back inside when a chip sits near an edge.
+      const x = Math.max(margin, Math.min(left, window.innerWidth - margin - w));
       setPlace({
-        // Nudged back inside when a chip sits near an edge.
-        left: Math.max(margin, Math.min(left, window.innerWidth - margin - w)),
+        left: x,
+        origin: `${Math.round(Math.max(0, Math.min(w, rect.left + rect.width / 2 - x)))}px ${below ? "0%" : "100%"}`,
         ...(below ? { top: rect.bottom + 10 } : { bottom: window.innerHeight - rect.top + 10 }),
         width: w,
         maxHeight: Math.max(120, Math.min(ceiling, (below ? roomBelow : roomAbove) - chrome)),
@@ -118,9 +122,9 @@ export function Popover({ trigger, children, align = "start", width = 264, title
           <div
             ref={panel}
             className={`surface-pop fixed z-[90] rounded-panel p-1.5 ${
-              exiting ? "anim-rise-out pointer-events-none" : "anim-rise"
+              exiting ? `${place.top !== undefined ? "anim-drop-out" : "anim-rise-out"} pointer-events-none` : place.top !== undefined ? "anim-drop" : "anim-rise"
             }`}
-            style={{ left: place.left, top: place.top, bottom: place.bottom, width: place.width }}
+            style={{ left: place.left, top: place.top, bottom: place.bottom, width: place.width, transformOrigin: place.origin }}
           >
             {title && (
               <div className="px-2.5 pb-2 pt-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">

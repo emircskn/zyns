@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { ModelMedia } from "@/components/ModelMedia";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
@@ -107,6 +108,9 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
   const modelId = useStudio((s) => s.modelId);
   const [tab, setTab] = useState<Tab>("all");
   const { mounted, exiting } = usePresence(open, 300);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
 
   useEffect(() => {
     if (!open) return;
@@ -144,12 +148,13 @@ export function CreateSheet({ open, onClose }: { open: boolean; onClose: () => v
         }`}
       />
       <div
+        ref={sheetRef}
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(820px,88vh)] sm:max-w-3xl sm:rounded-panel sm:border sm:border-line ${
           exiting ? "anim-sheet-out" : "anim-sheet sheet-stagger"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center gap-2 px-4 pb-3 pt-[max(18px,env(safe-area-inset-top))] sm:px-5 sm:pt-5">
+        <header {...swipe} className="flex items-center gap-2 px-4 pb-3 pt-[max(18px,env(safe-area-inset-top))] sm:px-5 sm:pt-5">
           <h2 className="flex-1 text-[26px] font-semibold leading-none tracking-[-0.03em] text-t1">
             Create
           </h2>

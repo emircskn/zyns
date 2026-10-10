@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { GlideMark } from "@/components/GlideMark";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
@@ -50,6 +51,9 @@ export function StudioDialog({
   children: ReactNode;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
   const side = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -68,6 +72,7 @@ export function StudioDialog({
         className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
+        ref={sheetRef}
         role="dialog"
         aria-label={title}
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(560px,88vh)] sm:max-w-[820px] sm:rounded-panel sm:border sm:border-line ${
@@ -75,7 +80,7 @@ export function StudioDialog({
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center justify-between gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] sm:pt-3.5">
+        <header {...swipe} className="flex items-center justify-between gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] sm:pt-3.5">
           <p className="text-[16px] font-semibold text-t1">{title}</p>
           <div className="flex items-center gap-2">
             {onReset && (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
@@ -142,6 +143,9 @@ export function ReferencePicker({
   modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
   const assets = useAssets();
   const favorites = useStudio((s) => s.favorites);
   const elements = useStudio((s) => s.elements).filter((e) => (styles || e.kind !== "style") && inUse(e));
@@ -238,6 +242,7 @@ export function ReferencePicker({
         className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
+        ref={sheetRef}
         role="dialog"
         aria-label="References"
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(620px,90vh)] sm:max-w-[980px] sm:rounded-panel sm:border sm:border-line ${
@@ -245,7 +250,7 @@ export function ReferencePicker({
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] sm:pt-3.5">
+        <header {...swipe} className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-[max(14px,env(safe-area-inset-top))] sm:pt-3.5">
           {elementsOnly ? (
             <h2 className="pl-1 text-[17px] font-semibold text-t1">Elements</h2>
           ) : (

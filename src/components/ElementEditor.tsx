@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
@@ -49,6 +50,9 @@ function EditorSheet({
   const elements = useStudio((s) => s.elements);
   const saveElement = useStudio((s) => s.saveElement);
   const removeElement = useStudio((s) => s.removeElement);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
   const existing = start.id ? elements.find((e) => e.id === start.id) : undefined;
 
   const [name, setName] = useState(existing?.name ?? "");
@@ -123,6 +127,7 @@ function EditorSheet({
         className={`absolute inset-0 bg-canvas-deep/75 ${picking ? "" : "backdrop-blur-md"} ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
+        ref={sheetRef}
         role="dialog"
         aria-label={existing ? `Edit @${existing.name}` : "New element"}
         className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:max-w-[520px] sm:rounded-panel ${
@@ -130,7 +135,9 @@ function EditorSheet({
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+        {/* The grip: says it can be pulled down. */}
+        <span aria-hidden className="mx-auto -mb-2 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
+        <header {...swipe} className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
           <h2 className="text-[17px] text-t1">{existing ? `@${existing.name}` : "New element"}</h2>
           <button
             type="button"

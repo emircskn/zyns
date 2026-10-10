@@ -2,6 +2,7 @@
 
 import { inUse } from "@/lib/elements";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ModelRow } from "@/components/ModelPicker";
@@ -52,6 +53,9 @@ export function Sheet({
   footer?: ReactNode;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // Pulled down on a phone, it closes.
+  const swipe = useSwipeDismiss(sheetRef, onClose);
   if (!mounted || typeof document === "undefined") return null;
   // On the page's top layer: the composer it opens from is a sticky column
   // of its own, which would otherwise keep it under the history beside it.
@@ -64,6 +68,7 @@ export function Sheet({
         className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <div
+        ref={sheetRef}
         role="dialog"
         aria-label={title}
         className={`relative flex w-full flex-col overflow-hidden bg-canvas sm:h-[min(640px,84vh)] sm:max-w-[600px] sm:rounded-panel sm:border sm:border-line ${
@@ -71,7 +76,7 @@ export function Sheet({
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
-        <header className="flex items-center justify-between gap-3 border-b border-line px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:pt-4">
+        <header {...swipe} className="flex items-center justify-between gap-3 border-b border-line px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))] sm:pt-4">
           <div className="min-w-0">
             <p className="text-[16px] text-t1">{title}</p>
             {sub && <p className="text-[12.5px] text-t3">{sub}</p>}
