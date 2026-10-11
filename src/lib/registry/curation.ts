@@ -374,15 +374,6 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
-    id: "4o-image",
-    name: "4o Image",
-    vendor: "OpenAI",
-    category: "image",
-    output: "image",
-    tagline: "GPT-4o image generation with up to five reference images.",
-    modes: [m("generate", "Generate", "4o-image-api", { hide: ["file_url"] })],
-  },
-  {
     id: "flux-2-pro",
     featured: true,
     prompts: [
@@ -409,18 +400,6 @@ export const FAMILIES: Family[] = [
     modes: [
       m("generate", "Generate", "flux-2/flex-text-to-image"),
       m("reference", "Reference", "flux-2/flex-image-to-image", { hint: "1–8 reference images" }),
-    ],
-  },
-  {
-    id: "flux-kontext",
-    name: "FLUX Kontext",
-    vendor: "Black Forest Labs",
-    category: "image",
-    output: "image",
-    tagline: "In-context editing that keeps the rest of the frame untouched.",
-    modes: [
-      m("generate", "Generate", "flux1-kontext", { hide: ["input_image"] }),
-      m("edit", "Edit", "flux1-kontext", { require: ["input_image"] }),
     ],
   },
   {
@@ -483,28 +462,6 @@ export const FAMILIES: Family[] = [
       m("edit", "Edit", "ideogram/character-edit"),
       m("remix", "Remix", "ideogram/character-remix"),
     ],
-  },
-  {
-    id: "qwen-image",
-    name: "Qwen Image",
-    vendor: "Alibaba",
-    category: "image",
-    output: "image",
-    tagline: "Open-weights generation and editing with full sampler control.",
-    modes: [
-      m("generate", "Generate", "qwen/text-to-image"),
-      m("image-to-image", "Image to image", "qwen/image-to-image"),
-      m("edit", "Edit", "qwen/image-edit"),
-    ],
-  },
-  {
-    id: "qwen2-image",
-    name: "Qwen2 Image",
-    vendor: "Alibaba",
-    category: "image",
-    output: "image",
-    tagline: "Second-generation Qwen image editing.",
-    modes: [m("edit", "Edit", "qwen2/image-edit")],
   },
   {
     id: "qwen3-image",

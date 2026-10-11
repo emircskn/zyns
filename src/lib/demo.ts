@@ -50,7 +50,7 @@ const SHOTS: { model: string; name: string; output: Run["output"]; ratio: string
   { model: "nano-banana-2", name: "Nano Banana 2", output: "image", ratio: "1 / 1", prompt: "ceramic still life on a windowsill, hard morning light" },
   { model: "seedream-4", name: "Seedream 4.0", output: "image", ratio: "3 / 2", prompt: "empty diner at 4am, sodium light, 35mm" },
   { model: "seedream-4", name: "Seedream 4.0", output: "image", ratio: "2 / 3", prompt: "portrait against a painted backdrop, single softbox" },
-  { model: "qwen-image", name: "Qwen Image", output: "image", ratio: "16 / 9", prompt: "salt flats at dusk, one road, no horizon" },
+  { model: "qwen3-image", name: "Qwen3 Image", output: "image", ratio: "16 / 9", prompt: "salt flats at dusk, one road, no horizon" },
   { model: "ideogram-v3", name: "Ideogram V3", output: "image", ratio: "1 / 1", prompt: "record sleeve, heavy grain, two colours only" },
   { model: "kling-3-omni", name: "Kling 3.0 Omni", output: "video", ratio: "16 / 9", prompt: "slow push through a doorway into rain" },
   { model: "kling-3-omni", name: "Kling 3.0 Omni", output: "video", ratio: "9 / 16", prompt: "handheld follow down a stairwell" },

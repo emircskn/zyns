@@ -44,16 +44,12 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **GPT Image 2.5 Flare**<br>`gpt-image-2-5-flare` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 2.5 Sunburst**<br>`gpt-image-2-5-sunburst` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 1.5**<br>`gpt-image-1-5` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
-| **4o Image**<br>`4o-image` | KIE | Generate | `text-to-image` (Generate) | evet | Görsel girişi `files_url`, üst sınırı katalogda yok → image-edit-multi eklenmedi (açık soru) |
 | **FLUX 2 Pro**<br>`flux-2-pro` | KIE | Generate, Reference (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Reference, ≤8) | evet |  |
 | **FLUX 2 Flex**<br>`flux-2-flex` | KIE | Generate, Reference (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Reference, ≤8) | evet |  |
-| **FLUX Kontext**<br>`flux-kontext` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate) | evet | Edit tek görsel; multi değil |
 | **Grok Imagine Image 2.0**<br>`grok-imagine-image-2` | KIE | Generate, Edit (otomatik), Segment map (aksiyon), Segment map (image), Segment edit (aksiyon) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤5) | evet | Segment map/edit capability değil |
 | **Grok Imagine**<br>`grok-imagine-image` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤5) | evet |  |
 | **Ideogram V3**<br>`ideogram-v3` | KIE | Generate, Edit, Remix (otomatik) | `text-to-image` (Generate) | evet | Edit tek görsel + maske; multi değil |
 | **Ideogram Character**<br>`ideogram-character` | KIE | Generate, Edit, Remix (otomatik) |  | hayır | Karakter referansı zorunlu; saf text-to-image sayılır mı belirsiz |
-| **Qwen Image**<br>`qwen-image` | KIE | Generate, Image to image, Edit (otomatik) | `text-to-image` (Generate) | evet | Image to image tek görsel |
-| **Qwen2 Image**<br>`qwen2-image` | KIE | Edit | — | evet | Sadece tek görsel edit; listedeki hiçbir capability değil |
 | **Qwen3 Image**<br>`qwen3-image` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤3) | evet |  |
 | **Qwen3 Image Pro**<br>`qwen3-image-pro` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤3) | evet |  |
 | **Qwen 2.1 Image**<br>`qwen2-1-image` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤10) | evet |  |
