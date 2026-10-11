@@ -1,7 +1,7 @@
 {
  "source": "https://dash.higgsfield.ai/api/v2",
- "fetchedAt": "2026-10-01T00:32:39.948Z",
- "count": 83,
+ "fetchedAt": "2026-10-11T23:09:44.624Z",
+ "count": 85,
  "families": {
   "cinema-studio-4": {
    "name": "Cinema Studio 4.0",
@@ -27,7 +27,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
    },
    "price": {
-    "amount": 0.318,
+    "amount": 0.159,
+    "original": 0.318,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -68,7 +69,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/60fabab44d6ffdf2f90155967c67662d3f7107439bfde9cc279ff003efdc36b7-thumbnail.webp"
    },
    "price": {
-    "amount": 0.0467,
+    "amount": 0.0117,
+    "original": 0.0467,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -83,7 +85,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
    },
    "price": {
-    "amount": 0.14,
+    "amount": 0.07,
+    "original": 0.14,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -98,7 +101,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
    },
    "price": {
-    "amount": 0.14,
+    "amount": 0.07,
+    "original": 0.14,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -128,7 +132,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f4c86c7fde4afab2a33903caa94fbd8b89ddebcd83821fbb8ebb3040aa0dd021-thumbnail.webp"
    },
    "price": {
-    "amount": 0.042,
+    "amount": 0.021,
+    "original": 0.042,
     "currency": "USD",
     "unit": "second",
     "qualifier": "exact"
@@ -143,7 +148,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/585a8ad10ccec6541e033d45a6abe629f0898a7d80dc614b01f56603444cfb66-thumbnail.webp"
    },
    "price": {
-    "amount": 0.07,
+    "amount": 0.035,
+    "original": 0.07,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -162,7 +168,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
    },
    "price": {
-    "amount": 0.084,
+    "amount": 0.042,
+    "original": 0.084,
     "currency": "USD",
     "unit": "second",
     "qualifier": "exact"
@@ -181,7 +188,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/46a32ff0ac3a1faef820b57a73e362de6e14b64dcc7991b8cd4352c6ef372fbd-thumbnail.webp"
    },
    "price": {
-    "amount": 0.084,
+    "amount": 0.042,
+    "original": 0.084,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -196,7 +204,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
    },
    "price": {
-    "amount": 0.084,
+    "amount": 0.042,
+    "original": 0.084,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -222,7 +231,8 @@
    "desc": "Generate and edit campaign images, with optional preset-based prompt enhancement.",
    "company": "Higgsfield",
    "price": {
-    "amount": 0.0162,
+    "amount": 0.0138,
+    "original": 0.0162,
     "currency": "USD",
     "unit": "image",
     "qualifier": "from"
@@ -237,7 +247,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/296b62f0b8633787bdf0892549bbd0bf5c19956ffa0a340e810249d354b6e6db-thumbnail.webp"
    },
    "price": {
-    "amount": 0.13,
+    "amount": 0.065,
+    "original": 0.13,
     "currency": "USD",
     "unit": "second",
     "qualifier": "exact"
@@ -302,7 +313,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/5d978a3db6a8f758a02a658956c68d1bd43b82da96be75c83369d0bb33e48eb4-thumbnail.webp"
    },
    "price": {
-    "amount": 0.1407,
+    "amount": 0.0985,
+    "original": 0.1407,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -317,7 +329,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/74c63b88a889cb7f0f4389b8ae945592ff66d7cbcf41b48f9132fa341803a090-thumbnail.webp"
    },
    "price": {
-    "amount": 0.2057,
+    "amount": 0.144,
+    "original": 0.2057,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -366,7 +379,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
    },
    "price": {
-    "amount": 0.1,
+    "amount": 0.05,
+    "original": 0.1,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -381,7 +395,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7254bd5404ad90ce9323317e02d70db51d78b1bcf0fba165b326784f1c7f06b6-thumbnail.webp"
    },
    "price": {
-    "amount": 0.1,
+    "amount": 0.05,
+    "original": 0.1,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -396,7 +411,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/60afab4a59dce64dd5447fb7ebd295653cf9d5d40fad84960f4246ca4b5d3d24-thumbnail.webp"
    },
    "price": {
-    "amount": 0.05,
+    "amount": 0.025,
+    "original": 0.05,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -411,7 +427,8 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
    },
    "price": {
-    "amount": 0.068,
+    "amount": 0.0408,
+    "original": 0.068,
     "currency": "USD",
     "unit": "second",
     "qualifier": "from"
@@ -427,6 +444,21 @@
     "unit": "image",
     "qualifier": "exact"
    }
+  },
+  "higgsfield-ai-influencer": {
+   "name": "AI Influencer",
+   "desc": "Create one AI influencer character sheet",
+   "company": "Higgsfield",
+   "price": {
+    "amount": 0.05,
+    "currency": "USD",
+    "unit": "image",
+    "qualifier": "exact"
+   }
+  },
+  "higgsfield-ads-studio-v1-0": {
+   "name": "Ads Studio",
+   "desc": "Turn product ideas into polished ad concepts and images."
   }
  },
  "specs": [
@@ -1120,6 +1152,153 @@
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
    }
+  },
+  {
+   "model": "higgsfield/ai-influencer",
+   "endpoint": "/higgsfield/ai-influencer",
+   "doc": "https://dash.higgsfield.ai/models/higgsfield/ai-influencer/llms.txt",
+   "title": "AI Influencer",
+   "crumb": "AI Influencer",
+   "family": "higgsfield-ai-influencer",
+   "output": "image",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1000000
+    },
+    "tier": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "normal",
+      "freak",
+      "total",
+      "insects",
+      "frogs",
+      "cats",
+      "dogs",
+      "capybaras",
+      "birds"
+     ],
+     "default": "normal"
+    },
+    "brief": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "default": "",
+     "maxLength": 4000
+    },
+    "image_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "maxLength": 2083,
+     "format": "uri"
+    },
+    "selection": {
+     "desc": "",
+     "required": false,
+     "type": "object",
+     "default": {}
+    },
+    "body_color": {
+     "desc": "",
+     "required": false,
+     "type": "string"
+    },
+    "pinned_species": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "maxLength": 64
+    },
+    "trait_variants": {
+     "desc": "",
+     "required": false
+    },
+    "item_image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "default": [],
+     "maxItems": 3,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "variation_index": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 0,
+     "minimum": 0,
+     "maximum": 2147483647
+    }
+   },
+   "notes": [],
+   "order": [
+    "tier",
+    "brief",
+    "image_url",
+    "item_image_urls",
+    "selection",
+    "seed",
+    "body_color",
+    "pinned_species",
+    "trait_variants",
+    "variation_index"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true
+    },
+    "tier": {
+     "widget": "aiInfluencerTier",
+     "title": "Character type"
+    },
+    "brief": {
+     "widget": "fullHidden"
+    },
+    "image_url": {
+     "widget": "imageUrlString"
+    },
+    "selection": {
+     "title": "Appearance"
+    },
+    "body_color": {
+     "advanced": true,
+     "visibleWhen": {
+      "field": "tier"
+     }
+    },
+    "pinned_species": {
+     "advanced": true,
+     "visibleWhen": {
+      "field": "tier",
+      "equals": "insects"
+     }
+    },
+    "trait_variants": {
+     "widget": "fullHidden"
+    },
+    "item_image_urls": {
+     "widget": "fullHidden"
+    },
+    "variation_index": {
+     "widget": "fullHidden"
+    }
+   },
+   "variant": "AI Influencer",
+   "operations": [
+    "image_edit",
+    "text2image"
+   ]
   },
   {
    "model": "higgsfield/cinema-studio/4.0",
@@ -3457,6 +3636,91 @@
    }
   },
   {
+   "model": "higgsfield/ads-studio/v1.0",
+   "endpoint": "/higgsfield/ads-studio/v1.0",
+   "doc": "https://dash.higgsfield.ai/models/higgsfield/ads-studio/v1.0/llms.txt",
+   "title": "Ads Studio",
+   "crumb": "Ads Studio",
+   "family": "higgsfield-ads-studio-v1-0",
+   "output": "image",
+   "top": {
+    "niche": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "default": "",
+     "maxLength": 1000
+    },
+    "prompt": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "maxLength": 8000
+    },
+    "language": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "default": "",
+     "maxLength": 80
+    },
+    "batch_size": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 1,
+     "minimum": 1,
+     "maximum": 8
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "default": [],
+     "maxItems": 10,
+     "items": {
+      "type": "string"
+     }
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "1:1",
+      "4:5",
+      "5:4",
+      "16:9",
+      "9:16",
+      "4:3",
+      "3:4",
+      "21:9",
+      "3:2",
+      "2:3",
+      "2:1",
+      "1:2"
+     ],
+     "default": "1:1"
+    },
+    "target_audience": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "default": "",
+     "maxLength": 2000
+    }
+   },
+   "notes": [],
+   "variant": "Ads Studio",
+   "operations": [
+    "text2image"
+   ],
+   "pricing": "Per 1M tokens: text input $5, cached text input $1.25, text output $10; image input $8, cached image input $2, image output $30. Quality defaults to high. Final cost uses actual token usage and standard credit rounding. The initial charge is an estimate reconciled on completion.",
+   "banner": {
+    "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/ads-studio-transfer/c24b7dbe7f9849529f367cfb380db82e/image_file.webp"
+   }
+  },
+  {
    "model": "higgsfield/genjutsu/restyle/v1.0",
    "endpoint": "/higgsfield/genjutsu/restyle/v1.0",
    "doc": "https://dash.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/llms.txt",
@@ -3532,6 +3796,131 @@
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/478325c2a854b75ffc4d59b5704be94f4db14c810039f5d3aa11bcca31c56894-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e88805fcb31442389587a2953675fd723ee8d4cb5a317e6280b5d1cca979e152-thumbnail.webp"
    }
+  },
+  {
+   "model": "alibaba/qwen-image-3/text-to-image",
+   "endpoint": "/alibaba/qwen-image-3/text-to-image",
+   "doc": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image",
+   "title": "Qwen Image 3",
+   "crumb": "Qwen Image 3",
+   "family": "qwen-image-3",
+   "output": "image",
+   "top": {
+    "seed": {
+     "desc": "Optional random seed for similar, reproducible results.",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    "prompt": {
+     "desc": "Positive prompt or editing instruction in Chinese or English. Alibaba recommends at most 4,500 tokens.",
+     "required": true,
+     "type": "string"
+    },
+    "resolution": {
+     "desc": "Output resolution tier. Both tiers produce PNG images.",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "1k",
+      "2k"
+     ],
+     "default": "1k"
+    },
+    "aspect_ratio": {
+     "desc": "Output aspect ratio. Exact provider-recommended dimensions are selected automatically.",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "1:1",
+      "2:3",
+      "3:2",
+      "3:4",
+      "4:3",
+      "7:9",
+      "9:7",
+      "9:16",
+      "16:9",
+      "21:9"
+     ],
+     "default": "1:1"
+    },
+    "prompt_extend": {
+     "desc": "Improve the prompt before generation. Required when thinking mode is enabled.",
+     "required": false,
+     "type": "boolean",
+     "default": true
+    },
+    "enable_thinking": {
+     "desc": "Use model reasoning to improve image quality. Requires prompt enhancement.",
+     "required": false,
+     "type": "boolean",
+     "default": true
+    },
+    "negative_prompt": {
+     "desc": "Content, styles, or artifacts to avoid in the output.",
+     "required": false,
+     "type": "string"
+    },
+    "prompt_extend_mode": {
+     "desc": "Direct enhancement is available for every request; agent enhancement is text-to-image only.",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "direct",
+      "agent"
+     ],
+     "default": "direct"
+    }
+   },
+   "notes": [
+    "prompt must contain non-whitespace text. The schema imposes no character maximum; its 4,500-token guidance is advisory.",
+    "enable_thinking defaults to true and requires prompt_extend=true. Set both to false to disable enhancement.",
+    "prompt_extend_mode supports direct or agent. No reference images are accepted by this endpoint.",
+    "resolution is a tier; 2k square maps to 1536 by 1536 pixels, not 2048 by 2048."
+   ],
+   "order": [
+    "prompt",
+    "aspect_ratio",
+    "resolution",
+    "negative_prompt",
+    "prompt_extend",
+    "prompt_extend_mode",
+    "enable_thinking",
+    "seed"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "prompt_extend": {
+     "advanced": true
+    },
+    "enable_thinking": {
+     "advanced": true
+    },
+    "negative_prompt": {
+     "advanced": true
+    },
+    "prompt_extend_mode": {
+     "advanced": true
+    }
+   },
+   "variant": "Text to Image",
+   "operations": [
+    "text2image"
+   ],
+   "example": "An overhead close-up of a red-haired woman lying on a pale blue quilt. Yellow flowers and lilac satin ribbons surround her loose hair. She wears a white eyelet blouse and pale green eyeshadow, gazing upward in bright sunlight."
   },
   {
    "model": "alibaba/qwen-image-3/edit",
@@ -3673,129 +4062,278 @@
    "example": "An overhead close-up of a red-haired woman lying on a pale blue quilt. Yellow flowers and lilac satin ribbons surround her loose hair. She wears a white eyelet blouse and pale green eyeshadow, gazing upward in bright sunlight."
   },
   {
-   "model": "alibaba/qwen-image-3/text-to-image",
-   "endpoint": "/alibaba/qwen-image-3/text-to-image",
-   "doc": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image",
-   "title": "Qwen Image 3",
-   "crumb": "Qwen Image 3",
-   "family": "qwen-image-3",
-   "output": "image",
+   "model": "alibaba/wan-3.0/reference-to-video",
+   "endpoint": "/alibaba/wan-3.0/reference-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video",
+   "title": "Wan 3.0 Reference to Video",
+   "crumb": "Wan 3.0",
+   "family": "wan-3",
+   "output": "video",
    "top": {
     "seed": {
-     "desc": "Optional random seed for similar, reproducible results.",
+     "desc": "",
      "required": false,
      "type": "integer",
      "minimum": 0,
      "maximum": 2147483647
     },
     "prompt": {
-     "desc": "Positive prompt or editing instruction in Chinese or English. Alibaba recommends at most 4,500 tokens.",
+     "desc": "Write your prompt here",
      "required": true,
      "type": "string"
     },
+    "duration": {
+     "desc": "2-30 seconds.",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 30
+    },
+    "file_url": {
+     "desc": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking.",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "link_url": {
+     "desc": "One public page. Forces deep thinking. Not combinable with file_url.",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "audio_urls": {
+     "desc": "Up to 5 files, 30s total. WAV or MP3.",
+     "required": false,
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "maxItems": 10,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
     "resolution": {
-     "desc": "Output resolution tier. Both tiers produce PNG images.",
+     "desc": "",
      "required": false,
      "type": "string",
      "enum": [
-      "1k",
-      "2k"
+      "480p",
+      "720p",
+      "1080p"
      ],
-     "default": "1k"
+     "default": "1080p"
+    },
+    "video_urls": {
+     "desc": "Up to 5 clips, 30s total, each 1-30s.",
+     "required": false,
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
     },
     "aspect_ratio": {
-     "desc": "Output aspect ratio. Exact provider-recommended dimensions are selected automatically.",
+     "desc": "",
      "required": false,
      "type": "string",
      "enum": [
-      "1:1",
-      "2:3",
-      "3:2",
-      "3:4",
-      "4:3",
-      "7:9",
-      "9:7",
-      "9:16",
       "16:9",
-      "21:9"
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "adaptive"
      ],
-     "default": "1:1"
+     "default": "adaptive"
     },
-    "prompt_extend": {
-     "desc": "Improve the prompt before generation. Required when thinking mode is enabled.",
+    "generate_audio": {
+     "desc": "",
      "required": false,
      "type": "boolean",
      "default": true
     },
     "enable_thinking": {
-     "desc": "Use model reasoning to improve image quality. Requires prompt enhancement.",
+     "desc": "",
      "required": false,
      "type": "boolean",
-     "default": true
-    },
-    "negative_prompt": {
-     "desc": "Content, styles, or artifacts to avoid in the output.",
-     "required": false,
-     "type": "string"
-    },
-    "prompt_extend_mode": {
-     "desc": "Direct enhancement is available for every request; agent enhancement is text-to-image only.",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "direct",
-      "agent"
-     ],
-     "default": "direct"
+     "default": false
     }
    },
    "notes": [
-    "prompt must contain non-whitespace text. The schema imposes no character maximum; its 4,500-token guidance is advisory.",
-    "enable_thinking defaults to true and requires prompt_extend=true. Set both to false to disable enhancement.",
-    "prompt_extend_mode supports direct or agent. No reference images are accepted by this endpoint.",
-    "resolution is a tier; 2k square maps to 1536 by 1536 pixels, not 2048 by 2048."
-   ],
-   "order": [
-    "prompt",
-    "aspect_ratio",
-    "resolution",
-    "negative_prompt",
-    "prompt_extend",
-    "prompt_extend_mode",
-    "enable_thinking",
-    "seed"
+    "Reference media are optional in the stored schema: only prompt is required. The example includes an image to demonstrate reference mode.",
+    "Send either file_url or link_url. A document or web-page reference automatically enables thinking; when both are sent, file_url takes precedence.",
+    "Reference video clips must be 1–30 seconds each and total at most 30 seconds. Reference audio must be WAV or MP3 and total at most 30 seconds, as specified in the production schema.",
+    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
    ],
    "ui": {
     "seed": {
      "advanced": true
     },
     "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "file_url": {
+     "advanced": false
+    },
+    "link_url": {
+     "advanced": false
+    },
+    "audio_urls": {
+     "advanced": false
+    },
+    "image_urls": {
      "advanced": false
     },
     "resolution": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "video_urls": {
      "advanced": false
     },
     "aspect_ratio": {
      "advanced": false
     },
-    "prompt_extend": {
+    "generate_audio": {
      "advanced": true
     },
     "enable_thinking": {
      "advanced": true
+    }
+   },
+   "variant": "Reference to Video",
+   "operations": [
+    "image2video"
+   ],
+   "pricing": "Priced per generated second by resolution: 480p $0.05, 720p $0.10, or 1080p $0.20. Rates shown are before any applicable customer discount.",
+   "example": "A woman wearing futuristic glasses walks down a gray street. The city and her clothes transform into a colorful anime world. She takes off the glasses, and everything returns to normal.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/6cf6ae3723d81364d30b9db77a18ca1de2ae0254acf973db4f95449990b6b1e0-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
+   }
+  },
+  {
+   "model": "alibaba/wan-3.0-prime/text-to-video",
+   "endpoint": "/alibaba/wan-3.0-prime/text-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video",
+   "title": "Wan 3.0 Prime Text to Video",
+   "crumb": "Wan 3.0 Prime",
+   "family": "wan-3-prime",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
     },
-    "negative_prompt": {
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "2-30 seconds.",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 30
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ],
+     "default": "1080p"
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "adaptive"
+     ],
+     "default": "adaptive"
+    },
+    "generate_audio": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": true
+    },
+    "enable_thinking": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "notes": [
+    "This endpoint generates from text; use the separate image or reference endpoint for media inputs.",
+    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
+   ],
+   "ui": {
+    "seed": {
      "advanced": true
     },
-    "prompt_extend_mode": {
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "resolution": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "generate_audio": {
+     "advanced": true
+    },
+    "enable_thinking": {
      "advanced": true
     }
    },
-   "variant": "Text to Image",
+   "variant": "Text to Video",
    "operations": [
-    "text2image"
+    "text2video"
    ],
-   "example": "An overhead close-up of a red-haired woman lying on a pale blue quilt. Yellow flowers and lilac satin ribbons surround her loose hair. She wears a white eyelet blouse and pale green eyeshadow, gazing upward in bright sunlight."
+   "example": "A rider in brown gallops on a white horse through a desert filled with giant colorful crystals. A huge glass bird swoops overhead. The rider follows it between the crystals and out onto an open sandy plain.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
+   }
   },
   {
    "model": "alibaba/wan-3.0/image-to-video",
@@ -4030,280 +4568,6 @@
    "example": "A woman wearing futuristic glasses walks down a gray street. The city and her clothes transform into a colorful anime world. She takes off the glasses, and everything returns to normal.",
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a022d4de4edead66bb7ec9f2df05fc0ab6e86bf2950085e0001e13977c91d9a8-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/wan-3.0-prime/text-to-video",
-   "endpoint": "/alibaba/wan-3.0-prime/text-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video",
-   "title": "Wan 3.0 Prime Text to Video",
-   "crumb": "Wan 3.0 Prime",
-   "family": "wan-3-prime",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 2147483647
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "2-30 seconds.",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 30
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "480p",
-      "720p",
-      "1080p"
-     ],
-     "default": "1080p"
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "4:3",
-      "1:1",
-      "3:4",
-      "9:16",
-      "adaptive"
-     ],
-     "default": "adaptive"
-    },
-    "generate_audio": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": true
-    },
-    "enable_thinking": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    }
-   },
-   "notes": [
-    "This endpoint generates from text; use the separate image or reference endpoint for media inputs.",
-    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "resolution": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "generate_audio": {
-     "advanced": true
-    },
-    "enable_thinking": {
-     "advanced": true
-    }
-   },
-   "variant": "Text to Video",
-   "operations": [
-    "text2video"
-   ],
-   "example": "A rider in brown gallops on a white horse through a desert filled with giant colorful crystals. A huge glass bird swoops overhead. The rider follows it between the crystals and out onto an open sandy plain.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/wan-3.0/reference-to-video",
-   "endpoint": "/alibaba/wan-3.0/reference-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video",
-   "title": "Wan 3.0 Reference to Video",
-   "crumb": "Wan 3.0",
-   "family": "wan-3",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 2147483647
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "2-30 seconds.",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 30
-    },
-    "file_url": {
-     "desc": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking.",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "link_url": {
-     "desc": "One public page. Forces deep thinking. Not combinable with file_url.",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "audio_urls": {
-     "desc": "Up to 5 files, 30s total. WAV or MP3.",
-     "required": false,
-     "type": "array",
-     "maxItems": 5,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "maxItems": 10,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "480p",
-      "720p",
-      "1080p"
-     ],
-     "default": "1080p"
-    },
-    "video_urls": {
-     "desc": "Up to 5 clips, 30s total, each 1-30s.",
-     "required": false,
-     "type": "array",
-     "maxItems": 5,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "4:3",
-      "1:1",
-      "3:4",
-      "9:16",
-      "adaptive"
-     ],
-     "default": "adaptive"
-    },
-    "generate_audio": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": true
-    },
-    "enable_thinking": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    }
-   },
-   "notes": [
-    "Reference media are optional in the stored schema: only prompt is required. The example includes an image to demonstrate reference mode.",
-    "Send either file_url or link_url. A document or web-page reference automatically enables thinking; when both are sent, file_url takes precedence.",
-    "Reference video clips must be 1–30 seconds each and total at most 30 seconds. Reference audio must be WAV or MP3 and total at most 30 seconds, as specified in the production schema.",
-    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "file_url": {
-     "advanced": false
-    },
-    "link_url": {
-     "advanced": false
-    },
-    "audio_urls": {
-     "advanced": false
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "resolution": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "video_urls": {
-     "advanced": false
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "generate_audio": {
-     "advanced": true
-    },
-    "enable_thinking": {
-     "advanced": true
-    }
-   },
-   "variant": "Reference to Video",
-   "operations": [
-    "image2video"
-   ],
-   "pricing": "Priced per generated second by resolution: 480p $0.05, 720p $0.10, or 1080p $0.20. Rates shown are before any applicable customer discount.",
-   "example": "A woman wearing futuristic glasses walks down a gray street. The city and her clothes transform into a colorful anime world. She takes off the glasses, and everything returns to normal.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/6cf6ae3723d81364d30b9db77a18ca1de2ae0254acf973db4f95449990b6b1e0-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
    }
   },
@@ -5108,6 +5372,288 @@
    }
   },
   {
+   "model": "alibaba/happy-horse/text-to-video",
+   "endpoint": "/alibaba/happy-horse/text-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video",
+   "title": "Happy Horse 1.0",
+   "crumb": "Happy Horse 1.0",
+   "family": "happy-horse-1",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 3,
+     "maximum": 15
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "720p"
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1",
+      "4:3",
+      "3:4"
+     ],
+     "default": "16:9"
+    }
+   },
+   "notes": [
+    "The prompt must contain text; an empty string is rejected during submission."
+   ],
+   "order": [
+    "prompt",
+    "duration",
+    "resolution"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "audio_url": {
+     "widget": "audioUrlString"
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "negative_prompt": {
+     "widget": "textarea"
+    }
+   },
+   "variant": "Text to Video",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+   }
+  },
+  {
+   "model": "alibaba/happy-horse/image-to-video",
+   "endpoint": "/alibaba/happy-horse/image-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video",
+   "title": "Happy Horse 1.0",
+   "crumb": "Happy Horse 1.0",
+   "family": "happy-horse-1",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": false,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 15
+    },
+    "image_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "720p"
+    }
+   },
+   "notes": [
+    "The prompt is optional. This endpoint accepts one first-frame image; it does not support a last-frame image."
+   ],
+   "order": [
+    "prompt",
+    "image_url",
+    "duration",
+    "resolution"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "audio_url": {
+     "widget": "audioUrlString"
+    },
+    "image_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "negative_prompt": {
+     "widget": "textarea"
+    }
+   },
+   "variant": "Image to Video",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+   }
+  },
+  {
+   "model": "alibaba/happy-horse/reference-to-video",
+   "endpoint": "/alibaba/happy-horse/reference-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video",
+   "title": "Happy Horse 1.0",
+   "crumb": "Happy Horse 1.0",
+   "family": "happy-horse-1",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 15
+    },
+    "image_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "720p"
+    }
+   },
+   "notes": [
+    "Provide 1–9 reference images. This limit is enforced at submission even though the stored JSON Schema does not set minItems or maxItems. Reference videos are unsupported."
+   ],
+   "order": [
+    "prompt",
+    "duration",
+    "resolution"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "audio_url": {
+     "widget": "audioUrlString"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "negative_prompt": {
+     "widget": "textarea"
+    }
+   },
+   "variant": "Reference to Video",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
+   }
+  },
+  {
    "model": "alibaba/happy-horse/v1.1/image-to-video",
    "endpoint": "/alibaba/happy-horse/v1.1/image-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/image-to-video",
@@ -5197,97 +5743,6 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/595cde9ce26a47e33706b23a6eda4638d6104c8f4a3971943a9101b5eb95bf2b-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
-   }
-  },
-  {
-   "model": "wan/v2.6/reference-to-video",
-   "endpoint": "/wan/v2.6/reference-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video",
-   "title": "Wan 2.6",
-   "crumb": "Wan 2.6",
-   "family": "wan-2-6",
-   "output": "video",
-   "top": {
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "enum": [
-      5,
-      10
-     ],
-     "default": 5
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "720p"
-    },
-    "video_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 3,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1",
-      "4:3",
-      "3:4"
-     ],
-     "default": "16:9"
-    }
-   },
-   "notes": [
-    "Supply 1–3 reference videos. This endpoint supports only 5 or 10 seconds, unlike the text and image endpoints that also support 15 seconds."
-   ],
-   "ui": {
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "video_urls": {
-     "advanced": false
-    },
-    "aspect_ratio": {
-     "advanced": false
-    }
-   },
-   "variant": "Reference to Video",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A guitarist strikes a chord in the middle of a barren desert. Grass and wildflowers spread from his feet as trees rise from the sand. He keeps playing while the desert transforms into a forest.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
    }
   },
   {
@@ -5547,491 +6002,6 @@
    }
   },
   {
-   "model": "alibaba/happy-horse/image-to-video",
-   "endpoint": "/alibaba/happy-horse/image-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video",
-   "title": "Happy Horse 1.0",
-   "crumb": "Happy Horse 1.0",
-   "family": "happy-horse-1",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 2147483646
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 15
-    },
-    "image_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "720p"
-    }
-   },
-   "notes": [
-    "The prompt is optional. This endpoint accepts one first-frame image; it does not support a last-frame image."
-   ],
-   "order": [
-    "prompt",
-    "image_url",
-    "duration",
-    "resolution"
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "audio_url": {
-     "widget": "audioUrlString"
-    },
-    "image_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "negative_prompt": {
-     "widget": "textarea"
-    }
-   },
-   "variant": "Image to Video",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/happy-horse/reference-to-video",
-   "endpoint": "/alibaba/happy-horse/reference-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video",
-   "title": "Happy Horse 1.0",
-   "crumb": "Happy Horse 1.0",
-   "family": "happy-horse-1",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 2147483646
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 15
-    },
-    "image_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "720p"
-    }
-   },
-   "notes": [
-    "Provide 1–9 reference images. This limit is enforced at submission even though the stored JSON Schema does not set minItems or maxItems. Reference videos are unsupported."
-   ],
-   "order": [
-    "prompt",
-    "duration",
-    "resolution"
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "audio_url": {
-     "widget": "audioUrlString"
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "negative_prompt": {
-     "widget": "textarea"
-    }
-   },
-   "variant": "Reference to Video",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/happy-horse/v1.1/text-to-video",
-   "endpoint": "/alibaba/happy-horse/v1.1/text-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video",
-   "title": "HappyHorse 1.1",
-   "crumb": "Happy Horse 1.1",
-   "family": "happy-horse-1-1",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 2147483646
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 3,
-     "maximum": 15
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "1080p"
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1",
-      "4:3",
-      "3:4"
-     ],
-     "default": "16:9"
-    }
-   },
-   "notes": [
-    "The prompt must contain text; an empty string is rejected during submission."
-   ],
-   "order": [
-    "prompt",
-    "duration",
-    "resolution"
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "audio_url": {
-     "widget": "audioUrlString"
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "negative_prompt": {
-     "widget": "textarea"
-    }
-   },
-   "variant": "Text to Video",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A pirate woman drinks tea as giant tentacles attack the ship. She walks through the frozen chaos and removes her glasses. She snaps her fingers, and everything starts moving again.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/595cde9ce26a47e33706b23a6eda4638d6104c8f4a3971943a9101b5eb95bf2b-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
-   }
-  },
-  {
-   "model": "wan/v2.6/text-to-video",
-   "endpoint": "/wan/v2.6/text-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video",
-   "title": "Wan 2.6",
-   "crumb": "Wan 2.6",
-   "family": "wan-2-6",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": -1,
-     "maximum": 10000000
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "enum": [
-      5,
-      10,
-      15
-     ],
-     "default": 5
-    },
-    "audio_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "720p"
-    },
-    "multi_shots": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    },
-    "prompt_extend": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    }
-   },
-   "notes": [
-    "Setting multi_shots=true also enables prompt_extend, even if prompt_extend was false."
-   ],
-   "order": [
-    "prompt",
-    "duration",
-    "resolution"
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "audio_url": {
-     "advanced": true,
-     "widget": "audioUrlString"
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "multi_shots": {
-     "advanced": true
-    },
-    "prompt_extend": {
-     "advanced": true
-    }
-   },
-   "variant": "Text to Video",
-   "operations": [
-    "text2video"
-   ],
-   "example": "A guitarist strikes a chord in the middle of a barren desert. Grass and wildflowers spread from his feet as trees rise from the sand. He keeps playing while the desert transforms into a forest.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/happy-horse/text-to-video",
-   "endpoint": "/alibaba/happy-horse/text-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video",
-   "title": "Happy Horse 1.0",
-   "crumb": "Happy Horse 1.0",
-   "family": "happy-horse-1",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 2147483646
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 3,
-     "maximum": 15
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "720p",
-      "1080p"
-     ],
-     "default": "720p"
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1",
-      "4:3",
-      "3:4"
-     ],
-     "default": "16:9"
-    }
-   },
-   "notes": [
-    "The prompt must contain text; an empty string is rejected during submission."
-   ],
-   "order": [
-    "prompt",
-    "duration",
-    "resolution"
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "audio_url": {
-     "widget": "audioUrlString"
-    },
-    "resolution": {
-     "advanced": false
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "negative_prompt": {
-     "widget": "textarea"
-    }
-   },
-   "variant": "Text to Video",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A player in a brown number 22 jersey runs with the football. He dodges a diving defender and races past the others into the end zone. He slows down, looks up, and smiles.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0eefb690df13e38e2c8c725df6a3079c22e66817fa2664afa03b2e52eae8b5bb-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/0fbf86582995835b04aa7c69f162372989be5f5e8227ad9f178caa0358c25974-thumbnail.webp"
-   }
-  },
-  {
    "model": "wan/v2.7/reference-to-video",
    "endpoint": "/wan/v2.7/reference-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/wan-2-7/reference-to-video",
@@ -6161,6 +6131,300 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/f23e4ba931b1d9bb586d44dcadc066537963180379e2aa142317c0fb43240822-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7254bd5404ad90ce9323317e02d70db51d78b1bcf0fba165b326784f1c7f06b6-thumbnail.webp"
+   }
+  },
+  {
+   "model": "wan/v2.6/text-to-video",
+   "endpoint": "/wan/v2.6/text-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video",
+   "title": "Wan 2.6",
+   "crumb": "Wan 2.6",
+   "family": "wan-2-6",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": -1,
+     "maximum": 10000000
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "enum": [
+      5,
+      10,
+      15
+     ],
+     "default": 5
+    },
+    "audio_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "720p"
+    },
+    "multi_shots": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    },
+    "prompt_extend": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "notes": [
+    "Setting multi_shots=true also enables prompt_extend, even if prompt_extend was false."
+   ],
+   "order": [
+    "prompt",
+    "duration",
+    "resolution"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "audio_url": {
+     "advanced": true,
+     "widget": "audioUrlString"
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "multi_shots": {
+     "advanced": true
+    },
+    "prompt_extend": {
+     "advanced": true
+    }
+   },
+   "variant": "Text to Video",
+   "operations": [
+    "text2video"
+   ],
+   "example": "A guitarist strikes a chord in the middle of a barren desert. Grass and wildflowers spread from his feet as trees rise from the sand. He keeps playing while the desert transforms into a forest.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
+   }
+  },
+  {
+   "model": "alibaba/happy-horse/v1.1/text-to-video",
+   "endpoint": "/alibaba/happy-horse/v1.1/text-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video",
+   "title": "HappyHorse 1.1",
+   "crumb": "Happy Horse 1.1",
+   "family": "happy-horse-1-1",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 2147483646
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 3,
+     "maximum": 15
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "1080p"
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1",
+      "4:3",
+      "3:4"
+     ],
+     "default": "16:9"
+    }
+   },
+   "notes": [
+    "The prompt must contain text; an empty string is rejected during submission."
+   ],
+   "order": [
+    "prompt",
+    "duration",
+    "resolution"
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "audio_url": {
+     "widget": "audioUrlString"
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "negative_prompt": {
+     "widget": "textarea"
+    }
+   },
+   "variant": "Text to Video",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A pirate woman drinks tea as giant tentacles attack the ship. She walks through the frozen chaos and removes her glasses. She snaps her fingers, and everything starts moving again.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/595cde9ce26a47e33706b23a6eda4638d6104c8f4a3971943a9101b5eb95bf2b-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a9f29388208cd195e6020ecd329ac02a4f3931c69cbbde290a369dc9a9d88832-thumbnail.webp"
+   }
+  },
+  {
+   "model": "wan/v2.6/reference-to-video",
+   "endpoint": "/wan/v2.6/reference-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video",
+   "title": "Wan 2.6",
+   "crumb": "Wan 2.6",
+   "family": "wan-2-6",
+   "output": "video",
+   "top": {
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "enum": [
+      5,
+      10
+     ],
+     "default": 5
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "720p",
+      "1080p"
+     ],
+     "default": "720p"
+    },
+    "video_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 3,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1",
+      "4:3",
+      "3:4"
+     ],
+     "default": "16:9"
+    }
+   },
+   "notes": [
+    "Supply 1–3 reference videos. This endpoint supports only 5 or 10 seconds, unlike the text and image endpoints that also support 15 seconds."
+   ],
+   "ui": {
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "resolution": {
+     "advanced": false
+    },
+    "video_urls": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    }
+   },
+   "variant": "Reference to Video",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A guitarist strikes a chord in the middle of a barren desert. Grass and wildflowers spread from his feet as trees rise from the sand. He keeps playing while the desert transforms into a forest.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/3e403a0b1e95acc0b18e66b1c5965f50f38ad8cd30a3204648aef6c00b1ee12b-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/9f15017084d15d7a09f63e249a427f9f3dc140b2f5126b3bbf45b7a2a9bfe3a8-thumbnail.webp"
    }
   },
   {
@@ -7603,6 +7867,95 @@
    "example": "A low-angle view looks up along a thick tree trunk with peeling bark. Twisting branches covered in small white blossoms spread across the frame. Sunlight catches the flowers against a deep blue sky."
   },
   {
+   "model": "kling-video/motion-control/std",
+   "endpoint": "/kling-video/motion-control/std",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std",
+   "title": "Kling 2.6",
+   "crumb": "Kling 2.6",
+   "family": "kling-2-6-motion-control",
+   "output": "video",
+   "top": {
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": false,
+     "type": "string",
+     "default": ""
+    },
+    "image_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "video_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "keep_original_sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "yes",
+      "no"
+     ],
+     "default": "yes"
+    },
+    "character_orientation": {
+     "desc": "Generate the orientation of the characters in the video, which can be selected to match the image or the video",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "image",
+      "video"
+     ],
+     "default": "video"
+    }
+   },
+   "notes": [
+    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
+    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
+    "Videos larger than 100 MB are compressed before generation.",
+    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "order": [
+    "prompt",
+    "image_url",
+    "video_url"
+   ],
+   "ui": {
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "image_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "video_url": {
+     "advanced": false
+    },
+    "keep_original_sound": {
+     "advanced": true
+    },
+    "character_orientation": {
+     "advanced": true
+    }
+   },
+   "variant": "Motion Control (Standard)",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
+   }
+  },
+  {
    "model": "kling-video/v3/motion-control/std",
    "endpoint": "/kling-video/v3/motion-control/std",
    "doc": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std",
@@ -7785,95 +8138,6 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/955771bc12986336652834f5402b8d6ed8d4cd626dfc9c702adffdffcd243351-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/355c22de1154894534372969d96a7536a1cb29c67f4bc1da2b116332ff955732-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/motion-control/std",
-   "endpoint": "/kling-video/motion-control/std",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std",
-   "title": "Kling 2.6",
-   "crumb": "Kling 2.6",
-   "family": "kling-2-6-motion-control",
-   "output": "video",
-   "top": {
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string",
-     "default": ""
-    },
-    "image_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "video_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "keep_original_sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "yes",
-      "no"
-     ],
-     "default": "yes"
-    },
-    "character_orientation": {
-     "desc": "Generate the orientation of the characters in the video, which can be selected to match the image or the video",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "image",
-      "video"
-     ],
-     "default": "video"
-    }
-   },
-   "notes": [
-    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
-    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
-    "Videos larger than 100 MB are compressed before generation.",
-    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "order": [
-    "prompt",
-    "image_url",
-    "video_url"
-   ],
-   "ui": {
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "image_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "video_url": {
-     "advanced": false
-    },
-    "keep_original_sound": {
-     "advanced": true
-    },
-    "character_orientation": {
-     "advanced": true
-    }
-   },
-   "variant": "Motion Control (Standard)",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
    }
   },
   {
@@ -8065,6 +8329,269 @@
    "example": "A woman in a white polo and pleated skirt sits cross-legged on a green tennis court. She raises her arms to tie her hair, smiling with her eyes closed. A wooden racket and two tennis balls lie beside her under a clear blue sky.",
    "banner": {
     "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/eb4e9f0a799cb9bd1f430d8dedffff759a4710340d19989400b91ee424150f1a-image.webp"
+   }
+  },
+  {
+   "model": "kling-video/v2.6/pro/image-to-video",
+   "endpoint": "/kling-video/v2.6/pro/image-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video",
+   "title": "Kling 2.6 Pro",
+   "crumb": "Kling 2.6",
+   "family": "kling-2-6",
+   "output": "video",
+   "top": {
+    "sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "on",
+      "off"
+     ],
+     "default": "on"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "enum": [
+      5,
+      10
+     ],
+     "default": 5
+    },
+    "cfg_scale": {
+     "desc": "",
+     "required": false,
+     "type": "number",
+     "default": 0.5,
+     "minimum": 0,
+     "maximum": 1
+    },
+    "image_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1"
+     ]
+    }
+   },
+   "notes": [
+    "duration accepts 5 or 10 seconds; 5 is the default.",
+    "Native audio uses sound: on or off and defaults to on.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "order": [
+    "prompt",
+    "image_url",
+    "duration",
+    "aspect_ratio",
+    "cfg_scale",
+    "sound"
+   ],
+   "ui": {
+    "sound": {
+     "advanced": true,
+     "widget": "radioCard"
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "cfg_scale": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "image_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "aspect_ratio": {
+     "advanced": false
+    }
+   },
+   "variant": "Image to Video (Pro)",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/v3.0/std/image-to-video",
+   "endpoint": "/kling-video/v3.0/std/image-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video",
+   "title": "Kling 3.0 Standard",
+   "crumb": "Kling 3.0",
+   "family": "kling-3",
+   "output": "video",
+   "top": {
+    "sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "on",
+      "off"
+     ],
+     "default": "on"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": false,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 3,
+     "maximum": 15
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "cfg_scale": {
+     "desc": "",
+     "required": false,
+     "type": "number",
+     "default": 0.5,
+     "minimum": 0,
+     "maximum": 1
+    },
+    "image_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "multi_shots": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    },
+    "multi_prompt": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 6,
+     "items": {
+      "type": "object",
+      "properties": {
+       "prompt": {
+        "desc": "",
+        "required": false,
+        "type": "string",
+        "maxLength": 512
+       },
+       "duration": {
+        "desc": "",
+        "required": false,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 15
+       }
+      }
+     }
+    },
+    "last_image_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    }
+   },
+   "notes": [
+    "image_url is the first frame; last_image_url optionally sets the final frame.",
+    "Always include a non-empty top-level prompt, including when using multi_prompt. Keep it within 2,500 characters; longer prompts are truncated.",
+    "For custom shots, set multi_shots to true and provide 1–6 multi_prompt objects. Each object needs prompt (at most 512 characters) and duration (a positive integer from 1 to 15 seconds).",
+    "Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum. With multi_shots enabled and no custom shots, the top-level duration is retained.",
+    "Native audio uses sound: on or off and defaults to on.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "order": [
+    "prompt",
+    "image_url",
+    "last_image_url",
+    "duration",
+    "cfg_scale",
+    "sound",
+    "multi_shots",
+    "multi_prompt"
+   ],
+   "ui": {
+    "sound": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "cfg_scale": {
+     "advanced": true,
+     "widget": "range"
+    },
+    "image_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "multi_shots": {
+     "advanced": true
+    },
+    "multi_prompt": {
+     "advanced": true
+    },
+    "last_image_url": {
+     "advanced": true,
+     "widget": "imageUrlString"
+    }
+   },
+   "variant": "Image to Video (Standard)",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A man jumps up from a field of pink flowers, throwing petals into the air. Four people dive forward and fly above the flowers with their arms outstretched. The camera follows them, then rises as they fly away together.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
    }
   },
   {
@@ -8468,462 +8995,6 @@
    }
   },
   {
-   "model": "kling-video/v3.0/std/image-to-video",
-   "endpoint": "/kling-video/v3.0/std/image-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video",
-   "title": "Kling 3.0 Standard",
-   "crumb": "Kling 3.0",
-   "family": "kling-3",
-   "output": "video",
-   "top": {
-    "sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "on",
-      "off"
-     ],
-     "default": "on"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 3,
-     "maximum": 15
-    },
-    "elements": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
-    },
-    "cfg_scale": {
-     "desc": "",
-     "required": false,
-     "type": "number",
-     "default": 0.5,
-     "minimum": 0,
-     "maximum": 1
-    },
-    "image_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "multi_shots": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    },
-    "multi_prompt": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 6,
-     "items": {
-      "type": "object",
-      "properties": {
-       "prompt": {
-        "desc": "",
-        "required": false,
-        "type": "string",
-        "maxLength": 512
-       },
-       "duration": {
-        "desc": "",
-        "required": false,
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 15
-       }
-      }
-     }
-    },
-    "last_image_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    }
-   },
-   "notes": [
-    "image_url is the first frame; last_image_url optionally sets the final frame.",
-    "Always include a non-empty top-level prompt, including when using multi_prompt. Keep it within 2,500 characters; longer prompts are truncated.",
-    "For custom shots, set multi_shots to true and provide 1–6 multi_prompt objects. Each object needs prompt (at most 512 characters) and duration (a positive integer from 1 to 15 seconds).",
-    "Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum. With multi_shots enabled and no custom shots, the top-level duration is retained.",
-    "Native audio uses sound: on or off and defaults to on.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "order": [
-    "prompt",
-    "image_url",
-    "last_image_url",
-    "duration",
-    "cfg_scale",
-    "sound",
-    "multi_shots",
-    "multi_prompt"
-   ],
-   "ui": {
-    "sound": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "cfg_scale": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "image_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "multi_shots": {
-     "advanced": true
-    },
-    "multi_prompt": {
-     "advanced": true
-    },
-    "last_image_url": {
-     "advanced": true,
-     "widget": "imageUrlString"
-    }
-   },
-   "variant": "Image to Video (Standard)",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A man jumps up from a field of pink flowers, throwing petals into the air. Four people dive forward and fly above the flowers with their arms outstretched. The camera follows them, then rises as they fly away together.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/v2.6/pro/image-to-video",
-   "endpoint": "/kling-video/v2.6/pro/image-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video",
-   "title": "Kling 2.6 Pro",
-   "crumb": "Kling 2.6",
-   "family": "kling-2-6",
-   "output": "video",
-   "top": {
-    "sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "on",
-      "off"
-     ],
-     "default": "on"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "enum": [
-      5,
-      10
-     ],
-     "default": 5
-    },
-    "cfg_scale": {
-     "desc": "",
-     "required": false,
-     "type": "number",
-     "default": 0.5,
-     "minimum": 0,
-     "maximum": 1
-    },
-    "image_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1"
-     ]
-    }
-   },
-   "notes": [
-    "duration accepts 5 or 10 seconds; 5 is the default.",
-    "Native audio uses sound: on or off and defaults to on.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "order": [
-    "prompt",
-    "image_url",
-    "duration",
-    "aspect_ratio",
-    "cfg_scale",
-    "sound"
-   ],
-   "ui": {
-    "sound": {
-     "advanced": true,
-     "widget": "radioCard"
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "cfg_scale": {
-     "advanced": true,
-     "widget": "range"
-    },
-    "image_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "aspect_ratio": {
-     "advanced": false
-    }
-   },
-   "variant": "Image to Video (Pro)",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/e5637fe80128b2d7428b22a4c7e0446da2b943693257bc7edd4b880ded21e4d9-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7b096f580b7f17abc25e2edd00b9607fa30063c8d54dfd56aaa2578a20e443d3-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/omni/video-edit",
-   "endpoint": "/kling-video/omni/video-edit",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit",
-   "title": "Kling Omni",
-   "crumb": "Kling O1 (Omni)",
-   "family": "kling-omni",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "elements": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "video_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 1,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    }
-   },
-   "notes": [
-    "Supply exactly one source video from 3 to 10 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
-    "You may also supply up to four image_urls and up to four elements.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "widget": "radioCard"
-    },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "video_urls": {
-     "advanced": false
-    }
-   },
-   "variant": "Video Edit",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/omni/first-last-frame",
-   "endpoint": "/kling-video/omni/first-last-frame",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame",
-   "title": "Kling Omni",
-   "crumb": "Kling O1 (Omni)",
-   "family": "kling-omni",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "enum": [
-      5,
-      10
-     ],
-     "default": 5
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1"
-     ],
-     "default": "16:9"
-    },
-    "last_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "first_frame_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    }
-   },
-   "notes": [
-    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "last_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "first_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    }
-   },
-   "variant": "First/Last Frame",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
-   }
-  },
-  {
    "model": "kling-video/o3/image-reference",
    "endpoint": "/kling-video/o3/image-reference",
    "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/image-reference",
@@ -9122,6 +9193,445 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/o3/video-edit",
+   "endpoint": "/kling-video/o3/video-edit",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit",
+   "title": "Kling O3",
+   "crumb": "Kling O3",
+   "family": "kling-o3",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro",
+      "4k"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "video_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 1,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    }
+   },
+   "notes": [
+    "Supply exactly one source video from 3 to 15.5 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
+    "You may also supply up to four image_urls and up to four elements.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "widget": "range"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "video_urls": {
+     "advanced": false
+    }
+   },
+   "variant": "Video Edit",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/omni/first-last-frame",
+   "endpoint": "/kling-video/omni/first-last-frame",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame",
+   "title": "Kling Omni",
+   "crumb": "Kling O1 (Omni)",
+   "family": "kling-omni",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "enum": [
+      5,
+      10
+     ],
+     "default": 5
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1"
+     ],
+     "default": "16:9"
+    },
+    "last_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "first_frame_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    }
+   },
+   "notes": [
+    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "last_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "first_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    }
+   },
+   "variant": "First/Last Frame",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/o3/first-last-frame",
+   "endpoint": "/kling-video/o3/first-last-frame",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame",
+   "title": "Kling O3",
+   "crumb": "Kling O3",
+   "family": "kling-o3",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro",
+      "4k"
+     ],
+     "default": "pro"
+    },
+    "sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "on",
+      "off"
+     ],
+     "default": "off"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": false,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 3,
+     "maximum": 15
+    },
+    "multi_shots": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1"
+     ]
+    },
+    "multi_prompt": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 6,
+     "items": {
+      "type": "object",
+      "properties": {
+       "prompt": {
+        "desc": "",
+        "required": false,
+        "type": "string",
+        "maxLength": 512
+       },
+       "duration": {
+        "desc": "",
+        "required": false,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 15
+       }
+      }
+     }
+    },
+    "last_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "first_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    }
+   },
+   "notes": [
+    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
+    "For a single shot, set multi_shots to false and provide prompt. For multiple shots, set multi_shots to true and provide 1–6 multi_prompt objects, each containing prompt and a positive integer duration.",
+    "Always include a non-empty top-level prompt, including when using multi_prompt.",
+    "Each shot prompt is limited to 512 characters. Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum.",
+    "Native audio uses sound: on or off and defaults to off.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "sound": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "multi_shots": {
+     "advanced": true
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "multi_prompt": {
+     "advanced": true
+    },
+    "last_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "first_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    }
+   },
+   "variant": "First/Last Frame",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/omni/video-edit",
+   "endpoint": "/kling-video/omni/video-edit",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit",
+   "title": "Kling Omni",
+   "crumb": "Kling O1 (Omni)",
+   "family": "kling-omni",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "video_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 1,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    }
+   },
+   "notes": [
+    "Supply exactly one source video from 3 to 10 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
+    "You may also supply up to four image_urls and up to four elements.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "widget": "radioCard"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "video_urls": {
+     "advanced": false
+    }
+   },
+   "variant": "Video Edit",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
    }
   },
   {
@@ -9362,103 +9872,6 @@
    }
   },
   {
-   "model": "kling-video/o3/video-edit",
-   "endpoint": "/kling-video/o3/video-edit",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit",
-   "title": "Kling O3",
-   "crumb": "Kling O3",
-   "family": "kling-o3",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro",
-      "4k"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "elements": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "video_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 1,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    }
-   },
-   "notes": [
-    "Supply exactly one source video from 3 to 15.5 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
-    "You may also supply up to four image_urls and up to four elements.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "widget": "range"
-    },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "video_urls": {
-     "advanced": false
-    }
-   },
-   "variant": "Video Edit",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
-   }
-  },
-  {
    "model": "kling-video/omni/image-reference",
    "endpoint": "/kling-video/omni/image-reference",
    "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference",
@@ -9556,155 +9969,6 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/o3/first-last-frame",
-   "endpoint": "/kling-video/o3/first-last-frame",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame",
-   "title": "Kling O3",
-   "crumb": "Kling O3",
-   "family": "kling-o3",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro",
-      "4k"
-     ],
-     "default": "pro"
-    },
-    "sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "on",
-      "off"
-     ],
-     "default": "off"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 3,
-     "maximum": 15
-    },
-    "multi_shots": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1"
-     ]
-    },
-    "multi_prompt": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 6,
-     "items": {
-      "type": "object",
-      "properties": {
-       "prompt": {
-        "desc": "",
-        "required": false,
-        "type": "string",
-        "maxLength": 512
-       },
-       "duration": {
-        "desc": "",
-        "required": false,
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 15
-       }
-      }
-     }
-    },
-    "last_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "first_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    }
-   },
-   "notes": [
-    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
-    "For a single shot, set multi_shots to false and provide prompt. For multiple shots, set multi_shots to true and provide 1–6 multi_prompt objects, each containing prompt and a positive integer duration.",
-    "Always include a non-empty top-level prompt, including when using multi_prompt.",
-    "Each shot prompt is limited to 512 characters. Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum.",
-    "Native audio uses sound: on or off and defaults to off.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "sound": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "multi_shots": {
-     "advanced": true
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "multi_prompt": {
-     "advanced": true
-    },
-    "last_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "first_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    }
-   },
-   "variant": "First/Last Frame",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
    }
   },
   {

@@ -23,6 +23,7 @@ export type Capability =
 /** Model id → capability → the modes that provide it, preferred first. */
 export const CAPABILITIES: Record<string, Partial<Record<Capability, string[]>>> = {
   "nano-banana-2": { "text-to-image": ["generate"], "image-edit-multi": ["edit"] },
+  "nano-banana-2-1": { "text-to-image": ["generate"], "image-edit-multi": ["edit"] },
   "nano-banana-2-lite": { "text-to-image": ["generate"], "image-edit-multi": ["edit"] },
   "nano-banana-pro": { "text-to-image": ["generate"], "image-edit-multi": ["edit"] },
   "nano-banana": { "text-to-image": ["generate"], "image-edit-multi": ["edit"] },

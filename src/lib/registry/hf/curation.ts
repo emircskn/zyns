@@ -158,6 +158,27 @@ export const FAMILIES: Family[] = [
     modes: [m("generate", "Generate", "higgsfield-ai/soul/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] })],
   },
   {
+    // A character sheet from a brief: the brief is what you type, the tier its kind of creature.
+    id: "ai-influencer",
+    name: "AI Influencer",
+    vendor: "Higgsfield",
+    category: "image",
+    output: "image",
+    badge: "NEW",
+    tagline: "One AI influencer character sheet from a short brief, a photo or both.",
+    modes: [
+      m("generate", "Generate", "higgsfield/ai-influencer", {
+        hide: ["selection", "trait_variants", "variation_index", "pinned_species", "body_color"],
+      }),
+    ],
+    fields: {
+      brief: { placement: "prompt", label: "Brief", placeholder: "Describe the influencer: look, style, vibe…" },
+      image_url: { label: "Face or look reference" },
+      item_image_urls: { label: "Items to wear or hold" },
+      tier: { label: "Kind" },
+    },
+  },
+  {
     id: "marketing-studio-flare",
     name: "Marketing Studio 2.5 Flare",
     vendor: "Higgsfield",

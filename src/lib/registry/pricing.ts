@@ -115,6 +115,7 @@ const perKiloChar = (tokens: string[], text: (i: Input) => string): Rule => (i) 
 const RULES: Record<string, Rule> = {
   /* Image */
   "nano-banana-2": (i) => charge(row("google nano banana 2", lc(i.resolution) ?? "1k")),
+  "nano-banana-2-1": (i) => charge(row("nano banana 2 1", lc(i.resolution) ?? "1k")),
   "nano-banana-2-lite": () => charge(row("nano banana 2 lite", "1k")),
   "nano-banana-pro": (i) => charge(row("google nano banana pro", lc(i.resolution) === "4k" ? "4k" : "1 2k")),
   "google/nano-banana": () => charge(row("google nano banana", "text to image")),

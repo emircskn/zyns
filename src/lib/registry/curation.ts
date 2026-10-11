@@ -210,6 +210,24 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
+    id: "nano-banana-2-1",
+    featured: true,
+    prompts: [
+      "A flat lay of a linen shirt, brass buttons and a folded map on oak, morning light",
+      "Poster with the words OPEN LATE in neon over a rainy diner window",
+    ],
+    name: "Nano Banana 2.1",
+    vendor: "Google",
+    category: "image",
+    output: "image",
+    badge: "NEW",
+    tagline: "Google's next Nano Banana: up to 10 references, 1K to 4K, at half the price of 2.",
+    modes: [
+      m("generate", "Generate", "nano-banana-2-1", { hide: ["image_input"] }),
+      m("edit", "Edit", "nano-banana-2-1", { hint: "Up to 10 reference images", require: ["image_input"] }),
+    ],
+  },
+  {
     id: "nano-banana-2-lite",
     name: "Nano Banana 2 Lite",
     vendor: "Google",
