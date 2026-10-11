@@ -5,6 +5,7 @@ import { GlideMark } from "@/components/GlideMark";
 import { ElementsPage } from "@/components/ElementsPage";
 import { Icon, type IconName } from "@/components/Icon";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
+import { PhoneSubnav } from "@/components/PhoneShell";
 import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer";
 import { GenerationsView, ProjectGrid, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
@@ -58,8 +59,8 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
         <StudioSidebar />
       </aside>
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
-      <div className="px-4 pb-2 pt-1 md:hidden">
-        <div ref={chips} className="no-bar relative -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4">
+      <PhoneSubnav>
+        <div ref={chips} className="no-bar relative flex gap-1.5 overflow-x-auto px-4">
           <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
           {PHONE_NAV.map((item) => (
             <button
@@ -77,7 +78,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
             </button>
           ))}
         </div>
-      </div>
+      </PhoneSubnav>
       <main className="flex min-w-0 flex-1 flex-col">
         {view === "home" ? (
           <div key="home" className="anim-fade flex flex-1 flex-col items-center px-4 pb-12 pt-4 md:px-0 md:pt-[12vh]">

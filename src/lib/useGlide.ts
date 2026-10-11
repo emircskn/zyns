@@ -41,5 +41,11 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
  * No spring here on purpose: an overshoot past the first or last pill lands
  * outside the strip, which clips it.
  */
-/** The highlight moves to the chosen item outright: no glide between buttons. */
-export const GLIDE_TRANSITION = "none";
+/**
+ * The highlight slides to the chosen item, critically damped (Apple's
+ * default: no overshoot, about a third of a second). A CSS transition
+ * starts from where the highlight is on screen, so a second press mid-way
+ * redirects it rather than waiting for it to land.
+ */
+export const GLIDE_TRANSITION =
+  "transform var(--d-slow) var(--ease), width var(--d-slow) var(--ease), height var(--d-slow) var(--ease)";

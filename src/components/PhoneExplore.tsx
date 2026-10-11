@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ModelMedia } from "@/components/ModelMedia";
+import { PhoneSubnav } from "@/components/PhoneShell";
 import { GENJUTSU } from "@/lib/remix/targets";
 import { ALL_MODELS, categoriesFor, getModel, modelsFor, type Category, type ModelDef } from "@/lib/registry";
 import { CINEMA } from "@/lib/studio/cinema";
@@ -179,7 +180,8 @@ export function PhoneExplore() {
   const rows = categories.filter((c) => filter === "all" || filter === c.id);
 
   return (
-    <div className="anim-fade -mx-4 flex flex-col gap-6 pb-10 pt-1 md:hidden">
+    <div className="anim-fade -mx-4 flex flex-col gap-6 pb-10 pt-2 md:hidden">
+      <PhoneSubnav>
       <div className="no-bar flex gap-2 overflow-x-auto px-4">
         {chips.map((chip) => (
           <button
@@ -195,6 +197,7 @@ export function PhoneExplore() {
           </button>
         ))}
       </div>
+      </PhoneSubnav>
 
       {shown.length > 0 && (
         <section>

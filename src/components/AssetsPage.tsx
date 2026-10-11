@@ -1,5 +1,6 @@
 "use client";
 
+import { PhoneSubnav } from "@/components/PhoneShell";
 import { Fragment, useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
@@ -80,7 +81,8 @@ export function AssetsPage() {
 
       {/* A phone's filters: one quiet row of every kind, each with its icon,
           and Elements at the end since a phone has no top bar for it. */}
-      <div role="tablist" aria-label="Filter assets" className="no-bar mb-3 flex items-center gap-1.5 overflow-x-auto px-4 md:hidden">
+      <PhoneSubnav>
+      <div role="tablist" aria-label="Filter assets" className="no-bar flex items-center gap-1.5 overflow-x-auto px-4">
         {FILTERS.map((f) => {
           const on = f.id === filter;
           return (
@@ -109,6 +111,7 @@ export function AssetsPage() {
           <Icon name="chevron" size={14} className="-rotate-90" />
         </button>
       </div>
+      </PhoneSubnav>
 
       {/* Each filter its own tile with its icon, the chosen one simply
           lighter: no track, no counts beside every word, no step arrows. The

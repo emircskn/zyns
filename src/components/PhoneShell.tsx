@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
@@ -219,7 +219,8 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
   const close = useRef(() => setOpen(false)).current;
   return (
     <>
-      <header className="sticky top-0 z-30 grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-canvas/90 px-3 pb-2 pt-[max(10px,env(safe-area-inset-top))] backdrop-blur-xl md:hidden">
+      <header className="sticky top-0 z-30 bg-canvas pt-[max(10px,env(safe-area-inset-top))] md:hidden">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 pb-2">
         <div className="flex">
           <button
             type="button"
@@ -236,8 +237,31 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
         <div className="flex justify-end">
           <ProviderSwitch size="xs" />
         </div>
+        </div>
+        {/* A page's own row of tabs or filters lands here, inside the header, so the two read as one bar. */}
+        <div id="phone-subnav" />
+        {/* No rule under it: what scrolls beneath fades into the bar instead. */}
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-5 bg-gradient-to-b from-canvas to-transparent" />
       </header>
       <SidePanel open={open} onClose={close} onKeyClick={onKeyClick} />
     </>
   );
+}
+
+/**
+ * A page's row of tabs or filters on a phone, placed inside the header so
+ * header and row are one sticky bar. On a desktop it renders nothing; the
+ * page keeps its own strip there.
+ */
+export function PhoneSubnav({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const find = () => setSlot(document.getElementById("phone-subnav"));
+    find();
+    // The header can mount a moment after the page.
+    const timer = window.setTimeout(find, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  if (!slot) return null;
+  return createPortal(<div className={`pb-2.5 md:hidden ${className}`}>{children}</div>, slot);
 }

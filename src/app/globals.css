@@ -44,19 +44,21 @@
   --cover-light: 255 255 255;
   --cover-shade: 0 0 0;
   --cover-shade-a: 0.62;
-  --canvas: #0e0f11;
-  --canvas-deep: #08090a;
-  --surface: #17181b;
-  --surface-2: #1f2125;
-  --elevated: #141518;
+  /* Near-black, as Higgsfield's canvas (#070809), with surfaces lifted a step at a time. */
+  --canvas: #070809;
+  --canvas-deep: #000000;
+  --surface: #121315;
+  --surface-2: #1a1b1e;
+  --elevated: #0f1012;
 
   --line: rgb(255 255 255 / 0.08);
   --line-strong: rgb(255 255 255 / 0.16);
 
-  --t1: #f4f4f5;
-  --t2: #c8cad0;
-  --t3: #8d9098;
-  --t4: #5f626a;
+  /* White text, as Higgsfield's: the quieter steps stay legible on black. */
+  --t1: #ffffff;
+  --t2: #ececee;
+  --t3: #a9abb1;
+  --t4: #75787f;
 
   /* Yellow, under dark ink. */
   --accent: #ffd426;
@@ -88,10 +90,12 @@
      the first inch of the row, enough to say there is more down there. */
   --home-peek: 96px;
 
-  /* Short and plain: things change, they do not perform. */
-  --d-fast: 100ms;
-  --d-base: 150ms;
-  --d-slow: 200ms;
+  /* Apple's default: critically damped (no overshoot), a response near
+     0.3 s. Fast for colour, base for small moves, slow for a selection
+     sliding to where it was pressed. */
+  --d-fast: 110ms;
+  --d-base: 180ms;
+  --d-slow: 260ms;
 
   color-scheme: dark;
 }
@@ -318,7 +322,7 @@ h1,
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -333,7 +337,7 @@ h1,
   }
   to {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px) scale(0.96);
   }
 }
 
@@ -387,7 +391,7 @@ h1,
 @keyframes drop-in {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -401,7 +405,7 @@ h1,
   }
   to {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.96);
   }
 }
 .anim-drop {
@@ -1480,8 +1484,20 @@ html {
   color: var(--t4);
   opacity: 1 !important;
 }
-:where(button, [role="button"]):active {
-  scale: none !important;
+/* Feedback on the press itself, not on release: a button gives a little
+   under the finger at once and comes back gently when let go. Buttons laid
+   over a picture (absolute) and anything marked data-no-press stay put. */
+:where(button, [role="button"]):not(.absolute):not([data-no-press]):not(:disabled) {
+  transition-property: background-color, border-color, color, opacity, box-shadow, scale;
+}
+:where(button, [role="button"]):not(.absolute):not([data-no-press]):not(:disabled):active {
+  scale: 0.97;
+  transition-duration: 70ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button, [role="button"]):active {
+    scale: none !important;
+  }
 }
 
 /* Asked for less see-through: the glass turns solid. */
@@ -1521,10 +1537,10 @@ html {
   }
 }
 .drawer-in {
-  animation: drawer-in 220ms var(--ease) both;
+  animation: drawer-in 300ms var(--ease) both;
 }
 .drawer-out {
-  animation: drawer-out 180ms var(--ease-exit) both;
+  animation: drawer-out 220ms var(--ease-exit) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .drawer-in,

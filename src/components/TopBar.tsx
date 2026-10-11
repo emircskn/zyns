@@ -317,7 +317,9 @@ export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   );
 
   return (
-    <header className="sticky top-0 z-40 hidden h-[60px] shrink-0 items-center gap-4 border-b border-line bg-canvas/85 px-5 backdrop-blur-xl md:flex">
+    <header className="sticky top-0 z-40 hidden h-[60px] shrink-0 items-center gap-4 bg-canvas px-5 md:flex">
+      {/* No rule under the bar: what scrolls beneath fades into it instead. */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-5 bg-gradient-to-b from-canvas to-transparent" />
       <button
         type="button"
         onClick={() => setPage("home")}
