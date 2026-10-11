@@ -6,7 +6,7 @@ import { PhoneSubnav } from "@/components/PhoneShell";
 import { GENJUTSU } from "@/lib/remix/targets";
 import { ALL_MODELS, categoriesFor, getModel, modelsFor, type Category, type ModelDef } from "@/lib/registry";
 import { CINEMA } from "@/lib/studio/cinema";
-import { useStudio, type Page } from "@/store/studio";
+import { ownPageOf, useStudio, type Page } from "@/store/studio";
 
 type Filter = "all" | Category | "studios";
 
@@ -113,9 +113,15 @@ export function PhoneExplore() {
   const categories = categoriesFor(provider);
   const models = modelsFor(provider);
 
+  const setComposer = useStudio((s) => s.setComposer);
+  // A model picked here lands where its prompt is written, as Create's do.
   const pick = (model: ModelDef) => () => {
+    // Cinema Studio and Genjutsu have pages of their own, with their own composer.
+    const own = ownPageOf(model.id);
+    if (own) return setPage(own);
     selectModel(model.id);
     setPage(model.category as Page);
+    setComposer(true);
   };
   const byCategory = useMemo(() => {
     const out = new Map<Category, ModelDef[]>();
