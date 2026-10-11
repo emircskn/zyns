@@ -1494,12 +1494,16 @@ html {
 /* ------------------------------------------------------------------ *
  * Shapes
  *
- * Every pill-shaped button, chip and segmented control in the studio is a
- * rounded rectangle instead, as a working tool has them. Switches, colour
- * swatches and anything marked data-round keep their circle. Pressing a
+ * Nothing in the studio is pill-shaped: buttons, chips and segmented
+ * controls are rounded rectangles, as a working tool has them. Pressing a
  * button never shrinks it.
  * ------------------------------------------------------------------ */
-:is(button, a, [role="button"], [data-glide], [data-track]).rounded-full:not([role="switch"]):not([role="radio"]):not([data-round]) {
+/* Anything drawn as a pill is a rounded rectangle instead: buttons, chips,
+   tracks and the marks inside them. Small things (dots, spinners, a
+   switch's knob) come out round anyway, since the corner is half their
+   size; colour swatches, a switch's own track and anything marked
+   data-round keep a true circle. */
+.rounded-full:not([role="radio"]):not([data-round]):not([role="switch"] > *) {
   border-radius: var(--radius-btn);
 }
 /* A main action that cannot run yet is plain grey, not a faded yellow. */

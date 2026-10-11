@@ -223,7 +223,7 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
       data-pill={id}
       onClick={() => onMode(id)}
       aria-pressed={mode === id}
-      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[18px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
+      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[8px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
         mode === id ? "text-t1" : "text-t3 hover:text-t1"
       }`}
     >
@@ -232,8 +232,8 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
     </button>
   );
   return (
-    <div className="relative flex shrink-0 gap-1 rounded-panel border border-line bg-elevated p-1 md:flex-col">
-      <GlideMark value={mode} className="rounded-[18px] bg-t1/[0.1]" />
+    <div className="relative flex shrink-0 gap-1 rounded-[12px] border border-line bg-elevated p-1 md:flex-col">
+      <GlideMark value={mode} className="rounded-[8px] bg-t1/[0.1]" />
       {item("image", "image", "Image")}
       {item("video", "video", "Video")}
     </div>
@@ -517,7 +517,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
       )}
       <div className="flex flex-col gap-1.5 md:flex-row">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[20px] bg-t1/[0.05] p-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <StudioPrompt
@@ -771,7 +771,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row">
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[20px] bg-t1/[0.05] p-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <StudioPrompt

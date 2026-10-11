@@ -267,7 +267,7 @@ export function ReferencePicker({
         </header>
 
         {tab === "elements" ? (
-          <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-[20px] sm:bg-elevated sm:p-1.5">
+          <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-[12px] sm:bg-elevated sm:p-1.5">
             <nav className="hidden w-[170px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
               {ELEMENT_KINDS.filter((k) => styles || k.id !== "style").map((k) => (
                 <button
@@ -387,7 +387,7 @@ export function ReferencePicker({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col sm:mx-1.5 sm:rounded-[20px] sm:bg-elevated sm:p-1.5">
+          <div className="flex min-h-0 flex-1 flex-col sm:mx-1.5 sm:rounded-[12px] sm:bg-elevated sm:p-1.5">
             <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-2 pt-1 sm:p-3">
               <div className="no-bar flex gap-1 overflow-x-auto">
                 {filters.map((f) => (

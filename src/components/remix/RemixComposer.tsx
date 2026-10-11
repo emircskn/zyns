@@ -328,7 +328,7 @@ function RefsBox({
             type="button"
             onClick={onAdd}
             aria-label="Add pictures"
-            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[20px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
+            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
           >
             <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
               <Icon name="plus" size={20} />
