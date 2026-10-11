@@ -74,8 +74,6 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
   const setPage = useStudio((s) => s.setPage);
   const setCreateOpen = useStudio((s) => s.setCreateOpen);
   const provider = useStudio((s) => s.provider);
-  const theme = useStudio((s) => s.theme);
-  const setTheme = useStudio((s) => s.setTheme);
   const desktopView = useStudio((s) => s.desktopView);
   const setDesktopView = useStudio((s) => s.setDesktopView);
   const apiKey = useStudio(activeKey);
@@ -177,7 +175,6 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
             }}
             trailing={<span className={`h-2 w-2 rounded-full ${apiKey ? "bg-accent" : "bg-t4"}`} />}
           />
-          <Row icon={theme === "dark" ? "sun" : "moon"} label={theme === "dark" ? "Light theme" : "Dark theme"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")} />
           {(desktopView || smallScreen()) && (
             <Row
               icon="monitor"

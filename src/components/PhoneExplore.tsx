@@ -3,11 +3,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ModelMedia } from "@/components/ModelMedia";
 import { GENJUTSU } from "@/lib/remix/targets";
-import { categoriesFor, getModel, modelsFor, type Category, type ModelDef } from "@/lib/registry";
+import { ALL_MODELS, categoriesFor, getModel, modelsFor, type Category, type ModelDef } from "@/lib/registry";
 import { CINEMA } from "@/lib/studio/cinema";
 import { useStudio, type Page } from "@/store/studio";
 
 type Filter = "all" | Category | "studios";
+
+const hasPreview = (m: ModelDef) => !!(m.preview?.video || m.preview?.image || m.preview?.poster);
+const baseName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * A model as Explore shows it: with its own preview, or, where it has none
+ * (KIE's catalogue carries no pictures), the preview of the same model on
+ * the other service, so the same Seedance or Nano Banana is not a blank card.
+ */
+function withPreview(model: ModelDef): ModelDef {
+  if (hasPreview(model)) return model;
+  const name = baseName(model.name);
+  const twin = ALL_MODELS.find((m) => m.id !== model.id && hasPreview(m) && baseName(m.name) === name);
+  return twin ? { ...model, preview: twin.preview } : model;
+}
 
 interface Feature {
   key: string;
@@ -49,7 +64,7 @@ function Tile({ label, model, onPick }: { label: string; model?: ModelDef; onPic
     <button type="button" onClick={onPick} className="flex min-w-0 flex-col items-center gap-2">
       <span className="relative block aspect-square w-full overflow-hidden rounded-[12px] bg-accent">
         <span className="absolute inset-[9%] -rotate-[6deg] overflow-hidden rounded-[9px] bg-surface-2 shadow-[0_6px_14px_rgb(0_0_0/0.35)]">
-          {model && <ModelMedia model={model} own={false} />}
+          {model && <ModelMedia model={model} />}
         </span>
       </span>
       <span className="truncate text-[13.5px] font-medium text-t1">{label}</span>
@@ -62,7 +77,7 @@ function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
   return (
     <button type="button" onClick={onPick} className="w-[42vw] max-w-[180px] shrink-0 snap-start text-left">
       <span className="relative block aspect-[4/5] overflow-hidden rounded-[10px] bg-surface-2 ring-1 ring-inset ring-line">
-        <ModelMedia model={model} own={false} />
+        <ModelMedia model={model} />
         {model.badge && (
           <span className="absolute left-2 top-2 rounded-[5px] bg-accent px-1.5 py-px font-display text-[9.5px] font-bold uppercase text-accent-ink">{model.badge}</span>
         )}
@@ -85,6 +100,12 @@ export function PhoneExplore() {
   const provider = useStudio((s) => s.provider);
   const selectModel = useStudio((s) => s.selectModel);
   const setPage = useStudio((s) => s.setPage);
+  const runs = useStudio((s) => s.runs);
+  // Models you have made something with show that, so they never come up blank.
+  const made = useMemo(
+    () => new Set(runs.filter((r) => r.state === "success" && r.output !== "audio" && r.urls.length > 0).map((r) => r.modelId)),
+    [runs],
+  );
   const [filter, setFilter] = useState<Filter>("all");
   const [at, setAt] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
@@ -98,12 +119,14 @@ export function PhoneExplore() {
   const byCategory = useMemo(() => {
     const out = new Map<Category, ModelDef[]>();
     for (const c of categories) {
-      const list = models.filter((m) => m.category === c.id);
-      // Marked ones (NEW, TOP) first: they are what the catalogue leads with.
-      out.set(c.id, [...list.filter((m) => m.badge), ...list.filter((m) => !m.badge)]);
+      const list = models.filter((m) => m.category === c.id).map(withPreview);
+      // Those with a preview to show first, the marked ones (NEW, TOP) first among them:
+      // a row of blank covers reads as broken.
+      const rank = (m: ModelDef) => (hasPreview(m) || made.has(m.id) ? 0 : 2) + (m.badge ? 0 : 1);
+      out.set(c.id, [...list].sort((a, b) => rank(a) - rank(b)));
     }
     return out;
-  }, [categories, models]);
+  }, [categories, models, made]);
 
   const features = useMemo(() => {
     const list: Feature[] = [];
@@ -129,7 +152,12 @@ export function PhoneExplore() {
     if (!node) return;
     setAt(0);
     node.scrollTo({ left: 0 });
-    const onScroll = () => setAt(Math.round(node.scrollLeft / Math.max(1, node.clientWidth)));
+    // One step is a card and the gap after it.
+    const onScroll = () => {
+      const card = node.firstElementChild as HTMLElement | null;
+      const step = (card?.offsetWidth ?? node.clientWidth) + 16;
+      setAt(Math.round(node.scrollLeft / Math.max(1, step)));
+    };
     node.addEventListener("scroll", onScroll, { passive: true });
     return () => node.removeEventListener("scroll", onScroll);
   }, [filter, shown.length]);
@@ -151,7 +179,7 @@ export function PhoneExplore() {
   const rows = categories.filter((c) => filter === "all" || filter === c.id);
 
   return (
-    <div className="anim-fade flex flex-col gap-6 pb-10 pt-1 md:hidden">
+    <div className="anim-fade -mx-4 flex flex-col gap-6 pb-10 pt-1 md:hidden">
       <div className="no-bar flex gap-2 overflow-x-auto px-4">
         {chips.map((chip) => (
           <button
@@ -170,7 +198,7 @@ export function PhoneExplore() {
 
       {shown.length > 0 && (
         <section>
-          <div ref={strip} className="no-bar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 scroll-px-4">
+          <div ref={strip} className="no-bar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 scroll-px-4">
             {shown.map((feature) => (
               <div key={feature.key} className="w-[calc(100vw-32px)] shrink-0 snap-center">
                 <HeroCard feature={feature} />

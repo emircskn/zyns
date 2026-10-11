@@ -96,40 +96,6 @@
   color-scheme: dark;
 }
 
-[data-theme="light"] {
-  --cover-base: #dcdcdc;
-  --cover-light: 255 255 255;
-  --cover-shade: 0 0 0;
-  --cover-shade-a: 0.1;
-  /* Off white, so an elevated surface — the prompt box, a tile, a popover —
-     reads as lifted rather than as an outline on the same white. */
-  --canvas: #f6f6f4;
-  --canvas-deep: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #ececea;
-  --elevated: #ffffff;
-
-  --line: rgb(17 18 20 / 0.09);
-  --line-strong: rgb(17 18 20 / 0.18);
-
-  --t1: #121316;
-  --t2: #3b3e45;
-  --t3: #6b6f78;
-  --t4: #9a9da4;
-
-  /* A deeper yellow, so the fill still holds against white. */
-  --accent: #f5c400;
-  --accent-hover: #ffcf1a;
-  --accent-ink: #17140a;
-
-  --danger: #c0352c;
-  --mention: #2f6ae0;
-
-  --shadow-pop: 0 16px 40px -16px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.06);
-  --shadow-bar: 0 12px 32px -16px rgb(0 0 0 / 0.16);
-
-  color-scheme: light;
-}
 
 /* A phone has less to spare, and its bottom row is in the way. */
 @media (max-width: 767px) {
@@ -1531,8 +1497,7 @@ html {
 
 /* Asked for more contrast: firmer edges and quieter text read stronger. */
 @media (prefers-contrast: more) {
-  :root,
-  [data-theme="light"] {
+  :root {
     --line: color-mix(in oklab, var(--t1) 28%, transparent);
     --line-strong: color-mix(in oklab, var(--t1) 45%, transparent);
   }

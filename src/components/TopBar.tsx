@@ -194,8 +194,6 @@ export function AccountMenu({
   const root = useRef<HTMLDivElement>(null);
   const provider = useStudio((s) => s.provider);
   const apiKey = useStudio(activeKey);
-  const theme = useStudio((s) => s.theme);
-  const setTheme = useStudio((s) => s.setTheme);
   const desktopView = useStudio((s) => s.desktopView);
   const setDesktopView = useStudio((s) => s.setDesktopView);
   const runs = useStudio((s) => s.runs);
@@ -293,11 +291,6 @@ export function AccountMenu({
           </div>
           <div className="mx-1.5 mb-1 h-px bg-line" />
           <MenuRow icon="key" label={apiKey ? "Change API key" : "Add API key"} onClick={act(onKeyClick)} />
-          <MenuRow
-            icon={theme === "dark" ? "sun" : "moon"}
-            label={theme === "dark" ? "Light theme" : "Dark theme"}
-            onClick={act(() => setTheme(theme === "dark" ? "light" : "dark"))}
-          />
           {/* A phone can be shown the desktop's layout, and back; a desktop has no use for it. */}
           {(desktopView || smallScreen()) && (
             <MenuRow icon="monitor" label="Desktop view" pressed={desktopView} onClick={act(() => setDesktopView(!desktopView))} />
