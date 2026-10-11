@@ -757,7 +757,8 @@ html {
     /* The row's own height: 52px of tabs, 8px above them, a 1px rule, and
        8px or the home indicator's inset below, whichever is taller. It said
        62px plus the inset, which left anything docked on it 7px low. */
-    --nav-h: calc(61px + max(8px, env(safe-area-inset-bottom)));
+    /* No row of tabs at the foot any more: only the home indicator's inset. */
+    --nav-h: env(safe-area-inset-bottom);
   }
 }
 
@@ -1534,5 +1535,35 @@ html {
   [data-theme="light"] {
     --line: color-mix(in oklab, var(--t1) 28%, transparent);
     --line-strong: color-mix(in oklab, var(--t1) 45%, transparent);
+  }
+}
+
+/* The phone's menu comes in from the left and goes back the same way. */
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.drawer-in {
+  animation: drawer-in 220ms var(--ease) both;
+}
+.drawer-out {
+  animation: drawer-out 180ms var(--ease-exit) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer-in,
+  .drawer-out {
+    animation-duration: 1ms;
   }
 }

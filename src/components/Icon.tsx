@@ -46,6 +46,7 @@ export type IconName =
   | "heart"
   | "home"
   | "square"
+  | "sidebar"
   | "more"
   | "at"
   | "ai-brain"
@@ -368,6 +369,12 @@ const PATHS: Record<IconName, ReactElement> = {
   shrink: <path d="M14 10l6-6M14 10V5.5M14 10h4.5M10 14l-6 6M10 14v4.5M10 14H5.5" />,
   hash: <path d="M9 4L7 20M17 4l-2 16M4 9h17M3 15h17" />,
   square: <rect x="4" y="4" width="16" height="16" rx="3" />,
+  sidebar: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+      <path d="M9 4.5v15" />
+    </>
+  ),
   more: (
     <>
       <circle cx="5" cy="12" r="1.1" fill="currentColor" stroke="none" />

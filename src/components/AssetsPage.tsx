@@ -62,7 +62,7 @@ export function AssetsPage() {
       {/* A phone: the name, and three small round buttons (project, select,
           grid) where a desktop has a full strip. */}
       <div className="flex items-center justify-between gap-3 px-4 pb-2.5 pt-1 md:hidden">
-        <h2 className="text-[24px] leading-tight tracking-[-0.02em] text-t1">Assets</h2>
+        <p className="text-[13px] text-t3">What you make and upload</p>
         <div className="flex items-center gap-1.5">
           <ProjectFilter value={project} onChange={setProject} compact />
           {assets.length + working.length > 0 && <DensityControl />}

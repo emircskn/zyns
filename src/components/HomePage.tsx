@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { PhoneExplore } from "@/components/PhoneExplore";
 import { PromptBar } from "@/components/PromptBar";
 import { activeKey, useStudio } from "@/store/studio";
 
@@ -111,10 +112,12 @@ export function HomePage({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
+      {/* A phone opens on Explore, as Higgsfield's does. */}
+      <PhoneExplore />
       <section
         ref={hero}
         style={{ minHeight: `calc(100dvh - ${top}px - var(--nav-h) - 12px)` }}
-        className="flex flex-col items-center justify-center py-8 md:py-12"
+        className="flex flex-col items-center justify-center py-8 max-md:hidden md:py-12"
       >
         <div className="w-full max-w-[720px]">
           {/* A real space between the verb and the word, not a flex gap: the

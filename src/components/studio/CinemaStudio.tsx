@@ -59,7 +59,6 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
       </aside>
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
       <div className="px-4 pb-2 pt-1 md:hidden">
-        <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1">Cinema Studio</h2>
         <div ref={chips} className="no-bar relative -mx-4 mt-2 flex gap-1.5 overflow-x-auto px-4">
           <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
           {PHONE_NAV.map((item) => (

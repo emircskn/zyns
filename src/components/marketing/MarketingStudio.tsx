@@ -148,7 +148,6 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       {/* A phone has no header nav, so the page names itself, as the others do. */}
       <div ref={top} className="scroll-mt-4 px-4 pb-3 pt-1 md:hidden">
-        <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1">Marketing Studio</h2>
         <p className="text-[13px] text-t3">Product shots, ads and listings, and video made from them</p>
       </div>
       <aside className="flex w-full shrink-0 flex-col px-4 md:sticky md:top-[76px] md:h-[calc(100dvh-92px)] md:w-[360px] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated md:px-0">

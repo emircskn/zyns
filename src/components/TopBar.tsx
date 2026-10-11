@@ -101,7 +101,12 @@ export function CreditsPill({ onKeyClick, compact }: { onKeyClick: () => void; c
 
   if (!apiKey) {
     return (
-      <button type="button" onClick={onKeyClick} className={pill} title="Add an API key to start making">
+      <button
+        type="button"
+        onClick={onKeyClick}
+        className="cta flex h-9 items-center gap-1.5 rounded-[8px] px-3 text-[13px]"
+        title="Add an API key to start making"
+      >
         <Icon name="key" size={15} />
         {compact ? "Add key" : "Add API key"}
       </button>

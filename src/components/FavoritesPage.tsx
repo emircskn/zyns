@@ -21,7 +21,6 @@ export function FavoritesPage() {
       {/* A slim strip over the wall, as on the pages that make things. */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
-          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">Favorites</h2>
           <p className="text-[13px] text-t3">
             <span className="md:hidden">What you keep with the heart</span>
             <span className="hidden md:inline">

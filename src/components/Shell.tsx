@@ -15,7 +15,6 @@ import { TrashSweeper } from "@/components/studio/Trash";
 import { ProjectDeleteDialog } from "@/components/ProjectDeleteDialog";
 import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { HomePage } from "@/components/HomePage";
-import { MobileNav } from "@/components/MobileNav";
 import { ModelPicker } from "@/components/ModelPicker";
 import { PhoneComposer } from "@/components/PhoneComposer";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
@@ -33,35 +32,11 @@ import { SIDE_PAGES } from "@/lib/layout";
 import { useHiggsfieldCatalog } from "@/lib/useHiggsfieldCatalog";
 import { RemixStudio } from "@/components/remix/RemixStudio";
 import { CinemaStudio } from "@/components/studio/CinemaStudio";
+import { PhoneHeader } from "@/components/PhoneShell";
 import { MarketingStudio } from "@/components/marketing/MarketingStudio";
 import { isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
-/**
- * A phone's version of the top bar: the mark, the service, and at the right
- * the credits. The pages and the account are on the bottom row instead.
- */
-function PhoneBar({ onKeyClick }: { onKeyClick: () => void }) {
-  const setPage = useStudio((s) => s.setPage);
-
-  return (
-    <header className="relative z-30 flex items-center justify-between gap-2 px-4 py-3 md:hidden">
-      <button
-        type="button"
-        onClick={() => setPage("home")}
-        aria-label="ZYNS home"
-        className="shrink-0 transition-opacity duration-[150ms] hover:opacity-70"
-      >
-        <ZynsMark size={32} />
-      </button>
-      {/* The service to make with, in reach on every phone page. */}
-      <ProviderSwitch size="xs" />
-      <div className="flex shrink-0 items-center gap-1.5">
-        <CreditsPill onKeyClick={onKeyClick} compact />
-      </div>
-    </header>
-  );
-}
 
 /**
  * Holds the page on screen while the next one is asked for, so one leaves
@@ -145,7 +120,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <TopBar onKeyClick={() => setKeyOpen(true)} />
       {/* The library pages open straight onto their own title on a phone,
           the way Higgsfield's Library does: the bar is for making things. */}
-      {!browsing && <PhoneBar onKeyClick={() => setKeyOpen(true)} />}
+      <PhoneHeader onKeyClick={() => setKeyOpen(true)} />
       <main
         // A page that makes things, and the library pages, are a wall of
         // media edge to edge; each pads its own toolbar and empty state.
@@ -155,7 +130,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
           composing
             ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}`
             : browsing
-              ? "below-card max-md:pt-[max(14px,env(safe-area-inset-top))]"
+              ? "below-card"
               : page === "remix" || page === "studio" || page === "marketing"
                 ? "below-nav md:pb-6"
                 : "below-nav"
@@ -188,7 +163,6 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
 
       {composing && <PromptBar desktop={!SIDE_PAGES.has(page)} />}
       {browsing && <PromptCard placement="docked" />}
-      <MobileNav onCreate={() => setCreateOpen(true)} onKey={() => setKeyOpen(true)} />
       <PhoneComposer onKey={() => setKeyOpen(true)} />
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />

@@ -81,9 +81,6 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
         }`}
       >
         <div>
-          <h2 className="text-[22px] leading-tight tracking-[-0.02em] text-t1 md:hidden">
-            {meta?.label ?? category}
-          </h2>
           <p className="text-[13px] text-t3">
             <span className="md:hidden">{BLURB[category]}</span>
             <span className="hidden md:inline">
