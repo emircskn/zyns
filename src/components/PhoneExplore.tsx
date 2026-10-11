@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@/components/Icon";
 import { ModelMedia } from "@/components/ModelMedia";
 import { PhoneSubnav } from "@/components/PhoneShell";
 import { GENJUTSU } from "@/lib/remix/targets";
@@ -85,6 +86,27 @@ function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
       </span>
       <span className="mt-1.5 block truncate text-[13px] font-medium text-t1">{model.name}</span>
       <span className="block truncate text-[11.5px] text-t3">{model.vendor}</span>
+    </button>
+  );
+}
+
+/** One model in a kind's list, as Higgsfield lists them: a small picture, the name and its mark, a line, an arrow. */
+function ListRow({ model, title, line, badge, onPick }: { model: ModelDef; title: string; line: string; badge?: string; onPick: () => void }) {
+  return (
+    <button type="button" onClick={onPick} className="flex w-full items-center gap-4 py-2 text-left">
+      <span className="relative block aspect-[4/3] w-[96px] shrink-0 overflow-hidden rounded-[8px] bg-surface-2">
+        <ModelMedia model={model} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate text-[16px] font-medium text-t1">{title}</span>
+          {badge && (
+            <span className="shrink-0 rounded-[4px] bg-accent px-1.5 py-px font-display text-[10px] font-bold uppercase text-accent-ink">{badge}</span>
+          )}
+        </span>
+        <span className="mt-1 block truncate text-[13.5px] text-t3">{line}</span>
+      </span>
+      <Icon name="chevron" size={16} className="shrink-0 -rotate-90 text-t3" />
     </button>
   );
 }
@@ -208,6 +230,8 @@ export function PhoneExplore() {
       </div>
       </PhoneSubnav>
 
+      {filter === "all" ? (
+        <>
       {shown.length > 0 && (
         <section>
           <div ref={strip} className="no-bar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 scroll-px-4">
@@ -227,7 +251,7 @@ export function PhoneExplore() {
         </section>
       )}
 
-      {filter === "all" && (
+      {(
         <section className="grid grid-cols-4 gap-2.5 px-4">
           {tiles.map((tile) => (
             <Tile key={tile.key} label={tile.label} model={tile.model} onPick={tile.onPick} />
@@ -254,6 +278,17 @@ export function PhoneExplore() {
           </section>
         );
       })}
+        </>
+      ) : (
+        // A kind on its own reads as a list, as Higgsfield's does: no large covers.
+        <section className="flex flex-col px-4">
+          {filter === "studios"
+            ? shown.map((f) => <ListRow key={f.key} model={f.model} title={f.title} line={f.line} onPick={f.open} />)
+            : (byCategory.get(filter) ?? []).map((model) => (
+                <ListRow key={model.id} model={model} title={model.name} line={model.tagline} badge={model.badge} onPick={pick(model)} />
+              ))}
+        </section>
+      )}
     </div>
   );
 }
