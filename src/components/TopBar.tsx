@@ -15,8 +15,9 @@ import { activeKey, useStudio, type Page } from "@/store/studio";
 /** Every page by name, left to right: the ones that make, then the ones that keep. */
 function pagesFor(provider: Provider): { id: Page; label: string }[][] {
   return [
-    // Home is the mark at the far left, so it is not a pill of its own.
     [
+      // Home, as Higgsfield names it; the mark at the far left goes there too.
+      { id: "home", label: "Explore" },
       ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label })),
       // Genjutsu's own page: a clip remade with your characters, objects or a style.
       { id: "remix", label: "Genjutsu" },
@@ -313,6 +314,7 @@ export function AccountMenu({
  */
 export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
+  const home = useStudio((s) => s.page === "home");
   const scrolled = useScrolled();
   const active = useStudio(
     (s) => s.runs.filter((r) => r.state === "pending" || r.state === "running").length,
@@ -326,10 +328,16 @@ export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         type="button"
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
-        title="Home"
-        className="shrink-0 transition-opacity duration-[150ms] hover:opacity-70"
+        aria-current={home ? "page" : undefined}
+        title="Explore"
+        // The mark lights up yellow on Explore, its page, and while a pointer rests on it.
+        className="group shrink-0"
       >
-        <ZynsMark size={32} />
+        <ZynsMark
+          size={32}
+          fill={home ? "var(--accent)" : "var(--t1)"}
+          className="[&_path]:transition-[fill] [&_path]:duration-[180ms] group-hover:[&_path]:fill-accent"
+        />
       </button>
 
       <PageNav />

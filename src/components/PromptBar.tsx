@@ -932,7 +932,8 @@ export function PromptField({
   }
 
   return (
-    <div ref={row} className="relative mb-2 flex items-start gap-2">
+    // The button keeps to the foot of the text: as the prompt grows the box rises, and the button stays put.
+    <div ref={row} className="relative mb-2 flex items-end gap-2">
       <div className="relative min-w-0 flex-1">
         {chipped && (
           <div
@@ -1131,7 +1132,7 @@ function DraftField({ trailing, onSubmit }: { trailing?: ReactNode; onSubmit: ()
   const draft = useStudio((s) => s.draft);
   const setDraft = useStudio((s) => s.setDraft);
   return (
-    <div className="relative mb-2 flex items-start gap-2">
+    <div className="relative mb-2 flex items-end gap-2">
       <textarea
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
