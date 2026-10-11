@@ -658,7 +658,7 @@ export function Gallery({
             : modelId
               ? run.modelId === modelId
               : category
-                ? getModel(run.modelId)?.category === category
+                ? (getModel(run.modelId)?.category ?? run.output) === category
                 : true),
       ),
     [runs, category, modelId, filter],

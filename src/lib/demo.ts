@@ -59,7 +59,7 @@ const SHOTS: { model: string; name: string; output: Run["output"]; ratio: string
   { model: "topaz", name: "Topaz Upscale", output: "image", ratio: "3 / 2", prompt: "upscale · 4×" },
   { model: "recraft", name: "Recraft", output: "image", ratio: "1 / 1", prompt: "remove background" },
   { model: "nano-banana-pro", name: "Nano Banana Pro", output: "image", ratio: "4 / 5", prompt: "two chairs on a flooded terrace, overcast" },
-  { model: "imagen-4", name: "Imagen 4", output: "image", ratio: "1 / 1", prompt: "a paper boat on black water, one light above" },
+  { model: "nano-banana-2", name: "Nano Banana 2", output: "image", ratio: "1 / 1", prompt: "a paper boat on black water, one light above" },
   { model: "flux-2-pro", name: "FLUX.2 Pro", output: "image", ratio: "3 / 2", prompt: "cooling towers behind a hedge, flat grey sky" },
   { model: "gpt-image-2", name: "GPT Image 2", output: "image", ratio: "2 / 3", prompt: "market stall at first light, tungsten and daylight mixed" },
   { model: "seedream-5-pro", name: "Seedream 5 Pro", output: "image", ratio: "16 / 9", prompt: "long exposure of a bridge, cars as light" },

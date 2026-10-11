@@ -35,15 +35,11 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **Nano Banana 2 Lite**<br>`nano-banana-2-lite` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
 | **Nano Banana Pro**<br>`nano-banana-pro` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤8) | evet |  |
 | **Nano Banana**<br>`nano-banana` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
-| **Imagen 4**<br>`imagen-4` | KIE | Generate | `text-to-image` (Generate) | evet |  |
-| **Imagen 4 Fast**<br>`imagen-4-fast` | KIE | Generate | `text-to-image` (Generate) | evet |  |
-| **Imagen 4 Ultra**<br>`imagen-4-ultra` | KIE | Generate | `text-to-image` (Generate) | evet |  |
 | **Seedream 5 Pro**<br>`seedream-5-pro` | KIE | Generate, Edit (otomatik), Layer decomposition | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet | Layer decomposition capability değil |
 | **Seedream 5 Flash**<br>`seedream-5-flash` | KIE | Generate, Edit (otomatik), Layer decomposition | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet | Layer decomposition capability değil |
 | **Seedream 5 Lite**<br>`seedream-5-lite` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤14) | evet |  |
 | **Seedream 4.5**<br>`seedream-4-5` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤14) | evet |  |
 | **Seedream 4.0**<br>`seedream-4` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
-| **Seedream 3.0**<br>`seedream-3` | KIE | Generate | `text-to-image` (Generate) | evet |  |
 | **GPT Image 2**<br>`gpt-image-2` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 2.5 Flare**<br>`gpt-image-2-5-flare` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 2.5 Sunburst**<br>`gpt-image-2-5-sunburst` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |

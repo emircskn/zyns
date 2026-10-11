@@ -119,9 +119,6 @@ const RULES: Record<string, Rule> = {
   "nano-banana-pro": (i) => charge(row("google nano banana pro", lc(i.resolution) === "4k" ? "4k" : "1 2k")),
   "google/nano-banana": () => charge(row("google nano banana", "text to image")),
   "google/nano-banana-edit": () => charge(row("google nano banana edit", "image to image")),
-  "google/imagen4": () => charge(row("google imagen4", "default")),
-  "google/imagen4-fast": () => charge(row("google imagen4", "fast")),
-  "google/imagen4-ultra": () => charge(row("google imagen4", "ultra")),
   "seedream/5-pro-text-to-image": (i) => charge(row("seedream 5 pro", "text to image", i.quality === "high" ? "2k" : "1k")),
   "seedream/5-pro-image-to-image": (i) => charge(row("seedream 5 pro", "image to image", i.quality === "high" ? "2k" : "1k")),
   "seedream/5-pro-layer-decomposition": (i) =>

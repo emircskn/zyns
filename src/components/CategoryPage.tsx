@@ -66,7 +66,8 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
   const meta = CATEGORIES.find((c) => c.id === category);
-  const mine = runs.filter((run) => getModel(run.modelId)?.category === category);
+  // A run whose model has since been retired keeps its place by what it made.
+  const mine = runs.filter((run) => (getModel(run.modelId)?.category ?? run.output) === category);
 
   return (
     <div className={`anim-fade flex flex-1 ${side ? "md:gap-4 md:px-4 md:pt-4" : ""}`}>
