@@ -714,7 +714,7 @@ export function Gallery({
           first; a phone keeps a heading for each day the media was made on.
           Either way one container holds every tile, so a tile that moves
           still slides there rather than jumping. */}
-      <div ref={grid} className={`no-text-select flex flex-col overflow-x-clip ${view === "list" && !phone ? "gap-3" : "gap-6"}`}>
+      <div ref={grid} className={`no-text-select flex flex-col overflow-x-clip ${view === "list" && !phone ? "gap-3" : phone ? "gap-8" : "gap-6"}`}>
         {view === "list" && !phone ? (
           // Higgsfield's history: each run a row, the media on the left at
           // its own shape and the details on the right.
@@ -732,7 +732,7 @@ export function Gallery({
         ) : phone ? (
           byDay(tiles, (run) => run.createdAt).map((day) => (
             <section key={day.key}>
-              <h3 className="mb-2.5 px-4 text-[15px] font-semibold tracking-[-0.01em] text-t1">{day.label}</h3>
+              <h3 className="mb-3 px-4 text-[14px] !font-normal tracking-[0] text-t3">{day.label}</h3>
               {/* Everything the same size in a grid of three, or one piece
                   of media at a time, meeting almost edge to edge. */}
               <div className={`grid gap-[2px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>

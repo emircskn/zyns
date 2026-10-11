@@ -344,14 +344,14 @@ export function AssetBrowser({
       {/* Clipped sideways: a tile sliding to its new place when the layout
           changes passes the edge for a moment, and a phone's browser zooms
           the whole page out to fit it and stays zoomed. */}
-      <div ref={grid} className="no-text-select flex flex-col gap-6 overflow-x-clip">
+      <div ref={grid} className="no-text-select flex flex-col gap-6 overflow-x-clip max-md:gap-8">
         {(byDate && phone
           ? byDay(tiles, (asset) => asset.createdAt)
           : [{ key: "all", label: "", items: tiles }]
         ).map((day) => (
           <section key={day.key}>
             {byDate && phone && (
-            <h3 className="mb-2.5 px-4 text-[15px] font-semibold tracking-[-0.01em] text-t1">
+            <h3 className="mb-3 px-4 text-[14px] !font-normal tracking-[0] text-t3">
               {day.label}
             </h3>
             )}
