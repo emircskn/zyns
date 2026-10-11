@@ -18,7 +18,7 @@ const baseName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, " "
  * (KIE's catalogue carries no pictures), the preview of the same model on
  * the other service, so the same Seedance or Nano Banana is not a blank card.
  */
-function withPreview(model: ModelDef): ModelDef {
+export function withPreview(model: ModelDef): ModelDef {
   if (hasPreview(model)) return model;
   const name = baseName(model.name);
   const twin = ALL_MODELS.find((m) => m.id !== model.id && hasPreview(m) && baseName(m.name) === name);
@@ -89,7 +89,7 @@ function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
   );
 }
 
-const ROW_NAME: Record<Category, string> = { image: "Image models", video: "Video models", audio: "Audio models", tool: "Tools" };
+export const ROW_NAME: Record<Category, string> = { image: "Image models", video: "Video models", audio: "Audio models", tool: "Tools" };
 
 /**
  * The phone's home, laid out as Higgsfield's Explore: kinds as chips, the
@@ -97,23 +97,24 @@ const ROW_NAME: Record<Category, string> = { image: "Image models", video: "Vide
  * then each kind's models in a row of their own. Everything here opens the
  * page it names, with its model chosen.
  */
-export function PhoneExplore() {
+/**
+ * What both Explores are made of: each kind's models (those with a picture
+ * first), the leading features, and what picking a model does.
+ */
+export function useExplore() {
   const provider = useStudio((s) => s.provider);
   const selectModel = useStudio((s) => s.selectModel);
   const setPage = useStudio((s) => s.setPage);
+  const setComposer = useStudio((s) => s.setComposer);
   const runs = useStudio((s) => s.runs);
   // Models you have made something with show that, so they never come up blank.
   const made = useMemo(
     () => new Set(runs.filter((r) => r.state === "success" && r.output !== "audio" && r.urls.length > 0).map((r) => r.modelId)),
     [runs],
   );
-  const [filter, setFilter] = useState<Filter>("all");
-  const [at, setAt] = useState(0);
-  const strip = useRef<HTMLDivElement>(null);
   const categories = categoriesFor(provider);
   const models = modelsFor(provider);
 
-  const setComposer = useStudio((s) => s.setComposer);
   // A model picked here lands where its prompt is written, as Create's do.
   const pick = (model: ModelDef) => () => {
     // Cinema Studio and Genjutsu have pages of their own, with their own composer.
@@ -151,6 +152,14 @@ export function PhoneExplore() {
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories, byCategory]);
+  return { categories, byCategory, features, pick, setPage };
+}
+
+export function PhoneExplore() {
+  const { categories, byCategory, features, pick, setPage } = useExplore();
+  const [filter, setFilter] = useState<Filter>("all");
+  const [at, setAt] = useState(0);
+  const strip = useRef<HTMLDivElement>(null);
   const shown = features.filter((f) => filter === "all" || f.kind === filter);
 
   // Which card is in view, for the dots under the strip.
