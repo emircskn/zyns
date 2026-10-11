@@ -3,40 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { CoverArt } from "@/components/CoverArt";
 import type { ModelDef } from "@/lib/registry";
-import { mediaSrc } from "@/lib/storage/client";
-import { mediaKind } from "@/lib/upload";
-import { useStudio } from "@/store/studio";
 
 /**
- * What a model's card shows behind its name: your own latest result from
- * it (where asked for), else (where asked for) the catalogue's preview,
- * else a cover of light.
+ * What a model's card shows behind its name: its own preview (the
+ * catalogue's, or the cover chosen for it), else a cover of light. Never
+ * something you made with it: a model's card is its picture, not your history.
  * A clip loops silently, and only while the card is in view.
  */
 export function ModelMedia({
   model,
   className = "",
   catalog = true,
-  own = true,
 }: {
   model: ModelDef;
   className?: string;
-  /** Whether the catalogue's preview may stand in for a result of your own. */
+  /** Whether the preview is shown at all; without it, the cover of light. */
   catalog?: boolean;
-  /** Whether your own latest result from the model may be shown. */
-  own?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
-  const runs = useStudio((s) => s.runs);
-  const latest = !own
-    ? undefined
-    : runs
-        .find((r) => r.modelId === model.id && r.state === "success" && r.urls.some((u) => mediaKind(u) !== "audio"))
-        ?.urls.find((u) => mediaKind(u) !== "audio");
   const preview = catalog ? model.preview : undefined;
-  const video = latest ? (mediaKind(latest) === "video" ? mediaSrc(latest) : undefined) : preview?.video;
-  const still = latest ? (mediaKind(latest) === "image" ? mediaSrc(latest) : undefined) : (preview?.poster ?? preview?.image);
+  const video = preview?.video;
+  const still = preview?.poster ?? preview?.image;
 
   useEffect(() => {
     const node = box.current;

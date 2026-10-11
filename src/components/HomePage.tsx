@@ -126,7 +126,7 @@ function FeatureStrip() {
             className="group w-[calc((100%-40px)/3)] shrink-0 snap-start text-left"
           >
             <span className="relative block aspect-[16/9] overflow-hidden rounded-[10px] bg-surface-2">
-              <ModelMedia model={feature.model} own={false} className="transition-transform duration-[400ms] ease-[var(--ease)] group-hover:scale-[1.02]" />
+              <ModelMedia model={feature.model} className="transition-transform duration-[400ms] ease-[var(--ease)] group-hover:scale-[1.02]" />
               {feature.badge && (
                 <span className="absolute left-3 top-3">
                   <Badge>{feature.badge}</Badge>
@@ -261,7 +261,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
         {/* The prompt in a card of its own, where Higgsfield puts its offer. */}
         <div className="relative isolate flex flex-col justify-center rounded-panel p-7 ring-1 ring-inset ring-line">
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-panel bg-surface">
-            {backdrop && <ModelMedia model={backdrop} own={false} className="opacity-45" />}
+            {backdrop && <ModelMedia model={backdrop} className="opacity-45" />}
             <span className="absolute inset-0 bg-gradient-to-r from-canvas via-canvas/80 to-canvas/30" />
           </div>
           <h1 className="font-display text-[38px] font-bold uppercase leading-[1.02] tracking-[-0.02em] text-t1">
@@ -295,7 +295,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
         // A studio given the whole width, as Higgsfield gives its newest.
         <section className="relative isolate flex min-h-[340px] flex-col items-center justify-center overflow-hidden rounded-panel px-6 py-12 text-center ring-1 ring-inset ring-line">
           <div aria-hidden className="absolute inset-0 -z-10 bg-surface">
-            <ModelMedia model={marketing} own={false} className="opacity-60" />
+            <ModelMedia model={marketing} className="opacity-60" />
             <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--canvas)_10%,transparent_75%)] opacity-90" />
           </div>
           <span className="font-display text-[15px] font-bold uppercase tracking-[0.02em] text-t1">Marketing Studio</span>

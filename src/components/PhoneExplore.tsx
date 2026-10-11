@@ -44,7 +44,7 @@ function HeroCard({ feature }: { feature: Feature }) {
       onClick={feature.open}
       className="relative block aspect-[16/11] w-full shrink-0 snap-center overflow-hidden rounded-[12px] bg-surface-2 text-left ring-1 ring-inset ring-line"
     >
-      <ModelMedia model={feature.model} own={false} />
+      <ModelMedia model={feature.model} />
       <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
       {feature.badge && (
         <span className="absolute left-3 top-3 rounded-[6px] bg-accent px-2 py-0.5 font-display text-[10.5px] font-bold uppercase tracking-[0.04em] text-accent-ink">
@@ -106,12 +106,6 @@ export function useExplore() {
   const selectModel = useStudio((s) => s.selectModel);
   const setPage = useStudio((s) => s.setPage);
   const setComposer = useStudio((s) => s.setComposer);
-  const runs = useStudio((s) => s.runs);
-  // Models you have made something with show that, so they never come up blank.
-  const made = useMemo(
-    () => new Set(runs.filter((r) => r.state === "success" && r.output !== "audio" && r.urls.length > 0).map((r) => r.modelId)),
-    [runs],
-  );
   const categories = categoriesFor(provider);
   const models = modelsFor(provider);
 
@@ -130,11 +124,11 @@ export function useExplore() {
       const list = models.filter((m) => m.category === c.id).map(withPreview);
       // Those with a preview to show first, the marked ones (NEW, TOP) first among them:
       // a row of blank covers reads as broken.
-      const rank = (m: ModelDef) => (hasPreview(m) || made.has(m.id) ? 0 : 2) + (m.badge ? 0 : 1);
+      const rank = (m: ModelDef) => (hasPreview(m) ? 0 : 2) + (m.badge ? 0 : 1);
       out.set(c.id, [...list].sort((a, b) => rank(a) - rank(b)));
     }
     return out;
-  }, [categories, models, made]);
+  }, [categories, models]);
 
   const features = useMemo(() => {
     const list: Feature[] = [];

@@ -678,7 +678,7 @@ function RemixBanner({ model, mode, onChange }: { model: ModelDef; mode: RemixMo
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
-        <ModelMedia model={model} own={false} />
+        <ModelMedia model={model} />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
       {onChange && (

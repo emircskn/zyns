@@ -44,7 +44,7 @@ function ModelCard({
       <div className="relative">
         {/* What the model makes: its catalogue preview, never your own results. */}
         <div className="relative aspect-[7/4] overflow-hidden">
-          <ModelMedia model={model} own={false} />
+          <ModelMedia model={model} />
         </div>
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2.5">
           {model.badge ? (
@@ -85,7 +85,7 @@ function PageCard({ modelId, title, line, onPick }: { modelId: string; title: st
       className="anim-tile lift relative mb-2.5 block w-full overflow-hidden rounded-card bg-surface-2 text-left"
     >
       <div className="relative aspect-[16/7]">
-        {model && <ModelMedia model={model} own={false} />}
+        {model && <ModelMedia model={model} />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-3.5">
           <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">{title}</p>
