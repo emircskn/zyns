@@ -165,11 +165,6 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
           {keep.map((item) => (
             <Row key={item.id} icon={item.icon} label={item.label} on={page === item.id} onClick={go(item.id)} />
           ))}
-
-          <p className="px-3 pb-2 pt-5 font-mono text-[11px] uppercase tracking-[0.08em] text-t4">Service</p>
-          <div className="px-1">
-            <ProviderSwitch size="lg" />
-          </div>
         </div>
 
         <div className="mt-2 border-t border-line px-3 pt-2">
@@ -199,6 +194,16 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
               trailing={demo ? <Icon name="check" size={16} className="text-t1" /> : undefined}
             />
           )}
+          {/* What the key has left, at the very foot. */}
+          <div className="flex items-center justify-between gap-3 px-3 pb-1 pt-3">
+            <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-t4">Credits</span>
+            <CreditsPill
+              onKeyClick={() => {
+                onClose();
+                onKeyClick();
+              }}
+            />
+          </div>
         </div>
       </nav>
     </div>,
@@ -208,7 +213,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
 
 /**
  * A phone's top edge, as Higgsfield's: the menu button on the left, the
- * page's name in the middle, what the key has left on the right. There is
+ * page's name in the middle, the service switch on the right. There is
  * no row of tabs at the bottom any more; the menu holds every page.
  */
 export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
@@ -230,8 +235,9 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
           </button>
         </div>
         <h1 className="truncate text-center font-display text-[17px] font-semibold tracking-[-0.01em] text-t1">{TITLES[page] ?? "ZYNS"}</h1>
+        {/* The service to make with, as its two marks. */}
         <div className="flex justify-end">
-          <CreditsPill onKeyClick={onKeyClick} compact />
+          <ProviderSwitch size="xs" />
         </div>
       </header>
       <SidePanel open={open} onClose={close} onKeyClick={onKeyClick} />
