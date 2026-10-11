@@ -22,7 +22,7 @@ import { recreateRun, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
-import { noteRatio, parseRatio, ratioOf } from "@/lib/mediaRatio";
+import { noteRatio, parseRatio, ratioOf, useMediaRatios } from "@/lib/mediaRatio";
 import { JustifiedRows } from "@/components/JustifiedRows";
 import { failureHint } from "@/lib/runErrors";
 import { keptNote, usedElsewhere } from "@/lib/usage";
@@ -249,6 +249,10 @@ export function Tile({
   const extras = useContext(TileExtras);
   const [copied, setCopied] = useState(false);
   const url = run.urls[0];
+  // The shape the media really has once it loads, over the one the run asked
+  // for: Genjutsu and "Auto" runs come back in a shape of their own.
+  useMediaRatios();
+  const measured = ratioOf(url);
   const kept = !!url && favorites.includes(url);
   const [loading, setLoading] = useState(false);
   const settled = useRef(false);
@@ -310,7 +314,7 @@ export function Tile({
         style={
           box || square
             ? undefined
-            : { aspectRatio: run.output === "audio" ? "1 / 1" : run.state === "queued" ? "5 / 2" : run.ratio }
+            : { aspectRatio: run.output === "audio" ? "1 / 1" : run.state === "queued" ? "5 / 2" : measured ? String(measured) : run.ratio }
         }
         className={`t-resize relative w-full ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
