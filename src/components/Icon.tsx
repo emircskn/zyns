@@ -73,6 +73,7 @@ export type IconName =
   | "zoom"
   | "film"
   | "wand"
+  | "enhance"
   | "music"
   | "tag"
   | "move"
@@ -168,6 +169,15 @@ const PATHS: Record<IconName, ReactElement> = {
     <>
       <rect x="3" y="4" width="18" height="16" rx="2.5" />
       <path d="M7.5 4v16M16.5 4v16M3 9.5h4.5M3 14.5h4.5M16.5 9.5H21M16.5 14.5H21" />
+    </>
+  ),
+  /* Enhance prompt, as Higgsfield draws it: a slanted pencil with sparkles either side. */
+  enhance: (
+    <>
+      <path d="M8.6 19.5H4.5v-4.1L15 4.9a1.6 1.6 0 0 1 2.3 0l1.8 1.8a1.6 1.6 0 0 1 0 2.3Z" />
+      <path d="M5.6 4.300000000000001Q5.978 6.022 7.699999999999999 6.4Q5.978 6.7780000000000005 5.6 8.5Q5.2219999999999995 6.7780000000000005 3.4999999999999996 6.4Q5.2219999999999995 6.022 5.6 4.300000000000001Z" fill="currentColor" stroke="none" />
+      <path d="M9.4 2.0999999999999996Q9.634 3.166 10.700000000000001 3.4Q9.634 3.634 9.4 4.7Q9.166 3.634 8.1 3.4Q9.166 3.166 9.4 2.0999999999999996Z" fill="currentColor" stroke="none" />
+      <path d="M17.6 14.700000000000001Q17.942 16.258000000000003 19.5 16.6Q17.942 16.942 17.6 18.5Q17.258000000000003 16.942 15.700000000000001 16.6Q17.258000000000003 16.258000000000003 17.6 14.700000000000001Z" fill="currentColor" stroke="none" />
     </>
   ),
   wand: (

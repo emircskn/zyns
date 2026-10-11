@@ -344,7 +344,7 @@ function RatioGlyph({ value }: { value: unknown }) {
 const ICON_ONLY = /enhance|prompt_extend|prompt_optimi[sz]er|magic_prompt|expand_prompt/;
 
 const CHIP_ICON: Array<[RegExp, IconName]> = [
-  [ICON_ONLY, "wand"],
+  [ICON_ONLY, "enhance"],
   [/^duration|_seconds$|extend_times|continue_at/, "clock"],
   [/^quality$|__tier|^tier$/, "gem"],
   [/resolution/, "gem"],
