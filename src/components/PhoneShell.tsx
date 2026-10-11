@@ -51,11 +51,12 @@ function Row({
       type="button"
       onClick={onClick}
       aria-current={on ? "page" : undefined}
-      className={`flex h-11 w-full items-center gap-3 rounded-[8px] px-3 text-left text-[15px] transition-colors duration-[100ms] ${
-        on ? "bg-t1/[0.08] font-medium text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
+      className={`flex h-12 w-full items-center gap-3.5 rounded-[10px] px-3 text-left text-[17px] font-medium text-t1 transition-colors duration-[100ms] ${
+        on ? "bg-t1/[0.07]" : "hover:bg-t1/[0.05]"
       }`}
     >
-      <Icon name={icon} size={19} className={on ? "text-t1" : "text-t3"} />
+      {/* Icon and name both white, as Higgsfield's menu: the row you are on is lifted, not dimmed around. */}
+      <Icon name={icon} size={21} strokeWidth={1.7} className="shrink-0 text-t1" />
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {trailing}
     </button>
@@ -150,12 +151,18 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
               onClose();
               setCreateOpen(true);
             }}
-            className="cta mb-2 flex h-11 w-full items-center gap-3 rounded-[8px] px-3 text-left text-[15px]"
+            // Higgsfield's Create: a yellow wash that fades out to the right, a faint yellow edge, yellow words.
+            className="mb-1.5 flex h-12 w-full items-center gap-3.5 rounded-[10px] border border-transparent px-3 text-left text-[17px] font-semibold text-accent transition-opacity duration-[100ms] hover:opacity-90"
+            style={{
+              // The wash and its edge both fade out to the right: one gradient fills, one draws the border.
+              background:
+                "linear-gradient(90deg, color-mix(in oklab, var(--accent) 15%, var(--elevated)), var(--elevated) 70%) padding-box, linear-gradient(90deg, color-mix(in oklab, var(--accent) 45%, transparent), transparent 75%) border-box",
+            }}
           >
-            <Icon name="plus" size={19} strokeWidth={2.2} />
+            <Icon name="plus" size={22} strokeWidth={2} className="shrink-0" />
             Create
           </button>
-          <Row icon="home" label="Explore" on={page === "home"} onClick={go("home")} />
+          <Row icon="compass" label="Explore" on={page === "home"} onClick={go("home")} />
           {make.map((item) => (
             <Row key={item.id} icon={item.icon} label={item.label} on={page === item.id} onClick={go(item.id)} />
           ))}
