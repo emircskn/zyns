@@ -13,10 +13,28 @@ export { FAMILIES } from "./curation";
 export { getSpec } from "./auto";
 export { hasPicture, tabOf } from "./autoMode";
 
+/**
+ * KIE's catalogue carries no pictures, so these models wear covers of our
+ * own, kept in public/covers by model id. The single-file build has no
+ * server of its own and reads them from the site.
+ */
+const COVERS = new Set([
+  "nano-banana-2", "nano-banana-2-lite", "nano-banana-pro", "nano-banana",
+  "seedream-5-pro", "seedream-5-flash", "seedream-5-lite", "seedream-4-5", "seedream-4",
+  "gpt-image-2", "gpt-image-2-5-flare", "gpt-image-2-5-sunburst", "gpt-image-1-5",
+  "flux-2-pro", "flux-2-flex", "grok-imagine-image-2", "grok-imagine-image",
+  "ideogram-v3", "ideogram-character", "qwen3-image", "qwen3-image-pro", "qwen2-1-image",
+  "wan-2-7-image", "wan-2-7-image-pro", "z-image",
+]);
+const ASSET_BASE = process.env.NEXT_PUBLIC_ASSET_BASE ?? "";
+const withCover = (m: ModelDef): ModelDef =>
+  m.preview || !COVERS.has(m.id) ? m : { ...m, preview: { image: `${ASSET_BASE}/covers/${m.id}.webp` } };
+
 /** Every KIE family, rendered into a ModelDef from the documented schemas. */
 export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
   .map(withAutoMode)
   .map(withActions)
+  .map(withCover)
   .map((m) => ({ ...m, provider: "kie" as const }));
 
 /**

@@ -25,7 +25,7 @@ const js = await build({
   alias: {
     "@": path.join(root, "src"),
   },
-  define: { "process.env.NODE_ENV": '"production"', "process.env.NEXT_PUBLIC_BUILD_ID": '""' },
+  define: { "process.env.NODE_ENV": '"production"', "process.env.NEXT_PUBLIC_BUILD_ID": '""', "process.env.NEXT_PUBLIC_ASSET_BASE": '"https://zyns-swart.vercel.app"' },
   logLevel: "warning",
 });
 
