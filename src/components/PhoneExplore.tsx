@@ -188,14 +188,14 @@ export function PhoneExplore() {
   return (
     <div className="anim-fade -mx-4 flex flex-col gap-6 pb-10 pt-2 md:hidden">
       <PhoneSubnav>
-      <div className="no-bar flex gap-2 overflow-x-auto px-4">
+      <div className="no-bar flex gap-1.5 overflow-x-auto px-4">
         {chips.map((chip) => (
           <button
             key={chip.id}
             type="button"
             onClick={() => setFilter(chip.id)}
             aria-pressed={filter === chip.id}
-            className={`h-10 shrink-0 rounded-[8px] px-4 text-[14.5px] font-medium transition-colors duration-[100ms] ${
+            className={`h-8 shrink-0 rounded-[8px] px-3 text-[13px] font-medium transition-colors duration-[100ms] ${
               filter === chip.id ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 ring-1 ring-inset ring-line"
             }`}
           >

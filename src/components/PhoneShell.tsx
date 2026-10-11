@@ -240,12 +240,12 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            className="grid h-9 w-9 place-items-center rounded-[8px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
+            className="grid h-10 w-10 place-items-center rounded-[8px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
           >
-            <Icon name="sidebar" size={20} />
+            <Icon name="sidebar" size={22} />
           </button>
         </div>
-        <h1 className="truncate text-center font-display text-[16px] font-semibold tracking-[-0.01em] text-t1">{TITLES[page] ?? "ZYNS"}</h1>
+        <h1 className="truncate text-center font-display text-[17px] font-semibold tracking-[-0.01em] text-t1">{TITLES[page] ?? "ZYNS"}</h1>
         {/* The service to make with, as its two marks. */}
         <div className="flex justify-end">
           <ProviderSwitch size="xs" />
