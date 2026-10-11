@@ -144,7 +144,7 @@ export function ProductLink({ onSaved }: { onSaved?: (element: LibraryElement) =
                       <span
                         aria-hidden
                         className={`absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full border transition-colors duration-[120ms] ${
-                          on ? "border-t1 bg-t1 text-canvas" : "border-white/70 bg-black/30 text-transparent"
+                          on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
                         }`}
                       >
                         <Icon name="check" size={11} strokeWidth={2.6} />

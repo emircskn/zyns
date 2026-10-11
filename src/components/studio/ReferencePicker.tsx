@@ -73,7 +73,7 @@ function MediaTile({
       {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
       <span
         className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
-          picked ? "border-t1 bg-t1 text-canvas opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
+          picked ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
         }`}
       >
         <Icon name="check" size={12} strokeWidth={2.6} />
@@ -298,7 +298,7 @@ export function ReferencePicker({
                         }}
                         title={modelElements.used.has(name) ? `@${name} is in the prompt` : `Insert @${name}`}
                         className={`h-8 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
-                          modelElements.used.has(name) ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+                          modelElements.used.has(name) ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
                         }`}
                       >
                         @{name}
@@ -373,7 +373,7 @@ export function ReferencePicker({
                         <span
                           aria-hidden
                           className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
-                            on ? "border-t1 bg-t1 text-canvas opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
+                            on ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
                           }`}
                         >
                           <Icon name="check" size={12} strokeWidth={2.6} />

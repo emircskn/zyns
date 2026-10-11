@@ -124,7 +124,7 @@ export function PresetGrid({
               onClick={() => setType(t)}
               aria-pressed={type === t}
               className={`h-8 shrink-0 rounded-full px-3.5 text-[12.5px] transition-colors duration-[120ms] ${
-                type === t ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 hover:text-t1"
+                type === t ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
               }`}
             >
               {t === "all" ? "All" : typeLabel(t)}

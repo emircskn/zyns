@@ -60,7 +60,7 @@ function ModelCard({
           </span>
         </div>
         {active && (
-          <span className="absolute bottom-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full bg-t1 text-canvas">
+          <span className="absolute bottom-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full bg-accent text-accent-ink">
             <Icon name="check" size={16} strokeWidth={2.4} />
           </span>
         )}

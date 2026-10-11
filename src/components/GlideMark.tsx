@@ -26,6 +26,7 @@ export function GlideMark({ value, className, deps = [] }: { value: string; clas
     <span
       ref={self}
       aria-hidden
+      data-glide
       className={`pointer-events-none absolute left-0 top-0 ${box ? "" : "hidden"} ${className}`}
       style={
         box

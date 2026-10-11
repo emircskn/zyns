@@ -72,7 +72,7 @@ function Card({
       <span
         aria-hidden
         className={`pointer-events-none absolute left-2 top-2 grid h-5 w-5 place-items-center rounded-[6px] border transition-opacity duration-[120ms] ${
-          picked ? "border-t1 bg-t1 text-canvas" : "border-white/70 bg-black/30 text-transparent"
+          picked ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
         } ${reveal}`}
       >
         <Icon name="check" size={12} strokeWidth={2.6} />
@@ -218,7 +218,7 @@ export function TrashView({
           <div className="bar-rise pointer-events-none fixed bottom-[var(--nav-h)] left-0 right-0 z-50 flex justify-center px-3 pb-3 md:pb-5">
             <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
               <span className="mr-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1">
-                <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
+                <span className="grid h-6 w-6 place-items-center rounded-chip bg-accent text-accent-ink">
                   <Icon name="check" size={15} strokeWidth={2.2} />
                 </span>
                 {chosen.length} selected

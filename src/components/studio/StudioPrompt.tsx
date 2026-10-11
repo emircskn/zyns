@@ -295,7 +295,7 @@ export function StudioPrompt({
                 onClick={() => pick(option)}
                 onMouseEnter={() => setCursor(i)}
                 className={`flex w-full items-center gap-2.5 rounded-card p-1.5 pr-3 text-left text-[13.5px] transition-colors duration-[120ms] ${
-                  i === cursor ? "bg-t1 text-canvas" : "text-t2"
+                  i === cursor ? "bg-t1/[0.08] text-t1" : "text-t2"
                 }`}
               >
                 {option.kind === "move" ? (

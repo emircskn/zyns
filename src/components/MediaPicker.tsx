@@ -92,7 +92,7 @@ function Thumb({
       />
       {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
       {picked && (
-        <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
+        <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
           <Icon name="check" size={13} strokeWidth={2.4} />
         </span>
       )}

@@ -561,7 +561,7 @@ export function GenerateButton({
       onClick={onClick}
       disabled={disabled}
       title={apiKey ? (blocker ?? undefined) : undefined}
-      className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
+      className="cta flex h-11 w-full items-center justify-center gap-2 rounded-[10px] font-display text-[14px] font-semibold uppercase tracking-[0.04em] disabled:bg-t1/[0.06] disabled:text-t4"
     >
       {busy ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

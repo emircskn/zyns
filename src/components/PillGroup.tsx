@@ -173,7 +173,7 @@ export function PillGroup<T extends string>({
 
   const flat = bare || plain;
   const pad = plain
-    ? "px-4 py-2 text-[14px] font-semibold"
+    ? "px-3 py-1.5 text-[14px] font-medium"
     : size === "lg"
       ? "px-4 py-2 text-[14px] font-medium"
       : "px-3.5 py-1.5 text-[13px] font-medium";
@@ -186,11 +186,11 @@ export function PillGroup<T extends string>({
     // Segments wrap rather than run off the end of whatever holds them: three
     // words like Transparent / Opaque / Auto do not fit a chip's popover on
     // one line, and a row that overflows put a scrollbar through the control.
-    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-2xl bg-t1/[0.07] p-1"} ${className}`
+    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-[10px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-line"} ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
         // The scroller does the clipping, so it needs the track's own radius:
         // a square clip lets a pill's corner sit outside the capsule's end.
-        flat ? "gap-1" : "gap-0.5 rounded-full p-1"
+        flat ? "gap-1" : "gap-0.5 rounded-[10px] p-1"
       }`;
 
   const strip = (
@@ -209,7 +209,8 @@ export function PillGroup<T extends string>({
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-full bg-t1"
+          data-glide
+          className={`pointer-events-none absolute left-0 top-0 rounded-[8px] ${flat ? "bg-t1/[0.08]" : "bg-[var(--surface-2)] shadow-[0_1px_2px_rgb(0_0_0/0.25)] ring-1 ring-inset ring-line-strong"}`}
           style={{
             width: box.w,
             height: box.h,
@@ -227,11 +228,11 @@ export function PillGroup<T extends string>({
             data-pill={item.id}
             title={item.hint}
             onClick={() => onChange(item.id)}
-            className={`relative z-10 shrink-0 whitespace-nowrap rounded-full tracking-[-0.01em] transition-colors duration-[200ms] ${
+            className={`relative z-10 shrink-0 whitespace-nowrap rounded-[8px] tracking-[-0.005em] transition-colors duration-[100ms] ${
               fill ? "grow text-center" : ""
             } ${pad} ${
               fill ? "flex-1 text-center" : ""
-            } ${active ? "text-canvas" : "text-t3 hover:text-t1"}`}
+            } ${active ? "text-t1" : "text-t3 hover:text-t1"}`}
           >
             {item.label}
             {item.count !== undefined && !plain && (
@@ -253,7 +254,7 @@ export function PillGroup<T extends string>({
 
   const tracked = (
     <div
-      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-full bg-t1/[0.07]"} ${className}`}
+      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-[10px] bg-t1/[0.05] ring-1 ring-inset ring-line"} ${className}`}
     >
       {strip}
     </div>

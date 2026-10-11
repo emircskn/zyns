@@ -46,7 +46,7 @@ export function OptionList({ field, value, onChange }: ControlProps) {
             type="button"
             onClick={() => onChange(choice.value)}
             className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-              active ? "bg-t1 text-canvas" : "text-t2 hover:bg-t1/[0.07]"
+              active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "text-t2 hover:bg-t1/[0.07]"
             }`}
           >
             <span className="flex min-w-0 flex-col">
@@ -791,7 +791,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                   {item.title}
                 </span>
                 {on && (
-                  <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-t1 text-canvas">
+                  <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
                     <Icon name="check" size={12} strokeWidth={2.4} />
                   </span>
                 )}

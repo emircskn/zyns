@@ -15,7 +15,6 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { BorderBeam } from "border-beam";
 import { Control, InputLabel, chipCaption, sourceItems } from "@/components/controls";
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
@@ -406,7 +405,7 @@ export function Chip({
     return (
       <span
         className={`flex h-11 w-full min-w-0 select-none items-center gap-2 rounded-card px-3 text-[14px] transition-colors duration-[120ms] ${
-          active ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t1 hover:bg-t1/[0.1]"
+          active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t1 ring-1 ring-inset ring-line hover:bg-t1/[0.08]"
         }`}
       >
         <span className={`shrink-0 ${active ? "" : "text-t2"}`}>{icon}</span>
@@ -416,12 +415,12 @@ export function Chip({
   }
   return (
     <span
-      className={`flex select-none items-center whitespace-nowrap rounded-full transition-all duration-[120ms] ${
+      className={`flex select-none items-center whitespace-nowrap rounded-[8px] transition-colors duration-[100ms] ${
         large
           ? "h-10 gap-2 px-3.5 text-[14px]"
-          : "h-8 gap-1.5 px-3 text-[12.5px] md:h-[34px] md:gap-[7px] md:px-3.5 md:text-[13px]"
+          : "h-8 gap-1.5 px-2.5 text-[12.5px] md:gap-[7px] md:px-3 md:text-[13px]"
       } ${
-        active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+        active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
       }`}
     >
       {icon}
@@ -452,8 +451,8 @@ export function ElementsChip({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full pl-2.5 pr-3 text-[12.5px] transition-colors duration-[120ms] md:h-[34px] md:text-[13px] ${
-          open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+        className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-[8px] pl-2.5 pr-3 text-[12.5px] transition-colors duration-[100ms] md:text-[13px] ${
+          open ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
         }`}
       >
         <Icon name="at" size={15} />
@@ -491,30 +490,27 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
       aria-label={field.label}
       onClick={onFlip}
       title={iconOnly ? `${field.label}: ${on ? "on" : "off"}${field.help ? ` · ${field.help}` : ""}` : field.help}
-      className={`flex select-none items-center whitespace-nowrap rounded-full bg-t1/[0.07] transition-colors duration-[120ms] hover:bg-t1/[0.12] ${
+      className={`flex select-none items-center whitespace-nowrap rounded-[8px] bg-t1/[0.04] ring-1 ring-inset ring-line transition-colors duration-[100ms] hover:bg-t1/[0.08] ${
         on ? "text-t1" : "text-t3 hover:text-t1"
       } ${
         large
           ? "h-10 gap-2 pl-3.5 pr-2.5 text-[14px]"
-          : "h-8 gap-1.5 pl-3 pr-2 text-[12.5px] md:h-[34px] md:gap-[7px] md:pl-3.5 md:pr-2.5 md:text-[13px]"
+          : "h-8 gap-1.5 pl-2.5 pr-2 text-[12.5px] md:gap-[7px] md:pl-3 md:pr-2.5 md:text-[13px]"
       }`}
     >
       {chipIcon(field, on)}
       {!iconOnly && field.label}
       <span
         aria-hidden="true"
-        className={`relative ml-0.5 shrink-0 rounded-full transition-colors duration-[200ms] ${
+        className={`relative ml-0.5 shrink-0 rounded-full transition-colors duration-[150ms] ${
           large ? "h-[20px] w-[34px]" : "h-[18px] w-[30px]"
-        } ${on ? "bg-t1" : "bg-t1/[0.18]"}`}
+        } ${on ? "bg-accent" : "bg-t1/[0.18]"}`}
       >
         <span
-          className={`absolute top-[2px] rounded-full transition-all duration-[200ms] ${
+          className={`absolute top-[2px] rounded-full transition-[left,background-color] duration-[150ms] ease-out ${
             large ? "h-4 w-4" : "h-[14px] w-[14px]"
-          } ${on ? "bg-canvas" : "bg-t1/80"}`}
-          style={{
-            left: on ? (large ? 16 : 14) : 2,
-            transitionTimingFunction: "var(--ease-spring)",
-          }}
+          } ${on ? "bg-accent-ink" : "bg-t1/80"}`}
+          style={{ left: on ? (large ? 16 : 14) : 2 }}
         />
       </span>
     </button>
@@ -550,10 +546,10 @@ export function BatchChip({ value, onChange }: { value?: number; onChange?: (cou
       title="How many to make"
       className={`flex select-none items-center gap-1 text-t2 ${
         tile
-          ? "h-11 w-full justify-between rounded-card bg-t1/[0.06] px-1.5 text-[14px] text-t1"
+          ? "h-11 w-full justify-between rounded-card bg-t1/[0.04] px-1.5 text-[14px] text-t1 ring-1 ring-inset ring-line"
           : large
-            ? "h-10 rounded-full bg-t1/[0.07] px-1.5 text-[14px]"
-            : "h-8 rounded-full bg-t1/[0.07] pl-1 pr-1 text-[12.5px] md:h-[34px] md:text-[13px]"
+            ? "h-10 rounded-[8px] bg-t1/[0.04] px-1.5 text-[14px] ring-1 ring-inset ring-line"
+            : "h-8 rounded-[8px] bg-t1/[0.04] pl-1 pr-1 text-[12.5px] ring-1 ring-inset ring-line md:text-[13px]"
       }`}
     >
       <button
@@ -562,7 +558,7 @@ export function BatchChip({ value, onChange }: { value?: number; onChange?: (cou
         disabled={batch <= 1}
         aria-label="One fewer"
         className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
-          large ? "h-7 w-7" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+          large ? "h-7 w-7" : "h-6 w-6"
         }`}
       >
         <Icon name="minus" size={14} strokeWidth={2.2} />
@@ -574,7 +570,7 @@ export function BatchChip({ value, onChange }: { value?: number; onChange?: (cou
         disabled={batch >= 4}
         aria-label="One more"
         className={`grid place-items-center rounded-full transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 disabled:opacity-35 disabled:hover:bg-transparent ${
-          large ? "h-7 w-7" : "h-6 w-6 md:h-[26px] md:w-[26px]"
+          large ? "h-7 w-7" : "h-6 w-6"
         }`}
       >
         <Icon name="plus" size={14} strokeWidth={2.2} />
@@ -1027,7 +1023,7 @@ export function PromptField({
               onMouseEnter={() => setCursor(i)}
               className={`flex w-full items-center gap-2.5 rounded-full text-left text-[13.5px] transition-colors duration-[120ms] ${
                 option.thumb ? "py-1.5 pl-1.5 pr-3" : "px-3 py-2"
-              } ${i === cursor ? "bg-t1 text-canvas" : "text-t2"}`}
+              } ${i === cursor ? "bg-t1/[0.08] text-t1" : "text-t2"}`}
             >
               {option.thumb ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -1105,7 +1101,7 @@ export function MentionStrip({
             onClick={() => onInsert(name)}
             title={active ? `@${name} is in the prompt` : `Insert @${name}`}
             className={`h-[26px] rounded-full px-2.5 font-mono text-[12px] transition-colors duration-[120ms] ${
-              active ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+              active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
             }`}
           >
             @{name}
@@ -1284,60 +1280,6 @@ export function useComposer() {
 }
 
 /**
- * The prompt box's slow breathing glow, shared by the desktop bar and the
- * phone's card so the two stay one effect.
- *
- * The library's greyscale palette is light greys, which glow on a dark card
- * and vanish on a white one. In the light theme the same greys are taken
- * down by its brightness multiplier into soft darks, so the glow reads there
- * too, as a shadow breathing at the edge rather than a light.
- */
-const LIGHT_GLOW_BRIGHTNESS = 0.35;
-
-function useMotionAllowed() {
-  // Decided after mount so the server-rendered markup and the client agree.
-  const [motion, setMotion] = useState(false);
-  useEffect(() => {
-    setMotion(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-  return motion;
-}
-
-function Glow({
-  children,
-  active = true,
-  radius,
-}: {
-  children: ReactNode;
-  active?: boolean;
-  /** Where the glowing box is not its first child, say its corner outright. */
-  radius?: number;
-}) {
-  const theme = useStudio((s) => s.theme);
-  const motion = useMotionAllowed();
-  return (
-    <BorderBeam
-      size="pulse-inner"
-      colorVariant="mono"
-      // Greyscale has no hue to rotate, so the hue-shift filter is pure
-      // cost. The theme is the one the user picked, not the OS's.
-      staticColors
-      theme={theme}
-      active={motion && active}
-      brightness={theme === "light" ? LIGHT_GLOW_BRIGHTNESS : undefined}
-      borderRadius={radius}
-      // The library's root is a block it sizes itself; the box has to keep
-      // filling the column it sits in. It also clips to itself, which
-      // swallowed the popovers that open above the bar — its glow layers
-      // carry their own clip-path, so letting the box overflow is free.
-      style={{ display: "block", width: "100%", overflow: "visible" }}
-    >
-      {children}
-    </BorderBeam>
-  );
-}
-
-/**
  * Publishes a docked box's height as --bar-h so the page can pad itself.
  * Only while the box is on screen: the phone's card and the desktop bar are
  * both mounted, one of them hidden by a breakpoint, and a hidden one
@@ -1478,10 +1420,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
       {/* Measures the width the card has to fill; the card itself may be a
           pill at the time. */}
       <div ref={frame} className="flex justify-center">
-        {/* The same breathing glow as the desktop bar, while the card is a
-            card; as a pill it is only a way back, and rests. */}
-        <Glow active={!folded} radius={24}>
-        <div className="flex justify-center">
+        <div className="flex w-full justify-center">
         <button
           type="button"
           onClick={open}
@@ -1490,7 +1429,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
           style={{
             width: folded ? pillW : "100%",
             height: folded ? PILL_H : (full?.h ?? "auto"),
-            borderRadius: folded ? 16 : 24,
+            borderRadius: folded ? 10 : 16,
             boxShadow: centered ? undefined : "var(--shadow-bar)",
             transition: `width ${MORPH}, height ${MORPH}, border-radius ${MORPH}`,
           }}
@@ -1509,7 +1448,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               {text || "Describe what you want to make…"}
             </p>
             {/* The model's mark and name as one piece on one quiet fill. */}
-            <span className="mt-3.5 inline-flex h-[31px] max-w-full items-center gap-2 rounded-[12px] bg-t1/[0.05] px-2.5 text-[13px] text-t3">
+            <span className="mt-3.5 inline-flex h-[30px] max-w-full items-center gap-2 rounded-[8px] bg-t1/[0.04] px-2.5 text-[13px] text-t3 ring-1 ring-inset ring-line">
               {model ? (
                 <>
                   <VendorBadge model={model} size={15} bare />
@@ -1553,7 +1492,6 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
           </span>
         </button>
         </div>
-        </Glow>
       </div>
     </div>
   );
@@ -1609,13 +1547,14 @@ export function PromptBar({
       onClick={run}
       disabled={busy || !!blocker || !apiKey}
       title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-      className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.12] disabled:cursor-not-allowed disabled:text-t4 disabled:hover:bg-t1/[0.07]"
+      className="cta flex h-9 shrink-0 items-center gap-1.5 rounded-[8px] px-3.5 font-display text-[12.5px] font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4"
     >
       {busy ? (
-        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
       ) : (
-        <Icon name="arrow-up" size={17} strokeWidth={2} />
+        <Icon name="arrow-up" size={15} strokeWidth={2.2} />
       )}
+      Generate
     </button>
   );
 
@@ -1644,9 +1583,8 @@ export function PromptBar({
 
         <ErrorPopup message={error} onClose={() => setError(null)} />
 
-        <Glow>
         <div
-          className="rounded-panel border border-line bg-elevated p-4"
+          className="rounded-[14px] border border-line bg-elevated p-3 pt-3.5 transition-[border-color] duration-[100ms] focus-within:border-line-strong"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
           <Reveal>
@@ -1716,7 +1654,7 @@ export function PromptBar({
                 type="button"
                 onClick={() => toggleSettings(true)}
                 title="Advanced settings"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-all md:h-[34px] md:w-[34px] duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
               >
                 <Icon name="sliders" size={17} />
               </button>
@@ -1729,7 +1667,6 @@ export function PromptBar({
             </div>
           </div>
         </div>
-        </Glow>
 
         <p className="mt-2 hidden px-2 text-center text-[11.5px] text-t4 md:block">
           {blocker ? blocker : `${model!.vendor} · ${model!.tagline}`}

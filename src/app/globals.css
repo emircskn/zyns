@@ -3,11 +3,10 @@
 /* ------------------------------------------------------------------ *
  * Design tokens
  *
- * Black and white, and the greys between them. There is no brand colour:
- * emphasis is carried by contrast alone, so the one filled button on a
- * screen is simply the lightest thing on it (or, in the light theme, the
- * darkest). Red is kept for deleting, because that one needs to be read as
- * a warning and not as another shade.
+ * Quiet neutral greys, and one colour: yellow, for the action that makes
+ * something (Generate, the main button of a window) and for what is on.
+ * Yellow is only ever a fill under dark ink, never thin text, so it reads
+ * the same on the dark canvas and the light one. Red is kept for deleting.
  * ------------------------------------------------------------------ */
 
 @theme inline {
@@ -28,15 +27,14 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
 
-  /* Four radii, no intermediates. */
-  --radius-chip: 8px;
-  --radius-card: 14px;
-  --radius-panel: 24px;
+  /* Tight, tool-like corners: a SaaS console rather than a toy. */
+  --radius-chip: 6px;
+  --radius-card: 10px;
+  --radius-panel: 16px;
 
-  --font-sans:
-    "Geist", "Suisse Intl", ui-sans-serif, -apple-system, "Segoe UI", Helvetica,
-    Arial, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-sans: "Inter", ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 :root {
@@ -46,23 +44,26 @@
   --cover-light: 255 255 255;
   --cover-shade: 0 0 0;
   --cover-shade-a: 0.62;
-  --canvas: #0a0a0a;
-  --canvas-deep: #000000;
-  --surface: #171717;
-  --surface-2: #222222;
-  --elevated: #141414;
+  --canvas: #0e0f11;
+  --canvas-deep: #08090a;
+  --surface: #17181b;
+  --surface-2: #1f2125;
+  --elevated: #141518;
 
-  --line: rgb(255 255 255 / 0.1);
-  --line-strong: rgb(255 255 255 / 0.2);
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
 
-  --t1: #fafafa;
-  --t2: #d4d4d4;
-  --t3: #a1a1a1;
-  --t4: #6e6e6e;
+  --t1: #f4f4f5;
+  --t2: #c8cad0;
+  --t3: #8d9098;
+  --t4: #5f626a;
 
-  /* The accent is the text colour: white on black, black on white. */
-  --accent: #fafafa;
-  --accent-ink: #0a0a0a;
+  /* Yellow, under dark ink. */
+  --accent: #ffd426;
+  --accent-hover: #ffdc4d;
+  --accent-ink: #17140a;
+  /* The rounding of every button, chip and segmented control. */
+  --radius-btn: 8px;
 
   /* Deleting is the one destructive thing in here, and it reads in both
      themes: a pale red vanishes on the light canvas. */
@@ -70,8 +71,8 @@
   /* An element or camera move called in a prompt. */
   --mention: #7aa7ff;
 
-  --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.7), 0 2px 8px rgb(0 0 0 / 0.4);
-  --shadow-bar: 0 20px 50px -16px rgb(0 0 0 / 0.75);
+  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-bar: 0 12px 32px -12px rgb(0 0 0 / 0.6);
 
   /* Motion: one easing for everything that settles (critically damped,
      no overshoot), its mirror for leaving the way it came, and one that
@@ -87,9 +88,10 @@
      the first inch of the row, enough to say there is more down there. */
   --home-peek: 96px;
 
-  --d-fast: 120ms;
-  --d-base: 200ms;
-  --d-slow: 320ms;
+  /* Short and plain: things change, they do not perform. */
+  --d-fast: 100ms;
+  --d-base: 150ms;
+  --d-slow: 200ms;
 
   color-scheme: dark;
 }
@@ -101,28 +103,30 @@
   --cover-shade-a: 0.1;
   /* Off white, so an elevated surface — the prompt box, a tile, a popover —
      reads as lifted rather than as an outline on the same white. */
-  --canvas: #f4f4f4;
+  --canvas: #f6f6f4;
   --canvas-deep: #ffffff;
   --surface: #ffffff;
-  --surface-2: #e9e9e9;
+  --surface-2: #ececea;
   --elevated: #ffffff;
 
-  --line: rgb(0 0 0 / 0.11);
-  --line-strong: rgb(0 0 0 / 0.22);
+  --line: rgb(17 18 20 / 0.09);
+  --line-strong: rgb(17 18 20 / 0.18);
 
-  --t1: #0a0a0a;
-  --t2: #3d3d3d;
-  --t3: #6e6e6e;
-  --t4: #9b9b9b;
+  --t1: #121316;
+  --t2: #3b3e45;
+  --t3: #6b6f78;
+  --t4: #9a9da4;
 
-  --accent: #0a0a0a;
-  --accent-ink: #ffffff;
+  /* A deeper yellow, so the fill still holds against white. */
+  --accent: #f5c400;
+  --accent-hover: #ffcf1a;
+  --accent-ink: #17140a;
 
   --danger: #c0352c;
   --mention: #2f6ae0;
 
-  --shadow-pop: 0 24px 60px -16px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.06);
-  --shadow-bar: 0 20px 50px -20px rgb(0 0 0 / 0.2);
+  --shadow-pop: 0 16px 40px -16px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-bar: 0 12px 32px -16px rgb(0 0 0 / 0.16);
 
   color-scheme: light;
 }
@@ -148,7 +152,8 @@ body {
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 400;
-  letter-spacing: -0.006em;
+  letter-spacing: -0.003em;
+  font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
   /* No colour transition here: `color` is inherited, so animating it on the
@@ -157,21 +162,29 @@ body {
      outright. */
 }
 
-/* Krea's tell: button labels sit at 450, between body 400 and display 500. */
+/* Buttons change colour when pointed at or pressed, and nothing else moves. */
 button,
 [role="button"] {
-  font-weight: 450;
-  transition-property: transform, scale, background-color, color, opacity, box-shadow;
+  font-weight: 500;
+  transition-property: background-color, border-color, color, opacity, box-shadow;
   transition-duration: var(--d-fast);
-  transition-timing-function: var(--ease);
-  letter-spacing: -0.01em;
+  transition-timing-function: ease-out;
+  letter-spacing: -0.005em;
 }
 
 h1,
 h2,
 h3 {
-  font-weight: 500;
-  letter-spacing: -0.022em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Titles in the display face, as Higgsfield sets theirs. */
+h1,
+.font-display,
+.studio-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
 }
 
 /* ------------------------------------------------------------------ *
@@ -196,14 +209,17 @@ h3 {
   box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--line-strong);
 }
 
-/* The one lit action per surface: amber on the black set. */
+/* The one lit action per surface: yellow under dark ink. */
 @utility cta {
-  background: var(--t1);
-  color: var(--canvas);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
   transition:
-    transform var(--d-fast) var(--ease),
-    opacity var(--d-fast) var(--ease),
-    background-color var(--d-fast) var(--ease);
+    opacity var(--d-fast) ease-out,
+    background-color var(--d-fast) ease-out;
+  &:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -213,7 +229,7 @@ h3 {
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.97);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -233,7 +249,7 @@ h3 {
 @keyframes tile-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.985);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -280,7 +296,7 @@ h3 {
   }
   to {
     opacity: 0;
-    transform: translateY(8px) scale(0.97);
+    transform: translateY(6px);
   }
 }
 
@@ -314,7 +330,7 @@ h3 {
 @keyframes zoom-in {
   from {
     opacity: 0;
-    transform: scale(0.88);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
@@ -329,14 +345,14 @@ h3 {
   }
   to {
     opacity: 0;
-    transform: scale(0.94);
+    transform: scale(0.98);
   }
 }
 
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.92);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -351,7 +367,7 @@ h3 {
   }
   to {
     opacity: 0;
-    transform: translateY(8px) scale(0.94);
+    transform: translateY(4px);
   }
 }
 
@@ -375,16 +391,7 @@ h3 {
 }
 /* Sheet furniture arrives a beat after the sheet itself. */
 .sheet-stagger > * {
-  animation: swap-in var(--d-slow) var(--ease) both;
-}
-.sheet-stagger > *:nth-child(1) {
-  animation-delay: 120ms;
-}
-.sheet-stagger > *:nth-child(2) {
-  animation-delay: 170ms;
-}
-.sheet-stagger > *:nth-child(3) {
-  animation-delay: 220ms;
+  animation: none;
 }
 @media (min-width: 640px) {
   .anim-sheet {
@@ -414,7 +421,7 @@ h3 {
 @keyframes drop-in {
   from {
     opacity: 0;
-    transform: translateY(-12px) scale(0.92);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -428,7 +435,7 @@ h3 {
   }
   to {
     opacity: 0;
-    transform: translateY(-8px) scale(0.94);
+    transform: translateY(-4px);
   }
 }
 .anim-drop {
@@ -1276,17 +1283,16 @@ html {
 
 .page-swap.is-leaving {
   opacity: 0;
-  transform: translateY(-10px);
 }
 
 .page-swap.is-entering {
-  animation: page-rise 320ms var(--ease) both;
+  animation: page-rise 180ms var(--ease) both;
 }
 
 @keyframes page-rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -1486,18 +1492,25 @@ html {
 }
 
 /* ------------------------------------------------------------------ *
- * Press
+ * Shapes
  *
- * A button answers the moment it is pressed, not when it is let go: it
- * gives a little under the finger. Utilities that set their own scale win
- * (this sits in the base layer), and a button laid over a picture (absolute,
- * a tile's hit area) does not shrink away from the picture under it.
+ * Every pill-shaped button, chip and segmented control in the studio is a
+ * rounded rectangle instead, as a working tool has them. Switches, colour
+ * swatches and anything marked data-round keep their circle. Pressing a
+ * button never shrinks it.
  * ------------------------------------------------------------------ */
-@layer base {
-  :where(button, [role="button"]):active:not(:disabled):not([aria-disabled="true"]):not(.absolute):not([data-no-press]) {
-    scale: 0.97;
-    transition-duration: 60ms;
-  }
+:is(button, a, [role="button"], [data-glide], [data-track]).rounded-full:not([role="switch"]):not([role="radio"]):not([data-round]) {
+  border-radius: var(--radius-btn);
+}
+/* A main action that cannot run yet is plain grey, not a faded yellow. */
+.cta:disabled,
+.cta[aria-disabled="true"] {
+  background: color-mix(in oklab, var(--t1) 7%, transparent);
+  color: var(--t4);
+  opacity: 1 !important;
+}
+:where(button, [role="button"]):active {
+  scale: none !important;
 }
 
 /* Asked for less see-through: the glass turns solid. */

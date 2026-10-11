@@ -39,12 +39,12 @@ export function ProviderSwitch({
       ref={root}
       role="radiogroup"
       aria-label="Service"
-      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-full bg-t1/[0.06] p-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-[10px] bg-t1/[0.05] p-0.5 ring-1 ring-inset ring-line ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-full bg-t1"
+          className="pointer-events-none absolute left-0 top-0 rounded-[8px] bg-[var(--surface-2)] shadow-[0_1px_2px_rgb(0_0_0/0.25)] ring-1 ring-inset ring-line-strong"
           style={{
             width: box.w,
             height: box.h,
@@ -69,9 +69,9 @@ export function ProviderSwitch({
             }}
             aria-label={option.label}
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
-            className={`relative flex items-center justify-center gap-1.5 rounded-full font-medium transition-[color,transform] duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.96] ${
+            className={`relative flex items-center justify-center gap-1.5 rounded-[8px] font-medium transition-colors duration-[100ms] ${
               size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3.5" : "h-7 px-3"
-            } ${on ? "text-canvas" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-t1" : ""}`}
+            } ${on ? "text-t1" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-[var(--surface-2)]" : ""}`}
           >
             {/* Each service by its own mark; the key setup also spells it out. */}
             <ServiceMark provider={option.id} size={size === "lg" ? 15 : 14} />
@@ -80,7 +80,7 @@ export function ProviderSwitch({
             {size !== "xs" && (
               <span
                 aria-hidden
-                className={`h-1.5 w-1.5 rounded-full transition-colors duration-[var(--d-slow)] ${has[option.id] ? (on ? "bg-canvas" : "bg-t2") : on ? "bg-canvas/35" : "bg-t4/60"}`}
+                className={`h-1.5 w-1.5 rounded-full transition-colors duration-[var(--d-slow)] ${has[option.id] ? (on ? "bg-accent" : "bg-t3") : "bg-t4/60"}`}
               />
             )}
           </button>

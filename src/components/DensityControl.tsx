@@ -36,7 +36,7 @@ export function SelectToggle() {
       onClick={() => setSelectMode(!selectMode)}
       aria-pressed={selectMode}
       className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
-        selectMode ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1"
+        selectMode ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t1"
       }`}
     >
       {selectMode ? "Cancel" : "Select"}

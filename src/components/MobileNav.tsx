@@ -79,7 +79,8 @@ export function MobileNav({ onCreate, onKey }: { onCreate: () => void; onKey: ()
           type="button"
           onClick={onCreate}
           aria-label="Create"
-          className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line transition-transform duration-[120ms] active:scale-95"
+          data-round
+          className="cta grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full"
         >
           <Icon name="spark" size={22} fill="currentColor" strokeWidth={1.2} />
         </button>

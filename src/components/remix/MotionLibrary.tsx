@@ -40,7 +40,7 @@ function ClipTile({ clip, active, onUse, onRemove }: { clip: MotionClip; active:
           </span>
         )}
         {active && (
-          <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-t1 text-canvas">
+          <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-accent text-accent-ink">
             <Icon name="check" size={14} strokeWidth={2.4} />
           </span>
         )}
@@ -100,7 +100,7 @@ export function MotionLibrary({ onUsed }: { onUsed?: () => void }) {
             onClick={() => setTag(tag === t ? null : t)}
             aria-pressed={tag === t}
             className={`rounded-full px-2.5 py-1 text-[12px] transition-colors duration-[120ms] ${
-              tag === t ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 hover:text-t1"
+              tag === t ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
             }`}
           >
             {t}

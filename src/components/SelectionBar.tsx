@@ -106,7 +106,7 @@ export function SelectionBar({
     >
       <div className="surface-pop pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-full p-1.5 pl-3">
         <span className="mr-0.5 flex shrink-0 items-center gap-2 whitespace-nowrap text-[12.5px] text-t1 sm:mr-1">
-          <span className="grid h-6 w-6 place-items-center rounded-chip bg-t1 text-canvas">
+          <span className="grid h-6 w-6 place-items-center rounded-chip bg-accent text-accent-ink">
             <Icon name="check" size={15} strokeWidth={2.2} />
           </span>
           {count === 0 ? "Tap to select" : `${count} selected`}
@@ -206,7 +206,7 @@ export function SelectMark({ on }: { on: boolean }) {
   return (
     <span
       className={`grid h-[22px] w-[22px] place-items-center rounded-[7px] border-[1.5px] transition-all duration-[120ms] ${
-        on ? "border-transparent bg-t1 text-canvas" : "border-white/70 bg-black/35 text-transparent"
+        on ? "border-transparent bg-accent text-accent-ink" : "border-white/70 bg-black/35 text-transparent"
       }`}
     >
       <Icon name="check" size={15} strokeWidth={2.4} />

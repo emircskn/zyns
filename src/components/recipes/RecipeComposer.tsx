@@ -139,7 +139,7 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
                 type="button"
                 onClick={() => setChoices((all) => ({ ...all, [choice.key]: option }))}
                 className={`rounded-full px-3 py-1.5 text-[13px] transition-colors duration-[120ms] ${
-                  choices[choice.key] === option ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
+                  choices[choice.key] === option ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 hover:text-t1"
                 }`}
               >
                 {option}

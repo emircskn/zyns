@@ -21,12 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/*
-          Geist is the closest widely-available stand-in for Suisse Intl: the
-          same Swiss neo-grotesque skeleton, and a variable axis so button
-          labels can sit at 450 between body 400 and display 500.
+          The type Higgsfield sets its studio in: Inter for the interface,
+          Space Grotesk for titles and the one Generate button, IBM Plex
+          Mono for small labels and numbers.
         */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>

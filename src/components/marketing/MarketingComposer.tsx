@@ -221,7 +221,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
               onClick={() => patch({ modelId: m.id })}
               aria-pressed={m.id === ui.modelId}
               className={`h-8 rounded-full px-3.5 text-[12.5px] transition-colors duration-[120ms] ${
-                m.id === ui.modelId ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 hover:text-t1"
+                m.id === ui.modelId ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
               }`}
             >
               {m.name.replace(/^Marketing Studio\s*/, "") || m.name}

@@ -177,7 +177,7 @@ function EditorSheet({
                 onClick={() => setKind(k.id)}
                 aria-pressed={kind === k.id}
                 className={`flex min-w-0 items-center justify-center gap-1.5 rounded-chip px-1.5 py-2 text-[13px] transition-colors duration-[120ms] max-sm:flex-col max-sm:gap-1 max-sm:text-[12px] ${
-                  kind === k.id ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
+                  kind === k.id ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 hover:text-t1"
                 }`}
               >
                 <Icon name={k.icon} size={15} className="shrink-0" />
@@ -282,7 +282,7 @@ function EditorSheet({
                     onClick={() => setStatus((now) => (now === s.id ? undefined : s.id))}
                     aria-pressed={status === s.id}
                     className={`min-w-0 truncate whitespace-nowrap rounded-chip px-1 py-2.5 text-[12.5px] transition-colors duration-[120ms] ${
-                      status === s.id ? "bg-t1 text-canvas" : "bg-t1/[0.05] text-t2 hover:text-t1"
+                      status === s.id ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 hover:text-t1"
                     }`}
                   >
                     {s.label}

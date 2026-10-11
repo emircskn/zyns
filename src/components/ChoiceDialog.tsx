@@ -85,7 +85,7 @@ export function ChoiceDialog({
             <span
               aria-hidden
               className={`mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] border transition-colors duration-[120ms] peer-focus-visible:ring-2 peer-focus-visible:ring-t1/40 ${
-                checked ? "border-t1 bg-t1 text-canvas" : "border-t3"
+                checked ? "border-accent bg-accent text-accent-ink" : "border-t3"
               }`}
             >
               {checked && <Icon name="check" size={12} strokeWidth={2.6} />}

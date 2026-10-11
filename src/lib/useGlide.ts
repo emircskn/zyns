@@ -41,5 +41,5 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
  * No spring here on purpose: an overshoot past the first or last pill lands
  * outside the strip, which clips it.
  */
-export const GLIDE_TRANSITION =
-  "transform var(--d-slow) var(--ease), width var(--d-slow) var(--ease), height var(--d-slow) var(--ease)";
+/** The highlight moves to the chosen item outright: no glide between buttons. */
+export const GLIDE_TRANSITION = "none";

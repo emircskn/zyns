@@ -123,7 +123,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       <button
         type="button"
         onClick={onClick}
-        className="flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-t1/[0.07] pl-2.5 pr-3 text-[13px] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12] md:h-[34px]"
+        className="flex h-8 shrink-0 items-center gap-1.5 rounded-[8px] pl-2.5 pr-3 text-[13px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
       >
         <Icon name="plus" size={16} />
         Add {needed.label.toLowerCase()}
@@ -136,7 +136,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       onClick={onClick}
       aria-label="Add media"
       title="Add images, clips or audio"
-      className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 md:h-[34px] md:w-[34px]"
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
     >
       <Icon name="plus" size={17} />
     </button>

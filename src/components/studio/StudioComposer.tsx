@@ -169,7 +169,7 @@ function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: Model
       trigger={(open) => (
         <span
           className={`flex h-8 max-w-[220px] items-center gap-1.5 rounded-full pl-1 pr-2.5 text-[12.5px] font-semibold transition-colors duration-[120ms] md:h-[34px] ${
-            open ? "bg-t1 text-canvas" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
+            open ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
           }`}
         >
           {model && <VendorBadge model={model} size={24} />}
@@ -267,15 +267,16 @@ export function GenerateButton({
       disabled={disabled}
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
-      className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.12] disabled:cursor-not-allowed disabled:text-t4 disabled:hover:bg-t1/[0.07]"
+      className="cta flex h-9 shrink-0 items-center gap-1.5 rounded-[8px] px-3.5 font-display text-[12.5px] font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4"
     >
       {busy ? (
-        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-60" />
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
       ) : needsKey ? (
-        <Icon name="key" size={16} />
+        <Icon name="key" size={15} />
       ) : (
-        <Icon name="arrow-up" size={17} strokeWidth={2} />
+        <Icon name="arrow-up" size={15} strokeWidth={2.2} />
       )}
+      {needsKey ? "Add key" : "Generate"}
     </button>
   );
 }

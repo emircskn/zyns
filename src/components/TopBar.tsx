@@ -47,7 +47,7 @@ function PageNav() {
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-full bg-t1/[0.09]"
+          className="pointer-events-none absolute left-0 top-0 rounded-[8px] bg-t1/[0.08]"
           style={{
             width: box.w,
             height: box.h,
@@ -68,7 +68,7 @@ function PageNav() {
                 data-pill={item.id}
                 onClick={() => setPage(item.id)}
                 aria-current={on ? "page" : undefined}
-                className={`relative h-8 whitespace-nowrap rounded-full px-3.5 text-[13.5px] transition-colors duration-[150ms] ${
+                className={`relative h-8 whitespace-nowrap rounded-[8px] px-3 text-[13.5px] transition-colors duration-[100ms] ${
                   on ? "font-medium text-t1" : "text-t3 hover:text-t1"
                 }`}
               >
@@ -95,7 +95,7 @@ export function CreditsPill({ onKeyClick, compact }: { onKeyClick: () => void; c
   const [checking, setChecking] = useState(false);
 
   const pill =
-    "flex h-9 items-center gap-1.5 rounded-full bg-t1/[0.06] px-3 text-[13px] text-t2 transition-[background-color,color,transform] duration-[150ms] hover:bg-t1/[0.1] hover:text-t1 active:scale-[0.97]";
+    "flex h-9 items-center gap-1.5 rounded-[8px] bg-t1/[0.04] px-3 text-[13px] text-t2 ring-1 ring-inset ring-line transition-colors duration-[100ms] hover:bg-t1/[0.08] hover:text-t1";
 
   if (!hydrated) return null;
 
