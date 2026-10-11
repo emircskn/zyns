@@ -208,6 +208,18 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
   );
 }
 
+/** Whether the page has scrolled off its top, for the bars' edge fade. */
+export function useScrolled(): boolean {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 4);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return scrolled;
+}
+
 /**
  * A phone's top edge, as Higgsfield's: the menu button on the left, the
  * page's name in the middle, the service switch on the right. There is
@@ -217,6 +229,7 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
   const page = useStudio((s) => s.page);
   const [open, setOpen] = useState(false);
   const close = useRef(() => setOpen(false)).current;
+  const scrolled = useScrolled();
   return (
     <>
       <header className="sticky top-0 z-30 bg-canvas pt-[max(10px,env(safe-area-inset-top))] md:hidden">
@@ -227,12 +240,12 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-[8px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
+            className="grid h-9 w-9 place-items-center rounded-[8px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
           >
-            <Icon name="sidebar" size={22} />
+            <Icon name="sidebar" size={20} />
           </button>
         </div>
-        <h1 className="truncate text-center font-display text-[17px] font-semibold tracking-[-0.01em] text-t1">{TITLES[page] ?? "ZYNS"}</h1>
+        <h1 className="truncate text-center font-display text-[16px] font-semibold tracking-[-0.01em] text-t1">{TITLES[page] ?? "ZYNS"}</h1>
         {/* The service to make with, as its two marks. */}
         <div className="flex justify-end">
           <ProviderSwitch size="xs" />
@@ -240,8 +253,9 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
         {/* A page's own row of tabs or filters lands here, inside the header, so the two read as one bar. */}
         <div id="phone-subnav" />
-        {/* No rule under it: what scrolls beneath fades into the bar instead. */}
-        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-5 bg-gradient-to-b from-canvas to-transparent" />
+        {/* No rule under it: once the page scrolls, what passes beneath fades into the bar.
+            At the top there is nothing under it to fade, and it would only veil the first row. */}
+        {scrolled && <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-4 bg-gradient-to-b from-canvas to-transparent" />}
       </header>
       <SidePanel open={open} onClose={close} onKeyClick={onKeyClick} />
     </>

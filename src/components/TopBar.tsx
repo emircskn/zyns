@@ -1,5 +1,6 @@
 "use client";
 
+import { useScrolled } from "@/components/PhoneShell";
 import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
@@ -312,14 +313,15 @@ export function AccountMenu({
  */
 export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
+  const scrolled = useScrolled();
   const active = useStudio(
     (s) => s.runs.filter((r) => r.state === "pending" || r.state === "running").length,
   );
 
   return (
     <header className="sticky top-0 z-40 hidden h-[60px] shrink-0 items-center gap-4 bg-canvas px-5 md:flex">
-      {/* No rule under the bar: what scrolls beneath fades into it instead. */}
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-5 bg-gradient-to-b from-canvas to-transparent" />
+      {/* No rule under the bar: once the page scrolls, what passes beneath fades into it. */}
+      {scrolled && <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-4 bg-gradient-to-b from-canvas to-transparent" />}
       <button
         type="button"
         onClick={() => setPage("home")}

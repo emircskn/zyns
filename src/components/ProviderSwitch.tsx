@@ -70,11 +70,11 @@ export function ProviderSwitch({
             aria-label={option.label}
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
             className={`relative flex items-center justify-center gap-1.5 rounded-[8px] font-medium transition-colors duration-[100ms] ${
-              size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3.5" : "h-7 px-3"
+              size === "lg" ? "h-9 px-3" : size === "xs" ? "h-7 px-2.5" : "h-7 px-3"
             } ${on ? "text-t1" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-[var(--surface-2)]" : ""}`}
           >
             {/* Each service by its own mark; the key setup also spells it out. */}
-            <ServiceMark provider={option.id} size={size === "lg" ? 15 : 14} />
+            <ServiceMark provider={option.id} size={size === "lg" ? 15 : size === "xs" ? 13 : 14} />
             {size === "lg" && option.label}
             {/* Whether the service has a key yet: left out where room is short. */}
             {size !== "xs" && (
