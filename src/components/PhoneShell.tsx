@@ -63,6 +63,25 @@ function Row({
   );
 }
 
+/** A square icon button at the menu's foot; lit while its setting is on. */
+function FootButton({ icon, label, onClick, on, dot }: { icon: IconName; label: string; onClick: () => void; on?: boolean; dot?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      aria-pressed={on}
+      className={`relative grid h-10 w-10 place-items-center rounded-[8px] ring-1 ring-inset ring-line transition-colors duration-[100ms] ${
+        on ? "bg-t1/[0.1] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"
+      }`}
+    >
+      <Icon name={icon} size={18} />
+      {dot && <span className={`absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${dot}`} />}
+    </button>
+  );
+}
+
 /**
  * The phone's menu, opened from the header's top-left button: Create first
  * and lit, then every page with its icon, the service to make with, and the
@@ -172,35 +191,22 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
           ))}
         </div>
 
-        <div className="mt-2 border-t border-line px-3 pt-2">
-          <Row
+        {/* The account in one line: key, desktop view and sample media as plain icon buttons, what the key has left beside them. */}
+        <div className="mt-2 flex items-center gap-1.5 border-t border-line px-4 pt-3">
+          <FootButton
             icon="key"
             label={apiKey ? "Change API key" : "Add API key"}
             onClick={() => {
               onClose();
               onKeyClick();
             }}
-            trailing={<span className={`h-2 w-2 rounded-full ${apiKey ? "bg-accent" : "bg-t4"}`} />}
+            dot={apiKey ? "bg-accent" : "bg-t4"}
           />
           {(desktopView || smallScreen()) && (
-            <Row
-              icon="monitor"
-              label="Desktop view"
-              onClick={() => setDesktopView(!desktopView)}
-              trailing={desktopView ? <Icon name="check" size={16} className="text-t1" /> : undefined}
-            />
+            <FootButton icon="monitor" label="Desktop view" on={desktopView} onClick={() => setDesktopView(!desktopView)} />
           )}
-          {hydrated && !apiKey && (
-            <Row
-              icon="palette"
-              label="Sample media"
-              onClick={demo ? clearDemo : loadDemo}
-              trailing={demo ? <Icon name="check" size={16} className="text-t1" /> : undefined}
-            />
-          )}
-          {/* What the key has left, at the very foot. */}
-          <div className="flex items-center justify-between gap-3 px-3 pb-1 pt-3">
-            <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-t4">Credits</span>
+          {hydrated && !apiKey && <FootButton icon="palette" label="Sample media" on={demo} onClick={demo ? clearDemo : loadDemo} />}
+          <div className="ml-auto">
             <CreditsPill
               onKeyClick={() => {
                 onClose();
