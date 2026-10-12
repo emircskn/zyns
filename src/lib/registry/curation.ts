@@ -253,18 +253,6 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
-    id: "nano-banana",
-    name: "Nano Banana",
-    vendor: "Google",
-    category: "image",
-    output: "image",
-    tagline: "The original Gemini image model: quick generation and editing.",
-    modes: [
-      m("generate", "Generate", "google/nano-banana"),
-      m("edit", "Edit", "google/nano-banana-edit", { hint: "Up to 10 images" }),
-    ],
-  },
-  {
     id: "seedream-5-pro",
     featured: true,
     prompts: [
@@ -325,18 +313,6 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
-    id: "seedream-4",
-    name: "Seedream 4.0",
-    vendor: "ByteDance",
-    category: "image",
-    output: "image",
-    tagline: "Batch up to six images per run, up to 4K.",
-    modes: [
-      m("generate", "Generate", "bytedance/seedream-v4-text-to-image"),
-      m("edit", "Edit", "bytedance/seedream-v4-edit"),
-    ],
-  },
-  {
     id: "gpt-image-2",
     featured: true,
     prompts: [
@@ -377,18 +353,6 @@ export const FAMILIES: Family[] = [
     modes: [
       m("generate", "Generate", "gpt-image-2-5-sunburst-text-to-image"),
       m("edit", "Edit", "gpt-image-2-5-sunburst-image-to-image"),
-    ],
-  },
-  {
-    id: "gpt-image-1-5",
-    name: "GPT Image 1.5",
-    vendor: "OpenAI",
-    category: "image",
-    output: "image",
-    tagline: "Previous-generation GPT Image with medium and high quality.",
-    modes: [
-      m("generate", "Generate", "gpt-image/1.5-text-to-image"),
-      m("edit", "Edit", "gpt-image/1.5-image-to-image"),
     ],
   },
   {
@@ -441,18 +405,6 @@ export const FAMILIES: Family[] = [
       m("segment-edit", "Segment edit", "grok-imagine-image-2-0/segment-edit", {
         hint: "Edit selected segments of a mapped image",
       }),
-    ],
-  },
-  {
-    id: "grok-imagine-image",
-    name: "Grok Imagine",
-    vendor: "xAI",
-    category: "image",
-    output: "image",
-    tagline: "The first Grok Imagine image model.",
-    modes: [
-      m("generate", "Generate", "grok-imagine/text-to-image"),
-      m("edit", "Image to image", "grok-imagine/image-to-image"),
     ],
   },
   {
@@ -641,39 +593,6 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
-    id: "seedance-1-pro",
-    name: "Seedance 1.0 Pro",
-    vendor: "ByteDance",
-    category: "video",
-    output: "video",
-    tagline: "The Pro tier of Seedance 1.0, in text and image modes.",
-    modes: [
-      m("text-to-video", "Text to video", "bytedance/v1-pro-text-to-video"),
-      m("image-to-video", "Image to video", "bytedance/v1-pro-image-to-video"),
-    ],
-  },
-  {
-    id: "seedance-1-pro-fast",
-    name: "Seedance 1.0 Pro Fast",
-    vendor: "ByteDance",
-    category: "video",
-    output: "video",
-    tagline: "Seedance 1.0 Pro at the faster, cheaper tier.",
-    modes: [m("image-to-video", "Image to video", "bytedance/v1-pro-fast-image-to-video")],
-  },
-  {
-    id: "seedance-1-lite",
-    name: "Seedance 1.0 Lite",
-    vendor: "ByteDance",
-    category: "video",
-    output: "video",
-    tagline: "The lightest Seedance 1.0 tier, in text and image modes.",
-    modes: [
-      m("text-to-video", "Text to video", "bytedance/v1-lite-text-to-video"),
-      m("image-to-video", "Image to video", "bytedance/v1-lite-image-to-video"),
-    ],
-  },
-  {
     id: "kling-3",
     featured: true,
     prompts: [
@@ -768,36 +687,6 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
-    id: "kling-2-1-standard",
-    name: "Kling 2.1 Standard",
-    vendor: "Kuaishou",
-    category: "video",
-    output: "video",
-    tagline: "The entry tier of Kling 2.1, from a first frame.",
-    modes: [m("image-to-video", "Image to video", "kling/v2-1-standard")],
-  },
-  {
-    id: "kling-2-1-pro",
-    name: "Kling 2.1 Pro",
-    vendor: "Kuaishou",
-    category: "video",
-    output: "video",
-    tagline: "The Pro tier of Kling 2.1, from a first frame.",
-    modes: [m("image-to-video", "Image to video", "kling/v2-1-pro")],
-  },
-  {
-    id: "kling-2-1-master",
-    name: "Kling 2.1 Master",
-    vendor: "Kuaishou",
-    category: "video",
-    output: "video",
-    tagline: "The top tier of Kling 2.1, in text and image modes.",
-    modes: [
-      m("text-to-video", "Text to video", "kling/v2-1-master-text-to-video"),
-      m("image-to-video", "Image to video", "kling/v2-1-master-image-to-video"),
-    ],
-  },
-  {
     id: "kling-3-motion-control",
     name: "Kling 3.0 Motion Control",
     vendor: "Kuaishou",
@@ -872,30 +761,6 @@ export const FAMILIES: Family[] = [
     modes: [m("image-to-video", "Image to video", "hailuo/2-3-image-to-video-pro")],
   },
   {
-    id: "hailuo-02",
-    name: "Hailuo 02",
-    vendor: "MiniMax",
-    category: "video",
-    output: "video",
-    tagline: "Hailuo 02 in text and image modes, at the standard tier.",
-    modes: [
-      m("text-to-video", "Text to video", "hailuo/02-text-to-video-standard"),
-      m("image-to-video", "Image to video", "hailuo/02-image-to-video-standard"),
-    ],
-  },
-  {
-    id: "hailuo-02-pro",
-    name: "Hailuo 02 Pro",
-    vendor: "MiniMax",
-    category: "video",
-    output: "video",
-    tagline: "The Pro tier of Hailuo 02, in text and image modes.",
-    modes: [
-      m("text-to-video", "Text to video", "hailuo/02-text-to-video-pro"),
-      m("image-to-video", "Image to video", "hailuo/02-image-to-video-pro"),
-    ],
-  },
-  {
     id: "wan-3",
     featured: true,
     prompts: [
@@ -959,31 +824,6 @@ export const FAMILIES: Family[] = [
     modes: [
       m("image-to-video", "Image to video", "wan/2-6-flash-image-to-video"),
       m("video-to-video", "Video to video", "wan/2-6-flash-video-to-video"),
-    ],
-  },
-  {
-    id: "wan-2-5",
-    name: "Wan 2.5",
-    vendor: "Alibaba",
-    category: "video",
-    output: "video",
-    tagline: "Wan 2.5 text and image to video.",
-    modes: [
-      m("text-to-video", "Text to video", "wan/2-5-text-to-video"),
-      m("image-to-video", "Image to video", "wan/2-5-image-to-video"),
-    ],
-  },
-  {
-    id: "wan-2-2",
-    name: "Wan 2.2 Turbo",
-    vendor: "Alibaba",
-    category: "video",
-    output: "video",
-    tagline: "Wan 2.2 A14B Turbo: text, image and speech-driven video.",
-    modes: [
-      m("text-to-video", "Text to video", "wan/2-2-a14b-text-to-video-turbo"),
-      m("image-to-video", "Image to video", "wan/2-2-a14b-image-to-video-turbo"),
-      m("speech-to-video", "Speech to video", "wan/2-2-a14b-speech-to-video-turbo"),
     ],
   },
   {
@@ -1288,15 +1128,6 @@ export const FAMILIES: Family[] = [
       m("flash", "Flash", "google/gemini-3-8-flash-tts"),
       m("lite", "Flash Lite", "google/gemini-3-8-flash-lite-tts", { hint: "Lighter and quicker" }),
     ],
-  },
-  {
-    id: "gemini-tts",
-    name: "Gemini 3.1 Flash TTS",
-    vendor: "Google",
-    category: "audio",
-    output: "audio",
-    tagline: "Multi-speaker speech with named voices, accents and delivery styles.",
-    modes: [m("speak", "Speak", "google/gemini-3-1-flash-tts")],
   },
   {
     id: "gemini-tts-pro",

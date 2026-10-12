@@ -48,8 +48,8 @@ function still(seed: number, ratio: string): string {
 const SHOTS: { model: string; name: string; output: Run["output"]; ratio: string; prompt: string }[] = [
   { model: "nano-banana-2", name: "Nano Banana 2", output: "image", ratio: "2 / 3", prompt: "a lighthouse swallowed by fog, long lens" },
   { model: "nano-banana-2", name: "Nano Banana 2", output: "image", ratio: "1 / 1", prompt: "ceramic still life on a windowsill, hard morning light" },
-  { model: "seedream-4", name: "Seedream 4.0", output: "image", ratio: "3 / 2", prompt: "empty diner at 4am, sodium light, 35mm" },
-  { model: "seedream-4", name: "Seedream 4.0", output: "image", ratio: "2 / 3", prompt: "portrait against a painted backdrop, single softbox" },
+  { model: "seedream-4-5", name: "Seedream 4.5", output: "image", ratio: "3 / 2", prompt: "empty diner at 4am, sodium light, 35mm" },
+  { model: "seedream-4-5", name: "Seedream 4.5", output: "image", ratio: "2 / 3", prompt: "portrait against a painted backdrop, single softbox" },
   { model: "qwen3-image", name: "Qwen3 Image", output: "image", ratio: "16 / 9", prompt: "salt flats at dusk, one road, no horizon" },
   { model: "ideogram-v3", name: "Ideogram V3", output: "image", ratio: "1 / 1", prompt: "record sleeve, heavy grain, two colours only" },
   { model: "kling-3-omni", name: "Kling 3.0 Omni", output: "video", ratio: "16 / 9", prompt: "slow push through a doorway into rain" },
@@ -74,7 +74,7 @@ const SHOTS: { model: string; name: string; output: Run["output"]; ratio: string
   { model: "wan-2-7", name: "Wan 2.7", output: "video", ratio: "9 / 16", prompt: "a dog shaking off river water, slow motion" },
   { model: "suno-music", name: "Suno", output: "audio", ratio: "1 / 1", prompt: "two chords on a felt piano, room noise left in" },
   { model: "elevenlabs-dialogue", name: "ElevenLabs Dialogue", output: "audio", ratio: "1 / 1", prompt: "two voices, a kitchen, overlapping" },
-  { model: "gemini-tts", name: "Gemini TTS", output: "audio", ratio: "1 / 1", prompt: "station announcement, flat delivery" },
+  { model: "gemini-tts-pro", name: "Gemini TTS Pro", output: "audio", ratio: "1 / 1", prompt: "station announcement, flat delivery" },
   { model: "elevenlabs-isolation", name: "ElevenLabs Isolation", output: "audio", ratio: "1 / 1", prompt: "isolate the voice, drop the street" },
 ];
 

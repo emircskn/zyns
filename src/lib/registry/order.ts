@@ -13,23 +13,23 @@ import type { ModelDef } from "./types";
  */
 const ORDER: string[] = [
   /* KIE · image */
-  "nano-banana-2", "nano-banana-pro", "nano-banana-2-1", "nano-banana-2-lite", "nano-banana",
-  "gpt-image-2", "gpt-image-2-5-flare", "gpt-image-2-5-sunburst", "gpt-image-1-5",
-  "seedream-5-pro", "seedream-5-flash", "seedream-5-lite", "seedream-4-5", "seedream-4",
+  "nano-banana-2", "nano-banana-pro", "nano-banana-2-1", "nano-banana-2-lite",
+  "gpt-image-2", "gpt-image-2-5-flare", "gpt-image-2-5-sunburst",
+  "seedream-5-pro", "seedream-5-flash", "seedream-5-lite", "seedream-4-5",
   "flux-2-pro", "flux-2-flex",
-  "grok-imagine-image-2", "grok-imagine-image",
+  "grok-imagine-image-2",
   "qwen3-image", "qwen3-image-pro", "qwen2-1-image",
   "wan-2-7-image", "wan-2-7-image-pro",
   "ideogram-v3", "ideogram-character",
   "z-image",
   /* KIE · video */
-  "seedance-2-5", "seedance-2", "seedance-2-fast", "seedance-2-mini", "seedance-1-5-pro", "seedance-1-pro", "seedance-1-pro-fast", "seedance-1-lite",
+  "seedance-2-5", "seedance-2", "seedance-2-fast", "seedance-2-mini", "seedance-1-5-pro",
   "veo-3-1",
   "kling-3", "kling-3-omni", "kling-3-motion-control", "kling-v3-turbo", "kling-2-6", "kling-2-6-motion-control", "kling-2-5-turbo",
-  "kling-2-1-master", "kling-2-1-pro", "kling-2-1-standard", "kling-avatar-pro", "kling-avatar",
-  "wan-3", "wan-3-prime", "wan-2-7", "wan-animate", "wan-2-6", "wan-2-6-flash", "wan-2-5", "wan-2-2",
+  "kling-avatar-pro", "kling-avatar",
+  "wan-3", "wan-3-prime", "wan-2-7", "wan-animate", "wan-2-6", "wan-2-6-flash",
   "happyhorse-1-1", "happyhorse-1",
-  "minimax-h3", "hailuo-2-3-pro", "hailuo-2-3", "hailuo-02-pro", "hailuo-02",
+  "minimax-h3", "hailuo-2-3-pro", "hailuo-2-3",
   "gemini-omni-flash-1-1", "gemini-omni",
   "grok-imagine-video-1-5", "grok-imagine-video",
   "pixverse-v6",
@@ -37,7 +37,7 @@ const ORDER: string[] = [
   /* KIE · audio and tools */
   "suno-music", "suno-studio", "suno-voice",
   "elevenlabs-speech", "elevenlabs-dialogue", "elevenlabs-multilingual-v2",
-  "gemini-tts-pro", "gemini-tts-3-8", "gemini-tts",
+  "gemini-tts-pro", "gemini-tts-3-8",
   "topaz", "recraft", "elevenlabs-isolation",
   /* Higgsfield · image */
   "hf-soul-2", "hf-soul-cinema", "hf-soul",

@@ -34,20 +34,16 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **Nano Banana 2**<br>`nano-banana-2` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤14) | evet |  |
 | **Nano Banana 2 Lite**<br>`nano-banana-2-lite` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
 | **Nano Banana Pro**<br>`nano-banana-pro` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤8) | evet |  |
-| **Nano Banana**<br>`nano-banana` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
 | **Seedream 5 Pro**<br>`seedream-5-pro` | KIE | Generate, Edit (otomatik), Layer decomposition | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet | Layer decomposition capability değil |
 | **Seedream 5 Flash**<br>`seedream-5-flash` | KIE | Generate, Edit (otomatik), Layer decomposition | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet | Layer decomposition capability değil |
 | **Seedream 5 Lite**<br>`seedream-5-lite` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤14) | evet |  |
 | **Seedream 4.5**<br>`seedream-4-5` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤14) | evet |  |
-| **Seedream 4.0**<br>`seedream-4` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤10) | evet |  |
 | **GPT Image 2**<br>`gpt-image-2` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 2.5 Flare**<br>`gpt-image-2-5-flare` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **GPT Image 2.5 Sunburst**<br>`gpt-image-2-5-sunburst` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
-| **GPT Image 1.5**<br>`gpt-image-1-5` | KIE | Generate, Edit (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤16) | evet |  |
 | **FLUX 2 Pro**<br>`flux-2-pro` | KIE | Generate, Reference (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Reference, ≤8) | evet |  |
 | **FLUX 2 Flex**<br>`flux-2-flex` | KIE | Generate, Reference (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Reference, ≤8) | evet |  |
 | **Grok Imagine Image 2.0**<br>`grok-imagine-image-2` | KIE | Generate, Edit (otomatik), Segment map (aksiyon), Segment map (image), Segment edit (aksiyon) | `text-to-image` (Generate)<br>`image-edit-multi` (Edit, ≤5) | evet | Segment map/edit capability değil |
-| **Grok Imagine**<br>`grok-imagine-image` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤5) | evet |  |
 | **Ideogram V3**<br>`ideogram-v3` | KIE | Generate, Edit, Remix (otomatik) | `text-to-image` (Generate) | evet | Edit tek görsel + maske; multi değil |
 | **Ideogram Character**<br>`ideogram-character` | KIE | Generate, Edit, Remix (otomatik) |  | hayır | Karakter referansı zorunlu; saf text-to-image sayılır mı belirsiz |
 | **Qwen3 Image**<br>`qwen3-image` | KIE | Generate, Image to image (otomatik) | `text-to-image` (Generate)<br>`image-edit-multi` (Image to image, ≤3) | evet |  |
@@ -67,17 +63,11 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **Seedance 2.0 Fast**<br>`seedance-2-fast` | KIE | Text to video, Image to video (otomatik), Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
 | **Seedance 2.0 Mini**<br>`seedance-2-mini` | KIE | Text to video, Image to video (otomatik), Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
 | **Seedance 1.5 Pro**<br>`seedance-1-5-pro` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
-| **Seedance 1.0 Pro**<br>`seedance-1-pro` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
-| **Seedance 1.0 Pro Fast**<br>`seedance-1-pro-fast` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
-| **Seedance 1.0 Lite**<br>`seedance-1-lite` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
 | **Kling 3.0**<br>`kling-3` | KIE | Text to video, Image to video (otomatik), Multi-shot | `image-to-video` (Image to video) | evet |  |
 | **Kling 3.0 Omni**<br>`kling-3-omni` | KIE | Text to video, First frame (otomatik), First + last frame, Reference · Images, Reference · Video, Reference · Video + images, Transform · Video, Transform · Video + images | `image-to-video` (First frame / First + last frame)<br>`reference-to-video` (Reference · Images)<br>`video-edit` (Transform · Video (+ images)) | evet | Reference · Video (+ images) için video-edit mi reference mı belirsiz, eklenmedi |
 | **Kling V3 Turbo**<br>`kling-v3-turbo` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
 | **Kling 2.6**<br>`kling-2-6` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
 | **Kling 2.5 Turbo**<br>`kling-2-5-turbo` | KIE | Text to video | — | evet | Registry'de sadece text-to-video var |
-| **Kling 2.1 Standard**<br>`kling-2-1-standard` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
-| **Kling 2.1 Pro**<br>`kling-2-1-pro` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
-| **Kling 2.1 Master**<br>`kling-2-1-master` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
 | **Kling 3.0 Motion Control**<br>`kling-3-motion-control` | KIE | Generate | `motion-transfer` (Generate / Motion control) | evet |  |
 | **Kling 2.6 Motion Control**<br>`kling-2-6-motion-control` | KIE | Generate | `motion-transfer` (Generate / Motion control) | evet |  |
 | **Kling Avatar**<br>`kling-avatar` | KIE | Generate | `lipsync-from-audio` (Generate) | evet |  |
@@ -85,15 +75,11 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **Hailuo 03 (H3)**<br>`minimax-h3` | KIE | Text to video, Image to video (otomatik), Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
 | **Hailuo 2.3**<br>`hailuo-2-3` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
 | **Hailuo 2.3 Pro**<br>`hailuo-2-3-pro` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
-| **Hailuo 02**<br>`hailuo-02` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
-| **Hailuo 02 Pro**<br>`hailuo-02-pro` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
 | **Wan 3.0**<br>`wan-3` | KIE | Reference, Frames, Document, Web page | `image-to-video` (Frames)<br>`reference-to-video` (Reference) | evet | Document / Web page capability değil |
 | **Wan 3.0 Prime**<br>`wan-3-prime` | KIE | Reference, Frames, Document, Web page | `image-to-video` (Frames)<br>`reference-to-video` (Reference) | evet | Document / Web page capability değil |
 | **Wan 2.7**<br>`wan-2-7` | KIE | Text to video, Image to video (otomatik), Reference, Video edit | `image-to-video` (Image to video)<br>`reference-to-video` (Reference)<br>`video-edit` (Video edit) | evet |  |
 | **Wan 2.6**<br>`wan-2-6` | KIE | Text to video, Image to video (otomatik), Video to video | `image-to-video` (Image to video) | evet | Video to video (≤3 video) video-edit mi belirsiz, eklenmedi |
 | **Wan 2.6 Flash**<br>`wan-2-6-flash` | KIE | Image to video, Video to video | `image-to-video` (Image to video) | evet | Video to video (≤3 video) video-edit mi belirsiz, eklenmedi |
-| **Wan 2.5**<br>`wan-2-5` | KIE | Text to video, Image to video (otomatik) | `image-to-video` (Image to video) | evet |  |
-| **Wan 2.2 Turbo**<br>`wan-2-2` | KIE | Text to video, Image to video (otomatik), Speech to video | `image-to-video` (Image to video)<br>`lipsync-from-audio` (Speech to video) | evet |  |
 | **Wan Animate**<br>`wan-animate` | KIE | Animate, Replace |  | hayır | Animate ≈ motion-transfer, Replace ≈ object-swap olabilir; doğrulanmadı |
 | **HappyHorse 1.1**<br>`happyhorse-1-1` | KIE | Text to video, Image to video (otomatik), Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
 | **HappyHorse 1.0**<br>`happyhorse-1` | KIE | Text to video, Image to video (otomatik), Reference, Video edit | `image-to-video` (Image to video)<br>`reference-to-video` (Reference)<br>`video-edit` (Video edit) | evet |  |
@@ -116,7 +102,6 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **ElevenLabs Multilingual v2**<br>`elevenlabs-multilingual-v2` | KIE | Speak | `text-to-speech` (Speak) | evet |  |
 | **ElevenLabs Dialogue**<br>`elevenlabs-dialogue` | KIE | Dialogue |  | hayır | Çok konuşmacılı diyalog; text-to-speech adımına uyar mı belirsiz |
 | **Gemini 3.8 Flash TTS**<br>`gemini-tts-3-8` | KIE | Flash, Flash Lite | `text-to-speech` (Flash / Flash Lite) | evet |  |
-| **Gemini 3.1 Flash TTS**<br>`gemini-tts` | KIE | Speak | `text-to-speech` (Speak) | evet |  |
 | **Gemini 2.5 Pro TTS**<br>`gemini-tts-pro` | KIE | Speak | `text-to-speech` (Speak) | evet |  |
 
 ## KIE · Araçlar

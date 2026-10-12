@@ -20,10 +20,10 @@ export { hasPicture, inFold, inputsOf, modeFor, tabOf } from "./autoMode";
  * server of its own and reads them from the site.
  */
 const COVERS = new Set([
-  "nano-banana-2", "nano-banana-2-lite", "nano-banana-pro", "nano-banana",
-  "seedream-5-pro", "seedream-5-flash", "seedream-5-lite", "seedream-4-5", "seedream-4",
-  "gpt-image-2", "gpt-image-2-5-flare", "gpt-image-2-5-sunburst", "gpt-image-1-5",
-  "flux-2-pro", "flux-2-flex", "grok-imagine-image-2", "grok-imagine-image",
+  "nano-banana-2", "nano-banana-2-lite", "nano-banana-pro",
+  "seedream-5-pro", "seedream-5-flash", "seedream-5-lite", "seedream-4-5",
+  "gpt-image-2", "gpt-image-2-5-flare", "gpt-image-2-5-sunburst",
+  "flux-2-pro", "flux-2-flex", "grok-imagine-image-2",
   "ideogram-v3", "ideogram-character", "qwen3-image", "qwen3-image-pro", "qwen2-1-image",
   "wan-2-7-image", "wan-2-7-image-pro", "z-image",
 ]);
