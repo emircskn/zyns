@@ -92,10 +92,13 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
       <button
         type="button"
         onClick={() => setPicking(true)}
-        className={`flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
+        className={`relative flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
           half ? "h-full min-h-[100px] gap-2 py-3.5" : "gap-2.5 py-5"
         }`}
       >
+        {field.tag && (
+          <span className="absolute right-2 top-2 rounded-[6px] bg-t1/[0.08] px-1.5 py-0.5 text-[11px] text-t3">{field.tag}</span>
+        )}
         <span
           className={`grid place-items-center rounded-full bg-t1/[0.08] text-t2 ${half ? "h-9 w-9" : "h-10 w-10"}`}
         >

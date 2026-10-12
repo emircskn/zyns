@@ -118,7 +118,7 @@ export function withAutoMode(model: ModelDef): ModelDef {
     const from = group === "refs" ? refs!.mode : imageId;
     const when = f.when;
     // Frames are two slots side by side, start and end, as Higgsfield lays them.
-    const frame = group === "frames" ? { ownSlot: true, label: f.key === slot!.key ? "Start frame" : /last|end/i.test(f.key) ? "End frame" : f.label } : {};
+    const frame = group === "frames" ? { ownSlot: true, label: f.key === slot!.key ? "Start frame" : /last|end/i.test(f.key) ? "End frame" : f.label, ...(f.key !== slot!.key ? { tag: "Optional" } : {}) } : {};
     const folded: Field = {
       ...f,
       ...frame,

@@ -52,6 +52,8 @@ export type Values = Record<string, any>;
 export interface Field {
   /** Keeps a slot of its own instead of joining the shared "add media" box (a video's start and end frames). */
   ownSlot?: boolean;
+  /** A word in the corner of its empty slot ("Optional"). */
+  tag?: string;
   key: string;
   label: string;
   kind: FieldKind;
