@@ -4,14 +4,14 @@ import { familyToModel as hfFamilyToModel, loadCatalogSpecs, uncuratedFamilies }
 import snapshot from "./hf/generated/catalog.json";
 import type { HfCatalog } from "@/lib/higgsfield/catalogSource";
 import { FAMILIES as HF_FAMILIES } from "./hf/curation";
-import { withAutoMode } from "./autoMode";
+import { withAutoMode, withFold, type FoldSpec } from "./autoMode";
 import { withActions } from "./actions";
 import type { Category, Field, ModelDef, Provider, Values } from "./types";
 
 export * from "./types";
 export { FAMILIES } from "./curation";
 export { getSpec } from "./auto";
-export { hasPicture, inputsOf, modeFor, tabOf } from "./autoMode";
+export { hasPicture, inFold, inputsOf, modeFor, tabOf } from "./autoMode";
 
 /**
  * KIE's catalogue carries no pictures, so these models wear covers of our
@@ -30,8 +30,34 @@ const ASSET_BASE = process.env.NEXT_PUBLIC_ASSET_BASE ?? "";
 const withCover = (m: ModelDef): ModelDef =>
   m.preview || !COVERS.has(m.id) ? m : { ...m, preview: { image: `${ASSET_BASE}/covers/${m.id}.webp` } };
 
+/**
+ * Models whose frames and references share a field, folded by hand: one
+ * Generate tab, References or Frames, the request picked by what is in it.
+ */
+const FOLDS: Record<string, FoldSpec> = {
+  "veo-3-1": {
+    text: "text-to-video",
+    frames: { key: "image_urls", one: "frames-to-video", two: "frames-to-video" },
+    images: { key: "image_urls", max: 3 },
+    refs: [{ mode: "reference-to-video", images: true, video: false }],
+  },
+  "kling-3-omni": {
+    text: "text-to-video",
+    frames: { key: "image_urls", one: "first-frame", two: "first-last" },
+    images: { key: "image_urls", max: 7 },
+    video: { key: "video_urls", max: 1 },
+    refs: [
+      { mode: "ref-images", images: true, video: false },
+      { mode: "ref-video", images: false, video: true },
+      { mode: "ref-mixed", images: true, video: true },
+    ],
+  },
+};
+const withFolds = (m: ModelDef): ModelDef => (FOLDS[m.id] ? withFold(m, FOLDS[m.id]) : m);
+
 /** Every KIE family, rendered into a ModelDef from the documented schemas. */
 export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
+  .map(withFolds)
   .map(withAutoMode)
   .map(withActions)
   .map(withCover)

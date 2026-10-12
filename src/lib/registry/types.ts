@@ -151,6 +151,10 @@ export interface AutoMode {
    * one tab, chosen by `__inputs`. The mode follows what is filled.
    */
   refs?: { mode: string; fields: string[]; frames: string[] };
+  /** Every mode the tab stands for, when it is more than the three above (a hand-made fold). */
+  members?: string[];
+  /** Which of them these values send in, when a hand-made fold decides it. */
+  pick?: (values: Values) => string;
 }
 
 /** Which polling endpoint family a task belongs to. */

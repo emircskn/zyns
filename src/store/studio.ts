@@ -19,6 +19,7 @@ import {
   modelsFor,
   providerOf,
   type Category,
+  inFold,
   modeFor,
   type ModelDef,
   type Provider,
@@ -509,7 +510,7 @@ function inMode(model: ModelDef, current: Values, mode: string): Values {
  */
 function settleMode(model: ModelDef, values: Values): Values {
   const auto = model.autoMode;
-  if (!auto || (values.__mode !== auto.text && values.__mode !== auto.image && values.__mode !== auto.refs?.mode)) return values;
+  if (!auto || !inFold(auto, values.__mode)) return values;
   const mode = modeFor(auto, values);
   return mode === values.__mode ? values : inMode(model, values, mode);
 }
