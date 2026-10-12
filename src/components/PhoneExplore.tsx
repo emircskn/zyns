@@ -144,10 +144,8 @@ export function useExplore() {
     const out = new Map<Category, ModelDef[]>();
     for (const c of categories) {
       const list = models.filter((m) => m.category === c.id).map(withPreview);
-      // Those with a preview to show first, the marked ones (NEW, TOP) first among them:
-      // a row of blank covers reads as broken.
-      const rank = (m: ModelDef) => (hasPreview(m) ? 0 : 2) + (m.badge ? 0 : 1);
-      out.set(c.id, [...list].sort((a, b) => rank(a) - rank(b)));
+      // In the registry's order: most used first, a family's models side by side.
+      out.set(c.id, list);
     }
     return out;
   }, [categories, models]);

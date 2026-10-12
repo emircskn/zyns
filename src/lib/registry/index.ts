@@ -5,6 +5,7 @@ import snapshot from "./hf/generated/catalog.json";
 import type { HfCatalog } from "@/lib/higgsfield/catalogSource";
 import { FAMILIES as HF_FAMILIES } from "./hf/curation";
 import { withAutoMode, withFold, type FoldSpec } from "./autoMode";
+import { inOrder } from "./order";
 import { withActions } from "./actions";
 import type { Category, Field, ModelDef, Provider, Values } from "./types";
 
@@ -94,12 +95,12 @@ const FOLDS: Record<string, FoldSpec> = {
 const withFolds = (m: ModelDef): ModelDef => (FOLDS[m.id] ? withFold(m, FOLDS[m.id]) : m);
 
 /** Every KIE family, rendered into a ModelDef from the documented schemas. */
-export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
+export const KIE_MODELS: ModelDef[] = inOrder(FAMILIES.map(familyToModel)
   .map(withFolds)
   .map(withAutoMode)
   .map(withActions)
   .map(withCover)
-  .map((m) => ({ ...m, provider: "kie" as const }));
+  .map((m) => ({ ...m, provider: "kie" as const })));
 
 /**
  * Every Higgsfield family, from Higgsfield's own schemas. Both catalogues
@@ -109,7 +110,7 @@ export const KIE_MODELS: ModelDef[] = FAMILIES.map(familyToModel)
 export const HF_PREFIX = "hf-";
 
 function buildHiggsfield(): ModelDef[] {
-  return [...HF_FAMILIES, ...uncuratedFamilies(HF_FAMILIES)]
+  return inOrder([...HF_FAMILIES, ...uncuratedFamilies(HF_FAMILIES)]
     .map(hfFamilyToModel)
     .map((m) => (FOLDS[HF_PREFIX + m.id] ? withFold(m, FOLDS[HF_PREFIX + m.id]) : m))
     .map(withAutoMode)
@@ -118,7 +119,7 @@ function buildHiggsfield(): ModelDef[] {
       ...m,
       id: HF_PREFIX + m.id,
       provider: "higgsfield" as const,
-    }));
+    })));
 }
 
 export const HF_MODELS: ModelDef[] = buildHiggsfield();
