@@ -11,6 +11,7 @@ import {
   BatchChip,
   ElementsChip,
   FieldChip,
+  InputsSwitch,
   MentionStrip,
   ModeStrip,
   ModeTabs,
@@ -383,6 +384,7 @@ export function ComposerBody({
     <>
       {phone ? <ModeStrip flush fill /> : <ModeTabs />}
       {!(phone && model.category !== "video") && <ModelBanner model={model} />}
+      <InputsSwitch />
 
       <AttachPanel fields={attachFields} />
       {stripFields.length > 0 && (

@@ -9,7 +9,7 @@ export type MediaKind = "image" | "video" | "audio";
  * editor, so both keep their slots.
  */
 export function isAttachField(field: Field): boolean {
-  return (field.kind === "images" || field.kind === "media") && !/mask/i.test(field.key);
+  return (field.kind === "images" || field.kind === "media") && !/mask/i.test(field.key) && !field.ownSlot;
 }
 
 export function kindOf(field: Field): MediaKind {

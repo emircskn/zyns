@@ -8,7 +8,6 @@ import { ProviderSwitch } from "@/components/ProviderSwitch";
 import { smallScreen } from "@/components/ViewportSync";
 import { refreshCredits } from "@/lib/generate";
 import { categoriesFor, type Provider } from "@/lib/registry";
-import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import { usePresence } from "@/lib/usePresence";
 import { activeKey, useStudio, type Page } from "@/store/studio";
 
@@ -34,30 +33,17 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
   ];
 }
 
-/** The pages in a line, with one soft pill that glides to the one you are on. */
+/** The pages in a line; the one you are on in yellow, as Higgsfield marks it. */
 function PageNav() {
   const page = useStudio((s) => s.page);
   const setPage = useStudio((s) => s.setPage);
   const provider = useStudio((s) => s.provider);
   const root = useRef<HTMLElement>(null);
   const groups = pagesFor(provider);
-  const { box, settled } = useGlide(root, page, [provider]);
 
   return (
     // A narrow window scrolls the line sideways rather than running it under the account.
     <nav ref={root} aria-label="Pages" className="no-bar relative flex min-w-0 items-center gap-0.5 overflow-x-auto">
-      {box && (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-[8px] bg-t1/[0.08]"
-          style={{
-            width: box.w,
-            height: box.h,
-            transform: `translate(${box.x}px, ${box.y}px)`,
-            transition: settled ? GLIDE_TRANSITION : "none",
-          }}
-        />
-      )}
       {groups.map((group, index) => (
         <div key={index} className="flex shrink-0 items-center gap-0.5">
           {index > 0 && <span aria-hidden className="mx-2 h-4 w-px bg-line" />}
@@ -71,7 +57,7 @@ function PageNav() {
                 onClick={() => setPage(item.id)}
                 aria-current={on ? "page" : undefined}
                 className={`relative h-8 whitespace-nowrap rounded-[8px] px-3 text-[13.5px] transition-colors duration-[100ms] ${
-                  on ? "font-medium text-t1" : "text-t3 hover:text-t1"
+                  on ? "font-medium text-accent" : "text-t3 hover:text-t1"
                 }`}
               >
                 {item.label}
@@ -314,7 +300,6 @@ export function AccountMenu({
  */
 export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
   const setPage = useStudio((s) => s.setPage);
-  const home = useStudio((s) => s.page === "home");
   const scrolled = useScrolled();
   const active = useStudio(
     (s) => s.runs.filter((r) => r.state === "pending" || r.state === "running").length,
@@ -328,16 +313,10 @@ export function TopBar({ onKeyClick }: { onKeyClick: () => void }) {
         type="button"
         onClick={() => setPage("home")}
         aria-label="ZYNS home"
-        aria-current={home ? "page" : undefined}
         title="Explore"
-        // The mark lights up yellow on Explore, its page, and while a pointer rests on it.
-        className="group shrink-0"
+        className="shrink-0 transition-opacity duration-[150ms] hover:opacity-70"
       >
-        <ZynsMark
-          size={32}
-          fill={home ? "var(--accent)" : "var(--t1)"}
-          className="[&_path]:transition-[fill] [&_path]:duration-[180ms] group-hover:[&_path]:fill-accent"
-        />
+        <ZynsMark size={32} />
       </button>
 
       <PageNav />

@@ -37,7 +37,7 @@ import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { inUse, type LibraryElement } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
-import { activeFields, barAndPanel, getModel, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
+import { activeFields, barAndPanel, getModel, inputsOf, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
@@ -100,6 +100,32 @@ function useModeTabs() {
     hint: mode.id === model?.autoMode?.text ? undefined : mode.hint,
   });
   return { model, tabs, current, item, setMode };
+}
+
+/**
+ * Where one tab takes either references or frames (a video's Create, as
+ * Higgsfield's): which of the two its slots show. What goes in decides the
+ * request; nothing here is sent.
+ */
+export function InputsSwitch({ className = "" }: { className?: string }) {
+  const model = useModel();
+  const values = useValues();
+  const setValue = useStudio((s) => s.setValue);
+  const auto = model?.autoMode;
+  if (!model || !auto?.refs || tabOf(model, values) !== auto.text) return null;
+  return (
+    <div className={className}>
+      <PillGroup
+        fill
+        value={inputsOf(values)}
+        onChange={(inputs) => setValue("__inputs", inputs)}
+        items={[
+          { id: "refs", label: "References" },
+          { id: "frames", label: "Frames" },
+        ]}
+      />
+    </div>
+  );
 }
 
 /**
@@ -1587,6 +1613,7 @@ export function PromptBar({
           className="rounded-[14px] border border-line bg-elevated p-3 pt-3.5 transition-[border-color] duration-[100ms] focus-within:border-line-strong"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
+          <InputsSwitch className="mb-2.5 max-w-[320px]" />
           <Reveal>
             <InputStrip fields={stripFields} />
             <AttachRow fields={attachFields} onAdd={attach.open} canAdd={attach.canAdd} />

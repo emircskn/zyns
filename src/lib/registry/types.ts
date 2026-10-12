@@ -50,6 +50,8 @@ export interface Choice {
 export type Values = Record<string, any>;
 
 export interface Field {
+  /** Keeps a slot of its own instead of joining the shared "add media" box (a video's start and end frames). */
+  ownSlot?: boolean;
   key: string;
   label: string;
   kind: FieldKind;
@@ -141,6 +143,12 @@ export interface AutoMode {
   image: string;
   /** The slot: the image mode's picture field. */
   field: string;
+  /**
+   * A video model's Reference mode folded in too, as Higgsfield's Create
+   * Video does: references (images, clips, audio) or frames (start, end),
+   * one tab, chosen by `__inputs`. The mode follows what is filled.
+   */
+  refs?: { mode: string; fields: string[]; frames: string[] };
 }
 
 /** Which polling endpoint family a task belongs to. */

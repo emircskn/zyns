@@ -11,7 +11,7 @@ import type { Category, Field, ModelDef, Provider, Values } from "./types";
 export * from "./types";
 export { FAMILIES } from "./curation";
 export { getSpec } from "./auto";
-export { hasPicture, tabOf } from "./autoMode";
+export { hasPicture, inputsOf, modeFor, tabOf } from "./autoMode";
 
 /**
  * KIE's catalogue carries no pictures, so these models wear covers of our
