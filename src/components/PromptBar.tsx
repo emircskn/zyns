@@ -1540,15 +1540,14 @@ export function PromptBar({
   // The centred box sits in the page's own flow; nothing pads itself for it.
   usePublishedHeight(wrapper, !centered);
 
-  // The one button that starts something: round, with the arrow, at the end
-  // of the prompt. No ring of metal around it any more.
+  // The one button that starts something, at the end of the row of chips.
   const send = (
     <button
       type="button"
       onClick={run}
       disabled={busy || !!blocker || !apiKey}
       title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-      className="cta flex h-9 shrink-0 items-center gap-1.5 rounded-[8px] px-3.5 font-display text-[12.5px] font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4"
+      className="cta flex h-8 shrink-0 items-center gap-1.5 rounded-[8px] px-3.5 font-display text-[12.5px] font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4"
     >
       {busy ? (
         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
@@ -1595,7 +1594,7 @@ export function PromptBar({
           {attach.picker}
 
           {!model && (
-            <DraftField trailing={send} onSubmit={openPickerHere} />
+            <DraftField onSubmit={openPickerHere} />
           )}
 
           {prompts.shown.map((field, index) => (
@@ -1607,7 +1606,6 @@ export function PromptBar({
               onSubmit={() => {
                 if (!blocker && !busy) void run();
               }}
-              trailing={index === 0 ? send : undefined}
               inputRef={index === 0 ? (node) => (promptRef.current = node) : undefined}
             />
           ))}
@@ -1663,8 +1661,8 @@ export function PromptBar({
 
             <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
               {hint && <span className="font-mono text-[11.5px] tabular-nums text-t3">{hint}</span>}
-              {/* Models without a prompt still need somewhere to send from. */}
-              {model && promptFields.length === 0 && send}
+              {/* In the row of chips, level with them, as Higgsfield's: it never moves as the prompt grows. */}
+              {send}
             </div>
           </div>
         </div>

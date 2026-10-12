@@ -257,7 +257,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
     <div className="flex flex-col gap-12 pb-16 max-md:hidden">
       <FeatureStrip />
 
-      <section className="grid grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-5 max-lg:grid-cols-1">
+      <section className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-5 max-lg:grid-cols-1">
         {/* The prompt in a card of its own, where Higgsfield puts its offer. */}
         <div className="relative isolate flex flex-col justify-center rounded-panel p-7 ring-1 ring-inset ring-line">
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-panel bg-surface">
