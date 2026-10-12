@@ -544,8 +544,10 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </div>
           </div>
           {/* On a phone the chips wrap rather than run off the edge, so every one is in sight.
-              On a desktop Generate ends the row, level with them, as the other bars have it. */}
-          <div className="flex flex-wrap items-center gap-1.5">
+              On a desktop Generate ends the row, level with them, as the other bars have it,
+              and a row too long slides on under it rather than pushing it down. */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap no-bar md:overflow-x-auto md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]">
             <ToolChip icon="plus" label="Add references" onClick={() => setRefsOpen("uploads")} />
             <ToolChip icon="at" label="Add an element" onClick={() => setRefsOpen("elements")} />
             <ToolChip icon="frame" label="Take a frame from a clip" onClick={() => setGrabbing(true)} />
@@ -561,6 +563,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <BatchChip value={count} onChange={setCount} />
               </span>
             )}
+            </div>
             <PriceHint price={price} count={count} />
             <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
               <GenerateButton
@@ -809,7 +812,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             />
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <div className="flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap no-bar md:overflow-x-auto md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]">
           <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} text={studio.imageRefs.length ? String(studio.imageRefs.length) : undefined} />
           <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
           <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} />
@@ -824,6 +828,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <BatchChip value={count} onChange={setCount} />
             </span>
           )}
+          </div>
           <PriceHint price={price} count={count} />
           <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
             <GenerateButton
