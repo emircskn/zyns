@@ -542,19 +542,9 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 inputRef={setInput}
               />
             </div>
-            <div className="max-md:hidden">
-              <GenerateButton
-                onClick={() => void generate()}
-                busy={busy}
-                disabled={!!key && (busy || !!blocker)}
-                blocker={blocker}
-                price={price}
-                count={count}
-                needsKey={key ? null : PROVIDER_NAME[provider]}
-              />
-            </div>
           </div>
-          {/* On a phone the chips wrap rather than run off the edge, so every one is in sight. */}
+          {/* On a phone the chips wrap rather than run off the edge, so every one is in sight.
+              On a desktop Generate ends the row, level with them, as the other bars have it. */}
           <div className="flex flex-wrap items-center gap-1.5">
             <ToolChip icon="plus" label="Add references" onClick={() => setRefsOpen("uploads")} />
             <ToolChip icon="at" label="Add an element" onClick={() => setRefsOpen("elements")} />
@@ -572,6 +562,17 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
               </span>
             )}
             <PriceHint price={price} count={count} />
+            <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
+              <GenerateButton
+                onClick={() => void generate()}
+                busy={busy}
+                disabled={!!key && (busy || !!blocker)}
+                blocker={blocker}
+                price={price}
+                count={count}
+                needsKey={key ? null : PROVIDER_NAME[provider]}
+              />
+            </div>
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -792,7 +793,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     setBusy(false);
   }
 
-  const tile = "flex h-[80px] w-[88px] max-md:w-full shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-card bg-t1/[0.05] text-center transition-colors duration-[120ms] hover:bg-t1/[0.09]";
+  const tile = "flex h-[80px] w-[88px] max-md:w-full md:h-auto md:w-[132px] shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-card bg-t1/[0.05] text-center transition-colors duration-[120ms] hover:bg-t1/[0.09]";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
@@ -805,17 +806,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               placeholder="Describe the picture. Use @ for characters and places"
               onText={(text) => patchStudio({ imagePrompt: text })}
               onSubmit={() => void generate()}
-            />
-          </div>
-          <div className="max-md:hidden">
-            <GenerateButton
-              onClick={() => void generate()}
-              busy={busy}
-              disabled={!!key && (busy || !!blocker)}
-              blocker={blocker}
-              price={price}
-              count={count}
-              needsKey={key ? null : PROVIDER_NAME[provider]}
             />
           </div>
         </div>
@@ -835,6 +825,17 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </span>
           )}
           <PriceHint price={price} count={count} />
+          <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
+            <GenerateButton
+              onClick={() => void generate()}
+              busy={busy}
+              disabled={!!key && (busy || !!blocker)}
+              blocker={blocker}
+              price={price}
+              count={count}
+              needsKey={key ? null : PROVIDER_NAME[provider]}
+            />
+          </div>
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
@@ -877,7 +878,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         <button type="button" onClick={() => setCameraOpen(true)} className={tile} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>
           {cameraImage ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={cameraImage} alt="" className="h-10 max-w-[72px] object-contain" />
+            <img src={cameraImage} alt="" className="h-11 w-[76px] rounded-[8px] object-cover" />
           ) : (
             <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t2">
               <Icon name="camera" size={16} />
