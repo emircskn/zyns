@@ -41,7 +41,8 @@ function slotFor(model: ModelDef, text: string, image: string): Field | undefine
   const extra = model.fields.filter((f) => shownIn(f, {}, image) && !textKeys.has(f.key));
   const slot = extra.find(takesPicture);
   if (!slot) return undefined;
-  return extra.some((f) => f.required && f.key !== slot.key) ? undefined : slot;
+  // A required option with a default (Hailuo 02's resolution) fills itself in.
+  return extra.some((f) => f.required && f.key !== slot.key && f.default === undefined) ? undefined : slot;
 }
 
 /**
@@ -70,7 +71,7 @@ function refsFor(model: ModelDef, text: string, image: string): AutoMode["refs"]
   const frames = [...keysIn(image)].filter((k) => !textKeys.has(k));
   const extra = model.fields.filter((f) => shownIn(f, {}, ref.id) && !textKeys.has(f.key) && !frames.includes(f.key));
   const media = extra.filter(isMedia);
-  if (media.length === 0 || extra.some((f) => f.required && !isMedia(f))) return undefined;
+  if (media.length === 0 || extra.some((f) => f.required && !isMedia(f) && f.default === undefined)) return undefined;
   return { mode: ref.id, fields: [...new Set(media.map((f) => f.key))], frames };
 }
 
@@ -178,71 +179,90 @@ export function inFold(auto: AutoMode | undefined, mode: unknown): boolean {
 }
 
 /**
- * A fold made by hand, for a model whose frames and references go out in
- * the same field (Veo 3.1's image_urls; Kling 3.0 Omni's, split again by
- * what goes with it). The tab shows slots of its own (Start frame, End
- * frame; images, a video) and, on the way out, puts what is in them where
- * the chosen mode wants it.
+ * A fold made by hand, for a model whose frames and references the rule
+ * above cannot tell apart: they share a field (Veo 3.1's image_urls), the
+ * references split into a mode per mix (Kling 3.0 Omni), or there is no
+ * plain text mode to fold into (Kling O3, Wan 3.0). The tab shows slots of
+ * its own, copies of the service's, and on the way out puts what is in
+ * them where the chosen mode wants it.
  */
 export interface FoldSpec {
+  /** The mode sent with nothing in the slots. */
   text: string;
-  /** The array that takes [start, end], and the mode for one frame or two. */
-  frames: { key: string; one: string; two: string };
-  /** The arrays references go in. */
-  images: { key: string; max: number };
-  video?: { key: string; max: number };
-  /** Reference modes by what they carry. */
-  refs: Array<{ mode: string; images: boolean; video: boolean }>;
+  /**
+   * The frames: the modes for one frame and for two, and the fields they go
+   * in, or one array that takes [start, end].
+   */
+  frames: { one: string; two: string; start: string; end?: string; array?: boolean };
+  /** The reference slots, each a copy of the service's own field. */
+  inputs: string[];
+  /** Reference modes, in order of preference, by which slots each can carry. */
+  refs: Array<{ mode: string; carries: string[] }>;
+  /** Most images a reference slot takes, where the service's field does not say. */
+  max?: Record<string, number>;
 }
 
 const START = "__start";
 const END = "__end";
-const REF_IMAGES = "__ref_images";
-const REF_VIDEO = "__ref_video";
+const slotKey = (key: string) => `__ref_${key}`;
 
 export function withFold(model: ModelDef, spec: FoldSpec): ModelDef {
-  const members = [spec.text, spec.frames.one, spec.frames.two, ...spec.refs.map((r) => r.mode)];
+  const members = [...new Set([spec.text, spec.frames.one, spec.frames.two, ...spec.refs.map((r) => r.mode)])];
   const inTab = (v: Values) => members.includes(String(v.__mode));
   const filled = (v: Values, key: string) => hasPicture(v[key]);
+  const fieldIn = (key: string, mode: string) => model.fields.find((f) => f.key === key && (!f.when || f.when({ __mode: mode })));
 
   const pick = (v: Values): string => {
     if (inputsOf(v) === "frames") {
       if (!filled(v, START)) return spec.text;
-      return filled(v, END) ? spec.frames.two : spec.frames.one;
+      return spec.frames.end && filled(v, END) ? spec.frames.two : spec.frames.one;
     }
-    const images = filled(v, REF_IMAGES);
-    const video = spec.video ? filled(v, REF_VIDEO) : false;
-    if (!images && !video) return spec.text;
-    return (spec.refs.find((r) => r.images === images && r.video === video) ?? spec.refs.find((r) => (video ? r.video : r.images)))?.mode ?? spec.text;
+    const present = spec.inputs.filter((k) => filled(v, slotKey(k)));
+    if (present.length === 0) return spec.text;
+    return spec.refs.find((r) => present.every((k) => r.carries.includes(k)))?.mode ?? spec.refs[spec.refs.length - 1].mode;
   };
 
-  // What the hand-made slots hold, moved to where the chosen mode reads it.
+  // What the tab's own slots hold, moved to where the chosen mode reads it.
   const compose = (v: Values): Values => {
     if (!inTab(v)) return v;
     const mode = pick(v);
     const out: Values = { ...v, __mode: mode };
-    for (const key of [START, END, REF_IMAGES, REF_VIDEO]) delete out[key];
-    if (mode === spec.frames.one || mode === spec.frames.two) {
-      out[spec.frames.key] = [v[START], ...(mode === spec.frames.two ? [v[END]] : [])].filter(Boolean);
-    } else if (mode !== spec.text) {
-      const ref = spec.refs.find((r) => r.mode === mode);
-      if (ref?.images) out[spec.images.key] = (v[REF_IMAGES] as string[] | undefined) ?? [];
-      if (ref?.video && spec.video) out[spec.video.key] = (v[REF_VIDEO] as string[] | undefined) ?? [];
+    for (const key of Object.keys(out)) if (key === START || key === END || key.startsWith("__ref_")) delete out[key];
+    if (mode !== spec.text || inputsOf(v) === "refs") {
+      if (inputsOf(v) === "frames") {
+        const two = mode === spec.frames.two && filled(v, END);
+        if (spec.frames.array) out[spec.frames.start] = [v[START], ...(two ? [v[END]] : [])].filter(Boolean);
+        else {
+          out[spec.frames.start] = v[START];
+          if (two && spec.frames.end) out[spec.frames.end] = v[END];
+        }
+      } else {
+        const ref = spec.refs.find((r) => r.mode === mode);
+        for (const key of ref?.carries ?? []) if (filled(v, slotKey(key))) out[key] = v[slotKey(key)];
+      }
     }
     return out;
   };
 
   const side = (group: "refs" | "frames") => (v: Values) => inTab(v) && inputsOf(v) === group;
+  const frameField = (key: string | undefined) => (key && !spec.frames.array ? fieldIn(key, spec.frames.two) ?? fieldIn(key, spec.frames.one) : undefined);
+  const startFrom = frameField(spec.frames.start);
+  const endFrom = frameField(spec.frames.end);
   const own: Field[] = [
-    { key: START, label: "Start frame", kind: "media", placement: "input", accept: "image", ownSlot: true, when: side("frames") },
-    { key: END, label: "End frame", kind: "media", placement: "input", accept: "image", ownSlot: true, tag: "Optional", when: side("frames") },
-    { key: REF_IMAGES, label: spec.video ? "Images" : "Reference images", kind: "images", placement: "input", accept: "image", maxItems: spec.images.max, when: side("refs") },
-    ...(spec.video
-      ? [{ key: REF_VIDEO, label: "Video", kind: "images", placement: "input", accept: "video", maxItems: spec.video.max, when: side("refs") } as Field]
+    { ...(startFrom ?? {}), key: START, label: "Start frame", kind: "media", placement: "input", accept: "image", ownSlot: true, required: false, when: side("frames") } as Field,
+    ...(spec.frames.end
+      ? [{ ...(endFrom ?? {}), key: END, label: "End frame", kind: "media", placement: "input", accept: "image", ownSlot: true, tag: "Optional", required: false, when: side("frames") } as Field]
       : []),
+    ...spec.inputs.flatMap((key) => {
+      const ref = spec.refs.find((r) => r.carries.includes(key) && fieldIn(key, r.mode));
+      const from = ref && fieldIn(key, ref.mode);
+      if (!from) return [];
+      const maxItems = spec.max?.[key] ?? from.maxItems;
+      return [{ ...from, key: slotKey(key), required: false, minItems: undefined, ...(maxItems ? { maxItems } : {}), when: side("refs") } as Field];
+    }),
   ];
-  // The service's own fields leave the tab; the hand-made slots stand in for them.
-  const taken = new Set([spec.frames.key, spec.images.key, ...(spec.video ? [spec.video.key] : [])]);
+  // The service's own fields leave the tab; the tab's slots stand in for them.
+  const taken = new Set([spec.frames.start, ...(spec.frames.end ? [spec.frames.end] : []), ...spec.inputs]);
   const fields = [
     ...own,
     ...model.fields.map((f) => {
@@ -255,7 +275,7 @@ export function withFold(model: ModelDef, spec: FoldSpec): ModelDef {
     text: spec.text,
     image: spec.frames.one,
     field: START,
-    refs: { mode: spec.refs[0].mode, fields: [REF_IMAGES, ...(spec.video ? [REF_VIDEO] : [])], frames: [START, END] },
+    refs: { mode: spec.refs[0].mode, fields: spec.inputs.map(slotKey), frames: [START, END] },
     members,
     pick,
   };
@@ -263,7 +283,9 @@ export function withFold(model: ModelDef, spec: FoldSpec): ModelDef {
     ...model,
     fields,
     autoMode: auto,
-    modes: (model.modes ?? []).map((m) => (m.id !== spec.text && members.includes(m.id) ? { ...m, hidden: true } : m)),
+    modes: (model.modes ?? []).map((m) =>
+      m.id === spec.text ? { ...m, label: "Generate", hint: undefined } : members.includes(m.id) ? { ...m, hidden: true } : m,
+    ),
     defaultMode: members.includes(model.defaultMode ?? "") ? spec.text : model.defaultMode,
     build: (v) => model.build(compose(v)),
     validate: model.validate ? (v) => model.validate!(compose(v)) : undefined,

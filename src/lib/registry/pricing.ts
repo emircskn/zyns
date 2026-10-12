@@ -183,6 +183,7 @@ const RULES: Record<string, Rule> = {
   "kling-2.6/text-to-video": (i) => charge(row("kling 2.6", "text to video", withAudio(i.sound), secs(i.duration))),
   "kling-2.6/image-to-video": (i) => charge(row("kling 2.6", "image to video", withAudio(i.sound), secs(i.duration))),
   "kling/v2-5-turbo-text-to-video-pro": (i) => charge(row("kling 2.5 turbo", "text to video", secs(i.duration))),
+  "kling/v2-5-turbo-image-to-video-pro": (i) => charge(row("kling 2.5 turbo", "image to video", secs(i.duration))),
   "kling/v2-1-standard": (i) => charge(row("kling 2.1", "video generation", "standard", secs(i.duration))),
   "kling/v2-1-pro": (i) => charge(row("kling 2.1", "video generation", "pro", secs(i.duration))),
   "kling/v2-1-master-text-to-video": (i) => charge(row("kling 2.1", "text to video", "master", secs(i.duration))),

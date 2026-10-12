@@ -761,8 +761,11 @@ export const FAMILIES: Family[] = [
     vendor: "Kuaishou",
     category: "video",
     output: "video",
-    tagline: "Kling 2.5 Turbo Pro text-to-video.",
-    modes: [m("text-to-video", "Text to video", "kling/v2-5-turbo-text-to-video-pro")],
+    tagline: "Kling 2.5 Turbo Pro, from text or from a first frame (and optionally a last).",
+    modes: [
+      m("text-to-video", "Text to video", "kling/v2-5-turbo-text-to-video-pro"),
+      m("image-to-video", "Image to video", "kling/v2-5-turbo-image-to-video-pro", { hint: "First frame, optionally a last frame" }),
+    ],
   },
   {
     id: "kling-2-1-standard",

@@ -37,20 +37,58 @@ const withCover = (m: ModelDef): ModelDef =>
 const FOLDS: Record<string, FoldSpec> = {
   "veo-3-1": {
     text: "text-to-video",
-    frames: { key: "image_urls", one: "frames-to-video", two: "frames-to-video" },
-    images: { key: "image_urls", max: 3 },
-    refs: [{ mode: "reference-to-video", images: true, video: false }],
+    frames: { one: "frames-to-video", two: "frames-to-video", start: "image_urls", end: "image_urls", array: true },
+    inputs: ["image_urls"],
+    refs: [{ mode: "reference-to-video", carries: ["image_urls"] }],
+    max: { image_urls: 3 },
   },
   "kling-3-omni": {
     text: "text-to-video",
-    frames: { key: "image_urls", one: "first-frame", two: "first-last" },
-    images: { key: "image_urls", max: 7 },
-    video: { key: "video_urls", max: 1 },
+    frames: { one: "first-frame", two: "first-last", start: "image_urls", end: "image_urls", array: true },
+    inputs: ["image_urls", "video_urls"],
     refs: [
-      { mode: "ref-images", images: true, video: false },
-      { mode: "ref-video", images: false, video: true },
-      { mode: "ref-mixed", images: true, video: true },
+      { mode: "ref-images", carries: ["image_urls"] },
+      { mode: "ref-video", carries: ["video_urls"] },
+      { mode: "ref-mixed", carries: ["image_urls", "video_urls"] },
     ],
+  },
+  // No mode of its own for text: the image reference, empty, is one.
+  "hf-kling-o3": {
+    text: "image-reference",
+    frames: { one: "first-last-frame", two: "first-last-frame", start: "first_frame_url", end: "last_frame_url" },
+    inputs: ["image_urls", "video_urls"],
+    refs: [
+      { mode: "image-reference", carries: ["image_urls"] },
+      { mode: "video-reference", carries: ["image_urls", "video_urls"] },
+    ],
+  },
+  "hf-kling-omni": {
+    text: "image-reference",
+    frames: { one: "first-last-frame", two: "first-last-frame", start: "first_frame_url", end: "last_frame_url" },
+    inputs: ["image_urls", "video_urls"],
+    refs: [
+      { mode: "image-reference", carries: ["image_urls"] },
+      { mode: "video-reference", carries: ["image_urls", "video_urls"] },
+    ],
+  },
+  // References and text are one mode; the frames are the other.
+  "wan-3": {
+    text: "video",
+    frames: { one: "frames", two: "frames", start: "first_frame_url", end: "last_frame_url" },
+    inputs: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"],
+    refs: [{ mode: "video", carries: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"] }],
+  },
+  "wan-3-prime": {
+    text: "video",
+    frames: { one: "frames", two: "frames", start: "first_frame_url", end: "last_frame_url" },
+    inputs: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"],
+    refs: [{ mode: "video", carries: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"] }],
+  },
+  "gemini-omni-flash-1-1": {
+    text: "video",
+    frames: { one: "frames", two: "frames", start: "first_frame_url", end: "last_frame_url" },
+    inputs: ["image_urls", "video_list", "audio_ids", "character_ids"],
+    refs: [{ mode: "video", carries: ["image_urls", "video_list", "audio_ids", "character_ids"] }],
   },
 };
 const withFolds = (m: ModelDef): ModelDef => (FOLDS[m.id] ? withFold(m, FOLDS[m.id]) : m);
@@ -73,6 +111,7 @@ export const HF_PREFIX = "hf-";
 function buildHiggsfield(): ModelDef[] {
   return [...HF_FAMILIES, ...uncuratedFamilies(HF_FAMILIES)]
     .map(hfFamilyToModel)
+    .map((m) => (FOLDS[HF_PREFIX + m.id] ? withFold(m, FOLDS[HF_PREFIX + m.id]) : m))
     .map(withAutoMode)
     .map(withActions)
     .map((m) => ({
