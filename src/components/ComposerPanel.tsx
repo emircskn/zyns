@@ -93,11 +93,12 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         type="button"
         onClick={() => setPicking(true)}
         className={`relative flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
-          half ? "h-full min-h-[100px] gap-2 py-3.5" : "gap-2.5 py-5"
+          half ? "h-full min-h-[128px] gap-2 py-3.5" : "gap-2.5 py-5"
         }`}
       >
         {field.tag && (
-          <span className="absolute right-2 top-2 rounded-[6px] bg-t1/[0.08] px-1.5 py-0.5 text-[11px] text-t3">{field.tag}</span>
+          // Inside the rounded corner, not on it; the two slots keep the same layout either way.
+          <span className="absolute right-2.5 top-2.5 rounded-[5px] bg-t1/[0.07] px-1.5 py-px text-[10.5px] leading-[16px] text-t4">{field.tag}</span>
         )}
         <span
           className={`grid place-items-center rounded-full bg-t1/[0.08] text-t2 ${half ? "h-9 w-9" : "h-10 w-10"}`}
@@ -214,6 +215,32 @@ function AdvancedRow({ count }: { count: number }) {
       <span className="text-[12.5px] text-t3">
         {count} {count === 1 ? "option" : "options"}
       </span>
+      <Icon name="chevron" size={16} className="-rotate-90 shrink-0 text-t3" />
+    </button>
+  );
+}
+
+/**
+ * A model's bitrate, given a row of its own above Advanced as Higgsfield's
+ * Seedance has: its name, the level in use, a tap for the next one.
+ */
+function BitrateRow({ field }: { field: Field }) {
+  const values = useValues();
+  const setValue = useStudio((s) => s.setValue);
+  const choices = field.choices ?? [];
+  const current = String(values[field.key] ?? field.default ?? choices[0]?.value ?? "");
+  const at = Math.max(0, choices.findIndex((c) => c.value === current));
+  const label = choices[at]?.label ?? current;
+  return (
+    <button
+      type="button"
+      onClick={() => setValue(field.key, choices[(at + 1) % choices.length]?.value)}
+      title={`Bitrate: ${choices.map((c) => c.label).join(" or ")}`}
+      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+    >
+      <Icon name="video" size={17} className="shrink-0 text-t2" />
+      <span className="flex-1 text-[14px] text-t1">Bitrate</span>
+      <span className={`text-[12.5px] font-medium ${at === choices.length - 1 ? "text-accent" : "text-t2"}`}>{label}</span>
       <Icon name="chevron" size={16} className="-rotate-90 shrink-0 text-t3" />
     </button>
   );
@@ -374,6 +401,7 @@ export function ComposerBody({
   // Switches ride in the prompt box, the way its audio does on a clip; the
   // options that open a menu are the tiles under it.
   const toggles = barFields.filter((f) => f.kind === "toggle");
+  const bitrate = panelFields.find((f) => /bitrate/i.test(f.key) && (f.choices?.length ?? 0) > 1);
   const tiles = barFields.filter((f) => f.kind !== "toggle");
   const count = tiles.length + (batchable ? 1 : 0);
   // A phone heads only video with the model's card; everywhere else on a
@@ -540,7 +568,8 @@ export function ComposerBody({
         </TileChips.Provider>
       )}
 
-      {panelFields.length > 0 && <AdvancedRow count={panelFields.length} />}
+      {bitrate && <BitrateRow field={bitrate} />}
+      {panelFields.length - (bitrate ? 1 : 0) > 0 && <AdvancedRow count={panelFields.length - (bitrate ? 1 : 0)} />}
 
       <ErrorPopup message={error} onClose={() => setError(null)} />
     </>
