@@ -157,6 +157,11 @@ export function barAndPanel(fields: Field[]): { bar: Field[]; panel: Field[] } {
   };
 }
 
+/** A bitrate choice: given a row of its own in the composer (as Higgsfield's), so kept out of Advanced. */
+export function isBitrate(field: Field): boolean {
+  return /bitrate/i.test(field.key) && (field.choices?.length ?? 0) > 1;
+}
+
 /** Fields that apply to the current values (mode-aware). */
 export function activeFields(model: ModelDef, values: Values): Field[] {
   return model.fields.filter((f) => !f.when || f.when(values));

@@ -23,7 +23,7 @@ import {
 } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
 import { openingClip, videoDuration } from "@/lib/clips";
-import type { Field, ModelDef } from "@/lib/registry";
+import { isBitrate, type Field, type ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import { activeKey, useStudio, useValues } from "@/store/studio";
 import { GenjutsuComposer } from "@/components/remix/RemixStudio";
@@ -401,7 +401,7 @@ export function ComposerBody({
   // Switches ride in the prompt box, the way its audio does on a clip; the
   // options that open a menu are the tiles under it.
   const toggles = barFields.filter((f) => f.kind === "toggle");
-  const bitrate = panelFields.find((f) => /bitrate/i.test(f.key) && (f.choices?.length ?? 0) > 1);
+  const bitrate = panelFields.find(isBitrate);
   const tiles = barFields.filter((f) => f.kind !== "toggle");
   const count = tiles.length + (batchable ? 1 : 0);
   // A phone heads only video with the model's card; everywhere else on a
