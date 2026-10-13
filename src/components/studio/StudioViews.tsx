@@ -295,15 +295,16 @@ function ProjectSidebar() {
   );
 }
 
-/** A slim strip over a page's wall: its title, and what it can do. */
-export function ViewHead({ title, sub, children }: { title: string; sub?: string; children?: ReactNode }) {
+/**
+ * A slim strip over a page's wall, as Assets has it: no title or count, only
+ * what the page can do — `left` at the left edge (a phone's Select), the
+ * rest at the right.
+ */
+export function ViewHead({ left, children }: { left?: ReactNode; children?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-2 md:min-h-[56px] md:px-1 md:py-2.5">
-      <div className="min-w-0">
-        <h2 className="truncate text-[15px] font-semibold text-t1">{title}</h2>
-        {sub && <p className="text-[12.5px] text-t3">{sub}</p>}
-      </div>
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
+    <div className="flex items-center justify-between gap-3 px-4 pb-3 pt-2 md:min-h-[56px] md:px-1 md:py-2.5">
+      <div className="flex min-w-0 items-center gap-2">{left}</div>
+      <div className="flex shrink-0 items-center gap-2">{children}</div>
     </div>
   );
 }
@@ -519,18 +520,17 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <ViewHead
-        title={favoritesOnly ? "My favorites" : "My generations"}
-        sub={uploadsShown ? `${shownUploads.length} uploads` : `${count.toLocaleString()} ${count === 1 ? "piece" : "pieces"}`}
+        left={
+          <span className="md:hidden">
+            <SelectToggle />
+          </span>
+        }
       >
-        {/* A phone: Select, Filter, then its two layouts, as Assets and Favorites have them. */}
-        <span className="md:hidden">
-          <SelectToggle />
-        </span>
+        {/* Filter, then the layout: a phone's two, a desktop's tile size. */}
         <FilterMenu filter={filter} onChange={setFilter} models={models} />
         <span className="md:hidden">
           <PhoneGridToggle />
         </span>
-        {/* A desktop: Filter, then the tile size, as Assets and Favorites have it. */}
         <DensitySlider />
       </ViewHead>
       <div className="md:px-1">
@@ -573,8 +573,7 @@ export function ProjectsView() {
   const projects = liveProjects(useStudio((s) => s.projects));
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <ViewHead title="My projects" sub={`${projects.length} ${projects.length === 1 ? "project" : "projects"}`} />
-      <ProjectGrid className="grid-cols-2 px-4 md:grid-cols-3 md:px-1" />
+      <ProjectGrid className="grid-cols-2 px-4 pt-2 md:grid-cols-3 md:px-1 md:pt-4" />
     </div>
   );
 }
@@ -762,9 +761,6 @@ export function ProjectView() {
   const called = calledElements(runs.filter((r) => r.projectId === project.id).map((r) => r.prompt).join(" \n "), elements);
   const field = "w-full rounded-chip bg-t1/[0.05] px-3.5 py-2.5 text-[15px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong md:text-[14px]";
 
-  const title =
-    folder === "brief" ? "Project brief" : folder === "settings" ? "Settings" : folder === "elements" ? "Elements" : folder === "trash" ? "Trash" : (folderName ?? project.name);
-
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       {/* A phone has no side menu: the project's parts are a row of chips. */}
@@ -796,8 +792,9 @@ export function ProjectView() {
           Add folder
         </button>
       </div>
-      {folder !== "trash" && (
-      <ViewHead title={title} sub={isAssets ? `${myRuns.length + myUploads.length} assets` : undefined}>
+      {/* Only a folder has anything to put up here: its menu and Upload. */}
+      {isAssets && (
+      <ViewHead>
         {openFolder && (
           <Popover
             width={220}

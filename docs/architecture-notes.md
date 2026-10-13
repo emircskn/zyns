@@ -264,3 +264,11 @@ Emir STUDIO-UI.md'deki 19 maddeden hepsini seçti; tasarım dili (renk, font, yu
 - **Product link:** `/api/marketing/product-link?url=` (`src/app/api/marketing/product-link/route.ts`). Sadece http/https; kullanıcı adı/şifreli link yok; DNS çözülüp özel/yerel adresler engellenir (her yönlendirmede yeniden, en fazla 3); 8 sn zaman aşımı; 3 MB sınır; IP başına dakikada 20 istek. Shopify'da önce `<ürün-url>.json`, yoksa sayfanın JSON-LD `Product` ve Open Graph etiketleri (`src/lib/marketing/productPage.ts`). Seçilen görseller `makeMediaRef` ile kalıcı kopyalanır ve `product` element'i olur (fiyat `props.price`, açıklama notlarda). Standalone dosyada bu araç "sitede aç" der.
 - **Video:** tarifler `src/recipes/marketing/product-motion.json` (`frame` image-edit-multi → `motion` image-to-video) ve `ugc.json` (`voice` text-to-speech → `frame` image-edit-multi → `talk` lipsync-from-audio). Her adımın modeli composer'da seçilir; seçilmemiş adım "Choose model" der, Generate pasif kalır. Recipe motoruna eklenenler: `unless` (ör. kendi kaydın varsa `voice` atlanır ve model istemez, `stepsNeeded`), şablonda `{{a || b}}` (konuşan video kendi kaydını, yoksa üretilen sesi alır), `retryStep(..., only)` ("Redo this step" sadece o adımı; "Try another model" de sadece o adımı yeniden üretir; "Redo from here" sonrakileri de). Tarif görsel yuvaları `elementKind` element'lerini (karakter, ürün) dokunarak eklemeye izin verir. `StepModelPicker` artık portal (yapışkan panelin içinde kalmasın diye).
 - **Yapılmayanlar / sapmalar:** UGC senaryosu elle yazılır (registry'de LLM yok). Higgsfield'ın yan menüsü yerine sağda sekmeler. Projelere bağlanmadı. Gerçek Higgsfield cevabı ve gerçek ürün sayfası okuması canlıda henüz denenmedi.
+
+## Tasarım kuralı: sayfa üstü şerit (2026-10-13, Emir)
+
+Her medya/kütüphane sayfasının üstündeki şerit Assets'teki gibi sade olur:
+başlık, alt yazı, "N items" gibi sayılar yok. Telefonda Select en solda;
+Filter, klasör ve grid/yoğunluk düğmeleri sağda. Filtre çipleri varsa
+masaüstünde aynı satırın solunda durur. Cinema Studio'da bunu `ViewHead`
+(`left` + sağdaki children) taşır. Yeni sayfalar da bu düzenle yapılır.
