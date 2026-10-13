@@ -863,7 +863,9 @@ export function MediaViewer({
                 exiting ? "" : "anim-zoom"
               }`}
             >
-              <div className="relative z-10 flex w-full min-h-0 items-center justify-center md:flex-1">
+              {/* A phone gives every piece the same box, so the actions under it
+                  stay put while stepping from a tall one to a wide one. */}
+              <div className="relative z-10 flex h-[52vh] w-full min-h-0 items-center justify-center md:h-auto md:flex-1">
                 <Stage url={shown} />
               </div>
               {run && run.urls.length > 1 && (
