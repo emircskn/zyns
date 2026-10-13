@@ -34,7 +34,7 @@ export function ElementsPage() {
             className="cta flex items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium"
           >
             <Icon name="plus" size={15} />
-            New element
+            New
           </button>
         )}
       </div>
@@ -75,7 +75,7 @@ export function ElementsPage() {
           className="cta flex shrink-0 items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium md:hidden"
         >
           <Icon name="plus" size={15} />
-          New element
+          New
         </button>
         </div>
       )}
