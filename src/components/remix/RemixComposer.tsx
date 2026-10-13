@@ -214,7 +214,7 @@ function SourceBox({
           type="button"
           onClick={onClear}
           aria-label="Remove the source video"
-          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms] active:scale-90"
+          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms]"
         >
           <Icon name="close" size={15} />
         </button>

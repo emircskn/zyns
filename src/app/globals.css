@@ -1484,22 +1484,6 @@ html {
   color: var(--t4);
   opacity: 1 !important;
 }
-/* Feedback on the press itself, not on release: a button gives a little
-   under the finger at once and comes back gently when let go. Buttons laid
-   over a picture (absolute) and anything marked data-no-press stay put. */
-:where(button, [role="button"]):not(.absolute):not([data-no-press]):not(:disabled) {
-  transition-property: background-color, border-color, color, opacity, box-shadow, scale;
-}
-:where(button, [role="button"]):not(.absolute):not([data-no-press]):not(:disabled):active {
-  scale: 0.97;
-  transition-duration: 70ms;
-}
-@media (prefers-reduced-motion: reduce) {
-  :where(button, [role="button"]):active {
-    scale: none !important;
-  }
-}
-
 /* Asked for less see-through: the glass turns solid. */
 @media (prefers-reduced-transparency: reduce) {
   .backdrop-blur-2xl,

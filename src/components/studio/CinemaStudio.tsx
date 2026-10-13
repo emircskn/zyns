@@ -69,7 +69,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               type="button"
               onClick={() => patchStudio({ view: item.id })}
               aria-current={view === item.id || (item.id === "projects" && view === "project") || undefined}
-              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] ${
+              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${
                 view === item.id || (item.id === "projects" && view === "project") ? "text-canvas" : "bg-t1/[0.07] text-t2"
               }`}
             >

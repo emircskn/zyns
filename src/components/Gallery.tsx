@@ -541,7 +541,7 @@ function RunDetails({ run }: { run: Run }) {
               onClick={() => setInput(url)}
               title="Open this input"
               aria-label="Open this input"
-              className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line transition-transform duration-[120ms] hover:scale-105 active:scale-95"
+              className="h-11 w-11 overflow-hidden rounded-chip bg-surface ring-1 ring-inset ring-line transition-transform duration-[120ms] hover:scale-105"
             >
               {mediaKind(url) === "image" ? (
                 // eslint-disable-next-line @next/next/no-img-element

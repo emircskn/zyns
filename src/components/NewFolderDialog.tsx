@@ -160,7 +160,7 @@ export function NewFolderDialog() {
                 aria-label={c.name}
                 title={c.name}
                 onClick={() => setColor(c.hex)}
-                className={`h-[22px] w-[22px] rounded-full transition-transform duration-[120ms] active:scale-90 ${
+                className={`h-[22px] w-[22px] rounded-full transition-transform duration-[120ms] ${
                   color === c.hex ? "ring-2 ring-t1 ring-offset-2 ring-offset-[var(--elevated)]" : ""
                 }`}
                 style={{ backgroundColor: c.hex }}

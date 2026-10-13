@@ -87,7 +87,7 @@ export function RemixStudio({ onKeyClick }: { onKeyClick: () => void }) {
         onClick={() => open(run.urls[0])}
         aria-label="Open"
         title="Open"
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms] active:scale-90"
+        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform duration-[120ms]"
       >
         <Icon name="expand" size={15} />
       </button>

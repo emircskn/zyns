@@ -245,7 +245,7 @@ export function AccountMenu({
           aria-label="Account"
           aria-haspopup="menu"
           aria-expanded={open}
-          className={`relative grid h-9 w-9 place-items-center rounded-full text-t1 transition-[background-color,transform] duration-[150ms] active:scale-[0.94] ${
+          className={`relative grid h-9 w-9 place-items-center rounded-full text-t1 transition-[background-color,transform] duration-[150ms] ${
             open ? "bg-t1/[0.14]" : "bg-t1/[0.08] hover:bg-t1/[0.12]"
           }`}
         >

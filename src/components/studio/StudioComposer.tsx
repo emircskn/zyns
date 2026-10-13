@@ -223,7 +223,7 @@ function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: 
       data-pill={id}
       onClick={() => onMode(id)}
       aria-pressed={mode === id}
-      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[8px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] active:scale-[0.97] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
+      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[8px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
         mode === id ? "text-t1" : "text-t3 hover:text-t1"
       }`}
     >

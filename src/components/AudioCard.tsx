@@ -126,7 +126,7 @@ export function AudioPlay({ url, className = "", compact }: { url: string; class
       type="button"
       onClick={toggle}
       aria-label={on ? "Pause" : "Play"}
-      className={`flex h-8 items-center justify-center gap-1.5 rounded-full bg-t1 text-[12px] font-medium tabular-nums text-canvas transition-transform duration-[120ms] active:scale-95 ${
+      className={`flex h-8 items-center justify-center gap-1.5 rounded-full bg-t1 text-[12px] font-medium tabular-nums text-canvas transition-transform duration-[120ms] ${
         compact ? "w-8" : "pl-2.5 pr-3"
       } ${className}`}
     >

@@ -245,7 +245,7 @@ function RefThumb({ url, onOpen }: { url: string; onOpen: () => void }) {
       onClick={onOpen}
       title="Open this input"
       aria-label="Open this input"
-      className={`${box} transition-transform duration-[120ms] hover:scale-105 active:scale-95`}
+      className={`${box} transition-transform duration-[120ms] hover:scale-105`}
     >
       {kind === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -842,7 +842,7 @@ export function MediaViewer({
                 onClick={() => step(-1)}
                 aria-label="Previous"
                 title="Previous (←)"
-                className="absolute left-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] active:scale-95 md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
+                className="absolute left-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(90deg)" }} />
               </button>
@@ -853,7 +853,7 @@ export function MediaViewer({
                 onClick={() => step(1)}
                 aria-label="Next"
                 title="Next (→)"
-                className="absolute right-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] active:scale-95 md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
+                className="absolute right-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-line transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(-90deg)" }} />
               </button>

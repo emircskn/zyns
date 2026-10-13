@@ -109,7 +109,7 @@ export function NewProjectDialog() {
           type="button"
           onClick={() => setVisibility(isPrivate ? "public" : "private")}
           aria-label={`${isPrivate ? "Private" : "Public"} project, tap to make it ${isPrivate ? "public" : "private"}`}
-          className="mx-auto mt-4 flex items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[13.5px] font-medium text-t1 transition-[background-color,transform] duration-[120ms] hover:bg-t1/[0.12] active:scale-[0.97]"
+          className="mx-auto mt-4 flex items-center gap-2 rounded-full bg-t1/[0.07] px-3.5 py-2 text-[13.5px] font-medium text-t1 transition-[background-color,transform] duration-[120ms] hover:bg-t1/[0.12]"
         >
           <Icon name={isPrivate ? "lock" : "globe"} size={15} className="text-t3" />
           {isPrivate ? "Private project" : "Public project"}
