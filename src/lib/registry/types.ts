@@ -109,6 +109,8 @@ export interface ItemField {
   label: string;
   kind: "text" | "number" | "select" | "toggle" | "media" | "images";
   choices?: Choice[];
+  /** What a new row starts with: the docs' default, or a required choice's first option. */
+  default?: unknown;
   accept?: "image" | "video" | "audio";
   required?: boolean;
   min?: number;
@@ -206,6 +208,23 @@ export const MODE_KEY = "__mode";
 
 export function modeOf(v: Values): string {
   return (v[MODE_KEY] as string) ?? "";
+}
+
+/**
+ * A list of records with each row's missing columns filled from their
+ * defaults: a row made before the defaults existed (ElevenLabs Dialogue's
+ * lines without a voice) still goes out whole.
+ */
+export function withItemDefaults(field: Field | undefined, value: unknown): unknown {
+  if (!field || field.kind !== "records" || !Array.isArray(value) || !field.itemFields) return value;
+  return value.map((row) => {
+    if (!row || typeof row !== "object") return row;
+    const out = { ...(row as Record<string, unknown>) };
+    for (const column of field.itemFields!) {
+      if ((out[column.key] === undefined || out[column.key] === "") && column.default !== undefined) out[column.key] = column.default;
+    }
+    return out;
+  });
 }
 
 /** Drop undefined / empty-string / empty-array entries before sending. */

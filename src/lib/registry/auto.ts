@@ -7,7 +7,7 @@
  */
 import catalog from "./generated/catalog.json";
 import type { Category, Choice, Field, FieldKind, ItemField, ModelDef, Placement, Values } from "./types";
-import { compact } from "./types";
+import { compact, withItemDefaults } from "./types";
 import { ratioNumber } from "@/lib/aspect";
 import { clipProblem, type Clip } from "@/lib/clips";
 
@@ -409,6 +409,7 @@ function itemFieldsFor(props: Record<string, SpecProp>): ItemField[] {
       choices: p.enum ? enumChoices(p) : undefined,
       accept: kind === "media" || kind === "images" ? acceptFor(key) : undefined,
       required: p.required,
+      default: p.default ?? (p.enum && p.required ? p.enum[0] : undefined),
       min: p.minimum,
       max: p.maximum,
       help: sentence(p.desc),
@@ -779,7 +780,7 @@ export function familyToModel(family: Family): ModelDef {
       const input: Record<string, unknown> = {};
       for (const key of mode.keys) {
         const field = fields.find((f) => f.key === key && (!f.when || f.when(v))) ?? fields.find((f) => f.key === key)!;
-        const val = coerce(v[key], mode.props[key], field.kind);
+        const val = coerce(withItemDefaults(field, v[key]), mode.props[key], field.kind);
         if (val === undefined) continue;
         if (Array.isArray(val) && val.length === 0) continue;
         input[key] = val;

@@ -9,7 +9,7 @@
 import catalog from "./generated/catalog.json";
 import type { CatalogFamily, CatalogMedia, HfCatalog, UiHint } from "@/lib/higgsfield/catalogSource";
 import type { Category, Choice, Field, FieldKind, ItemField, ModelDef, Placement, Values } from "../types";
-import { TIER_KEY, compact } from "../types";
+import { TIER_KEY, compact, withItemDefaults } from "../types";
 import { ratioNumber } from "@/lib/aspect";
 import { clipProblem, type Clip } from "@/lib/clips";
 
@@ -338,6 +338,7 @@ function itemFieldsFor(props: Record<string, SpecProp>): ItemField[] {
       choices: p.enum ? enumChoices(p) : undefined,
       accept: kind === "media" || kind === "images" ? acceptFor(key) : undefined,
       required: p.required,
+      default: p.default ?? (p.enum && p.required ? p.enum[0] : undefined),
       min: p.minimum,
       max: p.maximum,
       help: sentence(p.desc),
@@ -748,7 +749,7 @@ export function familyToModel(family: Family): ModelDef {
         // switched off stay in the values but not in the request.
         const field = fields.find((f) => f.key === key && isActive(f, v));
         if (!field) continue;
-        const val = coerce(v[key], unit.props[key], field.kind);
+        const val = coerce(withItemDefaults(field, v[key]), unit.props[key], field.kind);
         if (val === undefined) continue;
         if (Array.isArray(val) && val.length === 0) continue;
         input[key] = val;

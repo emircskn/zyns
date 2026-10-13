@@ -925,7 +925,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
                 )}
                 <ItemInput
                   column={column}
-                  value={row[column.key]}
+                  value={row[column.key] ?? column.default}
                   onChange={(next) => update(index, column.key, next)}
                 />
               </div>
@@ -933,7 +933,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
           </div>
         </div>
       ))}
-      {!full && <AddRow label={`Add ${field.label.toLowerCase().replace(/s$/, "")}`} onClick={() => onChange([...rows, {}])} />}
+      {!full && <AddRow label={`Add ${field.label.toLowerCase().replace(/s$/, "")}`} onClick={() => onChange([...rows, Object.fromEntries(columns.filter((c) => c.default !== undefined).map((c) => [c.key, c.default]))])} />}
       {field.help && <p className="text-[11.5px] leading-snug text-t4">{field.help}</p>}
     </div>
   );
