@@ -3,7 +3,7 @@
 import { Gallery } from "@/components/Gallery";
 import { SideComposer } from "@/components/ComposerPanel";
 import { SIDE_PAGES } from "@/lib/layout";
-import { DensityControl } from "@/components/DensityControl";
+import { DensityControl, SelectToggle } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
 import { VendorBadge } from "@/components/VendorMark";
@@ -75,14 +75,19 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
         }`}
       >
         <div>
-          <p className="text-[13px] text-t3">
+          {mine.length > 0 && view === "grid" && (
+            <span className="md:hidden">
+              <SelectToggle />
+            </span>
+          )}
+          <p className="hidden text-[13px] text-t3 md:block">
             <span className="hidden md:inline">
               {mine.length > 0 ? `${mine.length.toLocaleString()} ${mine.length === 1 ? NOUN_ONE[category] : NOUN[category]}` : ""}
             </span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-        {mine.length > 0 && view === "grid" && <DensityControl />}
+        {mine.length > 0 && view === "grid" && <DensityControl select={false} />}
         {mine.length > 0 && <ViewToggle view={view} onChange={(next) => setView(category, next)} />}
         {!side && (
         <button

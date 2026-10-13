@@ -4,7 +4,7 @@ import { PhoneSubnav } from "@/components/PhoneShell";
 import { Fragment, useMemo, useState } from "react";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
-import { DensityControl } from "@/components/DensityControl";
+import { DensityControl, SelectToggle } from "@/components/DensityControl";
 import { ProjectFilter } from "@/components/ProjectMenu";
 import { Icon, type IconName } from "@/components/Icon";
 import { inFlight, pendingAsset, useAssets, type Asset } from "@/lib/assets";
@@ -62,10 +62,12 @@ export function AssetsPage() {
           here; a phone keeps the name. */}
       {/* A phone: the name, and three small round buttons (project, select,
           grid) where a desktop has a full strip. */}
-      <div className="flex items-center justify-end gap-3 px-4 pb-2.5 pt-1 md:hidden">
+      {/* Select at the left edge, where the thumb starts; the project and the layout at the right. */}
+      <div className="flex items-center justify-between gap-3 px-4 pb-2.5 pt-1 md:hidden">
+        <div>{assets.length + working.length > 0 && <SelectToggle />}</div>
         <div className="flex items-center gap-1.5">
           <ProjectFilter value={project} onChange={setProject} compact />
-          {assets.length + working.length > 0 && <DensityControl />}
+          {assets.length + working.length > 0 && <DensityControl select={false} />}
         </div>
       </div>
       <div className="hidden flex-wrap items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">

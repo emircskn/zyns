@@ -738,8 +738,9 @@ export function Gallery({
             <section key={day.key}>
               <h3 className="mb-3 px-4 text-[14px] !font-normal tracking-[0] text-t3">{day.label}</h3>
               {/* Everything the same size in a grid of three, or one piece
-                  of media at a time, meeting almost edge to edge. */}
-              <div className={`grid gap-[2px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+                  of media at a time, with softly rounded corners and a little
+                  room between them, as Higgsfield's Assets. */}
+              <div className={`grid gap-1.5 px-4 [&>*]:rounded-[10px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
                 {day.items.map((run) => tile(run))}
               </div>
             </section>

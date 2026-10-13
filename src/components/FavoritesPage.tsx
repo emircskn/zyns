@@ -2,7 +2,7 @@
 
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { Stagger } from "@/components/Stagger";
-import { DensityControl } from "@/components/DensityControl";
+import { DensityControl, SelectToggle } from "@/components/DensityControl";
 import { useAssets } from "@/lib/assets";
 import { useStudio } from "@/store/studio";
 
@@ -21,12 +21,17 @@ export function FavoritesPage() {
       {/* A slim strip over the wall, as on the pages that make things. */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
-          <p className="text-[13px] text-t3">
+          {shown.length > 0 && (
+            <span className="md:hidden">
+              <SelectToggle />
+            </span>
+          )}
+          <p className="hidden text-[13px] text-t3 md:block">
             {/* No line under the title: a desktop says how much is kept, a phone nothing. */}
             <span className="hidden md:inline">{shown.length > 0 ? `${shown.length.toLocaleString()} kept` : ""}</span>
           </p>
         </div>
-        {shown.length > 0 && <DensityControl />}
+        {shown.length > 0 && <DensityControl select={false} />}
       </div>
 
       {shown.length === 0 ? (

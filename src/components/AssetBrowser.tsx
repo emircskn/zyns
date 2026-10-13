@@ -358,7 +358,7 @@ export function AssetBrowser({
             {/* Phone: a grid of three squares, or one at a time. Desktop:
                 justified rows, each piece as wide as its shape. */}
             {phone ? (
-              <div className={`grid gap-[2px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
+              <div className={`grid gap-1.5 px-4 [&>*]:rounded-[10px] ${phoneGrid ? "grid-cols-3" : "grid-cols-1"}`}>
                 {day.items.map((asset) => tile(asset))}
               </div>
             ) : (

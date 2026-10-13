@@ -10,14 +10,14 @@ const STEPS = [2, 3, 4, 5, 6];
  * ones to find something — one control either way, so the page does not need
  * a settings panel for a single number.
  */
-export function DensityControl() {
+export function DensityControl({ select = true }: { select?: boolean } = {}) {
 
   return (
     <>
       {/* A phone picks through this rather than a long press, which iOS
           also reads as selecting text or opening the picture's own menu. */}
       <div className="flex items-center gap-1.5 md:hidden">
-        <SelectToggle />
+        {select && <SelectToggle />}
         <PhoneGridToggle />
       </div>
 

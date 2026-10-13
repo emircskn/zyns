@@ -24,7 +24,8 @@ export function ElementsPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
+      {/* A phone has New element at the end of the kinds' row instead, so this strip is a desktop's. */}
+      <div className="hidden flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:flex md:min-h-[56px] md:py-2.5">
         <div>
           <p className="text-[13px] text-t3">
             <span className="hidden md:inline">
@@ -45,7 +46,13 @@ export function ElementsPage() {
       </div>
 
       {elements.length > 0 && (
-        <div role="tablist" aria-label="Filter elements" className="no-bar mb-3 flex gap-2 overflow-x-auto px-4">
+        <div className="mb-3 flex items-center gap-2 pr-4 max-md:pt-1">
+        {/* On a phone the kinds slide on under New element, which keeps its place at the right. */}
+        <div
+          role="tablist"
+          aria-label="Filter elements"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 max-md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] md:pr-0"
+        >
           {[
             { id: "all" as Filter, plural: "All" },
             ...ELEMENT_KINDS,
@@ -67,6 +74,15 @@ export function ElementsPage() {
               </button>
             );
           })}
+        </div>
+        <button
+          type="button"
+          onClick={() => openEditor({})}
+          className="cta flex shrink-0 items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium md:hidden"
+        >
+          <Icon name="plus" size={15} />
+          New element
+        </button>
         </div>
       )}
 
