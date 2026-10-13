@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
-import { BLURB } from "@/lib/remix/banner";
 import { useStudio } from "@/store/studio";
 
 /** Shown in place of the composer while there is no Higgsfield key: Genjutsu (and Cinema Studio) run on it. */
@@ -44,7 +43,6 @@ export function RemixPage({
   /** How many remixes there are, for the strip over them. */
   count?: number;
 }) {
-  const mode = useStudio((s) => s.remix.mode);
   const hfKey = useStudio((s) => s.hfKey);
   const offered = (Object.keys(tabs ?? {}) as RemixTab[]).filter((t) => tabs?.[t]);
   const tab = useStudio((s) => s.remixTab);
@@ -53,10 +51,8 @@ export function RemixPage({
 
   return (
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
-      {/* A phone has no header nav, so the page names itself, as the others do. */}
-      <div className="px-4 pb-3 pt-1 md:hidden">
-        <p className="text-[13px] text-t3">{BLURB[mode]}</p>
-      </div>
+      {/* No line under the title; the header names the page. */}
+      <div className="h-1 md:hidden" />
       <aside className="flex w-full shrink-0 flex-col px-4 md:sticky md:top-[76px] md:h-[calc(100dvh-92px)] md:w-[340px] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated md:px-0">
         {hfKey ? composer : <NeedsHiggsfield onKeyClick={onKeyClick} />}
       </aside>

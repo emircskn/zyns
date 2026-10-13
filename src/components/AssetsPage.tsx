@@ -62,8 +62,7 @@ export function AssetsPage() {
           here; a phone keeps the name. */}
       {/* A phone: the name, and three small round buttons (project, select,
           grid) where a desktop has a full strip. */}
-      <div className="flex items-center justify-between gap-3 px-4 pb-2.5 pt-1 md:hidden">
-        <p className="text-[13px] text-t3">What you make and upload</p>
+      <div className="flex items-center justify-end gap-3 px-4 pb-2.5 pt-1 md:hidden">
         <div className="flex items-center gap-1.5">
           <ProjectFilter value={project} onChange={setProject} compact />
           {assets.length + working.length > 0 && <DensityControl />}
@@ -71,7 +70,7 @@ export function AssetsPage() {
       </div>
       <div className="hidden flex-wrap items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">
         <p className="text-[13px] text-t3">
-          {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : "What you make and upload"}
+          {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : ""}
         </p>
         <div className="flex items-center gap-2">
           <ProjectFilter value={project} onChange={setProject} />

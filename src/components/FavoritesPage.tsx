@@ -22,10 +22,8 @@ export function FavoritesPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
           <p className="text-[13px] text-t3">
-            <span className="md:hidden">What you keep with the heart</span>
-            <span className="hidden md:inline">
-              {shown.length > 0 ? `${shown.length.toLocaleString()} kept` : "What you keep with the heart"}
-            </span>
+            {/* No line under the title: a desktop says how much is kept, a phone nothing. */}
+            <span className="hidden md:inline">{shown.length > 0 ? `${shown.length.toLocaleString()} kept` : ""}</span>
           </p>
         </div>
         {shown.length > 0 && <DensityControl />}

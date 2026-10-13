@@ -24,13 +24,6 @@ const NOUN_ONE: Record<Category, string> = {
   tool: "result",
 };
 
-const BLURB: Record<Category, string> = {
-  image: "Stills you generate and edit",
-  video: "Motion, avatars and editing",
-  audio: "Music, speech and effects",
-  tool: "Upscales, cut-outs and clean-ups",
-};
-
 /**
  * One page per kind of work: the models for it, and the things it has made.
  * Nothing from another category appears here.
@@ -83,11 +76,8 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
       >
         <div>
           <p className="text-[13px] text-t3">
-            <span className="md:hidden">{BLURB[category]}</span>
             <span className="hidden md:inline">
-              {mine.length > 0
-                ? `${mine.length.toLocaleString()} ${mine.length === 1 ? NOUN_ONE[category] : NOUN[category]}`
-                : BLURB[category]}
+              {mine.length > 0 ? `${mine.length.toLocaleString()} ${mine.length === 1 ? NOUN_ONE[category] : NOUN[category]}` : ""}
             </span>
           </p>
         </div>

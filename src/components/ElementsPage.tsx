@@ -27,11 +27,8 @@ export function ElementsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:min-h-[56px] md:py-2.5">
         <div>
           <p className="text-[13px] text-t3">
-            <span className="md:hidden">Call them into any prompt with @</span>
             <span className="hidden md:inline">
-              {elements.length > 0
-                ? `${elements.length} ${elements.length === 1 ? "element" : "elements"} · call one into any prompt with @`
-                : "Call them into any prompt with @"}
+              {elements.length > 0 ? `${elements.length} ${elements.length === 1 ? "element" : "elements"}` : ""}
             </span>
           </p>
         </div>
