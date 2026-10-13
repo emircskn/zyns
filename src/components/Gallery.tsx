@@ -380,7 +380,7 @@ export function Tile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
+        <span className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] ring-2 ring-inset ring-t1" />
       )}
 
       {/* Which service made it, small in the corner; the select mark takes its place on hover. */}
@@ -398,7 +398,7 @@ export function Tile({
               : "hover-reveal tap-reveal pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           }`}
         >
-          <SelectMark on={picked} />
+          <SelectMark on={picked} small={square} />
         </button>
       )}
 

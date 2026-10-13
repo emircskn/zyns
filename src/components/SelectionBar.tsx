@@ -202,14 +202,15 @@ export function SelectionBar({
 }
 
 /** The tick a tile carries while picking, filled once it is picked. */
-export function SelectMark({ on }: { on: boolean }) {
+export function SelectMark({ on, small }: { on: boolean; small?: boolean }) {
+  // The size of the service badge it stands in for, so the corner keeps one size.
   return (
     <span
-      className={`grid h-[22px] w-[22px] place-items-center rounded-[7px] border-[1.5px] transition-all duration-[120ms] ${
+      className={`grid place-items-center rounded-full border-[1.5px] transition-all duration-[120ms] ${small ? "h-5 w-5" : "h-6 w-6"} ${
         on ? "border-transparent bg-accent text-accent-ink" : "border-white/70 bg-black/35 text-transparent"
       }`}
     >
-      <Icon name="check" size={15} strokeWidth={2.4} />
+      <Icon name="check" size={small ? 12 : 14} strokeWidth={2.6} />
     </span>
   );
 }

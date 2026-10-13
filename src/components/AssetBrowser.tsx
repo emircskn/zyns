@@ -181,7 +181,7 @@ function AssetTile({
           it: an inset ring on the tile itself is painted beneath the media and
           came out as thin lines along the edges. */}
       {picked && (
-        <span className="pointer-events-none absolute inset-0 z-10 ring-2 ring-inset ring-t1" />
+        <span className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] ring-2 ring-inset ring-t1" />
       )}
 
       {/* Which service made it; uploads came from no service. */}
@@ -193,13 +193,13 @@ function AssetTile({
         aria-label={picked ? "Deselect" : "Select"}
         // Invisible is not absent: at opacity 0 this still took the tap meant
         // for the picture under it, and the tile quietly went into picking.
-        className={`absolute left-1.5 top-1.5 transition-opacity duration-[150ms] ${
+        className={`absolute left-2 top-2 z-10 transition-opacity duration-[150ms] ${
           picking
             ? "opacity-100"
             : "hover-reveal tap-reveal pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
         }`}
       >
-        <SelectMark on={picked} />
+        <SelectMark on={picked} small={square} />
       </button>
 
       {!picking && (

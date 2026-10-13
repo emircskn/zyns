@@ -25,12 +25,12 @@ export function ElementsPage() {
   return (
     <div className="anim-fade flex flex-1 flex-col">
       {elements.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 pr-4 max-md:pt-1 md:mb-0 md:min-h-[56px] md:gap-3 md:py-2.5">
+        <div className="mb-3 flex items-center gap-1 pr-4 max-md:pt-1 md:mb-0 md:min-h-[56px] md:gap-3 md:py-2.5">
         {/* The kinds slide on under New, which keeps its place at the right. */}
         <div
           role="tablist"
           aria-label="Filter elements"
-          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [mask-image:linear-gradient(to_right,black_calc(100%-12px),transparent)]"
         >
           {[
             { id: "all" as Filter, plural: "All" },
@@ -54,7 +54,7 @@ export function ElementsPage() {
             );
           })}
           {/* Room for the fade, so the last kind ends clear of it once scrolled to. */}
-          <span aria-hidden className="w-4 shrink-0" />
+          <span aria-hidden className="w-1 shrink-0" />
         </div>
         <button
           type="button"

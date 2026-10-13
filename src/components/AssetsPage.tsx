@@ -78,7 +78,7 @@ export function AssetsPage() {
         <div
           role="tablist"
           aria-label="Filter assets"
-          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-12px),transparent)]"
         >
           {FILTERS.map((f) => {
             const on = f.id === filter;
@@ -103,7 +103,7 @@ export function AssetsPage() {
             );
           })}
           {/* Room for the fade, so the last filter ends clear of it once scrolled to. */}
-          <span aria-hidden className="w-4 shrink-0" />
+          <span aria-hidden className="w-1 shrink-0" />
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <ProjectFilter value={project} onChange={setProject} />
