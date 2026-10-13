@@ -136,7 +136,8 @@ function AssetTile({
       <button
         type="button"
         onClick={picking ? onPick : onOpen}
-        className={`block w-full cursor-zoom-in ${box ? "h-full" : square ? "aspect-square" : ""}`}
+        // The tile's corners go along when a press shrinks the picture.
+        className={`block w-full cursor-zoom-in overflow-hidden rounded-[inherit] ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element

@@ -316,13 +316,14 @@ export function Tile({
             ? undefined
             : { aspectRatio: run.output === "audio" ? "1 / 1" : run.state === "queued" ? "5 / 2" : measured ? String(measured) : run.ratio }
         }
-        className={`t-resize relative w-full ${box ? "h-full" : square ? "aspect-square" : ""}`}
+        className={`t-resize relative w-full rounded-[inherit] ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {url ? (
           <button
             type="button"
             onClick={() => (picking ? onPick() : onOpen(url))}
-            className="block h-full w-full cursor-zoom-in"
+            // The tile's corners go along when a press shrinks the picture.
+            className="block h-full w-full cursor-zoom-in overflow-hidden rounded-[inherit]"
           >
             <Media url={url} run={run} compact={square} />
             {extras && mediaKind(url) === "video" && (
