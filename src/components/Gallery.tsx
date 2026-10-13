@@ -18,7 +18,7 @@ import { mediaKind } from "@/lib/upload";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
-import { recreateRun, sendReference } from "@/lib/reuse";
+import { recreateAndOpen, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { byDay } from "@/lib/days";
 import { type Box } from "@/lib/justify";
@@ -89,7 +89,7 @@ function StatusOverlay({ run }: { run: Run }) {
         <div className="mt-0.5 flex items-center justify-center gap-1.5">
           <button
             type="button"
-            onClick={() => recreateRun(run)}
+            onClick={() => recreateAndOpen(run)}
             title="Put this run's model and settings back in the prompt bar"
             aria-label="Recreate"
             className="flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-t1/[0.08] px-2 text-[11.5px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.14] hover:text-t1 @[190px]:px-2.5"
@@ -440,7 +440,7 @@ export function Tile({
               }}
             />
           )}
-          <TileAction icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />
+          <TileAction icon="refresh" label="Recreate" onClick={() => recreateAndOpen(run)} />
           {extras?.folders && extras.onFolder && url && (
             <Popover
               width={220}
@@ -584,7 +584,7 @@ function RunDetails({ run }: { run: Run }) {
             <Icon name={copied ? "check" : "copy"} size={15} />
           </button>
         )}
-        <button type="button" title="Recreate" aria-label="Recreate" onClick={() => recreateRun(run)} className={button}>
+        <button type="button" title="Recreate" aria-label="Recreate" onClick={() => recreateAndOpen(run)} className={button}>
           <Icon name="refresh" size={15} />
         </button>
         <button

@@ -24,6 +24,7 @@ import {
   attachReference,
   firstFrameModel,
   referenceModel,
+  readyToWrite,
   recreateRun,
   sendReference,
 } from "@/lib/reuse";
@@ -640,23 +641,6 @@ export function MediaViewer({
     readyToWrite();
   }
 
-  // After handing the bar a run or a picture, have it ready to write in: a
-  // phone opens its composer; a desktop's bar is always open, so its prompt
-  // simply takes the caret.
-  function readyToWrite() {
-    if (phone) {
-      useStudio.getState().setComposer(true);
-      return;
-    }
-    window.setTimeout(() => {
-      const box = [...document.querySelectorAll<HTMLTextAreaElement>("textarea[data-prompt-input]")].find(
-        (node) => node.getBoundingClientRect().width > 0,
-      );
-      if (!box) return;
-      box.focus();
-      box.setSelectionRange(box.value.length, box.value.length);
-    }, 260);
-  }
 
   // What other models can do with this run: Extend it, Upscale it, split
   // its stems. Grouped by the model that does it, the run's own first.

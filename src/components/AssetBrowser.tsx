@@ -10,7 +10,7 @@ import { saveMedia, useSave } from "@/lib/download";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { usePhone } from "@/lib/usePhone";
 import { useLeaving } from "@/lib/useLeaving";
-import { recreateRun, sendReference } from "@/lib/reuse";
+import { recreateAndOpen, sendReference } from "@/lib/reuse";
 import { useReflow } from "@/lib/useReflow";
 import { keptNote, usedElsewhere } from "@/lib/usage";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
@@ -220,7 +220,7 @@ function AssetTile({
               className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/85"
             />
             <SaveTileButton url={asset.url} />
-            {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateRun(run)} />}
+            {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateAndOpen(run)} />}
             {onRemove && <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />}
           </div>
 

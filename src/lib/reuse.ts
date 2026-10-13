@@ -125,6 +125,35 @@ export function sendReference(url: string): boolean {
  * a complete form. A run that kept only its prompt line (sample media, or an
  * older run) puts that line in the prompt field rather than arriving empty.
  */
+/**
+ * After handing the bar a run or a picture, have it ready to write in: a
+ * phone opens its composer; a desktop's bar is always open, so its prompt
+ * simply takes the caret.
+ */
+export function readyToWrite() {
+  if (typeof window === "undefined") return;
+  if (window.matchMedia("(max-width: 767px)").matches) {
+    useStudio.getState().setComposer(true);
+    return;
+  }
+  window.setTimeout(() => {
+    const box = [...document.querySelectorAll<HTMLTextAreaElement>("textarea[data-prompt-input]")].find(
+      (node) => node.getBoundingClientRect().width > 0,
+    );
+    if (!box) return;
+    box.focus();
+    box.setSelectionRange(box.value.length, box.value.length);
+  }, 260);
+}
+
+/** Recreate from a tile: the run's settings back in the bar, and the bar open to write in. */
+export function recreateAndOpen(run: Run): boolean {
+  const own = run.modelId === GENJUTSU || isStudioRun(run);
+  const ok = recreateRun(run);
+  if (ok && !own) readyToWrite();
+  return ok;
+}
+
 export function recreateRun(run: Run): boolean {
   // Genjutsu's runs go back to its own page, with their clip and pictures.
   if (run.modelId === GENJUTSU) {
