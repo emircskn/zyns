@@ -24,28 +24,13 @@ export function ElementsPage() {
 
   return (
     <div className="anim-fade flex flex-1 flex-col">
-      {/* A phone has New element at the end of the kinds' row instead, so this strip is a desktop's. */}
-      <div className="hidden flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:flex md:min-h-[56px] md:py-2.5">
-        <div />
-        {elements.length > 0 && (
-          <button
-            type="button"
-            onClick={() => openEditor({})}
-            className="cta flex items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium"
-          >
-            <Icon name="plus" size={15} />
-            New
-          </button>
-        )}
-      </div>
-
       {elements.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 pr-4 max-md:pt-1">
-        {/* On a phone the kinds slide on under New element, which keeps its place at the right. */}
+        <div className="mb-3 flex items-center gap-2 pr-4 max-md:pt-1 md:mb-0 md:min-h-[56px] md:gap-3 md:py-2.5">
+        {/* The kinds slide on under New, which keeps its place at the right. */}
         <div
           role="tablist"
           aria-label="Filter elements"
-          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 max-md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] md:pr-0"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] pr-6"
         >
           {[
             { id: "all" as Filter, plural: "All" },
@@ -72,7 +57,7 @@ export function ElementsPage() {
         <button
           type="button"
           onClick={() => openEditor({})}
-          className="cta flex shrink-0 items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium md:hidden"
+          className="cta flex shrink-0 items-center gap-1.5 rounded-full py-2 pl-3 pr-4 text-[12.5px] font-medium"
         >
           <Icon name="plus" size={15} />
           New

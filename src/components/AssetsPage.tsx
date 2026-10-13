@@ -70,9 +70,40 @@ export function AssetsPage() {
           {assets.length + working.length > 0 && <DensityControl select={false} />}
         </div>
       </div>
-      <div className="hidden flex-wrap items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">
-        <div />
-        <div className="flex items-center gap-2">
+      {/* A desktop's filters share the strip with the folder and the grid, so nothing sits over them. */}
+      <div className="hidden items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">
+        {/* Each filter its own tile with its icon, the chosen one simply
+            lighter: no track, no counts beside every word, no step arrows. The
+            row scrolls sideways under a thumb when a phone is too narrow. */}
+        <div
+          role="tablist"
+          aria-label="Filter assets"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] pr-6"
+        >
+          {FILTERS.map((f) => {
+            const on = f.id === filter;
+            return (
+              <Fragment key={f.id}>
+              {/* Uploads are not something the studio made: a hairline sets
+                  them apart from the outputs' filters, as All leaves them out. */}
+              {f.id === "upload" && <span aria-hidden className="mx-1 w-px shrink-0 self-stretch bg-line-strong" />}
+              <button
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setFilter(f.id)}
+                className={`flex h-10 shrink-0 items-center gap-2 rounded-card px-3.5 text-[14px] font-semibold tracking-[-0.01em] transition-colors duration-[150ms] ${
+                  on ? "bg-t1/[0.14] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.08] hover:text-t1"
+                }`}
+              >
+                <Icon name={f.icon} size={17} className={on ? "" : "text-t3"} />
+                {f.label}
+              </button>
+              </Fragment>
+            );
+          })}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <ProjectFilter value={project} onChange={setProject} />
           {assets.length + working.length > 0 && <DensityControl />}
         </div>
@@ -111,38 +142,6 @@ export function AssetsPage() {
         </button>
       </div>
       </PhoneSubnav>
-
-      {/* Each filter its own tile with its icon, the chosen one simply
-          lighter: no track, no counts beside every word, no step arrows. The
-          row scrolls sideways under a thumb when a phone is too narrow. */}
-      <div
-        role="tablist"
-        aria-label="Filter assets"
-        className="no-bar mb-3 hidden gap-2 overflow-x-auto px-4 md:flex"
-      >
-        {FILTERS.map((f) => {
-          const on = f.id === filter;
-          return (
-            <Fragment key={f.id}>
-            {/* Uploads are not something the studio made: a hairline sets
-                them apart from the outputs' filters, as All leaves them out. */}
-            {f.id === "upload" && <span aria-hidden className="mx-1 w-px shrink-0 self-stretch bg-line-strong" />}
-            <button
-              type="button"
-              role="tab"
-              aria-selected={on}
-              onClick={() => setFilter(f.id)}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-card px-3.5 text-[14px] font-semibold tracking-[-0.01em] transition-colors duration-[150ms] ${
-                on ? "bg-t1/[0.14] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.08] hover:text-t1"
-              }`}
-            >
-              <Icon name={f.icon} size={17} className={on ? "" : "text-t3"} />
-              {f.label}
-            </button>
-            </Fragment>
-          );
-        })}
-      </div>
 
       {shown.length === 0 ? (
         <div className="grid flex-1 place-items-center px-4 py-16 text-center">
