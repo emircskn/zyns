@@ -71,9 +71,7 @@ export function AssetsPage() {
         </div>
       </div>
       <div className="hidden flex-wrap items-center justify-between gap-3 px-4 py-2.5 md:flex md:min-h-[56px]">
-        <p className="text-[13px] text-t3">
-          {shown.length > 0 ? `${shown.length.toLocaleString()} ${shown.length === 1 ? "item" : "items"}` : ""}
-        </p>
+        <div />
         <div className="flex items-center gap-2">
           <ProjectFilter value={project} onChange={setProject} />
           {assets.length + working.length > 0 && <DensityControl />}

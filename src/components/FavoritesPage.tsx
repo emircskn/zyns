@@ -26,10 +26,6 @@ export function FavoritesPage() {
               <SelectToggle />
             </span>
           )}
-          <p className="hidden text-[13px] text-t3 md:block">
-            {/* No line under the title: a desktop says how much is kept, a phone nothing. */}
-            <span className="hidden md:inline">{shown.length > 0 ? `${shown.length.toLocaleString()} kept` : ""}</span>
-          </p>
         </div>
         {shown.length > 0 && <DensityControl select={false} />}
       </div>

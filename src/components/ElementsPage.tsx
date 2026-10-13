@@ -26,13 +26,7 @@ export function ElementsPage() {
     <div className="anim-fade flex flex-1 flex-col">
       {/* A phone has New element at the end of the kinds' row instead, so this strip is a desktop's. */}
       <div className="hidden flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-1 md:flex md:min-h-[56px] md:py-2.5">
-        <div>
-          <p className="text-[13px] text-t3">
-            <span className="hidden md:inline">
-              {elements.length > 0 ? `${elements.length} ${elements.length === 1 ? "element" : "elements"}` : ""}
-            </span>
-          </p>
-        </div>
+        <div />
         {elements.length > 0 && (
           <button
             type="button"
