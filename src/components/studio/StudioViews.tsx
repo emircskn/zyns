@@ -361,7 +361,8 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
   );
   return (
     <Popover width={260} align="end" title="Filter" trigger={() => <MenuButton icon="sliders" label="Filter" count={activeFilters(filter)} />}>
-      <div className="no-bar flex max-h-[min(520px,70vh)] flex-col overflow-y-auto">
+      {/* The popover scrolls the list itself: a second scroller in here caught the swipe halfway. */}
+      <div className="flex flex-col">
         {group(
           "Type",
           (["all", "image", "video"] as const).map((t) => <Choice key={t} on={filter.type === t} label={t === "all" ? "All types" : t === "image" ? "Images" : "Videos"} onClick={() => set({ type: t })} />),

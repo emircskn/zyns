@@ -102,12 +102,18 @@ export function Popover({ trigger, children, align = "start", width = 264, title
         maxHeight: Math.max(120, Math.min(ceiling, (below ? roomBelow : roomAbove) - chrome)),
       });
     };
+    // Its own list scrolling moves nothing: measuring then re-rendered the
+    // panel on every frame of the swipe, and it stuck.
+    const onScroll = (event: Event) => {
+      if (event.target instanceof Node && panel.current?.contains(event.target)) return;
+      measure();
+    };
     measure();
     window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
+    window.addEventListener("scroll", onScroll, true);
     return () => {
       window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, [mounted, align, width, title]);
 
@@ -132,7 +138,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
               </div>
             )}
             <div
-              className="overflow-y-auto"
+              className="no-bar overflow-y-auto overscroll-contain"
               style={{ maxHeight: place.maxHeight, ["--pop-max" as string]: `${place.maxHeight}px` }}
             >
               {typeof children === "function" ? children(() => setOpen(false)) : children}
