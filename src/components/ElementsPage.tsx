@@ -30,7 +30,7 @@ export function ElementsPage() {
         <div
           role="tablist"
           aria-label="Filter elements"
-          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] pr-6"
+          className="no-bar flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]"
         >
           {[
             { id: "all" as Filter, plural: "All" },
@@ -53,6 +53,8 @@ export function ElementsPage() {
               </button>
             );
           })}
+          {/* Room for the fade, so the last kind ends clear of it once scrolled to. */}
+          <span aria-hidden className="w-4 shrink-0" />
         </div>
         <button
           type="button"
