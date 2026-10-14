@@ -8,6 +8,8 @@ import { FoldButton, NavRow, SideHeading } from "@/components/studio/StudioViews
 import { ModeSwitch } from "@/components/studio/StudioComposer";
 import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
 import { Icon } from "@/components/Icon";
+import { Popover } from "@/components/Popover";
+import { Chip } from "@/components/PromptBar";
 import { PillGroup } from "@/components/PillGroup";
 import { MarketingComposer, useMarketing } from "@/components/marketing/MarketingComposer";
 import { PresetGrid } from "@/components/marketing/Presets";
@@ -132,11 +134,45 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const needsHf = (feature: string) => !hfKey && <NeedsHiggsfield onKeyClick={onKeyClick} feature={feature} />;
 
   const composer = video ? (
-    <div className="mx-auto flex w-full max-w-[560px] flex-col gap-3 rounded-panel border border-line bg-elevated p-3">
-      <PillGroup plain value={recipe.id} onChange={(recipeId) => patch({ recipeId })} items={MARKETING_RECIPES.map((r) => ({ id: r.id, label: r.name }))} />
-      <p className="text-[12.5px] leading-relaxed text-t3">{recipe.description}</p>
-      {hydrated && <RecipeComposer key={recipe.id} recipe={recipe} onStarted={showMade} />}
-    </div>
+    hydrated && (
+      <RecipeComposer
+        bar
+        key={recipe.id}
+        recipe={recipe}
+        onStarted={showMade}
+        lead={
+          // The kind of video, in the place Higgsfield's has its motion style.
+          <Popover
+            width={280}
+            align="start"
+            title="Video"
+            trigger={() => <Chip icon={<Icon name="film" size={14} />} value={recipe.name} />}
+          >
+            {(close) => (
+              <div className="flex flex-col">
+                {MARKETING_RECIPES.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => {
+                      patch({ recipeId: r.id });
+                      close();
+                    }}
+                    className="flex flex-col rounded-[8px] px-2.5 py-2 text-left hover:bg-t1/[0.06]"
+                  >
+                    <span className="flex items-center justify-between text-[13px] font-semibold text-t1">
+                      {r.name}
+                      {r.id === recipe.id && <Icon name="check" size={14} className="text-accent" />}
+                    </span>
+                    <span className="text-[11.5px] leading-snug text-t3">{r.description}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </Popover>
+        }
+      />
+    )
   ) : (
     needsHf("Marketing Studio runs on Higgsfield") || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
   );
@@ -152,7 +188,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <div className="md:hidden">
             <PillGroup fill value={ui.mode} onChange={(mode) => patch({ mode })} items={[{ id: "image", label: "Image" }, { id: "video", label: "Video" }]} />
           </div>
-          <div className={`max-md:hidden ${video ? "md:self-start" : "md:self-center"}`}>
+          <div className="max-md:hidden md:self-center">
             <ModeSwitch mode={ui.mode} onMode={(mode) => patch({ mode })} />
           </div>
           <div className="min-w-0 flex-1">{composer}</div>

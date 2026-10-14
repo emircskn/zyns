@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Control } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
+import { Popover } from "@/components/Popover";
+import { Chip } from "@/components/PromptBar";
+import { ChipRow, GenerateButton } from "@/components/studio/StudioComposer";
 import { ProviderTag } from "@/components/ModelPicker";
 import { PROVIDER_NAME } from "@/lib/generate";
 import {
@@ -28,7 +31,19 @@ import { StepModelPicker, capabilityLabel } from "./StepModelPicker";
  * says so, and nothing can be sent until every step has one; the last pick
  * for each step is remembered for next time.
  */
-export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarted?: (id: string) => void }) {
+export function RecipeComposer({
+  recipe,
+  onStarted,
+  bar = false,
+  lead,
+}: {
+  recipe: Recipe;
+  onStarted?: (id: string) => void;
+  /** As Higgsfield's Marketing Studio video box: the first text as the prompt, the rest as chips, pictures as tiles, Generate at the end. */
+  bar?: boolean;
+  /** Chips that go first in the bar's row (the recipe picker). */
+  lead?: ReactNode;
+}) {
   const [slots, setSlots] = useState<Record<string, unknown>>({});
   const [choices, setChoices] = useState<Record<string, string>>(
     Object.fromEntries(recipe.choices.map((c) => [c.key, c.default])),
@@ -66,6 +81,210 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
 
   const field =
     "w-full rounded-chip bg-t1/[0.05] px-3.5 py-2.5 text-[15px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong md:text-[14px]";
+  const listOf = (key: string) => (Array.isArray(slots[key]) ? slots[key] : slots[key] ? [slots[key]] : []) as string[];
+  const pickers = (
+    <>
+      <StepModelPicker
+        step={picking}
+        open={!!picking}
+        current={picking ? models[picking.id] : undefined}
+        onPick={(modelId) => {
+          if (!picking) return;
+          chooseStepModel(recipe, picking, modelId);
+          setModels((all) => ({ ...all, [picking.id]: modelId }));
+          // Another model has its own settings.
+          setSettings((all) => ({ ...all, [picking.id]: {} }));
+        }}
+        onClose={() => setPicking(null)}
+      />
+      <MediaPicker
+        open={!!mediaFor}
+        accept={(recipe.slots.find((s) => s.key === mediaFor)?.type as "image" | "video" | "audio") ?? "image"}
+        multiple={recipe.slots.find((s) => s.key === mediaFor)?.type === "image"}
+        onPick={(urls) => {
+          if (!mediaFor) return;
+          const slot = recipe.slots.find((s) => s.key === mediaFor);
+          setSlots((all) => ({
+            ...all,
+            [mediaFor]: slot?.type === "image" ? [...((all[mediaFor] as string[]) ?? []), ...urls].slice(0, slot.max ?? 10) : urls[0],
+          }));
+        }}
+        onClose={() => setMediaFor(null)}
+      />
+    </>
+  );
+
+  if (bar) {
+    const texts = recipe.slots.filter((s) => s.type === "text");
+    const [main, ...rest] = texts;
+    const media = recipe.slots.filter((s) => s.type !== "text");
+    const chosen = needed.filter((s) => s.fixedModel || models[s.id]).length;
+    const stepRows = recipe.steps.map((step, index) =>
+      !needed.includes(step) ? (
+        <p key={step.id} className="rounded-card bg-t1/[0.03] px-3.5 py-3 text-[12.5px] text-t4">
+          {index + 1}. {step.label ?? step.id}: skipped, your own {step.capability === "text-to-speech" ? "recording" : "input"} is used
+        </p>
+      ) : (
+        <StepRow
+          key={step.id}
+          index={index}
+          step={step}
+          modelId={models[step.id]}
+          settings={settings[step.id] ?? {}}
+          inputs={inputs}
+          missingKey={(() => {
+            const model = getModel(models[step.id] ?? "");
+            if (!model) return undefined;
+            const provider = providerOf(model);
+            return keyFor(keys, provider) ? undefined : PROVIDER_NAME[provider];
+          })()}
+          onChange={() => setPicking(step)}
+          onSettings={(values) => setSettings((all) => ({ ...all, [step.id]: values }))}
+        />
+      ),
+    );
+    const blocker = missingModel ? `Choose a model for ${missingModel.label ?? missingModel.id}` : slotProblem ?? null;
+    return (
+      <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
+          {main && (
+            <textarea
+              value={(slots[main.key] as string) ?? ""}
+              onChange={(event) => setSlots((all) => ({ ...all, [main.key]: event.target.value }))}
+              placeholder={main.placeholder ?? `Describe the ${main.label.toLowerCase()}…`}
+              rows={2}
+              className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+            />
+          )}
+          <div className="flex items-center gap-1.5">
+            <ChipRow>
+              {lead}
+              {rest.map((slot) => {
+                const text = (slots[slot.key] as string) ?? "";
+                return (
+                  <Popover
+                    key={slot.key}
+                    width={300}
+                    align="start"
+                    title={slot.label}
+                    trigger={() => <Chip icon={<Icon name="pencil" size={14} />} value={text.trim() ? `${slot.label}: ${text.trim()}`.slice(0, 28) : slot.label} active={!!text.trim()} />}
+                  >
+                    {() => (
+                      <textarea
+                        autoFocus
+                        value={text}
+                        onChange={(event) => setSlots((all) => ({ ...all, [slot.key]: event.target.value }))}
+                        placeholder={slot.placeholder}
+                        rows={3}
+                        className={`${field} resize-none`}
+                      />
+                    )}
+                  </Popover>
+                );
+              })}
+              {recipe.choices.map((choice) => (
+                <Popover
+                  key={choice.key}
+                  width={180}
+                  align="start"
+                  title={choice.label}
+                  trigger={() => <Chip icon={<Icon name="ratio-auto" size={14} />} value={choices[choice.key]} />}
+                >
+                  {(close) => (
+                    <div className="flex flex-col">
+                      {choice.options.map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => {
+                            setChoices((all) => ({ ...all, [choice.key]: option }));
+                            close();
+                          }}
+                          className="flex h-9 items-center justify-between rounded-[8px] px-2.5 text-left text-[13px] text-t1 hover:bg-t1/[0.06]"
+                        >
+                          {option}
+                          {choices[choice.key] === option && <Icon name="check" size={14} className="text-accent" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </Popover>
+              ))}
+              {/* Every step runs on a model chosen for it: all of them behind one chip. */}
+              <Popover
+                width={380}
+                align="start"
+                title="Steps"
+                trigger={() => <Chip icon={<Icon name="layers" size={14} />} value={`Models ${chosen}/${needed.length}`} active={chosen === needed.length} />}
+              >
+                {() => <div className="flex flex-col gap-2">{stepRows}</div>}
+              </Popover>
+            </ChipRow>
+          </div>
+          {problem && <p className="text-[12.5px] text-[#ff8f8f]">{problem}</p>}
+        </div>
+        <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
+          {media.map((slot) => {
+            const list = listOf(slot.key);
+            const cover = slot.type === "image" ? list[0] : undefined;
+            return (
+              <div key={slot.key} className="relative max-md:w-full">
+                <button
+                  type="button"
+                  onClick={() => setMediaFor(slot.key)}
+                  aria-label={`Add ${slot.label.toLowerCase()}`}
+                  title={slot.label}
+                  className="relative flex h-[80px] w-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full"
+                >
+                  {cover ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mediaSrc(cover)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                      <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
+                    </>
+                  ) : list.length > 0 ? (
+                    <span className="absolute left-2 top-2 text-t1">
+                      <Icon name={slot.type === "audio" ? "audio" : "video"} size={16} />
+                    </span>
+                  ) : (
+                    <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1 ring-1 ring-inset ring-t1/20">
+                      <Icon name="plus" size={13} />
+                    </span>
+                  )}
+                  {list.length > 1 && (
+                    <span className="absolute right-1.5 top-1.5 rounded-full bg-black/65 px-1.5 font-mono text-[10px] text-white">{list.length}</span>
+                  )}
+                  <span className="relative truncate text-[10px] font-bold uppercase text-t1">
+                    {slot.type === "audio" ? "Voice" : slot.label}
+                    {!slot.required && <span className="font-medium normal-case text-t3"> · opt.</span>}
+                  </span>
+                </button>
+                {list.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSlots((all) => ({ ...all, [slot.key]: slot.type === "image" ? [] : undefined }))}
+                    aria-label={`Remove ${slot.label.toLowerCase()}`}
+                    className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-black/80 text-white ring-1 ring-t1/20"
+                  >
+                    <Icon name="close" size={10} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex max-md:hidden">
+          <GenerateButton onClick={send} busy={false} disabled={!!blocker} blocker={blocker} price={null} count={1} needsKey={null} />
+        </div>
+        <div className="md:hidden">
+          <GenerateButton wide onClick={send} busy={false} disabled={!!blocker} blocker={blocker} price={null} count={1} needsKey={null} />
+        </div>
+        {blocker && <p className="px-2 pb-0.5 text-[11.5px] text-t4 md:hidden">{blocker}</p>}
+        {pickers}
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex flex-col gap-5">
@@ -190,33 +409,7 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
         </span>
       </div>
 
-      <StepModelPicker
-        step={picking}
-        open={!!picking}
-        current={picking ? models[picking.id] : undefined}
-        onPick={(modelId) => {
-          if (!picking) return;
-          chooseStepModel(recipe, picking, modelId);
-          setModels((all) => ({ ...all, [picking.id]: modelId }));
-          // Another model has its own settings.
-          setSettings((all) => ({ ...all, [picking.id]: {} }));
-        }}
-        onClose={() => setPicking(null)}
-      />
-      <MediaPicker
-        open={!!mediaFor}
-        accept={(recipe.slots.find((s) => s.key === mediaFor)?.type as "image" | "video" | "audio") ?? "image"}
-        multiple={recipe.slots.find((s) => s.key === mediaFor)?.type === "image"}
-        onPick={(urls) => {
-          if (!mediaFor) return;
-          const slot = recipe.slots.find((s) => s.key === mediaFor);
-          setSlots((all) => ({
-            ...all,
-            [mediaFor]: slot?.type === "image" ? [...((all[mediaFor] as string[]) ?? []), ...urls] : urls[0],
-          }));
-        }}
-        onClose={() => setMediaFor(null)}
-      />
+      {pickers}
     </div>
   );
 }
