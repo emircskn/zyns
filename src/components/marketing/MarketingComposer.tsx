@@ -287,7 +287,7 @@ export function MarketingComposer({
           }
         }}
       >
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:self-stretch md:justify-between md:bg-transparent">
           <textarea
             value={ui.prompt}
             onChange={(event) => patch({ prompt: event.target.value })}

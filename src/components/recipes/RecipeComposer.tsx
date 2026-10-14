@@ -146,7 +146,7 @@ export function RecipeComposer({
     const blocker = missingModel ? `Choose a model for ${missingModel.label ?? missingModel.id}` : slotProblem ?? null;
     return (
       <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:min-h-[130px] md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:self-stretch md:justify-between md:bg-transparent">
           {main && (
             <textarea
               value={(slots[main.key] as string) ?? ""}
