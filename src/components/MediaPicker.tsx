@@ -81,13 +81,6 @@ function Thumb({
             <Icon name="audio" size={20} className="text-t2" />
           </span>
         )}
-        <span
-          className={`pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent pb-1.5 pr-2 pt-6 text-left text-[10.5px] text-white/85 ${
-            asset.kind === "video" ? "pl-9" : "pl-2"
-          }`}
-        >
-          {asset.label}
-        </span>
       </button>
       {/* The frame is drawn inside the tile and over the picture. Drawn
           outside it, as a ring, the scrolling list clipped its top edge on
