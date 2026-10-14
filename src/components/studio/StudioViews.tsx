@@ -6,6 +6,7 @@ import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
+import { AppIcon, PlaceIcon } from "@/components/AppIcon";
 import { Popover } from "@/components/Popover";
 import { inFlight, pendingAsset, runAssets, uploadAsset, useAssets, type Asset } from "@/lib/assets";
 import { AssetBrowser } from "@/components/AssetBrowser";
@@ -38,7 +39,7 @@ function CoverThumb({ project, size }: { project: Project; size: string }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={thumbSrc(cover, 256)} alt="" className="h-full w-full object-cover" />
       ) : (
-        <Icon name="folder" size={14} />
+        <AppIcon glyph="folder" tone="amber" size={24} className="h-full w-full" />
       )}
     </span>
   );
@@ -83,7 +84,7 @@ function NavRow({
   );
 }
 
-export const STUDIO_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
+export const STUDIO_NAV: Array<{ id: StudioView; label: string; icon: IconName; place?: string }> = [
   { id: "home", label: "Home", icon: "home" },
   { id: "generations", label: "My generations", icon: "grid" },
   { id: "elements", label: "My elements", icon: "at" },
@@ -114,7 +115,7 @@ export function StudioSidebar() {
       <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" />
       <p className="px-2 pb-1.5 pt-1 text-[15px] font-semibold tracking-[-0.01em] text-t1">Cinema Studio</p>
       {STUDIO_NAV.map((item) => (
-        <NavRow key={item.id} pill={item.id} icon={item.icon} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
+        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.id} />} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
       ))}
       <div className="mt-4 flex items-center justify-between px-2 pb-1">
         <span className="text-[12px] font-medium text-t3">Projects</span>
@@ -137,7 +138,7 @@ export function StudioSidebar() {
         />
       )}
       <NavRow
-        icon="plus"
+        icon={<PlaceIcon place="newProject" />}
         label="New project"
         onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
       />
@@ -165,13 +166,13 @@ export function StudioSidebar() {
       </div>
       <NavRow
         pill="trash"
-        icon="trash"
+        icon={<PlaceIcon place="trash" />}
         label="Trash"
         on={studio.view === "trash"}
         onClick={() => patchStudio({ view: "trash" })}
         trailing={trashedProjects ? <span className="font-mono text-[11.5px] text-t4">{trashedProjects}</span> : undefined}
       />
-      <NavRow pill="projects" icon="folder" label="All projects" on={studio.view === "projects"} onClick={() => patchStudio({ view: "projects" })} trailing={<Icon name="chevron" size={14} className="-rotate-90 text-t3" />} />
+      <NavRow pill="projects" icon={<PlaceIcon place="projects" />} label="All projects" on={studio.view === "projects"} onClick={() => patchStudio({ view: "projects" })} trailing={<Icon name="chevron" size={14} className="-rotate-90 text-t3" />} />
     </div>
   );
 }
@@ -205,11 +206,7 @@ function ProjectSidebar() {
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
       <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, byName]} />
       <NavRow
-        icon={
-          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07]">
-            <Icon name="chevron" size={14} className="rotate-90" />
-          </span>
-        }
+        icon={<PlaceIcon place="back" />}
         label="Back"
         onClick={() => {
           // Leaving the project: what is made next is no longer saved to it.
@@ -242,9 +239,9 @@ function ProjectSidebar() {
           )}
         </Popover>
       </div>
-      <NavRow pill="brief" icon="list" label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
-      <NavRow pill="settings" icon="sliders" label="Settings" on={at === "settings"} onClick={() => go("settings")} />
-      <NavRow pill="elements" icon="at" label="Elements" on={at === "elements"} onClick={() => go("elements")} />
+      <NavRow pill="brief" icon={<PlaceIcon place="brief" />} label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
+      <NavRow pill="settings" icon={<PlaceIcon place="settings" />} label="Settings" on={at === "settings"} onClick={() => go("settings")} />
+      <NavRow pill="elements" icon={<PlaceIcon place="elements" />} label="Elements" on={at === "elements"} onClick={() => go("elements")} />
       <div className="mt-4 flex items-center justify-between px-2 pb-1">
         <span className="text-[12px] font-medium text-t3">Folders</span>
         <span className="flex gap-0.5">
@@ -267,11 +264,7 @@ function ProjectSidebar() {
       )}
       <NavRow
         pill="all"
-        icon={
-          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.1] text-t1">
-            <Icon name="spark" size={13} fill="currentColor" strokeWidth={1.2} />
-          </span>
-        }
+        icon={<PlaceIcon place="all" />}
         label="All assets"
         on={at === ""}
         onClick={() => go("")}
@@ -281,16 +274,12 @@ function ProjectSidebar() {
       <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pl-3">
         <FolderTree project={project} at={at} onOpen={go} count={inFolder} q={q} byName={byName} />
         <NavRow
-          icon={
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-t1/[0.07]">
-              <Icon name="plus" size={13} />
-            </span>
-          }
+          icon={<PlaceIcon place="add" />}
           label="Add folder"
           onClick={() => askFolder(project.id)}
         />
       </div>
-      <NavRow pill="trash" icon="trash" label="Trash" on={at === "trash"} onClick={() => go("trash")} trailing={trashed ? <span className="font-mono text-[11.5px] text-t4">{trashed}</span> : undefined} />
+      <NavRow pill="trash" icon={<PlaceIcon place="trash" />} label="Trash" on={at === "trash"} onClick={() => go("trash")} trailing={trashed ? <span className="font-mono text-[11.5px] text-t4">{trashed}</span> : undefined} />
     </div>
   );
 }
@@ -572,9 +561,7 @@ export function ProjectGrid({ className }: { className: string }) {
         className="flex flex-col gap-2 text-left"
       >
         <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.1]">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-t1/[0.1] text-t1">
-            <Icon name="folder-plus" size={20} />
-          </span>
+          <PlaceIcon place="newProject" size={48} />
         </span>
         <span className="text-[14px] font-medium text-t1">Create new project</span>
       </button>
@@ -595,8 +582,8 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbSrc(cover, 768)} alt="" className="h-full w-full object-cover transition-transform duration-[300ms] group-hover:scale-[1.02]" />
         ) : (
-          <span className="grid h-full w-full place-items-center text-t4">
-            <Icon name="folder" size={24} />
+          <span className="grid h-full w-full place-items-center">
+            <PlaceIcon place="projects" size={44} className="opacity-80" />
           </span>
         )}
       </span>

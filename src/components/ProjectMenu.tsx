@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AppIcon } from "@/components/AppIcon";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
@@ -89,7 +90,7 @@ export function ProjectList({
               className={`${row(current === project.id)} pr-11`}
               onClick={() => (onPick(project.id), close())}
             >
-              <Icon name="folder" size={15} />
+              <AppIcon glyph="folder" tone="amber" size={20} />
               <span className="truncate">{project.name}</span>
             </button>
             {/* Renaming and deleting, kept off the row itself so a tap on

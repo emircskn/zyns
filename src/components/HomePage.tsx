@@ -247,7 +247,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
     if (model) ways.push({ key: model.id, icon: c, name: model.name, line: model.tagline, kind: c === "video" ? "Video" : "Image", badge: model.badge, open: pick(model) });
   }
   ways.push(
-    { key: "genjutsu", icon: "spiral", name: "Genjutsu", line: "One clip, many versions: motion, swap, restyle", kind: "Studio", open: () => setPage("remix") },
+    { key: "genjutsu", icon: "mask", name: "Genjutsu", line: "One clip, many versions: motion, swap, restyle", kind: "Studio", open: () => setPage("remix") },
     { key: "cinema", icon: "film", name: "Cinema Studio", line: "Direct a shot: camera, film, light and colour", kind: "Studio", open: () => setPage("studio") },
     { key: "marketing", icon: "box", name: "Marketing Studio", line: "Product shots, ads and listings", kind: "Studio", open: () => setPage("marketing") },
     { key: "elements", icon: "at", name: "Elements", line: "Characters, products and places you reuse", open: () => setPage("elements") },

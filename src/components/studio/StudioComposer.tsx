@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
 import { CardArt, type CardArtKind } from "@/components/CardArt";
+import { AppIcon } from "@/components/AppIcon";
 import { VideoMark } from "@/components/VideoMark";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
@@ -953,9 +954,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(character.images[0].storageUrl, 256)} alt="" className="h-10 w-10 rounded-full object-cover" />
           ) : (
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t2">
-              <Icon name="plus" size={16} />
-            </span>
+            <AppIcon glyph="user" tone="blue" size={34} />
           )}
           <span className="max-w-full truncate px-1 font-mono text-[10px] uppercase tracking-[0.06em] text-t3">
             {character ? `@${character.name}` : "Character"}
