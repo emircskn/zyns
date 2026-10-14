@@ -85,7 +85,6 @@ export function PresetGrid({
   side?: boolean;
 }) {
   const hfKey = useStudio((s) => s.hfKey);
-  const locked = useStudio((s) => s.provider) !== "higgsfield";
   const { items, loading, error, done, loadMore } = usePresetCatalogue();
   const [type, setType] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -191,7 +190,7 @@ export function PresetGrid({
       {shown.length > 0 && (
         <div className={`grid gap-2 ${columns}`}>
           {shown.map((preset) => (
-            <PresetCard key={preset.id} preset={preset} active={preset.id === selected} onPick={() => onPick(preset)} locked={locked} />
+            <PresetCard key={preset.id} preset={preset} active={preset.id === selected} onPick={() => onPick(preset)} />
           ))}
         </div>
       )}

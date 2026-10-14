@@ -9,7 +9,6 @@ import { styleById } from "@/lib/marketing/styles";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
 import { mapParams } from "@/lib/recipes/paramMap";
-import { studioImageModels } from "@/lib/studio/compose";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { typeLabel } from "@/lib/marketing/presets";
 import type { MarketingRunInfo, MarketingUi } from "@/lib/marketing/types";
@@ -202,12 +201,8 @@ export function MarketingComposer({
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
   const models = useMemo(() => marketingModels(), []);
-  const provider_ = useStudio((s) => s.provider);
-  // The bar offers every image model of the service chosen up top, Marketing Studio's own first.
-  const barModels = useMemo(
-    () => (provider_ === "higgsfield" ? [...models, ...studioImageModels(provider_).filter((m) => !isMarketingModel(m.id))] : studioImageModels(provider_)),
-    [models, provider_],
-  );
+  // Marketing Studio runs on its own models alone, whichever service is chosen up top.
+  const barModels = models;
   const model = bar && tool === "create" ? (barModels.find((m) => m.id === ui.modelId) ?? barModels[0]) : isMarketingModel(ui.modelId) ? getModel(ui.modelId) : undefined;
   const marketing = isMarketingModel(model?.id);
   const valuesByModel = useStudio((s) => s.valuesByModel);

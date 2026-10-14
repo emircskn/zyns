@@ -153,8 +153,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
       />
     )
   ) : (
-    // With KIE chosen up top the bar runs on KIE's models and needs no Higgsfield key.
-    (provider === "higgsfield" && needsHf("Marketing Studio runs on Higgsfield")) || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
+    // Only Marketing Studio's own models, so always on the Higgsfield key.
+    needsHf("Marketing Studio runs on Higgsfield") || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
   );
 
   const page =
