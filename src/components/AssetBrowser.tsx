@@ -74,6 +74,7 @@ function AssetTile({
   onPick,
   onOpen,
   onRemove,
+  onReference = sendReference,
   box,
 }: {
   asset: Asset;
@@ -91,6 +92,8 @@ function AssetTile({
   onPick: () => void;
   onOpen: () => void;
   onRemove?: () => void;
+  /** Where Use as reference sends it: the composer, or Cinema Studio's own. */
+  onReference?: (url: string) => void;
 }) {
   const favorites = useStudio((s) => s.favorites);
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
@@ -230,7 +233,7 @@ function AssetTile({
               <TileButton
                 icon="layers"
                 label="Use as reference"
-                onClick={() => sendReference(asset.url)}
+                onClick={() => onReference(asset.url)}
               />
             </div>
           )}
@@ -247,10 +250,12 @@ function AssetTile({
 export function AssetBrowser({
   assets,
   byDate = true,
+  onReference,
 }: {
   assets: Asset[];
   /** Day headings over the grid; off for a short strip like home's Recent. */
   byDate?: boolean;
+  onReference?: (url: string) => void;
 }) {
   const runs = useStudio((s) => s.runs);
   const phoneGrid = useStudio((s) => s.phoneGrid);
@@ -318,6 +323,7 @@ export function AssetBrowser({
       />
     ) : (
     <AssetTile
+      onReference={onReference}
       key={asset.id}
       asset={asset}
       box={box}

@@ -8,7 +8,8 @@ import { Gallery, TileExtras, type TileExtrasValue } from "@/components/Gallery"
 import { Icon, type IconName } from "@/components/Icon";
 import { MediaPreview } from "@/components/MediaViewer";
 import { Popover } from "@/components/Popover";
-import { useAssets } from "@/lib/assets";
+import { uploadAsset, useAssets } from "@/lib/assets";
+import { AssetBrowser } from "@/components/AssetBrowser";
 import { calledElements } from "@/lib/elements";
 import { getModel } from "@/lib/registry";
 import { mediaSrc, thumbSrc } from "@/lib/storage/client";
@@ -536,7 +537,8 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
       </ViewHead>
       <div className="md:px-1">
         {uploadsShown ? (
-          shownUploads.length > 0 ? <UploadGrid uploads={shownUploads} /> : <Empty text="No uploads yet." />
+          // The same wall as Assets, so Select, the layouts and the enlarged view work here too.
+          shownUploads.length > 0 ? <AssetBrowser assets={shownUploads.map(uploadAsset)} onReference={studioReference} /> : <Empty text="No uploads yet." />
         ) : count === 0 ? (
           <Empty text={favoritesOnly ? "Nothing liked yet. Tap the heart on a shot to keep it here." : "Nothing here yet. What you make in Cinema Studio shows up here."} />
         ) : (
