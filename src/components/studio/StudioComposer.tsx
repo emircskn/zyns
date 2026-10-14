@@ -155,35 +155,38 @@ function ChipRow({ children }: { children: ReactNode }) {
     };
   });
   const slide = (by: number) => row.current?.scrollBy({ left: by, behavior: "smooth" });
-  const fade = `${more.left ? "transparent, black 28px" : "black"}, ${more.right ? "black calc(100% - 40px), transparent" : "black"}`;
   return (
     <div className="relative flex min-w-0 flex-1 items-center">
       <div
         ref={row}
         className="no-bar flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap md:overflow-x-auto"
-        style={{ maskImage: `linear-gradient(to right, ${fade})`, WebkitMaskImage: `linear-gradient(to right, ${fade})` }}
       >
         {children}
       </div>
+      {/* As Higgsfield's: the arrow sits on a shade of the box's own colour, so the chips run under it and out of sight. */}
       {more.left && (
-        <button
-          type="button"
-          aria-label="Scroll chips back"
-          onClick={() => slide(-240)}
-          className="absolute left-0 grid h-7 w-7 place-items-center rounded-full bg-[var(--popover)] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.14] max-md:hidden"
-        >
-          <Icon name="chevron" size={14} className="rotate-90" />
-        </button>
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pr-8 max-md:hidden" style={{ background: "linear-gradient(to left, transparent, var(--chip-well) 55%)" }}>
+          <button
+            type="button"
+            aria-label="Scroll chips back"
+            onClick={() => slide(-240)}
+            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-[10px] bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
+          >
+            <Icon name="chevron" size={15} className="rotate-90" />
+          </button>
+        </span>
       )}
       {more.right && (
-        <button
-          type="button"
-          aria-label="Scroll chips on"
-          onClick={() => slide(240)}
-          className="absolute right-0 grid h-7 w-7 place-items-center rounded-full bg-[var(--popover)] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.14] max-md:hidden"
-        >
-          <Icon name="chevron" size={14} className="-rotate-90" />
-        </button>
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pl-8 max-md:hidden" style={{ background: "linear-gradient(to right, transparent, var(--chip-well) 55%)" }}>
+          <button
+            type="button"
+            aria-label="Scroll chips on"
+            onClick={() => slide(240)}
+            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-[10px] bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
+          >
+            <Icon name="chevron" size={15} className="-rotate-90" />
+          </button>
+        </span>
       )}
     </div>
   );
@@ -342,7 +345,7 @@ export function GenerateButton({
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
       className={`cta cta-lift flex shrink-0 items-center justify-center rounded-[12px] font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
-        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "h-[80px] w-[120px] flex-col gap-1 text-[12px]"
+        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "min-h-[80px] w-[120px] flex-col gap-1 self-stretch text-[12px]"
       }`}
     >
       {busy ? (
@@ -653,7 +656,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </p>
           )}
         </div>
-        <div className="flex max-md:hidden md:self-center">
+        <div className="flex max-md:hidden">
           <GenerateButton
             onClick={() => void generate()}
             busy={busy}
@@ -951,7 +954,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   }
 
   // Higgsfield's two tiles beside the prompt: 80px high, the character's square, the camera's a little wider.
-  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
+  const tile = "relative flex min-h-[80px] max-md:h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
@@ -1010,7 +1013,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </p>
         )}
       </div>
-      <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2 md:self-center">
+      <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
         <button type="button" onClick={() => setChoosing(true)} className={`${tile} md:w-[80px]`} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
           {character?.images[0] ? (
             <>
@@ -1043,7 +1046,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           <span className="relative block max-w-full truncate text-[10px] leading-tight text-t3">{lensLabel ?? "Auto"}</span>
         </button>
       </div>
-      <div className="flex max-md:hidden md:self-center">
+      <div className="flex max-md:hidden">
         <GenerateButton
           onClick={() => void generate()}
           busy={busy}
