@@ -6,7 +6,6 @@ import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
-import { ZynsMark } from "@/components/Logo";
 import { AppIcon, PlaceIcon } from "@/components/AppIcon";
 import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
 import { SortMenu, sortBy, type SortKey } from "@/components/studio/SortMenu";
@@ -113,36 +112,11 @@ function FoldButton() {
  * name, opening a menu back out to the rest of ZYNS (the page has no top
  * bar of its own while it fills the screen).
  */
-function StudioSwitcher({ open, setOpen }: { open: boolean; setOpen: (fn: (open: boolean) => boolean) => void }) {
-  const setPage = useStudio((s) => s.setPage);
-  // Opens in place, as Higgsfield's: the other app appears under the name, inside the same box.
+function StudioSwitcher() {
   return (
-    <div className="rounded-[10px] bg-t1/[0.05]">
-      <button
-        type="button"
-        aria-label="Switch app"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 hover:bg-t1/[0.04]"
-      >
-        <AppIcon glyph="film" tone="lime" size={24} />
-        <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left text-[14.5px] font-semibold text-t1">Cinema Studio</span>
-        <Icon name="chevron" size={13} className={`text-t3 transition-transform duration-[160ms] ${open ? "rotate-180" : ""}`} />
-      </button>
-      {/* Slides open under the name and fades in, rather than appearing at once. */}
-      <div className={`grid transition-[grid-template-rows,opacity] duration-[220ms] ease-[var(--ease)] ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
-        <div className="overflow-hidden">
-          <button
-            type="button"
-            tabIndex={open ? 0 : -1}
-            onClick={() => setPage("home")}
-            className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 text-left text-[14px] font-semibold text-t3 hover:text-t1"
-          >
-            <ZynsMark size={22} />
-            ZYNS
-          </button>
-        </div>
-      </div>
+    <div className="flex h-9 items-center gap-2 rounded-[10px] bg-t1/[0.05] pl-1.5 pr-2">
+      <AppIcon glyph="film" tone="lime" size={24} />
+      <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">Cinema Studio</span>
     </div>
   );
 }
@@ -190,16 +164,15 @@ export function StudioSidebar() {
 
   const menu = useRef<HTMLDivElement>(null);
   const folded = useSideCollapsed();
-  const [switching, setSwitching] = useState(false);
   if (studio.view === "project" && studio.projectId) return <ProjectSidebar />;
 
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded, switching]} />
+      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
       <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
         {!folded && (
           <div className="min-w-0 flex-1">
-            <StudioSwitcher open={switching} setOpen={setSwitching} />
+            <StudioSwitcher />
           </div>
         )}
         <FoldButton />
