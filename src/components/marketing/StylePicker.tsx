@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import { JustifiedRows } from "@/components/JustifiedRows";
+import { TemplateTile } from "@/components/marketing/TemplateTile";
+import RATIOS from "@/lib/marketing/style-ratios.json";
 import { MARKETING_STYLES, STYLE_CATEGORIES, styleCover, type StyleCategory } from "@/lib/marketing/styles";
 import { usePresence } from "@/lib/usePresence";
 
@@ -170,11 +173,14 @@ export function OwnTemplateGrid({ selected, onPick }: { selected: string | null;
         {chip("all", "All", "grid")}
         {kinds.map((c) => chip(c.id, c.label, c.icon))}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {shown.map((x) => (
-          <StyleCard key={x.id} id={x.id} name={x.name} on={x.id === selected} onPick={() => onPick(x.id === selected ? null : x.id)} />
-        ))}
-      </div>
+      <JustifiedRows
+        items={shown}
+        keyOf={(x) => x.id}
+        ratioOf={(x) => (RATIOS as Record<string, number>)[x.id]}
+        render={(x, box) => (
+          <TemplateTile box={box} src={styleCover(x.id)} name={x.name} active={x.id === selected} onPick={() => onPick(x.id === selected ? null : x.id)} />
+        )}
+      />
     </div>
   );
 }

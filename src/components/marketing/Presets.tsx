@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import { JustifiedRows } from "@/components/JustifiedRows";
+import { TemplateTile } from "@/components/marketing/TemplateTile";
+import { ratioOf } from "@/lib/mediaRatio";
 import { presetTypes, typeLabel, usePresetCatalogue } from "@/lib/marketing/presets";
 import type { MarketingPreset } from "@/lib/marketing/types";
 import { usePresence } from "@/lib/usePresence";
@@ -169,11 +172,14 @@ export function PresetGrid({
       </div>
 
       {shown.length > 0 && (
-        <div className={`grid gap-2 ${columns}`}>
-          {shown.map((preset) => (
-            <PresetCard key={preset.id} preset={preset} active={preset.id === selected} onPick={() => onPick(preset)} />
-          ))}
-        </div>
+        <JustifiedRows
+          items={shown}
+          keyOf={(preset) => preset.id}
+          ratioOf={(preset) => ratioOf(preset.preview)}
+          render={(preset, box) => (
+            <TemplateTile box={box} src={preset.preview} video={preset.previewKind === "video"} name={preset.name} active={preset.id === selected} onPick={() => onPick(preset)} />
+          )}
+        />
       )}
       {error ? (
         <div className="flex flex-col items-center gap-2 py-8 text-center">
