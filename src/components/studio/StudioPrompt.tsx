@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
-import { insertMention, mentionAtCaret } from "@/lib/mentions";
+import { imageName, insertMention, mentionAtCaret } from "@/lib/mentions";
 import type { Field } from "@/lib/registry";
 import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
@@ -12,6 +12,7 @@ import { previewOf } from "@/lib/studio/options";
 import { useStudio } from "@/store/studio";
 
 type Option =
+  | { kind: "ref"; key: string; label: string; thumb?: string }
   | { kind: "element"; key: string; label: string; thumb?: string; element: LibraryElement }
   | { kind: "move"; key: string; label: string; thumb?: string; video?: string; value: string };
 
@@ -79,6 +80,7 @@ export function StudioPrompt({
   move,
   inputRef,
   rows = 2,
+  refs = [],
 }: {
   text: string;
   placeholder: string;
@@ -91,6 +93,8 @@ export function StudioPrompt({
   move?: Field;
   inputRef?: (node: HTMLTextAreaElement | null) => void;
   rows?: number;
+  /** The pictures the model gets, in order: `@Image N` points at the Nth. */
+  refs?: string[];
 }) {
   const elements = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && pickable(e));
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -101,7 +105,8 @@ export function StudioPrompt({
   const [spot, setSpot] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null);
   const pendingCaret = useRef<number | null>(null);
 
-  const names = elements.map((e) => e.name);
+  const refNames = refs.map((_, i) => imageName(i));
+  const names = [...refNames, ...elements.map((e) => e.name)];
   const chips = chipsIn(text, names, move);
   const inChip = caret !== null && chips.some((c) => caret > c.start && caret <= c.end);
   const at = caret === null || inChip ? null : mentionAtCaret(text, caret);
@@ -109,9 +114,15 @@ export function StudioPrompt({
   const token = at ?? hash;
   const q = (token?.query ?? "").toLowerCase();
   const options: Option[] = at
-    ? elements
-        .filter((e) => e.name.toLowerCase().startsWith(q))
-        .map((e) => ({ kind: "element", key: e.id, label: e.name, thumb: e.images[0]?.storageUrl, element: e }))
+    ? [
+        // The attached pictures first, as Image 1…N (`@2` finds Image 2), then the library.
+        ...refs
+          .map((url, i): Option => ({ kind: "ref", key: `ref-${i}`, label: refNames[i], thumb: url }))
+          .filter((o) => o.label.toLowerCase().startsWith(q) || o.label.toLowerCase().replace(/\s+/g, "").startsWith(q) || (/^\d+$/.test(q) && o.label.split(" ")[1].startsWith(q))),
+        ...elements
+          .filter((e) => e.name.toLowerCase().startsWith(q))
+          .map((e): Option => ({ kind: "element", key: e.id, label: e.name, thumb: e.images[0]?.storageUrl, element: e })),
+      ]
     : hash
       ? (move?.choices ?? [])
           .filter((c) => c.value && (c.value.startsWith(q) || c.label.toLowerCase().includes(q)))
@@ -164,7 +175,11 @@ export function StudioPrompt({
   function pick(option: Option) {
     if (!token) return;
     const end = caret ?? text.length;
-    if (option.kind === "element") {
+    if (option.kind === "ref") {
+      const next = insertMention(text, token.start, end, option.label);
+      onText(next.text);
+      pendingCaret.current = next.caret;
+    } else if (option.kind === "element") {
       const next = insertMention(text, token.start, end, option.element.name);
       onText(next.text);
       pendingCaret.current = next.caret;
@@ -282,10 +297,13 @@ export function StudioPrompt({
             className="surface-pop anim-rise fixed z-[118] max-h-[min(340px,50vh)] overflow-y-auto rounded-panel p-1.5"
             style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width }}
           >
-            <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
-              {at ? "Your elements" : "Camera moves"}
-            </div>
             {options.map((option, i) => (
+              <Fragment key={option.key}>
+              {(i === 0 || options[i - 1].kind !== option.kind) && (
+                <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
+                  {option.kind === "ref" ? "References" : option.kind === "element" ? "Your elements" : "Camera moves"}
+                </div>
+              )}
               <button
                 key={option.key}
                 type="button"
@@ -305,15 +323,16 @@ export function StudioPrompt({
                   <img
                     src={mediaSrc(option.thumb)}
                     alt=""
-                    className="h-8 w-8 shrink-0 rounded-full bg-t1/[0.07] object-cover"
+                    className={`h-8 w-8 shrink-0 bg-t1/[0.07] object-cover ${option.kind === "ref" ? "rounded-[8px]" : "rounded-full"}`}
                   />
                 ) : (
                   <span className="grid h-8 w-8 shrink-0 place-items-center">
                     <Icon name="at" size={16} />
                   </span>
                 )}
-                <span className="truncate">{option.kind === "element" ? `@${option.label}` : option.label}</span>
+                <span className="truncate">{option.kind === "move" ? option.label : `@${option.label}`}</span>
               </button>
+              </Fragment>
             ))}
           </div>,
           document.body,

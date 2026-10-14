@@ -69,13 +69,14 @@ function escapeRegExp(value: string) {
  * Models that take several pictures read the prompt against their order
  * ("the jacket from Image 2"), so the prompt may point at one with
  * `@Image N`. The bar shows such a token as a chip and the send spells it
- * the way the model reads it. Models with named elements keep their own
- * `@name` instead: there `@` belongs to the API.
+ * the way the model reads it. Models with named elements offer those names
+ * beside the numbers.
  */
 const IMAGE_TOKEN = /@Image (\d+)(?!\d)/g;
 
 export function imageFields(model: ModelDef, values: Values): Field[] {
-  if (mentionSources(model, values).length > 0) return [];
+  // A model with named elements of its own (Kling) still gets its attached
+  // pictures as Image 1…N: the names and the numbers live side by side.
   return activeFields(model, values).filter(
     (f) => f.placement === "input" && (f.kind === "images" || f.kind === "media") && (f.accept ?? "image") === "image" && !/mask/.test(f.key),
   );

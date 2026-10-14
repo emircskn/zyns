@@ -662,6 +662,11 @@ export function FieldChip({
  */
 type MentionOption = { name: string; thumb?: string; element?: LibraryElement };
 
+/** The heading an option sits under: the attached pictures, the model's own elements, or the library's. */
+function groupOf(option: MentionOption): string {
+  return option.element ? "Your elements" : option.thumb ? "References" : "Elements";
+}
+
 function optionMatches(option: MentionOption, query: string) {
   const q = query.toLowerCase();
   const name = option.name.toLowerCase();
@@ -754,10 +759,14 @@ export function PromptField({
   const [cursor, setCursor] = useState(0);
   const [dismissed, setDismissed] = useState<number | null>(null);
 
-  const refs = model && names.length === 0 ? imageRefs(model, values) : [];
+  // The pictures attached here first, as Image 1…N, then the model's own
+  // element names, then the library.
+  const refs = model ? imageRefs(model, values) : [];
   const library = useStudio((s) => s.elements).filter(pickable);
-  const own: MentionOption[] =
-    names.length > 0 ? names.map((name) => ({ name })) : refs.map((url, i) => ({ name: imageName(i), thumb: url }));
+  const own: MentionOption[] = [
+    ...refs.map((url, i) => ({ name: imageName(i), thumb: url })),
+    ...names.filter((name) => !/^Image \d+$/.test(name)).map((name) => ({ name })),
+  ];
   const options: MentionOption[] = [
     ...own,
     ...library
@@ -1037,9 +1046,9 @@ export function PromptField({
         >
           {matches.map((option, i) => (
             <Fragment key={`${option.element ? "library" : "own"}-${option.name}`}>
-            {(i === 0 || !!matches[i - 1].element !== !!option.element) && (
+            {(i === 0 || groupOf(matches[i - 1]) !== groupOf(option)) && (
               <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-t3">
-                {option.element ? "Your elements" : names.length > 0 ? "Elements" : "References"}
+                {groupOf(option)}
               </div>
             )}
             <button

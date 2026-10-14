@@ -541,6 +541,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 onSubmit={() => void generate()}
                 move={moveField}
                 inputRef={setInput}
+                refs={listOf(values[fieldOf("image")?.key ?? ""])}
               />
             </div>
           </div>
@@ -844,7 +845,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
       if (character?.soul) values.custom_reference_id = character.soul.id;
       else delete values.custom_reference_id;
     }
-    return { values, warnings: placed.warnings, unusable: !!character && !character.soul && taken === 0 };
+    // The pictures as the model gets them, in order, for `@Image N`.
+    return { values, warnings: placed.warnings, unusable: !!character && !character.soul && taken === 0, refs: imageRefs(model, values) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, own, studio.imagePrompt, studio.imageRefs, studio.imageCamera, studio.imageLens, character]);
 
@@ -886,6 +888,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               placeholder="Describe the picture. Use @ for characters and places"
               onText={(text) => patchStudio({ imagePrompt: text })}
               onSubmit={() => void generate()}
+              refs={sent?.refs ?? studio.imageRefs}
             />
           </div>
         </div>
