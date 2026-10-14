@@ -9,6 +9,7 @@ import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { movesIn, putMove } from "@/lib/studio/compose";
 import { previewOf } from "@/lib/studio/options";
+import { dockedSpot, type MenuSpot } from "@/lib/menuSpot";
 import { useStudio } from "@/store/studio";
 
 type Option =
@@ -102,7 +103,7 @@ export function StudioPrompt({
   const [caret, setCaret] = useState<number | null>(null);
   const [cursor, setCursor] = useState(0);
   const [dismissed, setDismissed] = useState<number | null>(null);
-  const [spot, setSpot] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null);
+  const [spot, setSpot] = useState<MenuSpot | null>(null);
   const pendingCaret = useRef<number | null>(null);
 
   const refNames = refs.map((_, i) => imageName(i));
@@ -154,6 +155,8 @@ export function StudioPrompt({
     const measure = () => {
       const node = ref.current;
       if (!node) return;
+      const docked = dockedSpot();
+      if (docked) return setSpot(docked);
       const rect = node.getBoundingClientRect();
       const margin = 12;
       const width = Math.min(260, window.innerWidth - 2 * margin);
@@ -166,9 +169,13 @@ export function StudioPrompt({
     measure();
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
+    window.visualViewport?.addEventListener("resize", measure);
+    window.visualViewport?.addEventListener("scroll", measure);
     return () => {
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
+      window.visualViewport?.removeEventListener("resize", measure);
+      window.visualViewport?.removeEventListener("scroll", measure);
     };
   }, [open, text]);
 
@@ -295,7 +302,7 @@ export function StudioPrompt({
           <div
             role="listbox"
             className="surface-pop anim-rise fixed z-[118] max-h-[min(340px,50vh)] overflow-y-auto rounded-panel p-1.5"
-            style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width }}
+            style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width, maxHeight: spot.maxHeight }}
           >
             {options.map((option, i) => (
               <Fragment key={option.key}>

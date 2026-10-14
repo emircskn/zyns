@@ -39,6 +39,7 @@ import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, getModel, inputsOf, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
+import { dockedSpot, type MenuSpot } from "@/lib/menuSpot";
 import { useEstimate } from "@/lib/useEstimate";
 import { activeKey, openPickerHere, useModel, useStudio, useValues } from "@/store/studio";
 import { ErrorPopup } from "@/components/ErrorPopup";
@@ -786,7 +787,7 @@ export function PromptField({
   // over it when there is no room below (the desktop bar sits at the foot
   // of the screen); measured before paint, and again as the text moves.
   const row = useRef<HTMLDivElement>(null);
-  const [spot, setSpot] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null);
+  const [spot, setSpot] = useState<MenuSpot | null>(null);
   useLayoutEffect(() => {
     if (!open) {
       setSpot(null);
@@ -795,6 +796,8 @@ export function PromptField({
     const measure = () => {
       const node = ref.current;
       if (!node) return;
+      const docked = dockedSpot();
+      if (docked) return setSpot(docked);
       const margin = 16;
       const w = Math.min(260, window.innerWidth - 2 * margin);
       const point = caretPoint(node, token?.start ?? node.selectionStart);
@@ -1041,7 +1044,7 @@ export function PromptField({
         createPortal(
         <div
           className="surface-pop anim-rise fixed z-[90] max-h-[min(340px,50vh)] overflow-y-auto rounded-panel p-1.5"
-          style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width }}
+          style={{ left: spot.left, top: spot.top, bottom: spot.bottom, width: spot.width, maxHeight: spot.maxHeight }}
           role="listbox"
         >
           {matches.map((option, i) => (
