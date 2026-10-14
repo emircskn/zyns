@@ -54,7 +54,7 @@ export function PresetCard({ preset, active, onPick, locked }: { preset: Marketi
       {/* A template is Higgsfield's own preset: KIE has nothing that reads it. */}
       {locked && (
         <span className="pointer-events-none absolute inset-x-2 top-2 rounded-[8px] bg-black/70 px-2 py-1.5 text-center text-[11.5px] font-medium leading-snug text-white">
-          Bu template sadece Higgsfield’da çalışır
+          This template only works on Higgsfield
         </span>
       )}
       <span
