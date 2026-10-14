@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { Icon } from "@/components/Icon";
+import { Popover } from "@/components/Popover";
+import { TileExtras } from "@/lib/tileExtras";
+import { useProjectDelete } from "@/lib/newProject";
 import { LikeHeart } from "@/components/LikeHeart";
 import { MediaViewer } from "@/components/MediaViewer";
 import { SelectMark, SelectionBar } from "@/components/SelectionBar";
@@ -74,7 +77,6 @@ function AssetTile({
   onPick,
   onOpen,
   onRemove,
-  onReference = sendReference,
   box,
 }: {
   asset: Asset;
@@ -92,9 +94,9 @@ function AssetTile({
   onPick: () => void;
   onOpen: () => void;
   onRemove?: () => void;
-  /** Where Use as reference sends it: the composer, or Cinema Studio's own. */
-  onReference?: (url: string) => void;
 }) {
+  // Cinema Studio's additions: its own reference, a Trash, and its folders.
+  const extras = useContext(TileExtras);
   const favorites = useStudio((s) => s.favorites);
   const toggleFavorite = useStudio((s) => s.toggleFavorite);
   const kept = favorites.includes(asset.url);
@@ -225,7 +227,49 @@ function AssetTile({
             />
             <SaveTileButton url={asset.url} />
             {run && <TileButton icon="refresh" label="Recreate" onClick={() => recreateAndOpen(run)} />}
-            {onRemove && <TileButton icon="trash" label="Delete" danger onClick={() => setConfirming(true)} />}
+            {extras?.folders && extras.onFolder && asset.source !== "pending" && (
+              <Popover
+                width={220}
+                title="Move to folder"
+                align="end"
+                trigger={() => (
+                  <span title="Move to folder" aria-label="Move to folder" className="grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/85">
+                    <Icon name="folder" size={14} />
+                  </span>
+                )}
+              >
+                {(close) => (
+                  <div className="flex flex-col">
+                    {[{ id: "", name: "No folder" }, ...extras.folders!].map((folder) => (
+                      <button
+                        key={folder.id || "none"}
+                        type="button"
+                        onClick={() => {
+                          extras.onFolder!(asset.url, folder.id || undefined);
+                          close();
+                        }}
+                        className="flex items-center justify-between rounded-chip px-2.5 py-2 text-left text-[13px] text-t2 hover:bg-t1/[0.06] hover:text-t1"
+                      >
+                        {folder.name}
+                        {(asset.folderId ?? "") === folder.id && <Icon name="check" size={14} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover>
+            )}
+            {onRemove && (
+              <TileButton
+                icon="trash"
+                label={extras?.trash ? "Move to Trash" : "Delete"}
+                danger
+                onClick={() =>
+                  extras?.trash
+                    ? useProjectDelete.getState().open(asset.source === "upload" ? { uploadIds: [asset.id] } : { runIds: run ? [run.id] : [] })
+                    : setConfirming(true)
+                }
+              />
+            )}
           </div>
 
           {asset.kind === "image" && (
@@ -233,7 +277,7 @@ function AssetTile({
               <TileButton
                 icon="layers"
                 label="Use as reference"
-                onClick={() => onReference(asset.url)}
+                onClick={() => (extras?.onReference ? extras.onReference(asset.url) : sendReference(asset.url))}
               />
             </div>
           )}
@@ -250,13 +294,12 @@ function AssetTile({
 export function AssetBrowser({
   assets,
   byDate = true,
-  onReference,
 }: {
   assets: Asset[];
   /** Day headings over the grid; off for a short strip like home's Recent. */
   byDate?: boolean;
-  onReference?: (url: string) => void;
 }) {
+  const extras = useContext(TileExtras);
   const runs = useStudio((s) => s.runs);
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const phone = usePhone();
@@ -323,7 +366,6 @@ export function AssetBrowser({
       />
     ) : (
     <AssetTile
-      onReference={onReference}
       key={asset.id}
       asset={asset}
       box={box}
@@ -415,6 +457,22 @@ export function AssetBrowser({
           setPicked([]);
           setSelectMode(false);
         }}
+        // In a project, its own question (to the project's Trash, or everywhere) stands in for the bar's.
+        onDeleteAsk={
+          extras?.trash
+            ? () => {
+                const chosen = assets.filter((a) => picked.includes(a.url));
+                useProjectDelete.getState().open({
+                  runIds: [...new Set(chosen.flatMap((a) => (a.source === "run" ? runs.filter((r) => r.urls.includes(a.url)).map((r) => r.id) : [])))],
+                  uploadIds: chosen.filter((a) => a.source === "upload").map((a) => a.id),
+                  onDone: () => {
+                    setPicked([]);
+                    setSelectMode(false);
+                  },
+                });
+              }
+            : undefined
+        }
         onClose={() => {
           setPicked([]);
           setSelectMode(false);

@@ -4,11 +4,10 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
-import { Gallery, TileExtras, type TileExtrasValue } from "@/components/Gallery";
+import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
-import { MediaPreview } from "@/components/MediaViewer";
 import { Popover } from "@/components/Popover";
-import { uploadAsset, useAssets } from "@/lib/assets";
+import { inFlight, pendingAsset, runAssets, uploadAsset, useAssets, type Asset } from "@/lib/assets";
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { calledElements } from "@/lib/elements";
 import { getModel } from "@/lib/registry";
@@ -457,49 +456,21 @@ function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string
   return true;
 }
 
-/** Uploads, as a grid of squares: for the Uploaded filter and a project's own files. */
-function UploadGrid({ uploads, extras }: { uploads: Upload[]; extras?: { trash?: boolean } }) {
-  const [preview, setPreview] = useState<string | null>(null);
-  const setTrashed = useStudio((s) => s.setTrashed);
-  if (uploads.length === 0) return null;
-  return (
-    <>
-      <div className="grid grid-cols-3 gap-[3px] sm:grid-cols-5 lg:grid-cols-6">
-        {uploads.map((upload) => (
-          <div key={upload.id} className="group relative aspect-square overflow-hidden bg-surface">
-            <button type="button" onClick={() => setPreview(upload.url)} className="block h-full w-full cursor-zoom-in">
-              {upload.kind === "image" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={thumbSrc(upload.url, 512)} alt="" loading="lazy" className="h-full w-full object-cover" />
-              ) : upload.kind === "video" ? (
-                <video src={mediaSrc(upload.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-              ) : (
-                <span className="grid h-full w-full place-items-center text-t3">
-                  <Icon name="audio" size={22} />
-                </span>
-              )}
-            </button>
-            <div className="hover-reveal absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              {upload.kind === "image" && (
-                <button type="button" title="Use as reference" aria-label="Use as reference" onClick={() => studioReference(upload.url)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white hover:bg-black/80">
-                  <Icon name="layers" size={14} />
-                </button>
-              )}
-              {extras?.trash && (
-                <button type="button" title="Move to Trash" aria-label="Move to Trash" onClick={() => useProjectDelete.getState().open({ uploadIds: [upload.id] })} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white hover:bg-[#ff6b6b]/80">
-                  <Icon name="trash" size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      <MediaPreview url={preview} onClose={() => setPreview(null)} />
-    </>
-  );
-}
-
 const studioOnly = (run: Run) => isStudioRun(run);
+
+/**
+ * Runs and uploads as one wall, as Assets lays it out: what is still being
+ * made (or failed with nothing to show) as its loader, the rest as media,
+ * newest first.
+ */
+function wallOf(runs: Run[], uploads: Upload[] = []): Asset[] {
+  return [
+    ...runs.filter((run) => !run.trashedAt).flatMap((run) =>
+      inFlight(run) || (run.state === "failed" && run.urls.length === 0) ? [pendingAsset(run)] : runAssets(run),
+    ),
+    ...uploads.filter((u) => !u.trashedAt).map(uploadAsset),
+  ].sort((a, b) => b.createdAt - a.createdAt);
+}
 
 /** Everything made in Cinema Studio, with Filter and View. */
 export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) {
@@ -536,14 +507,20 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
         <DensitySlider />
       </ViewHead>
       <div className="md:px-1">
+        {/* The same wall as Assets: Select, the layouts, the days, and the enlarged view stepping through them. */}
         {uploadsShown ? (
-          // The same wall as Assets, so Select, the layouts and the enlarged view work here too.
-          shownUploads.length > 0 ? <AssetBrowser assets={shownUploads.map(uploadAsset)} onReference={studioReference} /> : <Empty text="No uploads yet." />
+          shownUploads.length > 0 ? (
+            <TileExtras.Provider value={extras}>
+              <AssetBrowser assets={wallOf([], shownUploads)} />
+            </TileExtras.Provider>
+          ) : (
+            <Empty text="No uploads yet." />
+          )
         ) : count === 0 ? (
           <Empty text={favoritesOnly ? "Nothing liked yet. Tap the heart on a shot to keep it here." : "Nothing here yet. What you make in Cinema Studio shows up here."} />
         ) : (
           <TileExtras.Provider value={extras}>
-            <Gallery filter={show} />
+            <AssetBrowser assets={wallOf(runs.filter(show))} />
           </TileExtras.Provider>
         )}
       </div>
@@ -703,11 +680,6 @@ export function ProjectView() {
   const uploader = useUploader(["image", "video", "audio"]);
   const [deleting, setDeleting] = useState(false);
   const folder = studio.folderId ?? "";
-  const pid = project?.id;
-  const show = useMemo(
-    () => (run: Run) => run.projectId === pid && !run.trashedAt && (!folder || run.folderId === folder),
-    [pid, folder],
-  );
   const extras: TileExtrasValue = useMemo(
     () => ({
       trash: true,
@@ -942,19 +914,9 @@ export function ProjectView() {
         ) : myRuns.length + myUploads.length === 0 ? (
           <Empty text={folderName ? "This folder is empty. Move work here from a tile's ⋯ menu." : "Nothing in this project yet. Choose it in the composer's project chip, and what you make is saved here."} />
         ) : (
-          <div className="flex flex-col gap-6">
-            {myRuns.length > 0 && (
-              <TileExtras.Provider value={extras}>
-                <Gallery filter={show} layout="square" />
-              </TileExtras.Provider>
-            )}
-            {myUploads.length > 0 && (
-              <section>
-                <p className="mb-2 text-[12.5px] font-medium text-t3">Uploads</p>
-                <UploadGrid uploads={myUploads} extras={{ trash: true }} />
-              </section>
-            )}
-          </div>
+          <TileExtras.Provider value={extras}>
+            <AssetBrowser assets={wallOf(myRuns, myUploads)} />
+          </TileExtras.Provider>
         )}
       </div>
     </div>
