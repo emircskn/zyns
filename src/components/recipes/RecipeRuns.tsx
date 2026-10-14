@@ -5,7 +5,7 @@ import { ProviderTag } from "@/components/ModelPicker";
 import { chooseStepModel, retryStep, runAgain } from "@/lib/recipes/engine";
 import type { Recipe, RecipeRun, Step } from "@/lib/recipes/types";
 import { getModel } from "@/lib/registry";
-import { mediaSrc } from "@/lib/storage/client";
+import { mediaSrc, videoFrame } from "@/lib/storage/client";
 import { mediaKind } from "@/lib/upload";
 import { useStudio } from "@/store/studio";
 import { StepModelPicker } from "./StepModelPicker";
@@ -56,7 +56,7 @@ export function RecipeRuns({ recipe }: { recipe: Recipe }) {
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded-chip bg-t1/[0.06]">
                     {state?.output?.urls[0] &&
                       (mediaKind(state.output.urls[0]) === "video" ? (
-                        <video src={mediaSrc(state.output.urls[0])} muted playsInline className="h-full w-full object-cover" />
+                        <video src={videoFrame(state.output.urls[0])} muted playsInline preload="metadata" className="h-full w-full object-cover" />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={mediaSrc(state.output.urls[0])} alt="" className="h-full w-full object-cover" />

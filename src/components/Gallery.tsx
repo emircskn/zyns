@@ -30,7 +30,7 @@ import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { useStudio, type Run } from "@/store/studio";
 import { TileExtras } from "@/lib/tileExtras";
 import { useProjectDelete } from "@/lib/newProject";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 
 export { TileExtras, type TileExtrasValue } from "@/lib/tileExtras";
 
@@ -142,7 +142,7 @@ function Media({ url, run, small, compact }: { url: string; run?: Run; small?: b
       // No controls on a tile: the tap belongs to the tile, and the enlarged
       // view is where the clip actually plays.
       <video
-        src={mediaSrc(url)}
+        src={videoFrame(url)}
         className="no-lift h-full w-full object-cover"
         muted
         loop

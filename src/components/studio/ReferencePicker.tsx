@@ -9,7 +9,7 @@ import { MediaPreview } from "@/components/MediaViewer";
 import { PillGroup } from "@/components/PillGroup";
 import { useAssets, type Asset } from "@/lib/assets";
 import { type LibraryElement, pickable } from "@/lib/elements";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
@@ -58,7 +58,7 @@ function MediaTile({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-contain" />
         ) : asset.kind === "video" ? (
-          <video src={mediaSrc(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
+          <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
         ) : (
           <span className="grid h-full w-full place-items-center bg-gradient-to-br from-t1/[0.07] to-transparent">
             <Icon name="audio" size={22} className="text-t2" />

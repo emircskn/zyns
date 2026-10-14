@@ -14,7 +14,7 @@ import { useUploader } from "@/lib/useUploader";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { SOUL_MODELS, soulsFor } from "@/lib/elements";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 
 interface ControlProps {
@@ -268,7 +268,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
         // eslint-disable-next-line @next/next/no-img-element
         <img src={thumbSrc(url, 256)} alt="" draggable={false} className="h-full w-full object-cover" />
       )}
-      {kind === "video" && <video src={mediaSrc(url)} className="h-full w-full object-cover" muted playsInline />}
+      {kind === "video" && <video src={videoFrame(url)} className="h-full w-full object-cover" muted playsInline preload="metadata" />}
       {kind === "audio" && (
         <div className="flex h-full w-full items-center justify-center text-t3">
           <Icon name="audio" size={18} />
@@ -779,7 +779,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                 }`}
               >
                 {kind === "video" ? (
-                  <video src={item.thumb} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+                  <video src={item.thumb ? videoFrame(item.thumb) : undefined} className="h-full w-full object-cover" muted playsInline preload="metadata" />
                 ) : kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.thumb} alt="" className="h-full w-full object-cover" />

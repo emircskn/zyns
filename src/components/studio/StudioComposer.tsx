@@ -19,7 +19,7 @@ import { mapParams } from "@/lib/recipes/paramMap";
 import { imageRefs } from "@/lib/mentions";
 import { activeFields, defaultValues, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { CINEMA, bottomFields, cardFields, cinemaModel, cinemaSpec, labelOf, listOf, referenceFields } from "@/lib/studio/cinema";
 import {
   MOVE_KEY,
@@ -703,7 +703,7 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
           ) : mediaKind(url) === "video" ? (
-            <video src={mediaSrc(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <video src={videoFrame(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
           ) : (
             <span className="grid h-full w-full place-items-center text-t3">
               <Icon name="audio" size={15} />

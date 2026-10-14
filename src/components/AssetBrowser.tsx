@@ -25,7 +25,7 @@ import { Tile } from "@/components/Gallery";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { type Asset } from "@/lib/assets";
 import { useStudio, type Run } from "@/store/studio";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 
 function TileButton({
   icon,
@@ -156,7 +156,7 @@ function AssetTile({
           />
         ) : asset.kind === "video" ? (
           <video
-            src={mediaSrc(asset.url)}
+            src={videoFrame(asset.url)}
             muted
             playsInline
             preload="metadata"

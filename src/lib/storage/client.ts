@@ -40,6 +40,17 @@ export function mediaSrc(url: string | undefined): string | undefined {
 }
 
 /**
+ * A clip as a still on a tile: the same file, asked to start a tenth of a
+ * second in. Safari on a phone draws nothing for a video that has not
+ * played, however much it loaded; a start time makes it seek, and a seek
+ * paints the frame.
+ */
+export function videoFrame(url: string): string {
+  const src = mediaSrc(url);
+  return src.includes("#") ? src : `${src}#t=0.1`;
+}
+
+/**
  * A small picture of an image for a grid tile, `width` pixels at most: the
  * kept copy's thumbnail where there is one (made once by the server), the
  * image itself otherwise. Decoding dozens of full-size originals at once is

@@ -11,7 +11,7 @@ import { inFlight, pendingAsset, runAssets, uploadAsset, useAssets, type Asset }
 import { AssetBrowser } from "@/components/AssetBrowser";
 import { calledElements } from "@/lib/elements";
 import { getModel } from "@/lib/registry";
-import { mediaSrc, thumbSrc } from "@/lib/storage/client";
+import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { isStudioRun, studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
 import { useNewFolder, useNewProject, useProjectDelete } from "@/lib/newProject";
@@ -540,7 +540,7 @@ function TrashMedia({ url }: { url?: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={thumbSrc(url, 512)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
   if (url && mediaKind(url) === "video")
-    return <video src={mediaSrc(url)} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
+    return <video src={videoFrame(url)} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover opacity-80" />;
   return <Icon name="audio" size={24} className="text-t3" />;
 }
 
