@@ -128,6 +128,67 @@ function Card({
   );
 }
 
+/**
+ * The tool row's chips on a desktop: one line that slides sideways when it
+ * runs long, with a small round arrow at the end (as Higgsfield's) to bring
+ * the rest in. A phone wraps them instead.
+ */
+function ChipRow({ children }: { children: ReactNode }) {
+  const row = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState({ left: false, right: false });
+  useEffect(() => {
+    const node = row.current;
+    if (!node) return;
+    const update = () => {
+      const slack = node.scrollWidth - node.clientWidth;
+      const next = { left: node.scrollLeft > 2, right: slack > 2 && node.scrollLeft < slack - 2 };
+      setMore((prev) => (prev.left === next.left && prev.right === next.right ? prev : next));
+    };
+    update();
+    node.addEventListener("scroll", update, { passive: true });
+    const watch = new ResizeObserver(update);
+    watch.observe(node);
+    for (const child of Array.from(node.children)) watch.observe(child);
+    return () => {
+      node.removeEventListener("scroll", update);
+      watch.disconnect();
+    };
+  });
+  const slide = (by: number) => row.current?.scrollBy({ left: by, behavior: "smooth" });
+  const fade = `${more.left ? "transparent, black 28px" : "black"}, ${more.right ? "black calc(100% - 40px), transparent" : "black"}`;
+  return (
+    <div className="relative flex min-w-0 flex-1 items-center">
+      <div
+        ref={row}
+        className="no-bar flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap md:overflow-x-auto"
+        style={{ maskImage: `linear-gradient(to right, ${fade})`, WebkitMaskImage: `linear-gradient(to right, ${fade})` }}
+      >
+        {children}
+      </div>
+      {more.left && (
+        <button
+          type="button"
+          aria-label="Scroll chips back"
+          onClick={() => slide(-240)}
+          className="absolute left-0 grid h-7 w-7 place-items-center rounded-full bg-[var(--popover)] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.14] max-md:hidden"
+        >
+          <Icon name="chevron" size={14} className="rotate-90" />
+        </button>
+      )}
+      {more.right && (
+        <button
+          type="button"
+          aria-label="Scroll chips on"
+          onClick={() => slide(240)}
+          className="absolute right-0 grid h-7 w-7 place-items-center rounded-full bg-[var(--popover)] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.14] max-md:hidden"
+        >
+          <Icon name="chevron" size={14} className="-rotate-90" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /** A small chip on the prompt's tool row. */
 function ToolChip({ icon, label, onClick, text }: { icon: IconName; label: string; onClick: () => void; text?: string }) {
   return (
@@ -281,7 +342,7 @@ export function GenerateButton({
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
       className={`cta cta-lift flex shrink-0 items-center justify-center rounded-[12px] font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
-        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "min-h-[80px] w-[124px] flex-col gap-1 self-stretch text-[12px]"
+        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "h-[80px] w-[120px] flex-col gap-1 text-[12px]"
       }`}
     >
       {busy ? (
@@ -564,7 +625,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
               On a desktop Generate ends the row, level with them, as the other bars have it,
               and a row too long slides on under it rather than pushing it down. */}
           <div className="flex items-center gap-1.5">
-            <div className="flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap no-bar md:overflow-x-auto md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]">
+            <ChipRow>
             <ToolChip icon="plus" label="Add references" onClick={() => setRefsOpen("uploads")} />
             <ToolChip icon="frame" label="Take a frame from a clip" onClick={() => setGrabbing(true)} />
             <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
@@ -579,7 +640,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                 <BatchChip value={count} onChange={setCount} />
               </span>
             )}
-            </div>
+            </ChipRow>
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -592,7 +653,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </p>
           )}
         </div>
-        <div className="flex max-md:hidden">
+        <div className="flex max-md:hidden md:self-center">
           <GenerateButton
             onClick={() => void generate()}
             busy={busy}
@@ -889,7 +950,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     setBusy(false);
   }
 
-  const tile = "flex h-[80px] w-[88px] max-md:w-full md:h-auto md:w-[132px] shrink-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-card bg-t1/[0.05] text-center transition-colors duration-[120ms] hover:bg-t1/[0.09]";
+  // Higgsfield's two tiles beside the prompt: 80px high, the character's square, the camera's a little wider.
+  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
@@ -907,7 +969,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap no-bar md:overflow-x-auto md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]">
+          <ChipRow>
           <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} text={studio.imageRefs.length ? String(studio.imageRefs.length) : undefined} />
           <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
           <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} />
@@ -922,7 +984,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <BatchChip value={count} onChange={setCount} />
             </span>
           )}
-          </div>
+          </ChipRow>
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
@@ -948,31 +1010,40 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </p>
         )}
       </div>
-      <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
-        <button type="button" onClick={() => setChoosing(true)} className={tile} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
+      <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2 md:self-center">
+        <button type="button" onClick={() => setChoosing(true)} className={`${tile} md:w-[80px]`} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
           {character?.images[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={thumbSrc(character.images[0].storageUrl, 256)} alt="" className="h-10 w-10 rounded-full object-cover" />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={thumbSrc(character.images[0].storageUrl, 256)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
+            </>
           ) : (
-            <AppIcon glyph="user" tone="blue" size={34} />
+            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1 ring-1 ring-inset ring-t1/20">
+              <Icon name="plus" size={13} />
+            </span>
           )}
-          <span className="max-w-full truncate px-1 font-mono text-[10px] uppercase tracking-[0.06em] text-t3">
+          <span className="relative max-w-full truncate text-[10px] font-bold uppercase tracking-normal text-t1">
             {character ? `@${character.name}` : "Character"}
           </span>
         </button>
-        <button type="button" onClick={() => setCameraOpen(true)} className={tile} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>
+        <button type="button" onClick={() => setCameraOpen(true)} className={`${tile} md:w-[120px]`} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>
           {cameraImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cameraImage} alt="" className="h-11 w-[76px] rounded-[8px] object-cover" />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={cameraImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 to-transparent" />
+            </>
           ) : (
-            <CardArt kind="camera" size={38} />
+            <span className="absolute left-1/2 top-1.5 -translate-x-1/2">
+              <CardArt kind="camera" size={34} />
+            </span>
           )}
-          <span className="max-w-full truncate px-1 text-[10.5px] leading-tight text-t2">
-            {bodyLabel ?? "Auto"} / {lensLabel ?? "Auto"}
-          </span>
+          <span className="relative block max-w-full truncate text-[11.5px] font-semibold leading-tight text-t1">{bodyLabel ?? "Auto"}</span>
+          <span className="relative block max-w-full truncate text-[10px] leading-tight text-t3">{lensLabel ?? "Auto"}</span>
         </button>
       </div>
-      <div className="flex max-md:hidden">
+      <div className="flex max-md:hidden md:self-center">
         <GenerateButton
           onClick={() => void generate()}
           busy={busy}
