@@ -19,32 +19,24 @@ export function ProjectDeleteDialog() {
   const count = runIds.length + uploadIds.length;
   const onlyUploads = runIds.length === 0 && uploadIds.length > 0;
   const what = count > 1 ? `${count} items` : onlyUploads ? "upload" : "generation";
-  const home = onlyUploads ? "Assets" : "My Generations";
+  // In a project it goes to that project's Trash, elsewhere to Cinema Studio's; never straight out.
+  const inProject = [...runs.filter((r) => runIds.includes(r.id)), ...uploads.filter((u) => uploadIds.includes(u.id))].some((x) => x.projectId);
+  const where = inProject ? "this project's Trash" : "the Trash";
 
   return (
     <ChoiceDialog
       open={!!ask && count > 0}
-      title={`Delete ${what} from project?`}
-      message={`${count > 1 ? "They" : `This ${what}`} will be moved to this project's Trash, where you can restore ${count > 1 ? "them" : "it"} for ${TRASH_DAYS} days. ${count > 1 ? "They stay" : "It stays"} in ${home}.`}
-      check={{
-        label: `Also delete from ${home}`,
-        hint: `${count > 1 ? "They" : "It"} will be permanently deleted — this can't be undone`,
-      }}
-      confirmLabel="Delete"
-      onConfirm={(everywhere) => {
-        const state = useStudio.getState();
-        if (everywhere) {
-          runIds.forEach(state.removeRun);
-          uploadIds.forEach(state.removeUpload);
-        } else {
-          state.setTrashed(
-            [
-              ...runs.filter((r) => runIds.includes(r.id)).flatMap((r) => r.urls),
-              ...uploads.filter((u) => uploadIds.includes(u.id)).map((u) => u.url),
-            ],
-            true,
-          );
-        }
+      title={`Move ${what} to Trash?`}
+      message={`${count > 1 ? "They" : `This ${what}`} will be moved to ${where}, where you can restore ${count > 1 ? "them" : "it"} for ${TRASH_DAYS} days.`}
+      confirmLabel="Move to Trash"
+      onConfirm={() => {
+        useStudio.getState().setTrashed(
+          [
+            ...runs.filter((r) => runIds.includes(r.id)).flatMap((r) => r.urls),
+            ...uploads.filter((u) => uploadIds.includes(u.id)).map((u) => u.url),
+          ],
+          true,
+        );
         ask?.onDone?.();
         close();
       }}

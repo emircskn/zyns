@@ -654,6 +654,8 @@ export function Gallery({
     () =>
       runs.filter(
         (run) =>
+          // What sits in a Trash is out of sight until it is restored.
+          !run.trashedAt &&
           (filter
             ? filter(run)
             : modelId

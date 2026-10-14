@@ -483,8 +483,9 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const models = [...new Map(mine.map((r) => [r.modelId, { id: r.modelId, name: getModel(r.modelId)?.name ?? r.modelName }])).values()];
   const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [filter, favorites, downloaded]);
   const count = mine.filter(show).length;
+  // Deleting here moves to Cinema Studio's Trash, to restore for a while, never straight out.
   const extras: TileExtrasValue = useMemo(
-    () => ({ onReference: studioReference }),
+    () => ({ onReference: studioReference, trash: true }),
     [],
   );
   const uploadsShown = filter.activity === "uploaded";
@@ -623,24 +624,59 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
 /** Cinema Studio's own Trash: the projects deleted, kept a while. */
 export function StudioTrash() {
   const projects = useStudio((s) => s.projects);
+  const runs = useStudio((s) => s.runs);
+  const uploads = useStudio((s) => s.uploads);
   const trashProject = useStudio((s) => s.trashProject);
   const removeProject = useStudio((s) => s.removeProject);
-  const items: TrashItem[] = projects
-    .filter((p) => p.trashedAt)
-    .map((p) => ({
-      key: p.id,
-      kind: "project" as const,
-      name: p.name,
-      trashedAt: p.trashedAt!,
-      preview: <ProjectTrashCover project={p} />,
-      restore: () => trashProject(p.id, false),
-      purge: () => removeProject(p.id),
-    }));
+  const setTrashed = useStudio((s) => s.setTrashed);
+  const removeRun = useStudio((s) => s.removeRun);
+  const removeUpload = useStudio((s) => s.removeUpload);
+  const items: TrashItem[] = [
+    ...projects
+      .filter((p) => p.trashedAt)
+      .map((p) => ({
+        key: p.id,
+        kind: "project" as const,
+        name: p.name,
+        trashedAt: p.trashedAt!,
+        preview: <ProjectTrashCover project={p} />,
+        restore: () => trashProject(p.id, false),
+        purge: () => removeProject(p.id),
+      })),
+    // What was deleted outside any project: a project's own Trash holds the rest.
+    ...runs
+      .filter((r) => r.trashedAt && !r.projectId && studioOnly(r))
+      .map((r) => ({
+        key: r.id,
+        kind: "generation" as const,
+        name: r.prompt || r.modelName,
+        trashedAt: r.trashedAt!,
+        preview: <TrashMedia url={r.urls[0]} />,
+        restore: () => setTrashed(r.urls, false),
+        purge: () => removeRun(r.id),
+      })),
+    ...uploads
+      .filter((u) => u.trashedAt && !u.projectId)
+      .map((u) => ({
+        key: u.id,
+        kind: "upload" as const,
+        name: u.name || "Upload",
+        trashedAt: u.trashedAt!,
+        preview: <TrashMedia url={u.url} />,
+        restore: () => setTrashed([u.url], false),
+        purge: () => removeUpload(u.id),
+      })),
+  ];
   return (
     <TrashView
       items={items}
-      note={`Projects can be restored for ${TRASH_DAYS} days. Their work stays in Assets either way.`}
-      purgeNote="It can no longer be restored. What was made in it stays in My Generations and Assets."
+      tabs={[
+        { id: "generation", label: "Generations" },
+        { id: "upload", label: "Uploads" },
+        { id: "project", label: "Projects" },
+      ]}
+      note={`Everything here can be restored for ${TRASH_DAYS} days, then it goes for good.`}
+      purgeNote="It can no longer be restored."
     />
   );
 }

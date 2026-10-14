@@ -917,9 +917,12 @@ export const useStudio = create<StudioState>()(
         }
         // Work kept too long in a project's Trash leaves the project; it stays in the studio.
         get().leaveProject([
-          ...get().runs.filter((r) => r.trashedAt && !r.trashedWith && r.trashedAt < old).flatMap((r) => r.urls),
-          ...get().uploads.filter((u) => u.trashedAt && !u.trashedWith && u.trashedAt < old).map((u) => u.url),
+          ...get().runs.filter((r) => r.projectId && r.trashedAt && !r.trashedWith && r.trashedAt < old).flatMap((r) => r.urls),
+          ...get().uploads.filter((u) => u.projectId && u.trashedAt && !u.trashedWith && u.trashedAt < old).map((u) => u.url),
         ]);
+        // Kept too long in Cinema Studio's own Trash, it goes for good.
+        for (const r of get().runs) if (!r.projectId && r.trashedAt && r.trashedAt < old) get().removeRun(r.id);
+        for (const u of get().uploads) if (!u.projectId && u.trashedAt && u.trashedAt < old) get().removeUpload(u.id);
       },
       fileInFolder: (urls, folderId) =>
         set((state) => {

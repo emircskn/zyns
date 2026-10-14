@@ -89,7 +89,8 @@ export function uploadAsset(upload: Upload): Asset {
 export function useAssets(): Asset[] {
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
-  return [...runs.flatMap(runAssets), ...uploads.map(uploadAsset)].sort(
+  // What sits in a Trash is out of sight until it is restored.
+  return [...runs.filter((r) => !r.trashedAt).flatMap(runAssets), ...uploads.filter((u) => !u.trashedAt).map(uploadAsset)].sort(
     (a, b) => b.createdAt - a.createdAt,
   );
 }

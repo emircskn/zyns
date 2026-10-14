@@ -263,11 +263,20 @@ export function withFold(model: ModelDef, spec: FoldSpec): ModelDef {
   ];
   // The service's own fields leave the tab; the tab's slots stand in for them.
   const taken = new Set([spec.frames.start, ...(spec.frames.end ? [spec.frames.end] : []), ...spec.inputs]);
+  // The mode a setting is shown for: on Frames the frames' own mode, even
+  // before a frame is in (Vidu's first-frame mode takes no ratio, so its
+  // ratio chip goes as soon as Frames is chosen); on References, the one the
+  // slots would send.
+  const shownMode = (v: Values): string =>
+    inputsOf(v) === "frames" ? (spec.frames.end && filled(v, END) ? spec.frames.two : spec.frames.one) : pick(v);
   const fields = [
     ...own,
     ...model.fields.map((f) => {
-      if (!taken.has(f.key) || f.placement !== "input") return f;
       const when = f.when;
+      if (!taken.has(f.key) || f.placement !== "input") {
+        if (!when) return f;
+        return { ...f, when: (v: Values) => (inTab(v) ? when({ ...v, __mode: shownMode(v) }) : when(v)) };
+      }
       return { ...f, when: (v: Values) => !inTab(v) && (!when || when(v)) };
     }),
   ];
