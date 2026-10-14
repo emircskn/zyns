@@ -5,7 +5,8 @@ import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { StylePicker } from "@/components/marketing/StylePicker";
-import { STYLE_CATEGORIES, styleById } from "@/lib/marketing/styles";
+import { STYLE_CATEGORIES, styleById, styleCover } from "@/lib/marketing/styles";
+
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -16,6 +17,13 @@ import { activeFields, ALL_MODELS, defaultValues, getModel, modesFor, providerOf
 import { mediaSrc } from "@/lib/storage/client";
 import { EMPTY_MARKETING } from "@/lib/marketing/types";
 import { keyFor, useStudio } from "@/store/studio";
+
+/** What the model is told about a style's cover: the last picture is a look to copy, not a thing to show. */
+/** A style's cover sits on our public site: the model reads it from its full address. */
+const coverAddress = (id: string) => (typeof location === "undefined" ? styleCover(id) : new URL(styleCover(id), location.href).href);
+
+const STYLE_REFERENCE_PROMPT =
+  "Use the last reference image only as the style reference: match its look, lighting, colours, composition and background. Keep the product (and the person, if given) from the other images.";
 
 /** Marketing Studio's own image models, the variants offered here. */
 export function marketingModels(): ModelDef[] {
@@ -33,7 +41,7 @@ export const isMarketingModel = (id: string | undefined) => !!id && /^hf-marketi
 function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { values: Values; info: MarketingRunInfo } {
   const images = [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
   const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
-  const text = [ui.prompt.trim(), styleById(ui.style)?.prompt].filter(Boolean).join(" ");
+  const text = ui.prompt.trim();
   const placed = mapParams(model, mode, { prompt: text, images });
   const values: Values = { ...placed.values };
   for (const field of activeFields(model, values)) {
@@ -77,12 +85,13 @@ const UI_KEY: Record<(typeof CHIP_KEYS)[number], "resolution" | "aspect" | "qual
  */
 export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create" | "ad-reference"): { values: Values; info: MarketingRunInfo } {
   const preset = tool === "create" ? ui.preset : null;
+  const style = tool === "create" && !preset ? styleById(ui.style) : undefined;
   const images =
     tool === "ad-reference"
       ? [ui.adReference, ui.product].filter((u): u is string => !!u)
       : preset
         ? [ui.product, takesPerson(preset) ? ui.avatar : null].filter((u): u is string => !!u)
-        : [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
+        : [ui.product, ui.avatar, ...ui.refs, style ? coverAddress(style.id) : null].filter((u): u is string => !!u);
   const mode = preset ? "preset" : images.length > 0 ? "edit" : "generate";
   const values: Values = { ...defaultValues(model), __mode: mode };
   const text = ui.prompt.trim();
@@ -91,7 +100,9 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
       ? [AD_REFERENCE_PROMPT, text].filter(Boolean).join(" ")
       : preset
         ? text || preset.name
-        : [text, styleById(ui.style)?.prompt].filter(Boolean).join(" ");
+        : style
+          ? [text, STYLE_REFERENCE_PROMPT].filter(Boolean).join(" ")
+          : text;
   if (images.length > 0) values.image_urls = images;
   if (preset) {
     values.enhance_prompt = true;
@@ -216,7 +227,7 @@ export function MarketingComposer({
 
   const preset = tool === "create" && marketing ? ui.preset : null;
   const built = model ? (marketing ? marketingValues(model, ui, tool) : otherValues(model, ui, own)) : null;
-  const maxRefs = 16 - (ui.product ? 1 : 0) - (ui.avatar ? 1 : 0);
+  const maxRefs = 16 - (ui.product ? 1 : 0) - (ui.avatar ? 1 : 0) - (ui.style ? 1 : 0);
   const blocker = !model
     ? "Choose a Marketing Studio version."
     : tool === "ad-reference" && !ui.adReference
