@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
 import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { StudioNav, type StudioNavValue } from "@/components/studio/studioNav";
@@ -12,6 +12,7 @@ import { Chip } from "@/components/PromptBar";
 import { PillGroup } from "@/components/PillGroup";
 import { isMarketingModel, MarketingComposer, marketingModels, useMarketing } from "@/components/marketing/MarketingComposer";
 import { PresetGrid } from "@/components/marketing/Presets";
+import { OwnTemplateGrid } from "@/components/marketing/StylePicker";
 import { ProductLink } from "@/components/marketing/ProductLink";
 import { RecipeComposer } from "@/components/recipes/RecipeComposer";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
@@ -87,6 +88,8 @@ const TOOL_NAV: Array<{ id: MarketingView; label: string; place: string }> = [
  */
 export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const ui = useMarketing();
+  // Explore templates: ours or Higgsfield's, starting on whichever one is in use.
+  const [source, setSource] = useState<"zyns" | "higgsfield">(() => (ui.preset ? "higgsfield" : "zyns"));
   const patch = useStudio((s) => s.patchMarketing);
   const hfKey = useStudio((s) => s.hfKey);
   const provider = useStudio((s) => s.provider);
@@ -174,7 +177,20 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <div className="min-w-0 flex-1">{composer}</div>
         </div>
         <div className="w-full">
-          <h2 className="studio-title mb-4 text-[22px] font-bold uppercase tracking-[-0.02em] text-t1">Explore templates</h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="studio-title text-[22px] font-bold uppercase tracking-[-0.02em] text-t1">Explore templates</h2>
+            {/* Ours (a cover sent as the look) apart from Higgsfield's own presets. */}
+            <PillGroup value={source} onChange={setSource} items={[{ id: "zyns", label: "ZYNS" }, { id: "higgsfield", label: "Higgsfield" }]} />
+          </div>
+          {source === "zyns" ? (
+            <OwnTemplateGrid
+              selected={ui.style}
+              onPick={(style) => {
+                patch({ style, preset: null, mode: "image", tool: "create" });
+                if (style) toComposer();
+              }}
+            />
+          ) : (
           <PresetGrid
             selected={ui.preset?.id}
             onPick={(preset) => {
@@ -183,6 +199,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
               toComposer();
             }}
           />
+          )}
         </div>
       </div>
     ) : view === "generations" ? (

@@ -7,7 +7,7 @@ import { MARKETING_STYLES, STYLE_CATEGORIES, styleCover, type StyleCategory } fr
 import { usePresence } from "@/lib/usePresence";
 
 /** A style's card: its cover (a quiet tile until one is added) and its name under it. */
-function StyleCard({ id, name, on, onPick }: { id: string; name: string; on: boolean; onPick: () => void }) {
+export function StyleCard({ id, name, on, onPick }: { id: string; name: string; on: boolean; onPick: () => void }) {
   const [missing, setMissing] = useState(false);
   return (
     <button type="button" onClick={onPick} aria-pressed={on} className="flex flex-col gap-2 text-left">
@@ -135,5 +135,43 @@ export function StylePicker({
       </div>
     </div>,
     document.body,
+  );
+}
+
+/**
+ * Our own templates under Explore templates, apart from Higgsfield's: the
+ * styles as a grid with their kinds as chips. A pick sends its cover along
+ * as the look to copy.
+ */
+export function OwnTemplateGrid({ selected, onPick }: { selected: string | null; onPick: (id: string | null) => void }) {
+  const [category, setCategory] = useState<StyleCategory | "all">("all");
+  const kinds = STYLE_CATEGORIES.filter((c) => c.group === "image" && MARKETING_STYLES.some((x) => x.category === c.id));
+  const shown = MARKETING_STYLES.filter((x) => category === "all" || x.category === category);
+  const chip = (id: StyleCategory | "all", label: string, icon: Parameters<typeof Icon>[0]["name"]) => (
+    <button
+      key={id}
+      type="button"
+      onClick={() => setCategory(id)}
+      aria-pressed={category === id}
+      className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold transition-colors duration-[120ms] ${
+        category === id ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t3 hover:text-t1"
+      }`}
+    >
+      <Icon name={icon} size={14} />
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="no-bar flex gap-1.5 overflow-x-auto">
+        {chip("all", "All", "grid")}
+        {kinds.map((c) => chip(c.id, c.label, c.icon))}
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {shown.map((x) => (
+          <StyleCard key={x.id} id={x.id} name={x.name} on={x.id === selected} onPick={() => onPick(x.id === selected ? null : x.id)} />
+        ))}
+      </div>
+    </div>
   );
 }
