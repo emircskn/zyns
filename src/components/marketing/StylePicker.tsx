@@ -27,8 +27,7 @@ export function StyleCard({ id, name, on, onPick }: { id: string; name: string; 
 }
 
 /**
- * Higgsfield's "Choose style" window: the kinds down the left (Image, then
- * Video), the styles of the one chosen as a grid with a search. Picking the
+ * Higgsfield's "Choose style" window: the kinds down the left, the styles of the one chosen as a grid with a search. Picking the
  * chosen style again lets it go.
  */
 export function StylePicker({
@@ -80,9 +79,9 @@ export function StylePicker({
         </header>
         <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-black/25 sm:flex-row">
           <nav className="no-bar flex shrink-0 gap-1 overflow-x-auto border-line p-2 sm:w-[184px] sm:flex-col sm:overflow-visible sm:border-r sm:p-3">
-            {(["image", "video"] as const).map((group) => (
+            {(["image"] as const).map((group) => (
               <div key={group} className="flex shrink-0 gap-1 sm:flex-col">
-                <p className="hidden px-2 pb-1 pt-2 text-[12px] font-medium text-t4 sm:block">{group === "image" ? "Image" : "Video"}</p>
+                <p className="hidden px-2 pb-1 pt-2 text-[12px] font-medium text-t4 sm:block">Image</p>
                 {STYLE_CATEGORIES.filter((c) => c.group === group).map((c) => (
                   <button
                     key={c.id}
@@ -112,7 +111,7 @@ export function StylePicker({
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
               {shown.length === 0 ? (
-                <p className="py-16 text-center text-[13px] text-t4">{needle ? "No style by that name." : "Video styles come with the video setup."}</p>
+                <p className="py-16 text-center text-[13px] text-t4">{needle ? "No style by that name." : "No styles here yet."}</p>
               ) : (
                 <div className="grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-4">
                   {shown.map((x) => (

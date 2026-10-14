@@ -88,16 +88,13 @@ export function PresetGrid({
   const { items, loading, error, done, loadMore } = usePresetCatalogue();
   const [type, setType] = useState<string>("all");
   const [query, setQuery] = useState("");
-  // Higgsfield's toggle at the row's right end: every template, the stills, or the clips.
-  const [media, setMedia] = useState<"all" | "image" | "video">("all");
   const end = useRef<HTMLDivElement>(null);
   const types = useMemo(() => presetTypes(items), [items]);
   const needle = query.trim().toLowerCase();
   const shown = items.filter(
     (p) =>
       (type === "all" || p.type === type) &&
-      (!needle || p.name.toLowerCase().includes(needle)) &&
-      (media === "all" || (media === "video") === (p.previewKind === "video")),
+      (!needle || p.name.toLowerCase().includes(needle)),
   );
 
   useEffect(() => {
@@ -159,22 +156,6 @@ export function PresetGrid({
             </button>
           ))}
         </div>
-        {!side && (
-          <div className="flex shrink-0 gap-0.5 rounded-full bg-t1/[0.04] p-0.5">
-            {(["all", "image", "video"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMedia(m)}
-                aria-pressed={media === m}
-                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold transition-colors duration-[120ms] ${media === m ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`}
-              >
-                {m !== "all" && <Icon name={m} size={14} />}
-                {m === "all" ? "All" : m === "image" ? "Images" : "Videos"}
-              </button>
-            ))}
-          </div>
-        )}
         <label className={`flex h-8 w-full items-center gap-2 rounded-full bg-t1/[0.05] px-3 sm:w-[220px] ${side ? "" : "hidden"}`}>
           <Icon name="search" size={14} className="shrink-0 text-t4" />
           <input

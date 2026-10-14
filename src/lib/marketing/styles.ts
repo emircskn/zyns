@@ -5,7 +5,7 @@
  * public/marketing-styles/<id>.webp.
  */
 export type StyleGroup = "image" | "video";
-export type StyleCategory = "product-shot" | "ads" | "marketplace" | "ugc" | "motion";
+export type StyleCategory = "product-shot" | "ads" | "marketplace";
 
 export interface MarketingStyle {
   id: string;
@@ -13,12 +13,10 @@ export interface MarketingStyle {
   category: StyleCategory;
 }
 
-export const STYLE_CATEGORIES: Array<{ id: StyleCategory; label: string; group: StyleGroup; icon: "box" | "monitor" | "bag" | "user" | "move" }> = [
+export const STYLE_CATEGORIES: Array<{ id: StyleCategory; label: string; group: StyleGroup; icon: "box" | "monitor" | "bag" }> = [
   { id: "product-shot", label: "Product shot", group: "image", icon: "box" },
   { id: "ads", label: "Ads", group: "image", icon: "monitor" },
   { id: "marketplace", label: "Marketplace", group: "image", icon: "bag" },
-  { id: "ugc", label: "UGC", group: "video", icon: "user" },
-  { id: "motion", label: "Motion", group: "video", icon: "move" },
 ];
 
 const s = (id: string, name: string, category: StyleCategory): MarketingStyle => ({ id, name, category });
