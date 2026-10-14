@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
 import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { StudioNav, type StudioNavValue } from "@/components/studio/studioNav";
-import { ModeSwitch } from "@/components/studio/StudioComposer";
 import { SideCollapsed } from "@/components/studio/sideCollapse";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
@@ -98,7 +97,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const recipeRuns = useStudio((s) => s.recipeRuns);
   const top = useRef<HTMLDivElement>(null);
   const recipe = MARKETING_RECIPES.find((r) => r.id === ui.recipeId) ?? MARKETING_RECIPES[0];
-  const video = ui.mode === "video";
+  // No Marketing Studio video model in the API yet: video comes back with one.
+  const video = false;
   const view = ui.view ?? "home";
   // What Marketing Studio made: its pictures, and every step of its video recipes.
   const owns = useCallback(
@@ -168,12 +168,6 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <span className="block text-t3">into ready to post content</span>
         </h1>
         <div ref={top} className="flex w-full max-w-[1180px] scroll-mt-24 flex-col gap-2 md:flex-row md:items-stretch">
-          <div className="md:hidden">
-            <PillGroup fill value={ui.mode} onChange={(mode) => patch({ mode })} items={[{ id: "image", label: "Image" }, { id: "video", label: "Video" }]} />
-          </div>
-          <div className="max-md:hidden md:self-center">
-            <ModeSwitch mode={ui.mode} onMode={(mode) => patch({ mode })} />
-          </div>
           <div className="min-w-0 flex-1">{composer}</div>
         </div>
         <div className="w-full">
@@ -279,9 +273,6 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
         {(view === "generations" || view === "favorites" || view === "project") && (
           <div className="sticky bottom-4 z-30 mx-auto mt-auto hidden w-full max-w-[1180px] pb-2 md:block">
             <div className="flex gap-2 rounded-panel" style={{ boxShadow: "var(--shadow-bar)" }}>
-              <div className="self-center">
-                <ModeSwitch mode={ui.mode} onMode={(mode) => patch({ mode })} />
-              </div>
               <div className="min-w-0 flex-1">{composer}</div>
             </div>
           </div>
