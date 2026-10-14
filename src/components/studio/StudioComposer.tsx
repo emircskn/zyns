@@ -16,6 +16,7 @@ import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import type { LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
+import { imageRefs } from "@/lib/mentions";
 import { activeFields, defaultValues, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { mediaSrc, thumbSrc } from "@/lib/storage/client";
@@ -721,6 +722,10 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
   );
 }
 
+/** What an element is, said to the model, and what of it must stay. */
+const KIND_WORD: Record<string, string> = { character: "person", location: "place", product: "product", style: "style" };
+const KIND_KEEP: Record<string, string> = { character: "their face and look", location: "the place", product: "the product", style: "the style" };
+
 /** Image mode: a prompt, then a character and a camera, as Higgsfield's image composer lays them. */
 function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const cinema = cinemaModel();
@@ -757,23 +762,34 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const sent = useMemo(() => {
     if (!model) return null;
     const compiled = compileCinemaPrompt(cameraFields, camValues);
-    const call = character && !new RegExp(`(^|\\s)@${character.name}(\\s|$)`).test(studio.imagePrompt) ? ` @${character.name}` : "";
-    const text = [studio.imagePrompt.trim() + call, compiled].filter(Boolean).join(" ");
-    const images = [...(character ? character.images.map((r) => r.storageUrl) : []), ...studio.imageRefs];
+    const pictures = character ? character.images.map((r) => r.storageUrl) : [];
+    const images = [...pictures, ...studio.imageRefs];
     const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
+    // The character's pictures go first, so they are Image 1 to N; the
+    // prompt says so, since a name alone means nothing to the model.
+    const taken = imageRefs(model, mapParams(model, mode, { prompt: "x", images }).values).filter((u) => pictures.includes(u)).length;
+    const named = character && new RegExp(`(^|\\s)@${character.name}(\\s|$)`).test(studio.imagePrompt);
+    const call =
+      character && taken > 0
+        ? `${named ? "" : ` @${character.name}`}. @${character.name} is the ${KIND_WORD[character.kind] ?? "subject"} in ${Array.from({ length: taken }, (_, i) => `@Image ${i + 1}`).join(", ")}; keep ${KIND_KEEP[character.kind] ?? "their look"} the same.`
+        : "";
+    const text = [studio.imagePrompt.trim() + call, compiled].filter(Boolean).join(" ");
     const placed = mapParams(model, mode, { prompt: text, images });
+    // A model that takes no pictures cannot use the character at all: said
+    // plainly, rather than a note that its pictures were left out.
+    if (character && taken === 0) placed.warnings.splice(0, placed.warnings.length, `${model.name} can't use a character. Pick a model that takes reference images, or remove @${character.name}.`);
     const values: Values = { ...placed.values };
     for (const field of activeFields(model, values)) {
       if (field.placement === "prompt" || field.placement === "input") continue;
       if (own[field.key] !== undefined) values[field.key] = own[field.key];
     }
-    return { values, warnings: placed.warnings };
+      return { values, warnings: placed.warnings, unusable: !!character && taken === 0 };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, own, studio.imagePrompt, studio.imageRefs, studio.imageCamera, studio.imageLens, character]);
 
   const provider = providerOf(model);
   const key = keyFor({ apiKey, hfKey }, provider);
-  const blocker = !model ? "No image model is available." : !studio.imagePrompt.trim() ? "Describe the picture to continue." : sent ? validateValues(model, sent.values) : null;
+  const blocker = !model ? "No image model is available." : !studio.imagePrompt.trim() ? "Describe the picture to continue." : sent?.unusable ? sent.warnings[0] : sent ? validateValues(model, sent.values) : null;
   const price = times(usePrice(model, sent?.values ?? {}, blocker), count);
   const chips = model ? activeFields(model, own).filter((f) => f.placement === "bar") : [];
 
