@@ -175,6 +175,7 @@ export function MediaPicker({
     [made, favorites],
   );
   const library = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && pickable(e));
+  const openElementEditor = useStudio((s) => s.openElementEditor);
   const [chosenElements, setChosenElements] = useState<string[]>([]);
   // As Higgsfield lays its window out: uploads, elements, then what was made by kind, then the liked.
   const tabs: Array<{ id: Tab; label: string }> = [
@@ -313,10 +314,19 @@ export function MediaPicker({
             </div>
           )}
           {tab === "elements" ? (
-            !onElements ? null : library.length === 0 ? (
-              <p className="py-14 text-center text-[13px] text-t4">No elements yet. Make one on the Elements page.</p>
-            ) : (
+            !onElements ? null : (
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {/* As Uploads starts with uploading, Elements starts with making one; it opens over this window and lands here. */}
+                <button
+                  type="button"
+                  onClick={() => openElementEditor({})}
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
+                    <Icon name="plus" size={17} />
+                  </span>
+                  <span className="px-2 text-center text-[12.5px] font-medium">Create element</span>
+                </button>
                 {library.map((element) => {
                   const on = chosenElements.includes(element.id);
                   return (
