@@ -421,10 +421,13 @@ export function Chip({
   icon,
   value,
   active,
+  onClear,
 }: {
   icon?: ReactNode;
   value: string;
   active?: boolean;
+  /** A small × inside the chip that lets the choice go. */
+  onClear?: () => void;
 }) {
   const large = useContext(LargeChips);
   const tile = useContext(TileChips);
@@ -452,6 +455,27 @@ export function Chip({
     >
       {icon}
       {value}
+      {onClear && (
+        // A span, not a button: the chip itself often sits in one.
+        <span
+          role="button"
+          tabIndex={0}
+          aria-label={`Remove ${value}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onClear();
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            event.stopPropagation();
+            onClear();
+          }}
+          className="-mr-1 grid h-5 w-5 place-items-center rounded-[6px] text-t3 hover:bg-t1/[0.1] hover:text-t1"
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </span>
+      )}
     </span>
   );
 }

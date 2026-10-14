@@ -362,15 +362,12 @@ export function MarketingComposer({
               <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id })} />
               {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
               {preset ? (
-                <>
-                  <Chip icon={<Icon name="grid" size={15} />} value={preset.name} active />
-                  <button type="button" onClick={() => patch({ preset: null })} aria-label="No template" className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 hover:bg-t1/[0.07] hover:text-t1">
-                    <Icon name="close" size={14} />
-                  </button>
-                </>
+                <span className="shrink-0">
+                  <Chip icon={<Icon name="grid" size={15} />} value={preset.name} active onClear={() => patch({ preset: null })} />
+                </span>
               ) : (
                 <button type="button" onClick={() => setStylesOpen(true)} className="shrink-0">
-                  <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} />
+                  <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} onClear={ui.style ? () => patch({ style: null }) : undefined} />
                 </button>
               )}
               {model &&
