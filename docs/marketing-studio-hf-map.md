@@ -30,3 +30,7 @@
 | Ad Reference (görsel) | Reklam + ürün görseli + prompt (yapıldı) |
 | Video (UGC, Hypermotion, Motion…) | API'de yok. Tariflerle başka video modelleri (Kling, Seedance, Veo…); stiller prompt + gerektiğinde referans video olarak |
 | Ads Studio | API'de var, eklenebilir |
+
+## Image templates (checked on Higgsfield)
+- A template's `type` decides its inputs: `product_shots` = product only; `product_shots_people` = product + avatar. Product is required, prompt ("Describe your result") is optional.
+- With a template, extra reference pictures are not sent, so the bar hides "+"; on `product_shots` it also hides the Avatar tile.

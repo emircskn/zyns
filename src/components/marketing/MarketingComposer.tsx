@@ -55,6 +55,15 @@ export const AD_REFERENCE_PROMPT =
   "Recreate the composition, lighting and layout of image 1 with the product from image 2; leave text areas empty.";
 
 /** The settings this page shows as chips, in this order, when the model has them. */
+/**
+ * Whether a template takes a person. Higgsfield asks for the product alone on
+ * a "product_shots" template and for product + avatar on the others (seen on
+ * "product_shots_people"), so only that kind drops the avatar.
+ */
+export function takesPerson(preset: { type?: string } | null): boolean {
+  return preset?.type !== "product_shots";
+}
+
 const CHIP_KEYS = ["resolution", "aspect_ratio", "quality"] as const;
 const UI_KEY: Record<(typeof CHIP_KEYS)[number], "resolution" | "aspect" | "quality"> = {
   resolution: "resolution",
@@ -73,7 +82,7 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
     tool === "ad-reference"
       ? [ui.adReference, ui.product].filter((u): u is string => !!u)
       : preset
-        ? [ui.product, ui.avatar].filter((u): u is string => !!u)
+        ? [ui.product, takesPerson(preset) ? ui.avatar : null].filter((u): u is string => !!u)
         : [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
   const mode = preset ? "preset" : images.length > 0 ? "edit" : "generate";
   const values: Values = { ...defaultValues(model), __mode: mode };
@@ -333,6 +342,7 @@ export function MarketingComposer({
           />
           <div className="flex items-center gap-1.5">
             <ChipRow>
+              {!preset && (<>
               <button
                 type="button"
                 onClick={() => setPicking("refs")}
@@ -342,6 +352,7 @@ export function MarketingComposer({
                 {ui.refs.length ? <span className="font-mono text-[12px]">{ui.refs.length}</span> : <Icon name="plus" size={16} />}
               </button>
               <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
+              </>)}
               <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id })} />
               {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
               {preset ? (
@@ -379,7 +390,7 @@ export function MarketingComposer({
           {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
         </div>
         <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
-          {slot("Avatar", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
+          {(!preset || takesPerson(preset)) && slot("Avatar", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
           {slot("Product", ui.product, () => setPicking("product"), () => patch({ product: null }))}
         </div>
         <div className="flex max-md:hidden">
@@ -482,7 +493,9 @@ export function MarketingComposer({
               onPick={() => setPicking("product")}
               onClear={() => patch({ product: null })}
             />
-            {preset ? (
+            {preset && !takesPerson(preset) ? (
+              <div className="min-w-0 flex-1" />
+            ) : preset ? (
               <Slot
                 label="Model"
                 icon="user"
