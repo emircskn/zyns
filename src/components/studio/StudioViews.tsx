@@ -101,7 +101,7 @@ function FoldButton() {
       aria-label={label}
       title={label}
       onClick={() => patchStudio((st) => ({ sideCollapsed: !st.sideCollapsed }))}
-      className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1 ${folded ? "mx-auto" : ""}`}
+      className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-t1/[0.05] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${folded ? "mx-auto" : ""}`}
     >
       <Icon name="sidebar" size={17} />
     </button>
@@ -113,45 +113,33 @@ function FoldButton() {
  * name, opening a menu back out to the rest of ZYNS (the page has no top
  * bar of its own while it fills the screen).
  */
-function StudioSwitcher() {
-  const folded = useSideCollapsed();
+function StudioSwitcher({ open, setOpen }: { open: boolean; setOpen: (fn: (open: boolean) => boolean) => void }) {
   const setPage = useStudio((s) => s.setPage);
+  // Opens in place, as Higgsfield's: the other app appears under the name, inside the same box.
   return (
-    <Popover
-      width={220}
-      align="start"
-      trigger={(open) => (
-        <span
-          aria-label="Switch app"
-          title={folded ? "Cinema Studio" : undefined}
-          className={`flex h-9 items-center gap-2 rounded-[10px] transition-colors duration-[120ms] ${folded ? "w-9 justify-center" : "w-full pl-1.5 pr-2"} ${open ? "bg-t1/[0.1]" : "bg-t1/[0.05] hover:bg-t1/[0.08]"}`}
+    <div className="rounded-[10px] bg-t1/[0.05]">
+      <button
+        type="button"
+        aria-label="Switch app"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 hover:bg-t1/[0.04]"
+      >
+        <AppIcon glyph="film" tone="lime" size={24} />
+        <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left text-[14.5px] font-semibold text-t1">Cinema Studio</span>
+        <Icon name="chevron" size={13} className={`text-t3 transition-transform duration-[160ms] ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <button
+          type="button"
+          onClick={() => setPage("home")}
+          className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 text-left text-[14px] font-semibold text-t3 hover:text-t1"
         >
-          <AppIcon glyph="film" tone="lime" size={24} />
-          {!folded && (
-            <>
-              <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left text-[14.5px] font-semibold text-t1">Cinema Studio</span>
-              <Icon name="chevron" size={13} className={`text-t3 transition-transform duration-[160ms] ${open ? "rotate-180" : ""}`} />
-            </>
-          )}
-        </span>
+          <ZynsMark size={22} />
+          ZYNS
+        </button>
       )}
-    >
-      {(close) => (
-        <div className="flex flex-col">
-          <button
-            type="button"
-            onClick={() => {
-              close();
-              setPage("home");
-            }}
-            className="flex h-10 items-center gap-2.5 rounded-[8px] px-2 text-left text-[14px] font-semibold text-t1 hover:bg-t1/[0.06]"
-          >
-            <ZynsMark size={22} />
-            ZYNS
-          </button>
-        </div>
-      )}
-    </Popover>
+    </div>
   );
 }
 
@@ -198,15 +186,18 @@ export function StudioSidebar() {
 
   const menu = useRef<HTMLDivElement>(null);
   const folded = useSideCollapsed();
+  const [switching, setSwitching] = useState(false);
   if (studio.view === "project" && studio.projectId) return <ProjectSidebar />;
 
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
-      <div className={`flex gap-1 pb-1 ${folded ? "flex-col items-center" : "items-center"}`}>
-        <div className={folded ? "" : "min-w-0 flex-1"}>
-          <StudioSwitcher />
-        </div>
+      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded, switching]} />
+      <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
+        {!folded && (
+          <div className="min-w-0 flex-1">
+            <StudioSwitcher open={switching} setOpen={setSwitching} />
+          </div>
+        )}
         <FoldButton />
       </div>
       {STUDIO_NAV.map((item) => (

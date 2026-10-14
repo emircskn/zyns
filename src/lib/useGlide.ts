@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 export interface GlideBox {
   x: number;
@@ -17,6 +17,7 @@ export interface GlideBox {
 export function useGlide(root: RefObject<HTMLElement | null>, value: string, deps: unknown[] = []) {
   const [box, setBox] = useState<GlideBox | null>(null);
   const [settled, setSettled] = useState(false);
+  const last = useRef(value);
 
   useLayoutEffect(() => {
     const node = root.current;
@@ -32,7 +33,9 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => setSettled(true));
     };
-    measure();
+    // A new choice glides to it; the same one re-measured (its menu changed shape) goes along at once.
+    measure(last.current === value);
+    last.current = value;
     const observer = new ResizeObserver(() => measure(true));
     observer.observe(node);
     const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);

@@ -568,7 +568,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
       : [];
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:bg-[var(--chip-well)]">
+    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5">
       {cards && (
         <div className={`grid gap-1.5 max-md:grid-cols-2 max-md:[&>*:last-child:nth-child(odd)]:col-span-2 ${cards.more.length > 0 ? "md:grid-cols-6" : "md:grid-cols-5"}`}>
           <Card
@@ -608,7 +608,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
       )}
       {/* On a desktop Generate sits inside the prompt's well, as Higgsfield's does. */}
-      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:pr-1">
+      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-[12px] md:bg-t1/[0.05] md:pr-2">
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
@@ -959,7 +959,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-2.5">
+    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
