@@ -28,6 +28,14 @@ const STYLE_REFERENCE_PROMPT =
 /** The same without a product picture: the cover is then only a look to follow. */
 const STYLE_ONLY_PROMPT = "The last image is only a style reference: copy its composition, camera angle, lighting, background and colour mood, but not its product, logo or text.";
 const styleLine = (ui: MarketingUi) => (ui.product ? STYLE_REFERENCE_PROMPT : STYLE_ONLY_PROMPT);
+/**
+ * The style line first, then what the person asked for, said to win: "copy
+ * its background" must not undo "make the background red".
+ */
+const withStyle = (ui: MarketingUi) => {
+  const asked = ui.prompt.trim();
+  return asked ? `${styleLine(ui)} Then apply these changes, which take priority over the style reference: ${asked}` : styleLine(ui);
+};
 
 /** Marketing Studio's own image models, the variants offered here. */
 export function marketingModels(): ModelDef[] {
@@ -59,7 +67,7 @@ export function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { va
   const style = styleById(ui.style);
   const images = [ui.product, ui.avatar, ...ui.refs, style ? coverAddress(style.id) : null].filter((u): u is string => !!u);
   const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
-  const text = style ? [ui.prompt.trim(), styleLine(ui)].filter(Boolean).join(" ") : ui.prompt.trim();
+  const text = style ? withStyle(ui) : ui.prompt.trim();
   const placed = mapParams(model, mode, { prompt: text, images });
   const values: Values = { ...placed.values };
   for (const field of activeFields(model, values)) {
@@ -119,7 +127,7 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
       : preset
         ? text || preset.name
         : style
-          ? [text, styleLine(ui)].filter(Boolean).join(" ")
+          ? withStyle(ui)
           : text;
   if (images.length > 0) values.image_urls = images;
   if (preset) {
