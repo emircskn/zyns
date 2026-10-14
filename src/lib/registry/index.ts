@@ -85,6 +85,13 @@ const FOLDS: Record<string, FoldSpec> = {
     inputs: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"],
     refs: [{ mode: "video", carries: ["reference_image_urls", "reference_video_urls", "reference_audio_urls"] }],
   },
+  // No mode of its own for text: the references, empty, are one.
+  "vidu-q4": {
+    text: "reference-to-video",
+    frames: { one: "image-to-video", two: "image-to-video", start: "image_url" },
+    inputs: ["reference_image_urls", "reference_audio_urls"],
+    refs: [{ mode: "reference-to-video", carries: ["reference_image_urls", "reference_audio_urls"] }],
+  },
   "gemini-omni-flash-1-1": {
     text: "video",
     frames: { one: "frames", two: "frames", start: "first_frame_url", end: "last_frame_url" },

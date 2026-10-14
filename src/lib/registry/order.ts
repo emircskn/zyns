@@ -30,6 +30,7 @@ const ORDER: string[] = [
   "wan-3", "wan-3-prime", "wan-2-7", "wan-animate", "wan-2-6", "wan-2-6-flash",
   "happyhorse-1-1", "happyhorse-1",
   "minimax-h3", "hailuo-2-3-pro", "hailuo-2-3",
+  "vidu-q4",
   "gemini-omni-flash-1-1", "gemini-omni",
   "grok-imagine-video-1-5", "grok-imagine-video",
   "pixverse-v6",

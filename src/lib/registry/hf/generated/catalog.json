@@ -1,6 +1,6 @@
 {
  "source": "https://dash.higgsfield.ai/api/v2",
- "fetchedAt": "2026-10-11T23:09:44.624Z",
+ "fetchedAt": "2026-10-14T01:53:00.728Z",
  "count": 85,
  "families": {
   "cinema-studio-4": {
@@ -411,7 +411,7 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/60afab4a59dce64dd5447fb7ebd295653cf9d5d40fad84960f4246ca4b5d3d24-thumbnail.webp"
    },
    "price": {
-    "amount": 0.025,
+    "amount": 0.02,
     "original": 0.05,
     "currency": "USD",
     "unit": "second",
@@ -427,7 +427,7 @@
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
    },
    "price": {
-    "amount": 0.0408,
+    "amount": 0.0272,
     "original": 0.068,
     "currency": "USD",
     "unit": "second",
@@ -2135,7 +2135,7 @@
    "model": "alibaba/wan-3.0-prime/reference-to-video",
    "endpoint": "/alibaba/wan-3.0-prime/reference-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/reference-to-video",
-   "title": "Wan 3.0 Prime Reference to Video",
+   "title": "Wan 3.0 Prime",
    "crumb": "Wan 3.0 Prime",
    "family": "wan-3-prime",
    "output": "video",
@@ -2227,6 +2227,12 @@
      ],
      "default": "adaptive"
     },
+    "prompt_extend": {
+     "desc": "Enable Alibaba automatic prompt rewriting. Set false to disable it. Always enabled when file_url or link_url is provided.",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    },
     "generate_audio": {
      "desc": "",
      "required": false,
@@ -2291,6 +2297,7 @@
    "operations": [
     "image2video"
    ],
+   "pricing": "Priced per total video second: 480p $0.068/s, 720p $0.14/s, 1080p $0.28/s. Total billable duration = output video duration + the sum of all input reference video durations. Without input videos, only output duration is billed. Rates shown are before any applicable customer discount.",
    "example": "A rider in brown gallops on a white horse through a desert filled with giant colorful crystals. A huge glass bird swoops overhead. The rider follows it between the crystals and out onto an open sandy plain.",
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
@@ -3275,7 +3282,7 @@
    "model": "alibaba/wan-3.0-prime/image-to-video",
    "endpoint": "/alibaba/wan-3.0-prime/image-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/image-to-video",
-   "title": "Wan 3.0 Prime Image to Video",
+   "title": "Wan 3.0 Prime",
    "crumb": "Wan 3.0 Prime",
    "family": "wan-3-prime",
    "output": "video",
@@ -4062,284 +4069,10 @@
    "example": "An overhead close-up of a red-haired woman lying on a pale blue quilt. Yellow flowers and lilac satin ribbons surround her loose hair. She wears a white eyelet blouse and pale green eyeshadow, gazing upward in bright sunlight."
   },
   {
-   "model": "alibaba/wan-3.0/reference-to-video",
-   "endpoint": "/alibaba/wan-3.0/reference-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video",
-   "title": "Wan 3.0 Reference to Video",
-   "crumb": "Wan 3.0",
-   "family": "wan-3",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 2147483647
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "2-30 seconds.",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 30
-    },
-    "file_url": {
-     "desc": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking.",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "link_url": {
-     "desc": "One public page. Forces deep thinking. Not combinable with file_url.",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "audio_urls": {
-     "desc": "Up to 5 files, 30s total. WAV or MP3.",
-     "required": false,
-     "type": "array",
-     "maxItems": 5,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "maxItems": 10,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "480p",
-      "720p",
-      "1080p"
-     ],
-     "default": "1080p"
-    },
-    "video_urls": {
-     "desc": "Up to 5 clips, 30s total, each 1-30s.",
-     "required": false,
-     "type": "array",
-     "maxItems": 5,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "4:3",
-      "1:1",
-      "3:4",
-      "9:16",
-      "adaptive"
-     ],
-     "default": "adaptive"
-    },
-    "generate_audio": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": true
-    },
-    "enable_thinking": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    }
-   },
-   "notes": [
-    "Reference media are optional in the stored schema: only prompt is required. The example includes an image to demonstrate reference mode.",
-    "Send either file_url or link_url. A document or web-page reference automatically enables thinking; when both are sent, file_url takes precedence.",
-    "Reference video clips must be 1–30 seconds each and total at most 30 seconds. Reference audio must be WAV or MP3 and total at most 30 seconds, as specified in the production schema.",
-    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "file_url": {
-     "advanced": false
-    },
-    "link_url": {
-     "advanced": false
-    },
-    "audio_urls": {
-     "advanced": false
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "resolution": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "video_urls": {
-     "advanced": false
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "generate_audio": {
-     "advanced": true
-    },
-    "enable_thinking": {
-     "advanced": true
-    }
-   },
-   "variant": "Reference to Video",
-   "operations": [
-    "image2video"
-   ],
-   "pricing": "Priced per generated second by resolution: 480p $0.05, 720p $0.10, or 1080p $0.20. Rates shown are before any applicable customer discount.",
-   "example": "A woman wearing futuristic glasses walks down a gray street. The city and her clothes transform into a colorful anime world. She takes off the glasses, and everything returns to normal.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/6cf6ae3723d81364d30b9db77a18ca1de2ae0254acf973db4f95449990b6b1e0-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
-   }
-  },
-  {
-   "model": "alibaba/wan-3.0-prime/text-to-video",
-   "endpoint": "/alibaba/wan-3.0-prime/text-to-video",
-   "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video",
-   "title": "Wan 3.0 Prime Text to Video",
-   "crumb": "Wan 3.0 Prime",
-   "family": "wan-3-prime",
-   "output": "video",
-   "top": {
-    "seed": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 2147483647
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "2-30 seconds.",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 2,
-     "maximum": 30
-    },
-    "resolution": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "480p",
-      "720p",
-      "1080p"
-     ],
-     "default": "1080p"
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "4:3",
-      "1:1",
-      "3:4",
-      "9:16",
-      "adaptive"
-     ],
-     "default": "adaptive"
-    },
-    "generate_audio": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": true
-    },
-    "enable_thinking": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    }
-   },
-   "notes": [
-    "This endpoint generates from text; use the separate image or reference endpoint for media inputs.",
-    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
-   ],
-   "ui": {
-    "seed": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "resolution": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "generate_audio": {
-     "advanced": true
-    },
-    "enable_thinking": {
-     "advanced": true
-    }
-   },
-   "variant": "Text to Video",
-   "operations": [
-    "text2video"
-   ],
-   "example": "A rider in brown gallops on a white horse through a desert filled with giant colorful crystals. A huge glass bird swoops overhead. The rider follows it between the crystals and out onto an open sandy plain.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
-   }
-  },
-  {
    "model": "alibaba/wan-3.0/image-to-video",
    "endpoint": "/alibaba/wan-3.0/image-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/wan-3/image-to-video",
-   "title": "Wan 3.0 Image to Video",
+   "title": "Wan 3.0",
    "crumb": "Wan 3.0",
    "family": "wan-3",
    "output": "video",
@@ -4464,10 +4197,290 @@
    }
   },
   {
+   "model": "alibaba/wan-3.0-prime/text-to-video",
+   "endpoint": "/alibaba/wan-3.0-prime/text-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video",
+   "title": "Wan 3.0 Prime",
+   "crumb": "Wan 3.0 Prime",
+   "family": "wan-3-prime",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "2-30 seconds.",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 30
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ],
+     "default": "1080p"
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "adaptive"
+     ],
+     "default": "adaptive"
+    },
+    "generate_audio": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": true
+    },
+    "enable_thinking": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "notes": [
+    "This endpoint generates from text; use the separate image or reference endpoint for media inputs.",
+    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "resolution": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "generate_audio": {
+     "advanced": true
+    },
+    "enable_thinking": {
+     "advanced": true
+    }
+   },
+   "variant": "Text to Video",
+   "operations": [
+    "text2video"
+   ],
+   "example": "A rider in brown gallops on a white horse through a desert filled with giant colorful crystals. A huge glass bird swoops overhead. The rider follows it between the crystals and out onto an open sandy plain.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/11e62558e46955d7f3ac53928bc3d87117e57c1842b81842c7ec3a0a5e388fd9-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/c743629411ff8267c2920e116ce3790e5a303727efe964811b7bcf8b138b736b-thumbnail.webp"
+   }
+  },
+  {
+   "model": "alibaba/wan-3.0/reference-to-video",
+   "endpoint": "/alibaba/wan-3.0/reference-to-video",
+   "doc": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video",
+   "title": "Wan 3.0",
+   "crumb": "Wan 3.0",
+   "family": "wan-3",
+   "output": "video",
+   "top": {
+    "seed": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "2-30 seconds.",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 2,
+     "maximum": 30
+    },
+    "file_url": {
+     "desc": "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking.",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "link_url": {
+     "desc": "One public page. Forces deep thinking. Not combinable with file_url.",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "audio_urls": {
+     "desc": "Up to 5 files, 30s total. WAV or MP3.",
+     "required": false,
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "maxItems": 10,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "resolution": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "480p",
+      "720p",
+      "1080p"
+     ],
+     "default": "1080p"
+    },
+    "video_urls": {
+     "desc": "Up to 5 clips, 30s total, each 1-30s.",
+     "required": false,
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "4:3",
+      "1:1",
+      "3:4",
+      "9:16",
+      "adaptive"
+     ],
+     "default": "adaptive"
+    },
+    "prompt_extend": {
+     "desc": "Enable Alibaba automatic prompt rewriting. Set false to disable it. Always enabled when file_url or link_url is provided.",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    },
+    "generate_audio": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": true
+    },
+    "enable_thinking": {
+     "desc": "",
+     "required": false,
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "notes": [
+    "Reference media are optional in the stored schema: only prompt is required. The example includes an image to demonstrate reference mode.",
+    "Send either file_url or link_url. A document or web-page reference automatically enables thinking; when both are sent, file_url takes precedence.",
+    "Reference video clips must be 1–30 seconds each and total at most 30 seconds. Reference audio must be WAV or MP3 and total at most 30 seconds, as specified in the production schema.",
+    "The schema accepts seed=0, but the current implementation only forwards a nonzero seed."
+   ],
+   "ui": {
+    "seed": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "file_url": {
+     "advanced": false
+    },
+    "link_url": {
+     "advanced": false
+    },
+    "audio_urls": {
+     "advanced": false
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "resolution": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "video_urls": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "generate_audio": {
+     "advanced": true
+    },
+    "enable_thinking": {
+     "advanced": true
+    }
+   },
+   "variant": "Reference to Video",
+   "operations": [
+    "image2video"
+   ],
+   "pricing": "Priced per total video second: 480p $0.05/s, 720p $0.10/s, 1080p $0.20/s. Total billable duration = output video duration + the sum of all input reference video durations. Without input videos, only output duration is billed. Rates shown are before any applicable customer discount.",
+   "example": "A woman wearing futuristic glasses walks down a gray street. The city and her clothes transform into a colorful anime world. She takes off the glasses, and everything returns to normal.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/6cf6ae3723d81364d30b9db77a18ca1de2ae0254acf973db4f95449990b6b1e0-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/7cdecdca82d29e7849193cf90faf28b1c33e074b6a1cb079827a2890c7f535bf-thumbnail.webp"
+   }
+  },
+  {
    "model": "alibaba/wan-3.0/text-to-video",
    "endpoint": "/alibaba/wan-3.0/text-to-video",
    "doc": "https://docs.higgsfield.ai/docs/models/wan-3/text-to-video",
-   "title": "Wan 3.0 Text to Video",
+   "title": "Wan 3.0",
    "crumb": "Wan 3.0",
    "family": "wan-3",
    "output": "video",
@@ -7867,6 +7880,98 @@
    "example": "A low-angle view looks up along a thick tree trunk with peeling bark. Twisting branches covered in small white blossoms spread across the frame. Sunlight catches the flowers against a deep blue sky."
   },
   {
+   "model": "kling-video/motion-control/pro",
+   "endpoint": "/kling-video/motion-control/pro",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro",
+   "title": "Kling 2.6",
+   "crumb": "Kling 2.6",
+   "family": "kling-2-6-motion-control",
+   "output": "video",
+   "top": {
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": false,
+     "type": "string",
+     "default": ""
+    },
+    "image_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "video_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    },
+    "keep_original_sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "yes",
+      "no"
+     ],
+     "default": "yes"
+    },
+    "character_orientation": {
+     "desc": "Generate the orientation of the characters in the video, which can be selected to match the image or the video",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "image",
+      "video"
+     ],
+     "default": "video"
+    }
+   },
+   "notes": [
+    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
+    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
+    "Videos larger than 100 MB are compressed before generation.",
+    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "order": [
+    "prompt",
+    "image_url",
+    "video_url"
+   ],
+   "ui": {
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "image_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "video_url": {
+     "advanced": false
+    },
+    "keep_original_sound": {
+     "advanced": true
+    },
+    "character_orientation": {
+     "advanced": true
+    }
+   },
+   "variant": "Motion Control (Pro)",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
+   "banner": {
+    "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a2b5bf5b9befb0dbb2e6216f0a4b8a012e54bbf3a1215923e00315aee039dcde-image.webp"
+   },
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/955771bc12986336652834f5402b8d6ed8d4cd626dfc9c702adffdffcd243351-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/355c22de1154894534372969d96a7536a1cb29c67f4bc1da2b116332ff955732-thumbnail.webp"
+   }
+  },
+  {
    "model": "kling-video/motion-control/std",
    "endpoint": "/kling-video/motion-control/std",
    "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std",
@@ -8046,98 +8151,6 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a8482c00a810bf05f4264db8ac3ad63847b37998d258f931588e963fa8eb4435-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/ec8cf7deb35cc4a6e34b0a5ffa1c4cfbc4d2fb5bcc013e4434c2bf2383a7adb2-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/motion-control/pro",
-   "endpoint": "/kling-video/motion-control/pro",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro",
-   "title": "Kling 2.6",
-   "crumb": "Kling 2.6",
-   "family": "kling-2-6-motion-control",
-   "output": "video",
-   "top": {
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string",
-     "default": ""
-    },
-    "image_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "video_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    },
-    "keep_original_sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "yes",
-      "no"
-     ],
-     "default": "yes"
-    },
-    "character_orientation": {
-     "desc": "Generate the orientation of the characters in the video, which can be selected to match the image or the video",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "image",
-      "video"
-     ],
-     "default": "video"
-    }
-   },
-   "notes": [
-    "Use a motion-reference video from 3 to 30 seconds long. The output duration follows the source video; do not send a separate duration field.",
-    "Use a character image up to 10 MB with each dimension between 300 and 65,536 pixels. Images outside the 0.4–2.5 width-to-height range are adjusted before generation.",
-    "Videos larger than 100 MB are compressed before generation.",
-    "Set character_orientation to image or video. keep_original_sound uses the strings yes and no, with yes as the default.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "order": [
-    "prompt",
-    "image_url",
-    "video_url"
-   ],
-   "ui": {
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "image_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "video_url": {
-     "advanced": false
-    },
-    "keep_original_sound": {
-     "advanced": true
-    },
-    "character_orientation": {
-     "advanced": true
-    }
-   },
-   "variant": "Motion Control (Pro)",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a pink hoodie holds a pole on the subway. The space around her stretches and twists, distorting the carriage. She loses her balance and grips the pole with both hands.",
-   "banner": {
-    "image": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/a2b5bf5b9befb0dbb2e6216f0a4b8a012e54bbf3a1215923e00315aee039dcde-image.webp"
-   },
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/955771bc12986336652834f5402b8d6ed8d4cd626dfc9c702adffdffcd243351-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/355c22de1154894534372969d96a7536a1cb29c67f4bc1da2b116332ff955732-thumbnail.webp"
    }
   },
   {
@@ -8995,6 +9008,396 @@
    }
   },
   {
+   "model": "kling-video/omni/image-reference",
+   "endpoint": "/kling-video/omni/image-reference",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference",
+   "title": "Kling Omni",
+   "crumb": "Kling O1 (Omni)",
+   "family": "kling-omni",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "default": 5,
+     "minimum": 3,
+     "maximum": 10
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1"
+     ],
+     "default": "16:9"
+    }
+   },
+   "notes": [
+    "Supply image_urls for visual references. Reference images are optional in the schema.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "range"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "aspect_ratio": {
+     "advanced": false
+    }
+   },
+   "variant": "Image Reference",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/o3/video-edit",
+   "endpoint": "/kling-video/o3/video-edit",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit",
+   "title": "Kling O3",
+   "crumb": "Kling O3",
+   "family": "kling-o3",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro",
+      "4k"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "video_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 1,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    }
+   },
+   "notes": [
+    "Supply exactly one source video from 3 to 15.5 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
+    "You may also supply up to four image_urls and up to four elements.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "widget": "range"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "video_urls": {
+     "advanced": false
+    }
+   },
+   "variant": "Video Edit",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/omni/first-last-frame",
+   "endpoint": "/kling-video/omni/first-last-frame",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame",
+   "title": "Kling Omni",
+   "crumb": "Kling O1 (Omni)",
+   "family": "kling-omni",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "duration": {
+     "desc": "",
+     "required": false,
+     "type": "integer",
+     "enum": [
+      5,
+      10
+     ],
+     "default": 5
+    },
+    "aspect_ratio": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "16:9",
+      "9:16",
+      "1:1"
+     ],
+     "default": "16:9"
+    },
+    "last_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "first_frame_url": {
+     "desc": "",
+     "required": true,
+     "type": "string",
+     "format": "uri"
+    }
+   },
+   "notes": [
+    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "advanced": false,
+     "widget": "radioCard"
+    },
+    "aspect_ratio": {
+     "advanced": false
+    },
+    "last_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "first_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    }
+   },
+   "variant": "First/Last Frame",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+   }
+  },
+  {
+   "model": "kling-video/omni/video-edit",
+   "endpoint": "/kling-video/omni/video-edit",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit",
+   "title": "Kling Omni",
+   "crumb": "Kling O1 (Omni)",
+   "family": "kling-omni",
+   "output": "video",
+   "top": {
+    "mode": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "std",
+      "pro"
+     ],
+     "default": "pro"
+    },
+    "prompt": {
+     "desc": "Write your prompt here",
+     "required": true,
+     "type": "string"
+    },
+    "elements": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string"
+     }
+    },
+    "image_urls": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 0,
+     "maxItems": 4,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "video_urls": {
+     "desc": "",
+     "required": true,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 1,
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    }
+   },
+   "notes": [
+    "Supply exactly one source video from 3 to 10 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
+    "You may also supply up to four image_urls and up to four elements.",
+    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
+    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
+    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
+   ],
+   "ui": {
+    "mode": {
+     "advanced": true
+    },
+    "prompt": {
+     "advanced": false,
+     "widget": "textarea"
+    },
+    "duration": {
+     "widget": "radioCard"
+    },
+    "elements": {
+     "advanced": true,
+     "widget": "hidden"
+    },
+    "image_urls": {
+     "advanced": false
+    },
+    "video_urls": {
+     "advanced": false
+    }
+   },
+   "variant": "Video Edit",
+   "operations": [
+    "image2video"
+   ],
+   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "preview": {
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+   }
+  },
+  {
    "model": "kling-video/o3/image-reference",
    "endpoint": "/kling-video/o3/image-reference",
    "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/image-reference",
@@ -9193,445 +9596,6 @@
    "preview": {
     "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
     "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/o3/video-edit",
-   "endpoint": "/kling-video/o3/video-edit",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit",
-   "title": "Kling O3",
-   "crumb": "Kling O3",
-   "family": "kling-o3",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro",
-      "4k"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "elements": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "video_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 1,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    }
-   },
-   "notes": [
-    "Supply exactly one source video from 3 to 15.5 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
-    "You may also supply up to four image_urls and up to four elements.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "widget": "range"
-    },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "video_urls": {
-     "advanced": false
-    }
-   },
-   "variant": "Video Edit",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/omni/first-last-frame",
-   "endpoint": "/kling-video/omni/first-last-frame",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame",
-   "title": "Kling Omni",
-   "crumb": "Kling O1 (Omni)",
-   "family": "kling-omni",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "enum": [
-      5,
-      10
-     ],
-     "default": 5
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1"
-     ],
-     "default": "16:9"
-    },
-    "last_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "first_frame_url": {
-     "desc": "",
-     "required": true,
-     "type": "string",
-     "format": "uri"
-    }
-   },
-   "notes": [
-    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "radioCard"
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "last_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "first_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    }
-   },
-   "variant": "First/Last Frame",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/o3/first-last-frame",
-   "endpoint": "/kling-video/o3/first-last-frame",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame",
-   "title": "Kling O3",
-   "crumb": "Kling O3",
-   "family": "kling-o3",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro",
-      "4k"
-     ],
-     "default": "pro"
-    },
-    "sound": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "on",
-      "off"
-     ],
-     "default": "off"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": false,
-     "type": "string"
-    },
-    "duration": {
-     "desc": "",
-     "required": false,
-     "type": "integer",
-     "default": 5,
-     "minimum": 3,
-     "maximum": 15
-    },
-    "multi_shots": {
-     "desc": "",
-     "required": false,
-     "type": "boolean",
-     "default": false
-    },
-    "aspect_ratio": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "16:9",
-      "9:16",
-      "1:1"
-     ]
-    },
-    "multi_prompt": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 6,
-     "items": {
-      "type": "object",
-      "properties": {
-       "prompt": {
-        "desc": "",
-        "required": false,
-        "type": "string",
-        "maxLength": 512
-       },
-       "duration": {
-        "desc": "",
-        "required": false,
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 15
-       }
-      }
-     }
-    },
-    "last_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    },
-    "first_frame_url": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "format": "uri"
-    }
-   },
-   "notes": [
-    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
-    "For a single shot, set multi_shots to false and provide prompt. For multiple shots, set multi_shots to true and provide 1–6 multi_prompt objects, each containing prompt and a positive integer duration.",
-    "Always include a non-empty top-level prompt, including when using multi_prompt.",
-    "Each shot prompt is limited to 512 characters. Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum.",
-    "Native audio uses sound: on or off and defaults to off.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "sound": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "advanced": false,
-     "widget": "range"
-    },
-    "multi_shots": {
-     "advanced": true
-    },
-    "aspect_ratio": {
-     "advanced": false
-    },
-    "multi_prompt": {
-     "advanced": true
-    },
-    "last_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    },
-    "first_frame_url": {
-     "advanced": false,
-     "widget": "imageUrlString"
-    }
-   },
-   "variant": "First/Last Frame",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
-   }
-  },
-  {
-   "model": "kling-video/omni/video-edit",
-   "endpoint": "/kling-video/omni/video-edit",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit",
-   "title": "Kling Omni",
-   "crumb": "Kling O1 (Omni)",
-   "family": "kling-omni",
-   "output": "video",
-   "top": {
-    "mode": {
-     "desc": "",
-     "required": false,
-     "type": "string",
-     "enum": [
-      "std",
-      "pro"
-     ],
-     "default": "pro"
-    },
-    "prompt": {
-     "desc": "Write your prompt here",
-     "required": true,
-     "type": "string"
-    },
-    "elements": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "minItems": 0,
-     "maxItems": 4,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    },
-    "video_urls": {
-     "desc": "",
-     "required": true,
-     "type": "array",
-     "minItems": 1,
-     "maxItems": 1,
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
-    }
-   },
-   "notes": [
-    "Supply exactly one source video from 3 to 10 seconds long and no larger than 200 MB. Duration is derived from the video; do not send a separate duration field.",
-    "You may also supply up to four image_urls and up to four elements.",
-    "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
-    "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
-   ],
-   "ui": {
-    "mode": {
-     "advanced": true
-    },
-    "prompt": {
-     "advanced": false,
-     "widget": "textarea"
-    },
-    "duration": {
-     "widget": "radioCard"
-    },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "image_urls": {
-     "advanced": false
-    },
-    "video_urls": {
-     "advanced": false
-    }
-   },
-   "variant": "Video Edit",
-   "operations": [
-    "image2video"
-   ],
-   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
-   "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
    }
   },
   {
@@ -9872,12 +9836,12 @@
    }
   },
   {
-   "model": "kling-video/omni/image-reference",
-   "endpoint": "/kling-video/omni/image-reference",
-   "doc": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference",
-   "title": "Kling Omni",
-   "crumb": "Kling O1 (Omni)",
-   "family": "kling-omni",
+   "model": "kling-video/o3/first-last-frame",
+   "endpoint": "/kling-video/o3/first-last-frame",
+   "doc": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame",
+   "title": "Kling O3",
+   "crumb": "Kling O3",
+   "family": "kling-o3",
    "output": "video",
    "top": {
     "mode": {
@@ -9886,13 +9850,24 @@
      "type": "string",
      "enum": [
       "std",
-      "pro"
+      "pro",
+      "4k"
      ],
      "default": "pro"
     },
+    "sound": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "enum": [
+      "on",
+      "off"
+     ],
+     "default": "off"
+    },
     "prompt": {
      "desc": "Write your prompt here",
-     "required": true,
+     "required": false,
      "type": "string"
     },
     "duration": {
@@ -9901,24 +9876,13 @@
      "type": "integer",
      "default": 5,
      "minimum": 3,
-     "maximum": 10
+     "maximum": 15
     },
-    "elements": {
+    "multi_shots": {
      "desc": "",
      "required": false,
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
-    },
-    "image_urls": {
-     "desc": "",
-     "required": false,
-     "type": "array",
-     "items": {
-      "type": "string",
-      "format": "uri"
-     }
+     "type": "boolean",
+     "default": false
     },
     "aspect_ratio": {
      "desc": "",
@@ -9928,18 +9892,60 @@
       "16:9",
       "9:16",
       "1:1"
-     ],
-     "default": "16:9"
+     ]
+    },
+    "multi_prompt": {
+     "desc": "",
+     "required": false,
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 6,
+     "items": {
+      "type": "object",
+      "properties": {
+       "prompt": {
+        "desc": "",
+        "required": false,
+        "type": "string",
+        "maxLength": 512
+       },
+       "duration": {
+        "desc": "",
+        "required": false,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 15
+       }
+      }
+     }
+    },
+    "last_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
+    },
+    "first_frame_url": {
+     "desc": "",
+     "required": false,
+     "type": "string",
+     "format": "uri"
     }
    },
    "notes": [
-    "Supply image_urls for visual references. Reference images are optional in the schema.",
+    "first_frame_url supplies the starting frame; last_frame_url is optional. These names differ from the image_url and last_image_url fields on Kling 3.0 image-to-video.",
+    "For a single shot, set multi_shots to false and provide prompt. For multiple shots, set multi_shots to true and provide 1–6 multi_prompt objects, each containing prompt and a positive integer duration.",
+    "Always include a non-empty top-level prompt, including when using multi_prompt.",
+    "Each shot prompt is limited to 512 characters. Custom-shot durations are summed for generation and billing; the top-level duration does not override that sum.",
+    "Native audio uses sound: on or off and defaults to off.",
     "Keep the top-level prompt within 2,500 characters; longer prompts are truncated.",
-    "elements contains Kling element IDs as decimal strings. Each ID must belong to the account making the request; arbitrary provider IDs are rejected.",
     "The example.com media URLs are placeholders. Replace them with public HTTPS URLs to your own media before submitting."
    ],
    "ui": {
     "mode": {
+     "advanced": true
+    },
+    "sound": {
      "advanced": true
     },
     "prompt": {
@@ -9950,25 +9956,32 @@
      "advanced": false,
      "widget": "range"
     },
-    "elements": {
-     "advanced": true,
-     "widget": "hidden"
-    },
-    "image_urls": {
-     "advanced": false
+    "multi_shots": {
+     "advanced": true
     },
     "aspect_ratio": {
      "advanced": false
+    },
+    "multi_prompt": {
+     "advanced": true
+    },
+    "last_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
+    },
+    "first_frame_url": {
+     "advanced": false,
+     "widget": "imageUrlString"
     }
    },
-   "variant": "Image Reference",
+   "variant": "First/Last Frame",
    "operations": [
     "image2video"
    ],
-   "example": "A woman in a purple jacket draws her bow beside a blossoming cherry tree. She aims straight at the camera and holds for a moment. Her arrow shoots past, sending pink petals swirling through the air.",
+   "example": "A woman in a silver outfit roller-skates through a city square. The camera pulls back, revealing a giant floating orange cat surrounded by pink jellyfish. She skates beneath the cat toward the camera.",
    "preview": {
-    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/91ba71d9c7d870e276dad544e9f08cf749b99d2dd73f5e004dcd086c89900859-video.mp4",
-    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/22fdafb767ca6f03ed7d9080dc43bb1af1d11658551bbd330bad1ce571a4dfc6-thumbnail.webp"
+    "video": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/55bfc5ced426a539b36728c588ae7bef7497f067214676d8400d3fdc55e3d37e-video.mp4",
+    "poster": "https://d28lhcrx5qdowv.cloudfront.net/media/explore/media/b75671736d6d4327ffc364a2d730f457af6969767778cc53b384f3424ff3d805-thumbnail.webp"
    }
   },
   {

@@ -73,6 +73,7 @@ Emin: 118 model · Belirsiz (boş bırakıldı): 6 model.
 | **Kling Avatar**<br>`kling-avatar` | KIE | Generate | `lipsync-from-audio` (Generate) | evet |  |
 | **Kling Avatar Pro**<br>`kling-avatar-pro` | KIE | Generate | `lipsync-from-audio` (Generate) | evet |  |
 | **Hailuo 03 (H3)**<br>`minimax-h3` | KIE | Text to video, Image to video (otomatik), Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
+| **Vidu Q4**<br>`vidu-q4` | KIE | Image to video, Reference | `image-to-video` (Image to video)<br>`reference-to-video` (Reference) | evet |  |
 | **Hailuo 2.3**<br>`hailuo-2-3` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
 | **Hailuo 2.3 Pro**<br>`hailuo-2-3-pro` | KIE | Image to video | `image-to-video` (Image to video) | evet |  |
 | **Wan 3.0**<br>`wan-3` | KIE | Reference, Frames, Document, Web page | `image-to-video` (Frames)<br>`reference-to-video` (Reference) | evet | Document / Web page capability değil |

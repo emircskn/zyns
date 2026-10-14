@@ -58,6 +58,7 @@ export const CAPABILITIES: Record<string, Partial<Record<Capability, string[]>>>
   "kling-avatar": { "lipsync-from-audio": ["generate"] },
   "kling-avatar-pro": { "lipsync-from-audio": ["generate"] },
   "minimax-h3": { "image-to-video": ["image-to-video"], "reference-to-video": ["reference-to-video"] },
+  "vidu-q4": { "image-to-video": ["image-to-video"], "reference-to-video": ["reference-to-video"] },
   "hailuo-2-3": { "image-to-video": ["image-to-video"] },
   "hailuo-2-3-pro": { "image-to-video": ["image-to-video"] },
   "wan-3": { "image-to-video": ["frames"], "reference-to-video": ["video"] },

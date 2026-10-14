@@ -743,6 +743,24 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
+    id: "vidu-q4",
+    featured: true,
+    prompts: [
+      "The woman from reference image 1 walks through a neon market, rain on the stalls",
+      "A slow push-in on a cup of coffee as steam curls up in morning light",
+    ],
+    name: "Vidu Q4",
+    vendor: "Vidu",
+    category: "video",
+    output: "video",
+    badge: "NEW",
+    tagline: "Vidu Q4: up to 16 seconds at up to 4K, from a first frame or up to 15 references, with sound.",
+    modes: [
+      m("image-to-video", "Image to video", "vidu-q4/image-to-video", { require: ["image_url"] }),
+      m("reference-to-video", "Reference", "vidu-q4/reference-to-video"),
+    ],
+  },
+  {
     id: "hailuo-2-3",
     name: "Hailuo 2.3",
     vendor: "MiniMax",
