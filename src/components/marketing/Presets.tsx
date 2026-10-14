@@ -10,12 +10,12 @@ import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { useStudio } from "@/store/studio";
 
 /** A mark for a kind of template, guessed from its name: the kinds come from Higgsfield, not from us. */
-function typeIcon(type: string): "grid" | "box" | "monitor" | "image" | "video" | "user" | "spark" {
+function typeIcon(type: string): "grid" | "box" | "bag" | "monitor" | "image" | "video" | "user" | "spark" {
   if (type === "all") return "grid";
   if (/product/.test(type)) return "box";
   if (/ad/.test(type)) return "monitor";
   if (/poster/.test(type)) return "image";
-  if (/market/.test(type)) return "grid";
+  if (/market/.test(type)) return "bag";
   if (/ugc/.test(type)) return "user";
   if (/motion|video/.test(type)) return "video";
   return "spark";

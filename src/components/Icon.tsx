@@ -3,6 +3,8 @@ import type { ReactElement, SVGProps } from "react";
 type Props = SVGProps<SVGSVGElement> & { name: IconName; size?: number };
 
 export type IconName =
+  | "bag"
+  | "brush"
   | "image"
   | "video"
   | "audio"
@@ -441,6 +443,18 @@ const PATHS: Record<IconName, ReactElement> = {
     </>
   ),
   shirt: <path d="M9 4.5 4 7l1.8 4 2.2-1V19.5h8V10l2.2 1L20 7l-5-2.5a3 3 0 0 1-6 0z" />,
+  bag: (
+    <>
+      <path d="M5 8h14l-1.2 11.2a1.5 1.5 0 0 1-1.5 1.3H7.7a1.5 1.5 0 0 1-1.5-1.3z" />
+      <path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" />
+    </>
+  ),
+  brush: (
+    <>
+      <path d="M19.5 4.5 11 13" />
+      <path d="M10.5 12.5c-2.2-.4-4 1-4.3 3.2-.2 1.6-1 2.6-2.2 3.3 3.3 1 7.4.4 8.3-2.6.4-1.5-.4-3.3-1.8-3.9z" />
+    </>
+  ),
   box: (
     <>
       <path d="M12 3.5 19.5 7.5v9L12 20.5 4.5 16.5v-9z" />

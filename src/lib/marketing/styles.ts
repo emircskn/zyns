@@ -13,10 +13,10 @@ export interface MarketingStyle {
   prompt: string;
 }
 
-export const STYLE_CATEGORIES: Array<{ id: StyleCategory; label: string; group: StyleGroup; icon: "box" | "monitor" | "grid" | "user" | "move" }> = [
+export const STYLE_CATEGORIES: Array<{ id: StyleCategory; label: string; group: StyleGroup; icon: "box" | "monitor" | "bag" | "user" | "move" }> = [
   { id: "product-shot", label: "Product shot", group: "image", icon: "box" },
   { id: "ads", label: "Ads", group: "image", icon: "monitor" },
-  { id: "marketplace", label: "Marketplace", group: "image", icon: "grid" },
+  { id: "marketplace", label: "Marketplace", group: "image", icon: "bag" },
   { id: "ugc", label: "UGC", group: "video", icon: "user" },
   { id: "motion", label: "Motion", group: "video", icon: "move" },
 ];

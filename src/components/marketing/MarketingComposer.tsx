@@ -5,7 +5,7 @@ import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { StylePicker } from "@/components/marketing/StylePicker";
-import { styleById } from "@/lib/marketing/styles";
+import { STYLE_CATEGORIES, styleById } from "@/lib/marketing/styles";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -359,7 +359,7 @@ export function MarketingComposer({
                 </>
               ) : (
                 <button type="button" onClick={() => setStylesOpen(true)} className="shrink-0">
-                  <Chip icon={<Icon name="palette" size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} />
+                  <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} />
                 </button>
               )}
               {model &&
