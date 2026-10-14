@@ -43,4 +43,5 @@ export const MARKETING_STYLES: MarketingStyle[] = [
 ];
 
 export const styleById = (id: string | null | undefined) => MARKETING_STYLES.find((x) => x.id === id) ?? null;
-export const styleCover = (id: string) => `/marketing-styles/${id}.webp`;
+// From the site itself when this runs elsewhere (the standalone copy), as the model covers are.
+export const styleCover = (id: string) => `${process.env.NEXT_PUBLIC_ASSET_BASE ?? ""}/marketing-styles/${id}.webp`;
