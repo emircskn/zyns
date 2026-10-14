@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
-import { pickable, type LibraryElement } from "@/lib/elements";
+import { ELEMENT_KINDS, pickable, type ElementKind, type LibraryElement } from "@/lib/elements";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio } from "@/store/studio";
@@ -160,6 +160,8 @@ export function MediaPicker({
   const [tab, setTab] = useState<Tab>("uploads");
   // Higgsfield's second row: every kind, or one of them.
   const [only, setOnly] = useState<Kind | "all">("all");
+  // And on Elements, the Elements page's kinds.
+  const [elementKind, setElementKind] = useState<ElementKind | "all">("all");
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
@@ -200,6 +202,7 @@ export function MediaPicker({
     // Always opens on the first tab, Uploads, with its upload button.
     setTab("uploads");
     setOnly("all");
+    setElementKind("all");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -319,6 +322,23 @@ export function MediaPicker({
           </div>
         )}
 
+        {tab === "elements" && onElements && (
+          <div className="no-bar flex shrink-0 gap-1 overflow-x-auto px-3 pt-3">
+            {([{ id: "all", plural: "All" }, ...ELEMENT_KINDS.filter((k) => k.id !== "style")] as Array<{ id: ElementKind | "all"; plural: string }>).map((k) => (
+              <button
+                key={k.id}
+                type="button"
+                onClick={() => setElementKind(k.id)}
+                className={`h-7 shrink-0 rounded-[8px] px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                  elementKind === k.id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
+                }`}
+              >
+                {k.plural}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto p-3">
           {tab === "elements" && modelElements && (modelElements.names.length > 0 || modelElements.onDefine) && (
             <div className="mb-4 border-b border-line pb-4">
@@ -361,7 +381,7 @@ export function MediaPicker({
                 {/* As Uploads starts with uploading, Elements starts with making one; it opens over this window and lands here. */}
                 <button
                   type="button"
-                  onClick={() => openElementEditor({})}
+                  onClick={() => openElementEditor(elementKind === "all" ? {} : { kind: elementKind })}
                   className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[10px] bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
@@ -369,7 +389,7 @@ export function MediaPicker({
                   </span>
                   <span className="px-2 text-center text-[12px] font-semibold">Create element</span>
                 </button>
-                {library.map((element) => {
+                {library.filter((e) => elementKind === "all" || e.kind === elementKind).map((element) => {
                   const on = chosenElements.includes(element.id);
                   return (
                     <button
