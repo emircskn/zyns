@@ -23,7 +23,7 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
       // Cinema Studio's own page: a shot directed with real camera, film and light settings.
       { id: "studio", label: "Cinema Studio" },
       // Marketing Studio's own page: product shots, ads and listings, and video made from them.
-      { id: "marketing", label: "Marketing" },
+      { id: "marketing", label: "Marketing Studio" },
     ],
     [
       { id: "assets", label: "Assets" },

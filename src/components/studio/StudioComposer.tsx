@@ -208,6 +208,10 @@ function ToolChip({ icon, label, onClick, text }: { icon: IconName; label: strin
   );
 }
 
+/** Cinema Studio's own picture model, first in the image composer's menu. */
+const SOUL_CINEMA = "hf-soul-cinema";
+const SOUL_LEAD = { label: "Soul Cinema", is: (id: string) => id === SOUL_CINEMA };
+
 /** The model the composer sends to, picked from those that fit the mode. */
 export function ModelChip({
   models,
@@ -876,7 +880,11 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const studioCount = useStudio((s) => s.studioCount);
   const setCount = useStudio((s) => s.setStudioCount);
   const provider_ = useStudio((s) => s.provider);
-  const models = useMemo(() => studioImageModels(provider_), [provider_]);
+  // Soul Cinema leads, as Cinema Studio's own picture model; the rest follow as "Other models".
+  const models = useMemo(() => {
+    const all = studioImageModels(provider_);
+    return [...all.filter((m) => m.id === SOUL_CINEMA), ...all.filter((m) => m.id !== SOUL_CINEMA)];
+  }, [provider_]);
   const model = models.find((m) => m.id === studio.imageModelId) ?? models[0];
   const own: Values = model ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
   // A model with its own count (how many per run) keeps it; ours then sends one run.
@@ -988,7 +996,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           <ChipRow>
           <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} text={studio.imageRefs.length ? String(studio.imageRefs.length) : undefined} />
           <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
-          <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} />
+          <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} lead={SOUL_LEAD} />
           {model &&
             chips.map((field) => (
               <span key={field.key} className="shrink-0">
