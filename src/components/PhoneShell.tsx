@@ -143,7 +143,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
         className={`absolute inset-0 bg-canvas-deep/70 ${exiting ? "anim-fade-out" : "anim-fade"}`}
       />
       <nav
-        className={`absolute inset-y-0 left-0 flex w-[min(320px,86vw)] flex-col border-r border-line bg-elevated pb-[max(16px,env(safe-area-inset-bottom))] pt-[max(12px,env(safe-area-inset-top))] ${
+        className={`absolute inset-y-0 left-0 flex w-[min(320px,86vw)] flex-col border-r border-line bg-canvas pb-[max(16px,env(safe-area-inset-bottom))] pt-[max(12px,env(safe-area-inset-top))] ${
           exiting ? "drawer-out" : "drawer-in"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
@@ -175,7 +175,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
             style={{
               // The wash and its edge both fade out to the right: one gradient fills, one draws the border.
               background:
-                "linear-gradient(90deg, color-mix(in oklab, var(--accent) 15%, var(--elevated)), var(--elevated) 70%) padding-box, linear-gradient(90deg, color-mix(in oklab, var(--accent) 45%, transparent), transparent 75%) border-box",
+                "linear-gradient(90deg, color-mix(in oklab, var(--accent) 15%, var(--canvas)), var(--canvas) 70%) padding-box, linear-gradient(90deg, color-mix(in oklab, var(--accent) 45%, transparent), transparent 75%) border-box",
             }}
           >
             <Icon name="plus" size={20} strokeWidth={2} className="shrink-0" />

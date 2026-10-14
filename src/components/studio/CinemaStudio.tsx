@@ -56,7 +56,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
-      <aside className="hidden w-[229px] shrink-0 md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-canvas">
+      <aside className="hidden w-[229px] shrink-0 md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated">
         <StudioSidebar />
       </aside>
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
