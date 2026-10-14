@@ -119,8 +119,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
     <div className="flex min-h-dvh flex-col">
       {/* The surface the whole studio stands on, under everything. */}
       {/* A plain canvas: the dotted field and its pointer light are gone. */}
-      {/* Cinema Studio fills the screen, as Higgsfield's does: its own side menu leads back out. */}
-      {page !== "studio" && <TopBar onKeyClick={() => setKeyOpen(true)} />}
+      <TopBar onKeyClick={() => setKeyOpen(true)} />
       {/* The library pages open straight onto their own title on a phone,
           the way Higgsfield's Library does: the bar is for making things. */}
       <PhoneHeader onKeyClick={() => setKeyOpen(true)} />
