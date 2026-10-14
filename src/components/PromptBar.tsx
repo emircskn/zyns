@@ -1569,7 +1569,7 @@ export function PromptBar({
       onClick={run}
       disabled={busy || !!blocker || !apiKey}
       title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-      className="cta cta-lift flex h-[80px] w-[120px] shrink-0 flex-col items-center justify-center gap-1 rounded-[12px] font-display text-[12px] font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed"
+      className="cta cta-lift flex h-[80px] w-[120px] shrink-0 flex-col self-end items-center justify-center gap-1 rounded-[12px] font-display text-[12px] font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed"
     >
       {busy ? (
         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
@@ -1607,10 +1607,12 @@ export function PromptBar({
         <ErrorPopup message={error} onClose={() => setError(null)} />
 
         <div
-          className="flex items-end gap-3 rounded-[16px] border border-transparent bg-elevated p-4 transition-[border-color] duration-[100ms] focus-within:border-line"
+          className="flex items-stretch gap-3 rounded-[16px] border border-transparent bg-elevated p-4 transition-[border-color] duration-[100ms] focus-within:border-line"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
-          <div className="min-w-0 flex-1">
+          {/* The prompt at the top, the chips at the foot: beside the tall
+              Generate the prompt otherwise sank down onto the chips. */}
+          <div className="flex min-w-0 flex-1 flex-col">
           <InputsSwitch className="mb-2.5 max-w-[320px]" />
           <Reveal>
             <InputStrip fields={stripFields} />
@@ -1647,7 +1649,7 @@ export function PromptBar({
             ) : null}
           </Reveal>
 
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="mt-auto flex flex-wrap items-center gap-1 pt-3">
             {attachFields.length > 0 && attach.canAdd && <AddChip onClick={attach.open} needed={attach.needed} />}
             <button
               type="button"
