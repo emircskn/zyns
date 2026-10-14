@@ -19,12 +19,15 @@ export function JustifiedRows<T>({
   keyOf,
   ratioOf,
   render,
+  perRow,
 }: {
   items: T[];
   keyOf: (item: T) => string;
   /** Width over height, as far as it is known yet. */
   ratioOf: (item: T) => number | undefined;
   render: (item: T, box: Box) => ReactNode;
+  /** About how many to a row, in place of the grid-size setting. */
+  perRow?: number;
 }) {
   const frame = useRef<HTMLDivElement>(null);
   const width = useWidth(frame);
@@ -33,7 +36,7 @@ export function JustifiedRows<T>({
   useMediaRatios();
 
   const boxes = width
-    ? justify(items.map((item) => ratioOf(item) ?? 1), width, rowTarget(width, density), ROW_GAP)
+    ? justify(items.map((item) => ratioOf(item) ?? 1), width, rowTarget(width, perRow ?? density), ROW_GAP)
     : [];
 
   // One flat run of siblings, each placed where justify() put it, not a div

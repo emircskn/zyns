@@ -9,9 +9,10 @@ import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { Chip } from "@/components/PromptBar";
 import { PillGroup } from "@/components/PillGroup";
-import { isMarketingModel, MarketingComposer, marketingModels, useMarketing } from "@/components/marketing/MarketingComposer";
+import { MarketingComposer, useMarketing } from "@/components/marketing/MarketingComposer";
 import { PresetGrid } from "@/components/marketing/Presets";
 import { OwnTemplateGrid } from "@/components/marketing/StylePicker";
+import { RecreateTemplate, type PickedTemplate } from "@/components/marketing/RecreateTemplate";
 import { ProductLink } from "@/components/marketing/ProductLink";
 import { RecipeComposer } from "@/components/recipes/RecipeComposer";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
@@ -89,6 +90,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const ui = useMarketing();
   // Explore templates: ours or Higgsfield's, starting on whichever one is in use.
   const [source, setSource] = useState<"zyns" | "higgsfield">(() => (ui.preset ? "higgsfield" : "zyns"));
+  // A template picked under Explore templates opens Higgsfield's Recreate window.
+  const [picked, setPicked] = useState<PickedTemplate | null>(null);
   const patch = useStudio((s) => s.patchMarketing);
   const hfKey = useStudio((s) => s.hfKey);
   const provider = useStudio((s) => s.provider);
@@ -112,7 +115,6 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
 
   // What was sent shows at once, among what was made here.
   const showMade = () => patch({ view: "generations" });
-  const toComposer = () => top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const needsHf = (feature: string) => !hfKey && <NeedsHiggsfield onKeyClick={onKeyClick} feature={feature} />;
 
   const composer = video ? (
@@ -157,7 +159,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
     )
   ) : (
     // Only Marketing Studio's own models, so always on the Higgsfield key.
-    needsHf("Marketing Studio runs on Higgsfield") || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
+    // Marketing Studio models need the Higgsfield key; the other models the key of their own service, asked for on Generate.
+    <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
   );
 
   const page =
@@ -177,22 +180,9 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
             <PillGroup value={source} onChange={setSource} items={[{ id: "zyns", label: "ZYNS" }, { id: "higgsfield", label: "Higgsfield" }]} />
           </div>
           {source === "zyns" ? (
-            <OwnTemplateGrid
-              selected={ui.style}
-              onPick={(style) => {
-                patch({ style, preset: null, mode: "image", tool: "create" });
-                if (style) toComposer();
-              }}
-            />
+            <OwnTemplateGrid selected={null} onPick={(id) => id && setPicked({ kind: "zyns", styleId: id })} />
           ) : (
-          <PresetGrid
-            selected={ui.preset?.id}
-            onPick={(preset) => {
-              // A template runs on Marketing Studio itself.
-              patch({ preset, style: null, mode: "image", tool: "create", ...(isMarketingModel(ui.modelId) ? {} : { modelId: marketingModels()[0]?.id ?? "" }) });
-              toComposer();
-            }}
-          />
+          <PresetGrid selected={undefined} onPick={(preset) => setPicked({ kind: "hf", preset })} />
           )}
         </div>
       </div>
@@ -267,6 +257,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           items={[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects" }, { id: "trash" as MarketingView, label: "Trash" }].map(({ id, label }) => ({ id, label }))}
         />
       </div>
+      <RecreateTemplate template={picked} onClose={() => setPicked(null)} onKeyClick={onKeyClick} onSent={showMade} />
       <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
         {page}
         {/* Docked at the foot of what it fills, as Cinema Studio's: a phone keeps it on Home. */}

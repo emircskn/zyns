@@ -209,11 +209,23 @@ function ToolChip({ icon, label, onClick, text }: { icon: IconName; label: strin
 }
 
 /** The model the composer sends to, picked from those that fit the mode. */
-export function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: ModelDef | undefined; onPick: (id: string) => void }) {
+export function ModelChip({
+  models,
+  model,
+  onPick,
+  lead,
+}: {
+  models: ModelDef[];
+  model: ModelDef | undefined;
+  onPick: (id: string) => void;
+  /** The studio's own models, listed first under their heading; the rest follow as "Other models". Cinema Studio's by default. */
+  lead?: { label: string; is: (id: string) => boolean };
+}) {
   const [q, setQ] = useState("");
   const shown = models.filter((m) => !q.trim() || m.name.toLowerCase().includes(q.trim().toLowerCase()));
-  const cinema = shown.filter((m) => m.id === CINEMA);
-  const rest = shown.filter((m) => m.id !== CINEMA);
+  const isLead = (id: string) => (lead ? lead.is(id) : id === CINEMA);
+  const cinema = shown.filter((m) => isLead(m.id));
+  const rest = shown.filter((m) => !isLead(m.id));
   const row = (m: ModelDef, close: () => void) => (
     <button
       key={m.id}
@@ -268,7 +280,7 @@ export function ModelChip({ models, model, onPick }: { models: ModelDef[]; model
               <>
                 <p className="flex items-center gap-1.5 px-2 pb-1 pt-1.5 text-[11.5px] font-medium text-t3">
                   <Icon name="spark" size={12} />
-                  Cinematic
+                  {lead?.label ?? "Cinematic"}
                 </p>
                 {cinema.map((m) => row(m, close))}
               </>
@@ -277,7 +289,7 @@ export function ModelChip({ models, model, onPick }: { models: ModelDef[]; model
               <>
                 <p className="flex items-center gap-1.5 px-2 pb-1 pt-2.5 text-[11.5px] font-medium text-t3">
                   <Icon name="spark" size={12} />
-                  {cinema.length > 0 || models.some((m) => m.id === CINEMA) ? "Other models · settings go into the prompt" : "Models"}
+                  {lead ? (models.some((m) => isLead(m.id)) ? "Other models" : "Models") : cinema.length > 0 || models.some((m) => m.id === CINEMA) ? "Other models · settings go into the prompt" : "Models"}
                 </p>
                 {rest.map((m) => row(m, close))}
               </>

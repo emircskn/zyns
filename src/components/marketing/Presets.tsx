@@ -173,6 +173,7 @@ export function PresetGrid({
 
       {shown.length > 0 && (
         <JustifiedRows
+          perRow={3}
           items={shown}
           keyOf={(preset) => preset.id}
           ratioOf={(preset) => ratioOf(preset.preview)}

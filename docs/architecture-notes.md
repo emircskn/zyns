@@ -304,3 +304,6 @@ Emir Higgsfield'in renklerini ve buton dilini istedi; 2026-10-03'teki "Zyns'in k
 
 ## Marketing styles as reference pictures
 A style no longer writes our own words into the prompt (results did not look like the cover). Its cover goes to Marketing Studio as the last `image_urls` entry, from its full public address, with one fixed line telling the model to take only the look from that last picture.
+
+## Marketing templates: Recreate window, models
+Picking a template under Explore templates opens a Recreate window (product required, character optional and hidden on Higgsfield `product_shots`, an edit line, the model, Generate). Higgsfield templates send `preset_id`, which only Marketing Studio's models read, so that window offers those alone; our templates send their cover as the last reference and may go to any image model. The bar lists Marketing Studio's models first and the chosen service's image models under "Other models"; picking another model drops a Higgsfield template.

@@ -143,6 +143,16 @@ export function StylePicker({
   );
 }
 
+/** A fixed hash of the id: the same mixed order on the server and in the browser. */
+function mix(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+
+/** Our templates in a mixed order rather than the alphabet they came in. */
+const MIXED = MARKETING_STYLES.filter((x) => x.only !== "style").sort((a, b) => mix(a.id) - mix(b.id));
+
 /**
  * Our own templates under Explore templates, apart from Higgsfield's: the
  * styles as a grid with their kinds as chips. A pick sends its cover along
@@ -150,7 +160,7 @@ export function StylePicker({
  */
 export function OwnTemplateGrid({ selected, onPick }: { selected: string | null; onPick: (id: string | null) => void }) {
   const [category, setCategory] = useState<StyleCategory | "all">("all");
-  const own = MARKETING_STYLES.filter((x) => x.only !== "style");
+  const own = MIXED;
   const kinds = STYLE_CATEGORIES.filter((c) => c.group === "image" && own.some((x) => x.category === c.id));
   const shown = own.filter((x) => category === "all" || x.category === category);
   const chip = (id: StyleCategory | "all", label: string, icon: Parameters<typeof Icon>[0]["name"]) => (
@@ -174,6 +184,7 @@ export function OwnTemplateGrid({ selected, onPick }: { selected: string | null;
         {kinds.map((c) => chip(c.id, c.label, c.icon))}
       </div>
       <JustifiedRows
+        perRow={3}
         items={shown}
         keyOf={(x) => x.id}
         ratioOf={(x) => (RATIOS as Record<string, number>)[x.id]}

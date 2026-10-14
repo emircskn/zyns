@@ -5,6 +5,7 @@ import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { StylePicker } from "@/components/marketing/StylePicker";
+import { studioImageModels } from "@/lib/studio/compose";
 import { STYLE_CATEGORIES, styleById, styleCover } from "@/lib/marketing/styles";
 
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
@@ -33,15 +34,24 @@ export function marketingModels(): ModelDef[] {
 /** One of Marketing Studio's own models (presets and Ad Reference need one). */
 export const isMarketingModel = (id: string | undefined) => !!id && /^hf-marketing-studio/.test(id);
 
+/** The model menu's first group: Marketing Studio's own, the rest under "Other models". */
+export const MARKETING_LEAD = { label: "Marketing Studio", is: isMarketingModel };
+
+/** Every model the page offers: Marketing Studio's first, then the image models of the service chosen up top. */
+export function pageModels(provider: Parameters<typeof studioImageModels>[0]): ModelDef[] {
+  return [...marketingModels(), ...studioImageModels(provider).filter((m) => !isMarketingModel(m.id))];
+}
+
 /**
- * Any other image model, sent the prompt (with the style's direction) and
- * the product, avatar and pictures as its references; its own settings as
- * chosen on its chips.
+ * Any other image model, sent the prompt and the product, avatar, pictures
+ * and style cover as its references; its own settings as chosen on its chips.
  */
-function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { values: Values; info: MarketingRunInfo } {
-  const images = [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
+export function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { values: Values; info: MarketingRunInfo } {
+  // A style goes along as its cover, last, as it does to Marketing Studio; a template (Higgsfield's preset) never does.
+  const style = styleById(ui.style);
+  const images = [ui.product, ui.avatar, ...ui.refs, style ? coverAddress(style.id) : null].filter((u): u is string => !!u);
   const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
-  const text = ui.prompt.trim();
+  const text = style ? [ui.prompt.trim(), STYLE_REFERENCE_PROMPT].filter(Boolean).join(" ") : ui.prompt.trim();
   const placed = mapParams(model, mode, { prompt: text, images });
   const values: Values = { ...placed.values };
   for (const field of activeFields(model, values)) {
@@ -212,8 +222,9 @@ export function MarketingComposer({
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
   const models = useMemo(() => marketingModels(), []);
-  // Marketing Studio runs on its own models alone, whichever service is chosen up top.
-  const barModels = models;
+  const provider_ = useStudio((s) => s.provider);
+  // Marketing Studio's own models always first, then the image models of the service chosen up top.
+  const barModels = useMemo(() => pageModels(provider_), [provider_]);
   const model = bar && tool === "create" ? (barModels.find((m) => m.id === ui.modelId) ?? barModels[0]) : isMarketingModel(ui.modelId) ? getModel(ui.modelId) : undefined;
   const marketing = isMarketingModel(model?.id);
   const valuesByModel = useStudio((s) => s.valuesByModel);
@@ -359,7 +370,7 @@ export function MarketingComposer({
               </button>
               <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
               </>)}
-              <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id })} />
+              <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id, ...(isMarketingModel(id) ? {} : { preset: null }) })} lead={MARKETING_LEAD} />
               {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
               {preset ? (
                 <span className="shrink-0">
