@@ -190,8 +190,8 @@ export function MediaPicker({
     setChosen([]);
     setChosenElements([]);
     setPreview(null);
-    const firstMade = kinds.find((k) => made.some((a) => a.kind === k));
-    setTab(firstMade ? GEN_TAB[firstMade] : "uploads");
+    // Always opens on the first tab, Uploads, with its upload button.
+    setTab("uploads");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
