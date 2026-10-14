@@ -11,7 +11,7 @@ import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { Chip } from "@/components/PromptBar";
 import { PillGroup } from "@/components/PillGroup";
-import { MarketingComposer, useMarketing } from "@/components/marketing/MarketingComposer";
+import { isMarketingModel, MarketingComposer, marketingModels, useMarketing } from "@/components/marketing/MarketingComposer";
 import { PresetGrid } from "@/components/marketing/Presets";
 import { ProductLink } from "@/components/marketing/ProductLink";
 import { RecipeComposer } from "@/components/recipes/RecipeComposer";
@@ -119,6 +119,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
   const hfKey = useStudio((s) => s.hfKey);
+  const provider = useStudio((s) => s.provider);
   const hydrated = useStudio((s) => s.hydrated);
   const folded = useStudio((s) => !!s.studio.sideCollapsed);
   const favorites = useStudio((s) => s.favorites);
@@ -174,7 +175,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
       />
     )
   ) : (
-    needsHf("Marketing Studio runs on Higgsfield") || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
+    // With KIE chosen up top the bar runs on KIE's models and needs no Higgsfield key.
+    (provider === "higgsfield" && needsHf("Marketing Studio runs on Higgsfield")) || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
   );
 
   const page =
@@ -198,7 +200,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <PresetGrid
             selected={ui.preset?.id}
             onPick={(preset) => {
-              patch({ preset, style: null, mode: "image", tool: "create" });
+              // A template runs on Marketing Studio itself.
+              patch({ preset, style: null, mode: "image", tool: "create", ...(isMarketingModel(ui.modelId) ? {} : { modelId: marketingModels()[0]?.id ?? "" }) });
               toComposer();
             }}
           />

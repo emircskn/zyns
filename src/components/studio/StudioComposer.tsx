@@ -209,7 +209,7 @@ function ToolChip({ icon, label, onClick, text }: { icon: IconName; label: strin
 }
 
 /** The model the composer sends to, picked from those that fit the mode. */
-function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: ModelDef | undefined; onPick: (id: string) => void }) {
+export function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: ModelDef | undefined; onPick: (id: string) => void }) {
   const [q, setQ] = useState("");
   const shown = models.filter((m) => !q.trim() || m.name.toLowerCase().includes(q.trim().toLowerCase()));
   const cinema = shown.filter((m) => m.id === CINEMA);

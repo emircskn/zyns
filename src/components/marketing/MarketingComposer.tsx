@@ -2,17 +2,18 @@
 
 import { useMemo, useState } from "react";
 import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
-import { Popover } from "@/components/Popover";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { StylePicker } from "@/components/marketing/StylePicker";
 import { styleById } from "@/lib/marketing/styles";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
-import { ChipRow, GenerateButton, times, usePrice } from "@/components/studio/StudioComposer";
+import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
+import { mapParams } from "@/lib/recipes/paramMap";
+import { studioImageModels } from "@/lib/studio/compose";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { typeLabel } from "@/lib/marketing/presets";
 import type { MarketingRunInfo, MarketingUi } from "@/lib/marketing/types";
-import { activeFields, ALL_MODELS, defaultValues, getModel, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
+import { activeFields, ALL_MODELS, defaultValues, getModel, modesFor, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { EMPTY_MARKETING } from "@/lib/marketing/types";
 import { keyFor, useStudio } from "@/store/studio";
@@ -20,6 +21,27 @@ import { keyFor, useStudio } from "@/store/studio";
 /** Marketing Studio's own image models, the variants offered here. */
 export function marketingModels(): ModelDef[] {
   return ALL_MODELS.filter((m) => /^hf-marketing-studio/.test(m.id));
+}
+
+/** One of Marketing Studio's own models (presets and Ad Reference need one). */
+export const isMarketingModel = (id: string | undefined) => !!id && /^hf-marketing-studio/.test(id);
+
+/**
+ * Any other image model, sent the prompt (with the style's direction) and
+ * the product, avatar and pictures as its references; its own settings as
+ * chosen on its chips.
+ */
+function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { values: Values; info: MarketingRunInfo } {
+  const images = [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
+  const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
+  const text = [ui.prompt.trim(), styleById(ui.style)?.prompt].filter(Boolean).join(" ");
+  const placed = mapParams(model, mode, { prompt: text, images });
+  const values: Values = { ...placed.values };
+  for (const field of activeFields(model, values)) {
+    if (field.placement === "prompt" || field.placement === "input") continue;
+    if (own[field.key] !== undefined) values[field.key] = own[field.key];
+  }
+  return { values, info: { tool: "direct", product: ui.product ?? undefined } };
 }
 
 /** The page's state with every field it has now, whatever was saved before. */
@@ -171,15 +193,25 @@ export function MarketingComposer({
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
   const models = useMemo(() => marketingModels(), []);
-  const model = getModel(ui.modelId);
+  const provider_ = useStudio((s) => s.provider);
+  // The bar offers every image model of the service chosen up top, Marketing Studio's own first.
+  const barModels = useMemo(
+    () => (provider_ === "higgsfield" ? [...models, ...studioImageModels(provider_).filter((m) => !isMarketingModel(m.id))] : studioImageModels(provider_)),
+    [models, provider_],
+  );
+  const model = bar && tool === "create" ? (barModels.find((m) => m.id === ui.modelId) ?? barModels[0]) : isMarketingModel(ui.modelId) ? getModel(ui.modelId) : undefined;
+  const marketing = isMarketingModel(model?.id);
+  const valuesByModel = useStudio((s) => s.valuesByModel);
+  const setModelValues = useStudio((s) => s.setModelValues);
+  const own: Values = model && !marketing ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
   const [picking, setPicking] = useState<Picking>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const [stylesOpen, setStylesOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const preset = tool === "create" ? ui.preset : null;
-  const built = model ? marketingValues(model, ui, tool) : null;
+  const preset = tool === "create" && marketing ? ui.preset : null;
+  const built = model ? (marketing ? marketingValues(model, ui, tool) : otherValues(model, ui, own)) : null;
   const maxRefs = 16 - (ui.product ? 1 : 0) - (ui.avatar ? 1 : 0);
   const blocker = !model
     ? "Choose a Marketing Studio version."
@@ -198,7 +230,11 @@ export function MarketingComposer({
   const price = times(usePrice(model, built?.values ?? {}, blocker), count);
   const provider = providerOf(model);
   const key = keyFor({ apiKey, hfKey }, provider);
-  const chips = model && built ? activeFields(model, built.values).filter((f) => (CHIP_KEYS as readonly string[]).includes(f.key)) : [];
+  const chips = model && built
+    ? marketing
+      ? activeFields(model, built.values).filter((f) => (CHIP_KEYS as readonly string[]).includes(f.key))
+      : activeFields(model, own).filter((f) => f.placement === "bar")
+    : [];
 
   async function generate() {
     if (!model || !built) return;
@@ -306,31 +342,7 @@ export function MarketingComposer({
                 {ui.refs.length ? <span className="font-mono text-[12px]">{ui.refs.length}</span> : <Icon name="plus" size={16} />}
               </button>
               <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
-              <Popover
-                width={240}
-                align="start"
-                title="Model"
-                trigger={() => <Chip icon={<Icon name="spark" size={15} />} value={model ? model.name : "Choose model"} />}
-              >
-                {(close) => (
-                  <div className="flex flex-col">
-                    {models.map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => {
-                          patch({ modelId: m.id });
-                          close();
-                        }}
-                        className="flex h-9 items-center justify-between rounded-[8px] px-2.5 text-left text-[13px] text-t1 hover:bg-t1/[0.06]"
-                      >
-                        {m.name}
-                        {m.id === ui.modelId && <Icon name="check" size={14} className="text-accent" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </Popover>
+              <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id })} />
               {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
               {preset ? (
                 <>
@@ -350,8 +362,9 @@ export function MarketingComposer({
                   <span key={field.key} className="shrink-0">
                     <FieldChip
                       field={field}
-                      values={built.values}
+                      values={marketing ? built.values : own}
                       onChange={(k, v) => {
+                        if (!marketing) return setModelValues(model.id, { [k]: v });
                         const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
                         if (name) patch({ [name]: typeof v === "string" ? v : String(v ?? "") } as Partial<MarketingUi>);
                       }}
