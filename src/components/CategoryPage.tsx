@@ -3,6 +3,7 @@
 import { Gallery } from "@/components/Gallery";
 import { SideComposer } from "@/components/ComposerPanel";
 import { SIDE_PAGES } from "@/lib/layout";
+import { usePhone } from "@/lib/usePhone";
 import { DensityControl, SelectToggle } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
@@ -47,7 +48,10 @@ export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange
 export function CategoryPage({ category, onKeyClick }: { category: Category; onKeyClick: () => void }) {
   const model = useModel();
   const side = SIDE_PAGES.has(category);
-  const view = useStudio((s) => s.views[category]) ?? (side ? "list" : "grid");
+  const chosenView = useStudio((s) => s.views[category]) ?? (side ? "list" : "grid");
+  // A phone has no list: its wall is always tiles, so Select and the layouts belong there too.
+  const phone = usePhone();
+  const view = phone ? "grid" : chosenView;
   const setView = useStudio((s) => s.setView);
   const togglePicker = useStudio((s) => s.togglePicker);
   const runs = useStudio((s) => s.runs);
@@ -76,7 +80,7 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
         </div>
         <div className="flex items-center gap-2">
         {mine.length > 0 && view === "grid" && <DensityControl select={false} />}
-        {mine.length > 0 && <ViewToggle view={view} onChange={(next) => setView(category, next)} />}
+        {mine.length > 0 && <ViewToggle view={chosenView} onChange={(next) => setView(category, next)} />}
         {!side && (
         <button
           type="button"
