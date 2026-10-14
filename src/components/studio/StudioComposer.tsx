@@ -223,7 +223,7 @@ export function ModelChip({
   model: ModelDef | undefined;
   onPick: (id: string) => void;
   /** The studio's own models, listed first under their heading; the rest follow as "Other models". Cinema Studio's by default. */
-  lead?: { label: string; is: (id: string) => boolean };
+  lead?: { label: string; is: (id: string) => boolean; note?: string };
 }) {
   const [q, setQ] = useState("");
   const shown = models.filter((m) => !q.trim() || m.name.toLowerCase().includes(q.trim().toLowerCase()));
@@ -293,7 +293,7 @@ export function ModelChip({
               <>
                 <p className="flex items-center gap-1.5 px-2 pb-1 pt-2.5 text-[11.5px] font-medium text-t3">
                   <Icon name="spark" size={12} />
-                  {lead ? (models.some((m) => isLead(m.id)) ? "Other models" : "Models") : cinema.length > 0 || models.some((m) => m.id === CINEMA) ? "Other models · settings go into the prompt" : "Models"}
+                  {lead ? (models.some((m) => isLead(m.id)) ? `Other models${lead.note ? ` · ${lead.note}` : ""}` : "Models") : cinema.length > 0 || models.some((m) => m.id === CINEMA) ? "Other models · settings go into the prompt" : "Models"}
                 </p>
                 {rest.map((m) => row(m, close))}
               </>

@@ -38,7 +38,12 @@ export function marketingModels(): ModelDef[] {
 export const isMarketingModel = (id: string | undefined) => !!id && /^hf-marketing-studio/.test(id);
 
 /** The model menu's first group: Marketing Studio's own, the rest under "Other models". */
-export const MARKETING_LEAD = { label: "Marketing Studio", is: isMarketingModel };
+export const MARKETING_LEAD = {
+  label: "Marketing Studio",
+  is: isMarketingModel,
+  // Not Marketing Studio: no templates, and the style, product and character reach them only as reference pictures.
+  note: "style and pictures go as references",
+};
 
 /** Every model the page offers: Marketing Studio's first, then the image models of the service chosen up top. */
 export function pageModels(provider: Parameters<typeof studioImageModels>[0]): ModelDef[] {
