@@ -11,6 +11,7 @@ import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
 import { FrameGrab } from "@/components/studio/FrameGrab";
 import { ReferencePicker, type Kind } from "@/components/studio/ReferencePicker";
+import { MediaPicker } from "@/components/MediaPicker";
 import { ElementGrid, PreviewMedia } from "@/components/studio/Settings";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
@@ -655,9 +656,28 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           )}
         </>
       )}
+      {/* As in Genjutsu: "+" opens the window for media (generated, uploads, liked), the @ button the Elements one. */}
+      <MediaPicker
+        open={refsOpen === "uploads"}
+        accept={refs.map((f) => (f.accept ?? "image") as Kind)}
+        multiple
+        taken={refs.flatMap((f) => listOf(values[f.key]))}
+        onPick={(urls, pickedKinds) => {
+          const picked = urls.map((url, i) => ({ url, kind: pickedKinds[i] ?? "image" }));
+          for (const kind of ["image", "video", "audio"] as Kind[]) {
+            const field = fieldOf(kind);
+            const urls = picked.filter((p) => p.kind === kind).map((p) => p.url);
+            if (!field || urls.length === 0) continue;
+            const now = listOf(useStudio.getState().valuesByModel[CINEMA]?.[field.key]);
+            set(field.key, [...now, ...urls.filter((u) => !now.includes(u))].slice(0, field.maxItems ?? 30));
+          }
+        }}
+        onClose={() => setRefsOpen(null)}
+      />
       <ReferencePicker
-        open={refsOpen !== null}
-        startTab={refsOpen ?? "uploads"}
+        open={refsOpen === "elements"}
+        elementsOnly
+        styles={false}
         onClose={() => setRefsOpen(null)}
         room={{
           image: Math.max(0, (fieldOf("image")?.maxItems ?? 0) - listOf(values[fieldOf("image")?.key ?? ""]).length),
@@ -1056,20 +1076,14 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           />
         )}
       </Sheet>
-      <ReferencePicker
+      {/* Pictures come in from the same window Genjutsu opens for its references. */}
+      <MediaPicker
         open={refsOpen !== null}
-        startTab={refsOpen ?? "uploads"}
-        onClose={() => setRefsOpen(null)}
-        kinds={["image"]}
-        room={{ image: Math.max(0, 14 - studio.imageRefs.length), video: 0, audio: 0 }}
+        accept="image"
+        multiple
         taken={studio.imageRefs}
-        onAdd={(picked) => patchStudio((s) => ({ imageRefs: [...s.imageRefs, ...picked.map((p) => p.url).filter((u) => !s.imageRefs.includes(u))] }))}
-        onElements={(chosen) =>
-          patchStudio((s) => ({
-            imagePrompt: `${s.imagePrompt.trimEnd()} ${chosen.map((e) => `@${e.name}`).join(" ")} `.trimStart(),
-            imageRefs: [...s.imageRefs, ...chosen.flatMap((e) => e.images.map((r) => r.storageUrl)).filter((u) => !s.imageRefs.includes(u))],
-          }))
-        }
+        onPick={(urls) => patchStudio((s) => ({ imageRefs: [...s.imageRefs, ...urls.filter((u) => !s.imageRefs.includes(u))].slice(0, 14) }))}
+        onClose={() => setRefsOpen(null)}
       />
     </div>
   );
