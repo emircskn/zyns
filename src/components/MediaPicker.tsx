@@ -74,14 +74,18 @@ function Thumb({
         ) : asset.kind === "video" ? (
           <>
             <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-            <VideoMark className="left-1.5 top-1.5" />
+            <VideoMark />
           </>
         ) : (
           <span className="grid h-full w-full place-items-center bg-surface bg-gradient-to-br from-t1/[0.07] to-transparent">
             <Icon name="audio" size={20} className="text-t2" />
           </span>
         )}
-        <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-2 pb-1.5 pt-6 text-left text-[10.5px] text-white/85">
+        <span
+          className={`pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent pb-1.5 pr-2 pt-6 text-left text-[10.5px] text-white/85 ${
+            asset.kind === "video" ? "pl-9" : "pl-2"
+          }`}
+        >
           {asset.label}
         </span>
       </button>

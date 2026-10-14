@@ -9,12 +9,11 @@ export function VideoMark({ tiny, className = "bottom-1.5 left-1.5" }: { tiny?: 
   return (
     <span
       aria-label="Video"
-      className={`pointer-events-none absolute z-[4] flex items-center gap-1 rounded-full bg-black/60 text-white backdrop-blur-sm ${
-        tiny ? "p-[3px]" : "py-0.5 pl-1.5 pr-2 text-[10.5px] font-medium"
+      className={`pointer-events-none absolute z-[4] grid place-items-center rounded-full bg-black/60 text-white backdrop-blur-sm ${
+        tiny ? "h-[18px] w-[18px]" : "h-6 w-6"
       } ${className}`}
     >
-      <Icon name="video" size={tiny ? 10 : 12} />
-      {!tiny && "Video"}
+      <Icon name="video" size={tiny ? 10 : 13} />
     </span>
   );
 }

@@ -61,7 +61,7 @@ function MediaTile({
         ) : asset.kind === "video" ? (
           <>
             <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
-            <VideoMark className="left-1.5 top-1.5" />
+            <VideoMark />
           </>
         ) : (
           <span className="grid h-full w-full place-items-center bg-gradient-to-br from-t1/[0.07] to-transparent">
