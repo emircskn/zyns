@@ -265,10 +265,10 @@ export function MediaPicker({
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         {/* The grip: says it can be pulled down. */}
-        <span aria-hidden className="mx-auto -mb-2 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
+        <span aria-hidden className="mx-auto mb-1 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
         {/* As Higgsfield's: the sources as pills along the top, white under
             the chosen one, and the close button at the row's end. */}
-        <header {...swipe} className="flex shrink-0 items-center gap-2 px-2 pb-2 pt-2 sm:pt-2">
+        <header {...swipe} className="flex shrink-0 items-center gap-2 px-2 pb-2 pt-1 sm:pt-2">
           <h2 className="sr-only">
             {kinds.length > 1
               ? "Add media"
