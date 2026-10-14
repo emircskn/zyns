@@ -4,6 +4,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { activeFields, type Field, type ItemField, type Values } from "@/lib/registry";
 import { PillGroup } from "@/components/PillGroup";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
+import { VideoMark } from "@/components/VideoMark";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { mediaKind } from "@/lib/upload";
@@ -269,6 +270,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
         <img src={thumbSrc(url, 256)} alt="" draggable={false} className="h-full w-full object-cover" />
       )}
       {kind === "video" && <video src={videoFrame(url)} className="h-full w-full object-cover" muted playsInline preload="metadata" />}
+      {kind === "video" && <VideoMark tiny={!roomy} className="bottom-1 left-1" />}
       {kind === "audio" && (
         <div className="flex h-full w-full items-center justify-center text-t3">
           <Icon name="audio" size={18} />
@@ -779,7 +781,10 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                 }`}
               >
                 {kind === "video" ? (
-                  <video src={item.thumb ? videoFrame(item.thumb) : undefined} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+                  <>
+                    <video src={item.thumb ? videoFrame(item.thumb) : undefined} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+                    <VideoMark tiny className="bottom-1 left-1" />
+                  </>
                 ) : kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.thumb} alt="" className="h-full w-full object-cover" />

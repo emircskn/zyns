@@ -2,6 +2,7 @@
 
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
+import { VideoMark } from "@/components/VideoMark";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { TileExtras } from "@/lib/tileExtras";
@@ -173,11 +174,7 @@ function AssetTile({
           </span>
         )}
         {/* A clip says so: on a still frame it reads as a picture otherwise. */}
-        {asset.kind === "video" && (
-          <span className={`pointer-events-none absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm ${square ? "h-8 w-8" : "h-10 w-10"}`}>
-            <Icon name="play" size={square ? 13 : 16} fill="currentColor" />
-          </span>
-        )}
+        {asset.kind === "video" && <VideoMark tiny={square} />}
       </button>
 
       {asset.kind === "audio" && !picking && (

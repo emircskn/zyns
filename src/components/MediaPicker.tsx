@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
+import { VideoMark } from "@/components/VideoMark";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { PillGroup } from "@/components/PillGroup";
@@ -71,7 +72,10 @@ function Thumb({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : asset.kind === "video" ? (
-          <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+          <>
+            <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <VideoMark className="left-1.5 top-1.5" />
+          </>
         ) : (
           <span className="grid h-full w-full place-items-center bg-surface bg-gradient-to-br from-t1/[0.07] to-transparent">
             <Icon name="audio" size={20} className="text-t2" />

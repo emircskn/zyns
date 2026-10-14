@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
+import { VideoMark } from "@/components/VideoMark";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
@@ -58,7 +59,10 @@ function MediaTile({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-contain" />
         ) : asset.kind === "video" ? (
-          <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
+          <>
+            <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
+            <VideoMark className="left-1.5 top-1.5" />
+          </>
         ) : (
           <span className="grid h-full w-full place-items-center bg-gradient-to-br from-t1/[0.07] to-transparent">
             <Icon name="audio" size={22} className="text-t2" />

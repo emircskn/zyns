@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
+import { VideoMark } from "@/components/VideoMark";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
 import { Sheet } from "@/components/remix/Restyle";
@@ -703,7 +704,10 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
           ) : mediaKind(url) === "video" ? (
-            <video src={videoFrame(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <>
+              <video src={videoFrame(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+              <VideoMark tiny className="bottom-1 left-1" />
+            </>
           ) : (
             <span className="grid h-full w-full place-items-center text-t3">
               <Icon name="audio" size={15} />
