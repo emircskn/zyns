@@ -109,6 +109,8 @@ export interface ModeSpec {
   require?: string[];
   /** Values the mode pins; hidden from the UI and injected at build time. */
   fixed?: Record<string, unknown>;
+  /** Parameters the endpoint takes that its catalogue schema leaves out (its notes name them). */
+  extra?: Record<string, SpecProp>;
   /** Sent, but not offered as a tab (a mode another page drives). */
   hidden?: boolean;
 }
@@ -539,7 +541,7 @@ const RETIRED = /deprecated|has been replaced by|replaced by the|no longer (supp
 function resolveUnit(mode: ModeSpec, tier: string, endpointId: string, familyId: string): Unit {
   const spec = SPECS[endpointId];
   if (!spec) throw new Error(`[registry] ${familyId}/${mode.id}: no catalogue entry for ${endpointId}`);
-  const props = spec.top;
+  const props = { ...spec.top, ...(mode.extra ?? {}) };
   let keys = Object.keys(props);
   const required = new Set(keys.filter((k) => props[k].required));
   keys = keys.filter((k) => required.has(k) || !RETIRED.test(props[k]?.desc ?? ""));

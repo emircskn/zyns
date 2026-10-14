@@ -86,7 +86,8 @@ function EditorSheet({
   async function save() {
     if (!slug) return setProblem("Give it a name to call it by.");
     if (taken) return setProblem(`@${slug} is already an element.`);
-    if (images.length === 0) return setProblem("Add at least one picture.");
+    // A Soul ID character is used by its id; a picture is only its cover.
+    if (images.length === 0 && !existing?.soul) return setProblem("Add at least one picture.");
     setProblem(null);
     setSaving(true);
     try {
@@ -104,6 +105,7 @@ function EditorSheet({
         props: props.some(([k, v]) => k.trim() && v.trim())
           ? Object.fromEntries(props.filter(([k, v]) => k.trim() && v.trim()).map(([k, v]) => [k.trim(), v.trim()]))
           : undefined,
+        soul: existing?.soul,
         createdAt: existing?.createdAt ?? Date.now(),
       };
       saveElement(element);

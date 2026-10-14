@@ -336,6 +336,82 @@ export async function marketingPresets(
   return { items, cursor: typeof next === "string" && next ? next : null };
 }
 
+/** A Soul ID: a character Higgsfield trains from pictures, for one Soul family. */
+export type SoulVersion = "v1" | "v2" | "cinema";
+export type SoulState = "not_ready" | "queued" | "in_progress" | "completed" | "failed";
+
+export interface SoulCharacter {
+  id: string;
+  name: string;
+  version: SoulVersion;
+  state: SoulState;
+  thumbnail?: string;
+  error?: string;
+  createdAt?: number;
+}
+
+const SOUL_VERSIONS: SoulVersion[] = ["v1", "v2", "cinema"];
+const SOUL_STATES: SoulState[] = ["not_ready", "queued", "in_progress", "completed", "failed"];
+
+/** A custom reference as the API answers it, cut to what the studio keeps. */
+function soulOf(raw: unknown): SoulCharacter | null {
+  const body = (raw ?? {}) as Record<string, unknown>;
+  if (typeof body.id !== "string" || !isRequestId(body.id)) return null;
+  const version = SOUL_VERSIONS.includes(body.model_version as SoulVersion) ? (body.model_version as SoulVersion) : "v1";
+  const state = SOUL_STATES.includes(body.status as SoulState) ? (body.status as SoulState) : "queued";
+  const created = typeof body.created_at === "string" || typeof body.created_at === "number" ? new Date(body.created_at).getTime() : NaN;
+  return {
+    id: body.id,
+    name: typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Character",
+    version,
+    state,
+    ...(typeof body.thumbnail_url === "string" && /^https:\/\//.test(body.thumbnail_url) ? { thumbnail: body.thumbnail_url } : {}),
+    ...(typeof body.fail_reason === "string" && body.fail_reason ? { error: readable(body.fail_reason) } : {}),
+    ...(Number.isFinite(created) ? { createdAt: created } : {}),
+  };
+}
+
+/**
+ * Starts training a Soul ID from public picture URLs (POST /v1/custom-references).
+ * It is ready to generate with once its state reads "completed".
+ */
+export async function createSoul(apiKey: string, name: string, version: SoulVersion, images: string[]): Promise<SoulCharacter> {
+  if (!SOUL_VERSIONS.includes(version)) throw new HiggsfieldError("Unknown Soul model.", 400);
+  const urls = images.filter((u) => /^https:\/\//.test(u)).slice(0, 100);
+  if (urls.length === 0) throw new HiggsfieldError("Add at least one picture.", 400);
+  const body = await request(apiKey, "/v1/custom-references", {
+    method: "POST",
+    body: JSON.stringify({
+      name: name.trim().slice(0, 100) || "Character",
+      model_version: version,
+      input_images: urls.map((url) => ({ type: "image_url", image_url: url })),
+    }),
+  });
+  const soul = soulOf(body);
+  if (!soul) throw new HiggsfieldError("Higgsfield accepted the character but returned no ID.", 502);
+  return soul;
+}
+
+/** Where a Soul ID's training is. */
+export async function soulStatus(apiKey: string, id: string): Promise<SoulCharacter> {
+  if (!isRequestId(id)) throw new HiggsfieldError("Invalid character ID.", 400);
+  const soul = soulOf(await request(apiKey, `/v1/custom-references/${encodeURIComponent(id)}`));
+  if (!soul) throw new HiggsfieldError("Higgsfield returned no character.", 502);
+  return soul;
+}
+
+/**
+ * The account's Soul IDs. Not in Higgsfield's docs (only create and get
+ * are), so whatever shape a list comes back in is read, and an account or
+ * API without one simply has none to show.
+ */
+export async function listSouls(apiKey: string): Promise<SoulCharacter[]> {
+  const body = (await request(apiKey, "/v1/custom-references")) as unknown;
+  const node = body as Record<string, unknown> | unknown[] | null;
+  const list = Array.isArray(node) ? node : ((node?.items ?? node?.data ?? node?.custom_references ?? node?.results ?? []) as unknown[]);
+  return (Array.isArray(list) ? list : []).map(soulOf).filter((s): s is SoulCharacter => !!s);
+}
+
 /** Step one of an upload: a presigned URL to PUT the file to. */
 export async function uploadTicket(apiKey: string, contentType: string): Promise<UploadTicket> {
   const type = contentType === "image/jpg" ? "image/jpeg" : contentType;

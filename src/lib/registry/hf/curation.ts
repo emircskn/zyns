@@ -14,7 +14,7 @@
  * presets need their own flows and are left out for now.
  */
 import type { Family, ModeSpec } from "./auto";
-import type { Values } from "../types";
+import type { Field, Values } from "../types";
 
 const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = {}): ModeSpec => ({
   id,
@@ -27,8 +27,22 @@ const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = 
 const tiered = (id: string, label: string, tiers: Record<string, string>, extra: Partial<ModeSpec> = {}) =>
   m(id, label, Object.values(tiers)[0], { tiers, ...extra });
 
-/** Trained Soul ID characters need a training flow the studio doesn't have yet. */
-const SOUL_ID = ["custom_reference_id", "custom_reference_strength"];
+/**
+ * A Soul model's trained character (Soul ID): picked from the library's Soul
+ * ID characters for that model, its strength in the drawer once one is.
+ */
+function soulFields(version: "v1" | "v2" | "cinema"): Record<string, Partial<Field>> {
+  return {
+    custom_reference_id: { kind: "soul", soul: version, placement: "bar", label: "Character", group: undefined },
+    custom_reference_strength: { label: "Character strength", placement: "panel", when: (v: Values) => !!v.custom_reference_id },
+  };
+}
+
+/** Soul 1.0's schema leaves its Soul ID out, though its notes say it takes one. */
+const SOUL_V1_EXTRA = {
+  custom_reference_id: { type: "string", format: "uuid", desc: "", required: false },
+  custom_reference_strength: { type: "number", default: 1, minimum: 0, maximum: 1, desc: "", required: false },
+};
 
 /** Kling's custom shots only mean something with multi-shot on. */
 const SHOT_FIELDS: Family["fields"] = {
@@ -127,12 +141,13 @@ export const FAMILIES: Family[] = [
     badge: "NEW",
     tagline: "Higgsfield's fashion and editorial photo model, one or four at a time.",
     modes: [
-      m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] }),
+      m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: ["style_id", "style_strength"] }),
       m("edit", "Edit", "higgsfield-ai/soul/v2/image-to-image", {
         hint: "Restyle a photo",
-        hide: [...SOUL_ID, "style_id", "style_strength"],
+        hide: ["style_id", "style_strength"],
       }),
     ],
+    fields: soulFields("v2"),
   },
   {
     id: "soul-cinema",
@@ -146,7 +161,8 @@ export const FAMILIES: Family[] = [
     category: "image",
     output: "image",
     tagline: "Stills that look lifted from a film: cinematic light, lenses and grade.",
-    modes: [m("generate", "Generate", "higgsfield-ai/soul/cinema", { hide: SOUL_ID })],
+    modes: [m("generate", "Generate", "higgsfield-ai/soul/cinema")],
+    fields: soulFields("cinema"),
   },
   {
     id: "soul",
@@ -155,7 +171,8 @@ export const FAMILIES: Family[] = [
     category: "image",
     output: "image",
     tagline: "The original Soul: realistic people and places.",
-    modes: [m("generate", "Generate", "higgsfield-ai/soul/standard", { hide: [...SOUL_ID, "style_id", "style_strength"] })],
+    modes: [m("generate", "Generate", "higgsfield-ai/soul/standard", { hide: ["style_id", "style_strength"], extra: SOUL_V1_EXTRA })],
+    fields: soulFields("v1"),
   },
   {
     // A character sheet from a brief: the brief is what you type, the tier its kind of creature.

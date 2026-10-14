@@ -28,7 +28,9 @@ export type FieldKind =
   | "records"
   | "list"
   | "json"
-  | "source";
+  | "source"
+  /** A Soul ID character from the library, sent by its id (`soul` says for which Soul model). */
+  | "soul";
 
 /**
  * Where a control lives in the studio chrome:
@@ -88,6 +90,8 @@ export interface Field {
   itemFields?: ItemField[];
   /** For `source`: which earlier result the field points at. */
   source?: SourceSpec;
+  /** For `soul`: the Soul model its characters are trained for. */
+  soul?: "v1" | "v2" | "cinema";
 }
 
 /**

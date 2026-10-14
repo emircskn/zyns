@@ -323,6 +323,8 @@ interface StudioState {
   lastModelByStep: Record<string, string>;
   /** The element being made or edited, if the editor is open: an id to edit, or pictures to start from. */
   elementEditor: { id?: string; images?: string[]; kind?: LibraryElement["kind"] } | null;
+  /** The Soul ID training sheet, open for this Soul model when set. */
+  soulTrainer: { version?: "v1" | "v2" | "cinema" } | null;
   /** The Remix composer, as it was left. */
   remix: RemixState;
   patchRemix: (patch: Partial<RemixState> | ((remix: RemixState) => Partial<RemixState>)) => void;
@@ -431,6 +433,7 @@ interface StudioState {
   rememberStepModel: (keys: string[], modelId: string) => void;
   removeElement: (id: string) => void;
   openElementEditor: (editor: { id?: string; images?: string[]; kind?: LibraryElement["kind"] } | null) => void;
+  openSoulTrainer: (trainer: { version?: "v1" | "v2" | "cinema" } | null) => void;
   setRemote: (key: string, provider: Provider, remote: RemoteUrl) => void;
 
   toggleFavorite: (url: string) => void;
@@ -617,6 +620,7 @@ export const useStudio = create<StudioState>()(
       copies: {},
       elements: [],
       elementEditor: null,
+      soulTrainer: null,
       remix: EMPTY_REMIX,
       remixTab: "history",
       motionClips: [],
@@ -1076,6 +1080,7 @@ export const useStudio = create<StudioState>()(
       removeElement: (id) =>
         set((state) => ({ elements: state.elements.filter((e) => e.id !== id), deleted: { ...state.deleted, [id]: Date.now() } })),
       openElementEditor: (elementEditor) => set({ elementEditor }),
+      openSoulTrainer: (soulTrainer) => set({ soulTrainer }),
       setRemixTab: (remixTab) => set({ remixTab }),
       patchRemix: (patch) =>
         set((state) => ({ remix: { ...state.remix, ...(typeof patch === "function" ? patch(state.remix) : patch) } })),

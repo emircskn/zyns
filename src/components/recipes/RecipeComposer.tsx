@@ -16,7 +16,7 @@ import {
   stepValues,
 } from "@/lib/recipes/engine";
 import type { Recipe, RecipeInputs, Step } from "@/lib/recipes/types";
-import { inUse, type LibraryElement } from "@/lib/elements";
+import { type LibraryElement, pickable } from "@/lib/elements";
 import { activeFields, getModel, providerOf, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { keyFor, useStudio } from "@/store/studio";
@@ -224,7 +224,7 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
 /** The library's elements of a kind, as covers to tap: a product's pictures, a character's face. */
 function ElementRow({ kind, onPick }: { kind: LibraryElement["kind"]; onPick: (urls: string[]) => void }) {
   const all = useStudio((s) => s.elements);
-  const elements = all.filter((e) => e.kind === kind && inUse(e) && e.images.length > 0);
+  const elements = all.filter((e) => e.kind === kind && pickable(e) && e.images.length > 0);
   if (elements.length === 0) return null;
   return (
     <div className="no-bar mt-2 flex gap-1.5 overflow-x-auto">

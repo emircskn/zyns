@@ -14,7 +14,7 @@ import { ElementGrid, PreviewMedia } from "@/components/studio/Settings";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
-import type { LibraryElement } from "@/lib/elements";
+import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { imageRefs } from "@/lib/mentions";
 import { activeFields, defaultValues, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
@@ -722,6 +722,51 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
   );
 }
 
+/** A Soul model's characters: its trained Soul IDs, those still training, and a way to train one. */
+function SoulGrid({ version, onPick, onNew }: { version: "v1" | "v2" | "cinema"; onPick: (elementId: string) => void; onNew: () => void }) {
+  const elements = useStudio((s) => s.elements);
+  const ready = soulsFor(elements, version);
+  const training = elements.filter((e) => inUse(e) && e.soul?.version === version && e.soul.state !== "completed" && e.soul.state !== "failed");
+  return (
+    <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+      {[...ready, ...training].map((element) => {
+        const done = element.soul?.state === "completed";
+        return (
+          <button
+            key={element.id}
+            type="button"
+            disabled={!done}
+            onClick={() => onPick(element.id)}
+            title={`@${element.name}`}
+            className="group flex flex-col items-center gap-1 disabled:opacity-60"
+          >
+            <span className="relative block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line">
+              {element.images[0] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="grid h-full w-full place-items-center text-t3">
+                  <Icon name="smile" size={20} />
+                </span>
+              )}
+              {!done && (
+                <span className="absolute inset-x-1 bottom-1 rounded-full bg-black/60 py-0.5 text-center text-[10px] text-white">Training…</span>
+              )}
+            </span>
+            <span className="w-full truncate text-center text-[11px] text-t3">@{element.name}</span>
+          </button>
+        );
+      })}
+      <button type="button" onClick={onNew} className="flex flex-col items-center gap-1">
+        <span className="grid aspect-square w-full place-items-center rounded-card border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1">
+          <Icon name="plus" size={20} />
+        </span>
+        <span className="w-full truncate text-center text-[11px] text-t3">Train new</span>
+      </button>
+    </div>
+  );
+}
+
 /** What an element is, said to the model, and what of it must stay. */
 const KIND_WORD: Record<string, string> = { character: "person", location: "place", product: "product", style: "style" };
 const KIND_KEEP: Record<string, string> = { character: "their face and look", location: "the place", product: "the product", style: "the style" };
@@ -745,7 +790,18 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   // A model with its own count (how many per run) keeps it; ours then sends one run.
   const selfCount = !!model && hasOwnCount(activeFields(model, own));
   const count = selfCount ? 1 : studioCount;
-  const character = elements.find((e) => e.id === studio.character);
+  // A Soul model takes its own trained characters (Soul IDs) by id; any
+  // other model takes a sheet's pictures. The pick shows only where it applies.
+  const soulVersion = soulVersionOf(model?.id);
+  const picked = elements.find((e) => e.id === studio.character);
+  const character = soulVersion
+    ? picked?.soul?.version === soulVersion && picked.soul.state === "completed"
+      ? picked
+      : undefined
+    : picked && !picked.soul
+      ? picked
+      : undefined;
+  const openTrainer = useStudio((s) => s.openSoulTrainer);
   const [refsOpen, setRefsOpen] = useState<null | "uploads" | "elements">(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [choosing, setChoosing] = useState(false);
@@ -762,7 +818,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const sent = useMemo(() => {
     if (!model) return null;
     const compiled = compileCinemaPrompt(cameraFields, camValues);
-    const pictures = character ? character.images.map((r) => r.storageUrl) : [];
+    const pictures = character && !character.soul ? character.images.map((r) => r.storageUrl) : [];
     const images = [...pictures, ...studio.imageRefs];
     const mode = images.length > 0 ? (modesFor(model, "image-edit-multi")[0] ?? (own.__mode as string | undefined)) : (own.__mode as string | undefined);
     // The character's pictures go first, so they are Image 1 to N; the
@@ -770,20 +826,25 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     const taken = imageRefs(model, mapParams(model, mode, { prompt: "x", images }).values).filter((u) => pictures.includes(u)).length;
     const named = character && new RegExp(`(^|\\s)@${character.name}(\\s|$)`).test(studio.imagePrompt);
     const call =
-      character && taken > 0
+      character && !character.soul && taken > 0
         ? `${named ? "" : ` @${character.name}`}. @${character.name} is the ${KIND_WORD[character.kind] ?? "subject"} in ${Array.from({ length: taken }, (_, i) => `@Image ${i + 1}`).join(", ")}; keep ${KIND_KEEP[character.kind] ?? "their look"} the same.`
         : "";
     const text = [studio.imagePrompt.trim() + call, compiled].filter(Boolean).join(" ");
     const placed = mapParams(model, mode, { prompt: text, images });
     // A model that takes no pictures cannot use the character at all: said
     // plainly, rather than a note that its pictures were left out.
-    if (character && taken === 0) placed.warnings.splice(0, placed.warnings.length, `${model.name} can't use a character. Pick a model that takes reference images, or remove @${character.name}.`);
+    if (character && !character.soul && taken === 0) placed.warnings.splice(0, placed.warnings.length, `${model.name} can't use a character. Pick a model that takes reference images, or remove @${character.name}.`);
     const values: Values = { ...placed.values };
     for (const field of activeFields(model, values)) {
       if (field.placement === "prompt" || field.placement === "input") continue;
       if (own[field.key] !== undefined) values[field.key] = own[field.key];
     }
-      return { values, warnings: placed.warnings, unusable: !!character && taken === 0 };
+      // A Soul ID goes as the model's own character parameter; none when not picked here.
+    if (soulVersion) {
+      if (character?.soul) values.custom_reference_id = character.soul.id;
+      else delete values.custom_reference_id;
+    }
+    return { values, warnings: placed.warnings, unusable: !!character && !character.soul && taken === 0 };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, own, studio.imagePrompt, studio.imageRefs, studio.imageCamera, studio.imageLens, character]);
 
@@ -948,7 +1009,12 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
         <p className="mt-2 px-1 text-[12px] text-t4">Image models take these as words in the prompt.</p>
       </StudioDialog>
-      <Sheet open={choosing} title="Character" sub="Its pictures go with the prompt" onClose={() => setChoosing(false)}>
+      <Sheet
+        open={choosing}
+        title="Character"
+        sub={soulVersion ? `Soul ID characters trained for ${model?.name}` : "Its pictures go with the prompt"}
+        onClose={() => setChoosing(false)}
+      >
         {character && (
           <button
             type="button"
@@ -961,13 +1027,27 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             No character
           </button>
         )}
-        <ElementGrid
-          onPick={(_, name) => {
-            const element = useStudio.getState().elements.find((e) => e.name === name);
-            if (element) patchStudio({ character: element.id });
-            setChoosing(false);
-          }}
-        />
+        {soulVersion ? (
+          <SoulGrid
+            version={soulVersion}
+            onPick={(id) => {
+              patchStudio({ character: id });
+              setChoosing(false);
+            }}
+            onNew={() => {
+              setChoosing(false);
+              openTrainer({ version: soulVersion });
+            }}
+          />
+        ) : (
+          <ElementGrid
+            onPick={(_, name) => {
+              const element = useStudio.getState().elements.find((e) => e.name === name);
+              if (element) patchStudio({ character: element.id });
+              setChoosing(false);
+            }}
+          />
+        )}
       </Sheet>
       <ReferencePicker
         open={refsOpen !== null}

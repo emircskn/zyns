@@ -12,6 +12,7 @@ import { sourceItems, type SourceItem } from "@/lib/sources";
 export { sourceItems };
 import { useUploader } from "@/lib/useUploader";
 import { useModel, useStudio, type Run } from "@/store/studio";
+import { SOUL_MODELS, soulsFor } from "@/lib/elements";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
 import { mediaSrc, thumbSrc } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
@@ -1014,6 +1015,60 @@ export function JsonControl({ field, value, onChange }: ControlProps) {
   );
 }
 
+/**
+ * A Soul model's character: the library's Soul ID characters trained for
+ * it, by picture and name. A sheet's pictures mean nothing to these models,
+ * so none is offered; with no Soul ID yet, the way to train one.
+ */
+function SoulControl({ field, value, onChange }: ControlProps) {
+  const elements = useStudio((s) => s.elements);
+  const openTrainer = useStudio((s) => s.openSoulTrainer);
+  const version = field.soul ?? "v1";
+  const souls = soulsFor(elements, version);
+  const training = elements.filter((e) => e.soul?.version === version && (e.soul.state === "queued" || e.soul.state === "in_progress" || e.soul.state === "not_ready"));
+  const label = SOUL_MODELS.find((m) => m.version === version)?.label ?? "Soul";
+  const row = (on: boolean) =>
+    `flex w-full items-center gap-2.5 rounded-chip px-2 py-1.5 text-left text-[13px] transition-colors duration-[120ms] ${on ? "bg-t1/[0.1] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"}`;
+  return (
+    <div className="flex flex-col gap-0.5">
+      <button type="button" onClick={() => onChange(undefined)} className={row(!value)}>
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t3">
+          <Icon name="close" size={14} />
+        </span>
+        No character
+      </button>
+      {souls.map((element) => (
+        <button key={element.id} type="button" onClick={() => onChange(element.soul!.id)} className={row(value === element.soul!.id)}>
+          {element.images[0] ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={thumbSrc(element.images[0].storageUrl, 128)} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+          ) : (
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t3">
+              <Icon name="smile" size={14} />
+            </span>
+          )}
+          <span className="min-w-0 flex-1 truncate">@{element.name}</span>
+          {value === element.soul!.id && <Icon name="check" size={14} />}
+        </button>
+      ))}
+      {training.length > 0 && (
+        <p className="px-2 py-1.5 text-[12px] text-t3">
+          {training.length === 1 ? `@${training[0].name} is` : `${training.length} characters are`} still training.
+        </p>
+      )}
+      {souls.length === 0 && training.length === 0 && (
+        <p className="px-2 py-1.5 text-[12px] leading-relaxed text-t3">No {label} characters yet. They are trained from 20 or more photos of one person.</p>
+      )}
+      <button type="button" onClick={() => openTrainer({ version })} className={`${row(false)} text-t1`}>
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.07]">
+          <Icon name="plus" size={14} />
+        </span>
+        New {label} character
+      </button>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 export function Control(props: ControlProps) {
@@ -1050,6 +1105,8 @@ export function Control(props: ControlProps) {
       return <JsonControl {...props} />;
     case "source":
       return <SourceControl {...props} />;
+    case "soul":
+      return <SoulControl {...props} />;
     default:
       return <TextControl {...props} />;
   }
@@ -1058,6 +1115,10 @@ export function Control(props: ControlProps) {
 /** The caption a bar chip shows for the current value. */
 export function chipCaption(field: Field, value: unknown, values: Values): string {
   if (field.chip) return field.chip(value, values);
+  if (field.kind === "soul") {
+    const element = value ? useStudio.getState().elements.find((e) => e.soul?.id === value) : undefined;
+    return element ? `@${element.name}` : field.label;
+  }
   if (field.kind === "toggle") return field.label;
   if (["images", "records", "list", "shots", "elements", "clips"].includes(field.kind)) {
     const n = Array.isArray(value) ? value.length : 0;

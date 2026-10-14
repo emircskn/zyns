@@ -5,6 +5,8 @@ import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { ZynsMark } from "@/components/Logo";
 import { AssetsPage } from "@/components/AssetsPage";
 import { FavoritesPage } from "@/components/FavoritesPage";
+import { SoulTrainer } from "@/components/SoulTrainer";
+import { SoulWatcher } from "@/components/SoulWatcher";
 import { ElementEditor } from "@/components/ElementEditor";
 import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
@@ -167,6 +169,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
       <SettingsPanel />
       <ElementEditor />
+      <SoulTrainer />
+      <SoulWatcher />
       <NewProjectDialog />
       <NewFolderDialog />
       <TrashSweeper />

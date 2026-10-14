@@ -9,6 +9,7 @@
 import type { IconName } from "@/components/Icon";
 import { activeFields, type ModelDef, type Values } from "@/lib/registry";
 import type { MediaRef } from "@/lib/media";
+import type { SoulState, SoulVersion } from "@/lib/higgsfield/client";
 
 export type ElementKind = "character" | "location" | "product" | "style";
 
@@ -27,7 +28,40 @@ export interface LibraryElement {
   status?: ElementStatus;
   /** Anything else worth saying about it ("eyes": "green"); added to the prompt with the notes. */
   props?: Record<string, string>;
+  /**
+   * A Soul ID character: one Higgsfield trained from pictures for one Soul
+   * model. It is used by that model alone, by its id rather than its
+   * pictures; a character without one is a sheet, for every other model.
+   */
+  soul?: { id: string; version: SoulVersion; state: SoulState; error?: string };
   createdAt: number;
+}
+
+/** Which Soul model each Soul ID is trained for, as Higgsfield names them. */
+export const SOUL_MODELS: Array<{ version: SoulVersion; label: string; modelId: string }> = [
+  { version: "cinema", label: "Soul Cinema", modelId: "hf-soul-cinema" },
+  { version: "v2", label: "Soul 2.0", modelId: "hf-soul-2" },
+  { version: "v1", label: "Soul 1.0", modelId: "hf-soul" },
+];
+
+/** The Soul ID version a model takes, if it is one of the Soul models. */
+export function soulVersionOf(modelId: string | undefined): SoulVersion | undefined {
+  return SOUL_MODELS.find((m) => m.modelId === modelId)?.version;
+}
+
+/** Soul ID characters ready for this version. */
+export function soulsFor(elements: LibraryElement[], version: SoulVersion): LibraryElement[] {
+  return elements.filter((e) => inUse(e) && e.soul?.version === version && e.soul.state === "completed");
+}
+
+/** What a picker offers to send as pictures: in use, and kept with pictures rather than a Soul ID. */
+export function pickable(element: LibraryElement): boolean {
+  return inUse(element) && !element.soul;
+}
+
+/** The characters any other model takes: those kept with pictures (sheets), not Soul IDs. */
+export function isSheet(element: LibraryElement): boolean {
+  return !element.soul;
 }
 
 export type ElementStatus = "draft" | "ready" | "archived";

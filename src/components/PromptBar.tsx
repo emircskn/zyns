@@ -35,7 +35,7 @@ import {
 import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
 import { attachMedia, isAttachField } from "@/lib/attach";
-import { inUse, type LibraryElement } from "@/lib/elements";
+import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
 import { activeFields, barAndPanel, getModel, inputsOf, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
@@ -371,6 +371,7 @@ const ICON_ONLY = /enhance|prompt_extend|prompt_optimi[sz]er|magic_prompt|expand
 
 const CHIP_ICON: Array<[RegExp, IconName]> = [
   [ICON_ONLY, "enhance"],
+  [/^custom_reference_id$/, "smile"],
   [/^duration|_seconds$|extend_times|continue_at/, "clock"],
   [/^quality$|__tier|^tier$/, "gem"],
   [/resolution/, "gem"],
@@ -754,7 +755,7 @@ export function PromptField({
   const [dismissed, setDismissed] = useState<number | null>(null);
 
   const refs = model && names.length === 0 ? imageRefs(model, values) : [];
-  const library = useStudio((s) => s.elements).filter(inUse);
+  const library = useStudio((s) => s.elements).filter(pickable);
   const own: MentionOption[] =
     names.length > 0 ? names.map((name) => ({ name })) : refs.map((url, i) => ({ name: imageName(i), thumb: url }));
   const options: MentionOption[] = [

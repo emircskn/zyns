@@ -9,7 +9,7 @@
  * answers cross-origin requests) with the same client code the routes use.
  */
 import * as hf from "./client";
-import type { Estimate, NormalisedTask, RestylePreset, UploadTicket } from "./client";
+import type { Estimate, NormalisedTask, RestylePreset, SoulCharacter, SoulVersion, UploadTicket } from "./client";
 
 declare global {
   interface Window {
@@ -146,6 +146,27 @@ export function getMarketingPresets(
   const query = new URLSearchParams({ size: "50" });
   if (cursor) query.set("cursor", cursor);
   return route(apiKey, `/api/higgsfield/marketing-presets?${query}`);
+}
+
+/** Starts training a Soul ID from pictures at public URLs. */
+export function createSoul(apiKey: string, name: string, version: SoulVersion, images: string[]): Promise<SoulCharacter> {
+  if (isDirect()) return hf.createSoul(apiKey, name, version, images);
+  return route<SoulCharacter>(apiKey, "/api/higgsfield/soul", { method: "POST", body: JSON.stringify({ name, version, images }) });
+}
+
+export function getSoul(apiKey: string, id: string): Promise<SoulCharacter> {
+  if (isDirect()) return hf.soulStatus(apiKey, id);
+  return route<SoulCharacter>(apiKey, `/api/higgsfield/soul?id=${encodeURIComponent(id)}`);
+}
+
+/** The account's Soul IDs, where the API lists them; none where it does not. */
+export async function listSouls(apiKey: string): Promise<SoulCharacter[]> {
+  try {
+    if (isDirect()) return await hf.listSouls(apiKey);
+    return (await route<{ items?: SoulCharacter[] }>(apiKey, "/api/higgsfield/soul")).items ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function verifyKey(apiKey: string): Promise<void> {

@@ -272,3 +272,15 @@ başlık, alt yazı, "N items" gibi sayılar yok. Telefonda Select en solda;
 Filter, klasör ve grid/yoğunluk düğmeleri sağda. Filtre çipleri varsa
 masaüstünde aynı satırın solunda durur. Cinema Studio'da bunu `ViewHead`
 (`left` + sağdaki children) taşır. Yeni sayfalar da bu düzenle yapılır.
+
+## Soul ID karakterleri (2026-10-14)
+
+Elements → Characters ikiye ayrılır: Sheets (resimli, her model için) ve
+Soul ID (Higgsfield'ın eğittiği, tek bir Soul modeli için: v1 / v2 / cinema).
+Soul ID'li karakter `LibraryElement.soul` taşır; resimli seçicilerde
+(`pickable`) görünmez. Soul modelleri `custom_reference_id`'yi `soul` türünde
+bir "Character" alanıyla alır; Cinema Studio'nun Character kutusu Soul modelinde
+sadece o sürüme eğitilmiş Soul ID'leri gösterir. Eğitim:
+POST /v1/custom-references, durum GET /v1/custom-references/{id}
+(`SoulWatcher` 20 sn'de bir sorar). Hesaptaki karakterleri listeleme
+belgelenmemiş; "From my Higgsfield" yine de dener, yoksa sessizce boş döner.
