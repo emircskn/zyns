@@ -21,6 +21,15 @@ interface Catalogue {
   loadMore: (hfKey: string) => Promise<void>;
 }
 
+/**
+ * Higgsfield's Marketing Studio gallery also holds video templates (motion
+ * kinds with a clip for a preview: hypermotion, 2d_motion, saas_motion,
+ * mixed_media). Marketing Studio is pictures only for now, so they stay out.
+ */
+export function isVideoPreset(p: MarketingPreset): boolean {
+  return p.previewKind === "video" || /motion|mixed_media|video/i.test(p.type);
+}
+
 export const usePresetCatalogue = create<Catalogue>((set, get) => ({
   items: [],
   cursor: null,
@@ -35,16 +44,19 @@ export const usePresetCatalogue = create<Catalogue>((set, get) => ({
     if (state.loading || state.done) return;
     set({ loading: true, error: null });
     try {
+      const before = state.items.length;
       const page = await getMarketingPresets(hfKey, state.cursor ?? undefined);
       set((s) => {
         const known = new Set(s.items.map((i) => i.id));
         return {
-          items: [...s.items, ...page.items.filter((i) => !known.has(i.id))],
+          items: [...s.items, ...page.items.filter((i) => !known.has(i.id) && !isVideoPreset(i))],
           cursor: page.cursor,
           done: !page.cursor || page.items.length === 0,
           loading: false,
         };
       });
+      // A page of video templates only adds nothing: read on, or the grid never grows.
+      if (get().items.length === before && !get().done) await get().loadMore(hfKey);
     } catch (error) {
       set({ loading: false, error: error instanceof Error ? error.message : "The presets could not be loaded." });
     }
