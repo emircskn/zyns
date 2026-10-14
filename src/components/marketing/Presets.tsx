@@ -9,6 +9,18 @@ import { usePresence } from "@/lib/usePresence";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { useStudio } from "@/store/studio";
 
+/** A mark for a kind of template, guessed from its name: the kinds come from Higgsfield, not from us. */
+function typeIcon(type: string): "grid" | "box" | "monitor" | "image" | "video" | "user" | "spark" {
+  if (type === "all") return "grid";
+  if (/product/.test(type)) return "box";
+  if (/ad/.test(type)) return "monitor";
+  if (/poster/.test(type)) return "image";
+  if (/market/.test(type)) return "grid";
+  if (/ugc/.test(type)) return "user";
+  if (/motion|video/.test(type)) return "video";
+  return "spark";
+}
+
 /** A preset's card: its preview (a clip plays while hovered), its name and its kind. */
 export function PresetCard({ preset, active, onPick }: { preset: MarketingPreset; active?: boolean; onPick: () => void }) {
   const video = useRef<HTMLVideoElement>(null);
@@ -68,10 +80,17 @@ export function PresetGrid({
   const { items, loading, error, done, loadMore } = usePresetCatalogue();
   const [type, setType] = useState<string>("all");
   const [query, setQuery] = useState("");
+  // Higgsfield's toggle at the row's right end: every template, the stills, or the clips.
+  const [media, setMedia] = useState<"all" | "image" | "video">("all");
   const end = useRef<HTMLDivElement>(null);
   const types = useMemo(() => presetTypes(items), [items]);
   const needle = query.trim().toLowerCase();
-  const shown = items.filter((p) => (type === "all" || p.type === type) && (!needle || p.name.toLowerCase().includes(needle)));
+  const shown = items.filter(
+    (p) =>
+      (type === "all" || p.type === type) &&
+      (!needle || p.name.toLowerCase().includes(needle)) &&
+      (media === "all" || (media === "video") === (p.previewKind === "video")),
+  );
 
   useEffect(() => {
     if (hfKey && items.length === 0 && !loading && !error && !done) void loadMore(hfKey);
@@ -123,15 +142,32 @@ export function PresetGrid({
               type="button"
               onClick={() => setType(t)}
               aria-pressed={type === t}
-              className={`h-8 shrink-0 rounded-full px-3.5 text-[12.5px] transition-colors duration-[120ms] ${
-                type === t ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
+              className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold transition-colors duration-[120ms] ${
+                type === t ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t3 hover:text-t1"
               }`}
             >
+              <Icon name={typeIcon(t)} size={14} />
               {t === "all" ? "All" : typeLabel(t)}
             </button>
           ))}
         </div>
-        <label className="flex h-8 w-full items-center gap-2 rounded-full bg-t1/[0.05] px-3 sm:w-[220px]">
+        {!side && (
+          <div className="flex shrink-0 gap-0.5 rounded-full bg-t1/[0.04] p-0.5">
+            {(["all", "image", "video"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMedia(m)}
+                aria-pressed={media === m}
+                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold transition-colors duration-[120ms] ${media === m ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`}
+              >
+                {m !== "all" && <Icon name={m} size={14} />}
+                {m === "all" ? "All" : m === "image" ? "Images" : "Videos"}
+              </button>
+            ))}
+          </div>
+        )}
+        <label className={`flex h-8 w-full items-center gap-2 rounded-full bg-t1/[0.05] px-3 sm:w-[220px] ${side ? "" : "hidden"}`}>
           <Icon name="search" size={14} className="shrink-0 text-t4" />
           <input
             value={query}

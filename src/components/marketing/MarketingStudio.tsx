@@ -198,7 +198,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <PresetGrid
             selected={ui.preset?.id}
             onPick={(preset) => {
-              patch({ preset, mode: "image", tool: "create" });
+              patch({ preset, style: null, mode: "image", tool: "create" });
               toComposer();
             }}
           />

@@ -5,6 +5,8 @@ import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
 import { Popover } from "@/components/Popover";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
+import { StylePicker } from "@/components/marketing/StylePicker";
+import { styleById } from "@/lib/marketing/styles";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { ChipRow, GenerateButton, times, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
@@ -55,7 +57,11 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
   const values: Values = { ...defaultValues(model), __mode: mode };
   const text = ui.prompt.trim();
   values.prompt =
-    tool === "ad-reference" ? [AD_REFERENCE_PROMPT, text].filter(Boolean).join(" ") : text || (preset ? preset.name : "");
+    tool === "ad-reference"
+      ? [AD_REFERENCE_PROMPT, text].filter(Boolean).join(" ")
+      : preset
+        ? text || preset.name
+        : [text, styleById(ui.style)?.prompt].filter(Boolean).join(" ");
   if (images.length > 0) values.image_urls = images;
   if (preset) {
     values.enhance_prompt = true;
@@ -168,6 +174,7 @@ export function MarketingComposer({
   const model = getModel(ui.modelId);
   const [picking, setPicking] = useState<Picking>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [stylesOpen, setStylesOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -182,7 +189,7 @@ export function MarketingComposer({
         ? "Add your product."
         : preset && !ui.product
           ? "A preset needs your product picture."
-          : !preset && tool === "create" && !ui.prompt.trim()
+          : !preset && tool === "create" && !ui.prompt.trim() && !ui.style
             ? "Describe the shot to continue."
             : built
               ? validateValues(model, built.values)
@@ -213,10 +220,11 @@ export function MarketingComposer({
   const pickedUrls = [ui.product, ui.avatar, ui.adReference, ...ui.refs].filter((u): u is string => !!u);
   const pickers = (
     <>
+      <StylePicker open={stylesOpen} selected={ui.style} onPick={(style) => patch({ style, preset: null })} onClose={() => setStylesOpen(false)} />
       <PresetPicker
         open={presetsOpen}
         selected={ui.preset?.id}
-        onPick={(p) => patch({ preset: p })}
+        onPick={(p) => patch({ preset: p, style: null })}
         onClose={() => setPresetsOpen(false)}
       />
       <ReferencePicker
@@ -323,12 +331,17 @@ export function MarketingComposer({
                   </div>
                 )}
               </Popover>
-              <button type="button" onClick={() => setPresetsOpen(true)} className="shrink-0">
-                <Chip icon={<Icon name="grid" size={15} />} value={preset ? preset.name : "Preset"} active={!!preset} />
-              </button>
-              {preset && (
-                <button type="button" onClick={() => patch({ preset: null })} aria-label="No preset" className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 hover:bg-t1/[0.07] hover:text-t1">
-                  <Icon name="close" size={14} />
+              {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
+              {preset ? (
+                <>
+                  <Chip icon={<Icon name="grid" size={15} />} value={preset.name} active />
+                  <button type="button" onClick={() => patch({ preset: null })} aria-label="No template" className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 hover:bg-t1/[0.07] hover:text-t1">
+                    <Icon name="close" size={14} />
+                  </button>
+                </>
+              ) : (
+                <button type="button" onClick={() => setStylesOpen(true)} className="shrink-0">
+                  <Chip icon={<Icon name="palette" size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} />
                 </button>
               )}
               {model &&

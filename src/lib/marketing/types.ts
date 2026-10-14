@@ -31,6 +31,8 @@ export interface MarketingUi {
   prompt: string;
   /** The chosen preset, kept whole so its card shows before the catalogue loads. */
   preset: MarketingPreset | null;
+  /** One of our styles (lib/marketing/styles), written into the prompt; never with a preset. */
+  style: string | null;
   /** image_urls[0] with a preset: what is being sold. */
   product: string | null;
   /** image_urls[1] with a preset: who shows it. */
@@ -55,6 +57,7 @@ export const EMPTY_MARKETING: MarketingUi = {
   modelId: "",
   prompt: "",
   preset: null,
+  style: null,
   product: null,
   avatar: null,
   refs: [],
