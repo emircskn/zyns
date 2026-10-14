@@ -278,13 +278,13 @@ export const MARKETING_STYLES: MarketingStyle[] = [
   s("red-mesh-bundle", "Red Mesh Bundle", "product-shot", "template"),
   s("reflective-duo", "Reflective Duo", "product-shot", "template"),
   s("retro-hotline", "Retro Hotline", "product-shot", "template"),
-  s("social-proof", "Social proof", "ads"),
-  s("comparison", "Comparison", "ads"),
-  s("problem-solution", "Problem → Solution", "ads"),
-  s("dark", "Dark", "marketplace"),
-  s("3d-surreal", "3D surreal", "marketplace"),
-  s("pastel", "Pastel", "marketplace"),
-  s("clean-studio", "Clean Studio", "marketplace"),
+  s("social-proof", "Social proof", "ads", "style"),
+  s("comparison", "Comparison", "ads", "style"),
+  s("problem-solution", "Problem → Solution", "ads", "style"),
+  s("dark", "Dark", "marketplace", "style"),
+  s("3d-surreal", "3D surreal", "marketplace", "style"),
+  s("pastel", "Pastel", "marketplace", "style"),
+  s("clean-studio", "Clean Studio", "marketplace", "style"),
 ];
 
 export const styleById = (id: string | null | undefined) => MARKETING_STYLES.find((x) => x.id === id) ?? null;
