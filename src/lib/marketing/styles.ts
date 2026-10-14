@@ -32,6 +32,7 @@ export const MARKETING_STYLES: MarketingStyle[] = [
   s("studio-white", "Studio white", "product-shot", "The product alone on seamless light grey studio sweep, soft shadow, crisp commercial packshot."),
   s("color-pop", "Color pop", "product-shot", "The product among bright colourful props on a saturated solid background, hard sunlight and bold shadows."),
   s("natural", "Natural", "product-shot", "The product placed outdoors on natural rock or wood with sea or landscape behind, golden daylight."),
+  s("usage", "Usage", "product-shot", "The product in use in a real kitchen or home scene, opened and being used, with what it goes with beside it, natural window light."),
   s("social-proof", "Social proof", "ads", "Social media ad layout: the product with a person using it and floating review cards around, headline at the top."),
   s("comparison", "Comparison", "ads", "Split-screen comparison ad: a plain generic alternative on one side, the product on the other, bold headline on each side."),
   s("problem-solution", "Problem → Solution", "ads", "Problem-solution ad: headline asking why switch, the product beside a simple checklist comparing it to others."),
