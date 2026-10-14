@@ -27,7 +27,7 @@ export function ProductLink({ onSaved }: { onSaved?: (element: LibraryElement) =
 
   // The standalone file has no server of its own to read other sites with.
   if (isDirect()) {
-    return <p className="rounded-card bg-t1/[0.04] px-3 py-3 text-[12.5px] text-t3">Product Link needs the ZYNS site: open it there to read a product page.</p>;
+    return <p className="rounded-card bg-t1/[0.05] px-3 py-3 text-[12.5px] text-t3">Product Link needs the ZYNS site: open it there to read a product page.</p>;
   }
 
   async function read() {

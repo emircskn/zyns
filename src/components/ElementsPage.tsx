@@ -91,7 +91,7 @@ export function ElementsPage() {
                 aria-selected={on}
                 onClick={() => setFilter(kind.id)}
                 className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] transition-colors duration-[120ms] ${
-                  on ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.04] text-t3 hover:text-t1"
+                  on ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t3 hover:text-t1"
                 }`}
               >
                 {kind.plural}
@@ -192,7 +192,7 @@ export function ElementsPage() {
                 key={element.id}
                 type="button"
                 onClick={() => openEditor({ id: element.id })}
-                className="group flex flex-col overflow-hidden rounded-card bg-elevated text-left ring-1 ring-inset ring-line transition-colors duration-[150ms] hover:ring-line-strong"
+                className="group flex flex-col overflow-hidden rounded-card bg-elevated text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:ring-line-strong"
               >
                 <span className="relative block aspect-[3/4] w-full overflow-hidden bg-t1/[0.05]">
                   {cover && (

@@ -43,7 +43,7 @@ function HeroCard({ feature }: { feature: Feature }) {
     <button
       type="button"
       onClick={feature.open}
-      className="relative block aspect-[16/11] w-full shrink-0 snap-center overflow-hidden rounded-[12px] bg-surface-2 text-left ring-1 ring-inset ring-line"
+      className="relative block aspect-[16/11] w-full shrink-0 snap-center overflow-hidden rounded-[12px] bg-surface-2 text-left ring-1 ring-inset ring-edge"
     >
       <ModelMedia model={feature.model} />
       <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
@@ -78,7 +78,7 @@ function Tile({ label, model, onPick }: { label: string; model?: ModelDef; onPic
 function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
   return (
     <button type="button" onClick={onPick} className="w-[42vw] max-w-[180px] shrink-0 snap-start text-left">
-      <span className="relative block aspect-[4/5] overflow-hidden rounded-[10px] bg-surface-2 ring-1 ring-inset ring-line">
+      <span className="relative block aspect-[4/5] overflow-hidden rounded-[10px] bg-surface-2 ring-1 ring-inset ring-edge">
         <ModelMedia model={model} />
         {model.badge && (
           <span className="absolute left-2 top-2 rounded-[5px] bg-accent px-1.5 py-px font-display text-[9.5px] font-bold uppercase text-accent-ink">{model.badge}</span>
@@ -219,7 +219,7 @@ export function PhoneExplore() {
             onClick={() => setFilter(chip.id)}
             aria-pressed={filter === chip.id}
             className={`h-8 shrink-0 rounded-[8px] px-3 text-[13px] font-medium transition-colors duration-[100ms] ${
-              filter === chip.id ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 ring-1 ring-inset ring-line"
+              filter === chip.id ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 ring-1 ring-inset ring-edge"
             }`}
           >
             {chip.label}

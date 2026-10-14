@@ -93,7 +93,7 @@ export function AssetsPage() {
                 aria-selected={on}
                 onClick={() => setFilter(f.id)}
                 className={`flex h-10 shrink-0 items-center gap-2 rounded-card px-3.5 text-[14px] font-semibold tracking-[-0.01em] transition-colors duration-[150ms] ${
-                  on ? "bg-t1/[0.14] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.08] hover:text-t1"
+                  on ? "bg-t1/[0.14] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.1] hover:text-t1"
                 }`}
               >
                 <Icon name={f.icon} size={17} className={on ? "" : "text-t3"} />

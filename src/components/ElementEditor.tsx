@@ -212,7 +212,7 @@ function EditorSheet({
             }`}
           >
             {images.map((url, i) => (
-              <div key={url} className="group relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-line">
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-edge">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 {i === 0 ? (
@@ -243,7 +243,7 @@ function EditorSheet({
                 type="button"
                 onClick={() => setPicking(true)}
                 aria-label="Add pictures"
-                className="grid aspect-square place-items-center rounded-chip border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1"
+                className="grid aspect-square place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1"
               >
                 {uploader.busy ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

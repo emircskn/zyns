@@ -107,7 +107,7 @@ export function RecipeComposer({ recipe, onStarted }: { recipe: Recipe; onStarte
               <button
                 type="button"
                 onClick={() => setMediaFor(slot.key)}
-                className="grid h-16 w-16 place-items-center rounded-chip border-[1.5px] border-dashed border-line-strong text-t3 hover:text-t1"
+                className="grid h-16 w-16 place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 hover:text-t1"
                 aria-label={`Add ${slot.label}`}
               >
                 <Icon name="plus" size={18} />
@@ -281,7 +281,7 @@ function StepRow({
   const cost = model && preview ? stepCost(model, preview.values) : undefined;
 
   return (
-    <div className="rounded-card bg-t1/[0.04] ring-1 ring-inset ring-line">
+    <div className="rounded-card bg-t1/[0.05] ring-1 ring-inset ring-edge">
       <div className="flex items-center gap-3 px-3.5 py-3">
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-t1/[0.08] text-[12px] tabular-nums text-t2">
           {index + 1}

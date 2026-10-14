@@ -571,7 +571,7 @@ export function ProjectGrid({ className }: { className: string }) {
         onClick={() => askNewProject((project) => patchStudio({ view: "project", projectId: project.id, folderId: "" }))}
         className="flex flex-col gap-2 text-left"
       >
-        <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.08]">
+        <span className="grid aspect-[16/10] w-full place-items-center rounded-card bg-t1/[0.05] transition-colors duration-[120ms] hover:bg-t1/[0.1]">
           <span className="grid h-12 w-12 place-items-center rounded-full bg-t1/[0.1] text-t1">
             <Icon name="folder-plus" size={20} />
           </span>
@@ -919,14 +919,14 @@ export function ProjectView() {
               <button
                 type="button"
                 onClick={() => openEditor({})}
-                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong text-t3 hover:text-t1"
+                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 hover:text-t1"
               >
                 <Icon name="plus" size={18} />
                 <span className="text-[12px]">New element</span>
               </button>
               {called.map((element) => (
                 <button key={element.id} type="button" onClick={() => openEditor({ id: element.id })} className="flex flex-col gap-1 text-left">
-                  <span className="block aspect-square overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line">
+                  <span className="block aspect-square overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-edge">
                     {element.images[0] && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />

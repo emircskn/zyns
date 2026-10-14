@@ -186,7 +186,7 @@ export function PillGroup<T extends string>({
     // Segments wrap rather than run off the end of whatever holds them: three
     // words like Transparent / Opaque / Auto do not fit a chip's popover on
     // one line, and a row that overflows put a scrollbar through the control.
-    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-[10px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-line"} ${className}`
+    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-[10px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-edge"} ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
         // The scroller does the clipping, so it needs the track's own radius:
         // a square clip lets a pill's corner sit outside the capsule's end.
@@ -254,7 +254,7 @@ export function PillGroup<T extends string>({
 
   const tracked = (
     <div
-      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-[10px] bg-t1/[0.05] ring-1 ring-inset ring-line"} ${className}`}
+      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-[10px] bg-t1/[0.05] ring-1 ring-inset ring-edge"} ${className}`}
     >
       {strip}
     </div>

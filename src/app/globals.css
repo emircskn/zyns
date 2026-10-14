@@ -3,10 +3,10 @@
 /* ------------------------------------------------------------------ *
  * Design tokens
  *
- * Quiet neutral greys, and one colour: yellow, for the action that makes
- * something (Generate, the main button of a window) and for what is on.
- * Yellow is only ever a fill under dark ink, never thin text, so it reads
- * the same on the dark canvas and the light one. Red is kept for deleting.
+ * Higgsfield's: quiet neutral greys, and one colour, lime, for the action
+ * that makes something (Generate, the main button of a window) and for what
+ * is on. Lime is a fill under dark ink, or a small mark on black. Red is
+ * kept for deleting.
  * ------------------------------------------------------------------ */
 
 @theme inline {
@@ -18,6 +18,9 @@
 
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-edge: var(--edge);
+  --color-fill: var(--fill);
+  --color-fill-hover: var(--fill-hover);
 
   --color-t1: var(--t1);
   --color-t2: var(--t2);
@@ -44,26 +47,34 @@
   --cover-light: 255 255 255;
   --cover-shade: 0 0 0;
   --cover-shade-a: 0.62;
-  /* Near-black, as Higgsfield's canvas (#070809), with surfaces lifted a step at a time. */
-  --canvas: #070809;
+  /* Higgsfield's greys: a near-black canvas (#0b0b0b), panels a step up
+     (#131416), and the box a composer or a window sits in (#1c1e20). */
+  --canvas: #0b0b0b;
   --canvas-deep: #000000;
-  --surface: #121315;
-  --surface-2: #1a1b1e;
-  --elevated: #0f1012;
+  --surface: #131416;
+  --surface-2: #1c1e20;
+  --elevated: #1c1e20;
+  /* A window over the page (the "+" window): a step lighter again. */
+  --popover: #222427;
 
-  --line: rgb(255 255 255 / 0.08);
-  --line-strong: rgb(255 255 255 / 0.16);
+  /* Their edges barely show: a fill tells one thing from the next. */
+  --line: rgb(255 255 255 / 0.06);
+  --line-strong: rgb(255 255 255 / 0.14);
+  /* A chip, an icon button, a card inside a box: white at 5%, 10% under the pointer. */
+  --fill: rgb(255 255 255 / 0.05);
+  /* The hairline round a chip or an icon button, all but invisible. */
+  --edge: rgb(217 217 217 / 0.05);
+  --fill-hover: rgb(255 255 255 / 0.1);
 
-  /* White text, as Higgsfield's: the quieter steps stay legible on black. */
-  --t1: #ffffff;
-  --t2: #ececee;
-  --t3: #a9abb1;
-  --t4: #75787f;
+  --t1: #f7f7f8;
+  --t2: #e4e4e6;
+  --t3: #98999b;
+  --t4: #6e6f72;
 
-  /* Yellow, under dark ink. */
-  --accent: #ffd426;
-  --accent-hover: #ffdc4d;
-  --accent-ink: #17140a;
+  /* Higgsfield's lime, under dark ink. */
+  --accent: #d1fe17;
+  --accent-hover: #dcff4a;
+  --accent-ink: #131517;
   /* The rounding of every button, chip and segmented control. */
   --radius-btn: 8px;
 
@@ -71,7 +82,7 @@
      themes: a pale red vanishes on the light canvas. */
   --danger: #ff8f8f;
   /* An element or camera move called in a prompt. */
-  --mention: #7aa7ff;
+  --mention: #5b91fe;
 
   --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 1px 3px rgb(0 0 0 / 0.4);
   --shadow-bar: 0 12px 32px -12px rgb(0 0 0 / 0.6);
@@ -179,16 +190,52 @@ h1,
   box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--line-strong);
 }
 
-/* The one lit action per surface: yellow under dark ink. */
+/* The one lit action per surface: lime under dark ink, lit from above and
+   warming toward yellow at its foot, as Higgsfield's Generate is. */
 @utility cta {
-  background: var(--accent);
+  background: linear-gradient(180deg, #dbfe4c 0%, var(--accent) 45%, #e0ea19 100%);
   color: var(--accent-ink);
   font-weight: 600;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.08);
   transition:
     opacity var(--d-fast) ease-out,
-    background-color var(--d-fast) ease-out;
+    filter var(--d-fast) ease-out;
   &:hover:not(:disabled) {
-    background: var(--accent-hover);
+    filter: brightness(1.06);
+  }
+  /* Not ready yet: the same lime, half there, as theirs. */
+  &:disabled {
+    opacity: 0.45;
+  }
+}
+
+/* Generate, standing proud of the box it ends. */
+@utility cta-lift {
+  box-shadow:
+    10px 34px 24px rgb(0 0 0 / 0.15),
+    8px 21px 6px rgb(0 0 0 / 0.01),
+    3px 8px 12px rgb(0 0 0 / 0.25),
+    inset 0 -2px 0 rgb(0 0 0 / 0.08);
+}
+
+/* A chip, an icon button: white at 5%, no edge, 10% under the pointer. */
+@utility fill-btn {
+  background: var(--fill);
+  border: 1px solid rgb(217 217 217 / 0.04);
+  &:hover:not(:disabled) {
+    background: var(--fill-hover);
+  }
+}
+
+/* A white button with a key's lower edge, for the main action of a page
+   that is not making something. */
+@utility key-btn {
+  background: #ffffff;
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.1);
+  &:hover:not(:disabled) {
+    background: #ececec;
   }
 }
 
@@ -1477,12 +1524,12 @@ html {
 .rounded-full:not([role="radio"]):not([data-round]):not([role="switch"] > *) {
   border-radius: var(--radius-btn);
 }
-/* A main action that cannot run yet is plain grey, not a faded yellow. */
+/* A main action that cannot run yet keeps its lime at half strength, as
+   Higgsfield's Generate does, and drops its shadow. */
 .cta:disabled,
 .cta[aria-disabled="true"] {
-  background: color-mix(in oklab, var(--t1) 7%, transparent);
-  color: var(--t4);
-  opacity: 1 !important;
+  opacity: 0.45 !important;
+  box-shadow: none;
 }
 /* Asked for less see-through: the glass turns solid. */
 @media (prefers-reduced-transparency: reduce) {

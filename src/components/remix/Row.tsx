@@ -33,7 +33,7 @@ export function Row({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]"
     >
       {inner}
     </button>

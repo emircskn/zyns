@@ -147,7 +147,7 @@ function FeatureStrip() {
             onClick={() => step(side === "prev" ? -1 : 1)}
             aria-label={side === "prev" ? "Previous" : "Next"}
             tabIndex={hidden ? -1 : 0}
-            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-[8px] bg-canvas/85 text-t1 ring-1 ring-inset ring-line backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
+            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-[8px] bg-canvas/85 text-t1 ring-1 ring-inset ring-edge backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
               side === "prev" ? "left-3" : "right-3"
             } ${hidden ? "pointer-events-none opacity-0" : "opacity-0 group-hover/strip:opacity-100 focus-visible:opacity-100"}`}
           >
@@ -175,7 +175,7 @@ function WayCard({ way }: { way: Way }) {
     <button
       type="button"
       onClick={way.open}
-      className="flex min-h-[124px] flex-col rounded-[10px] bg-surface p-4 text-left ring-1 ring-inset ring-line transition-colors duration-[150ms] hover:bg-surface-2"
+      className="flex min-h-[124px] flex-col rounded-[10px] bg-surface p-4 text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:bg-surface-2"
     >
       <span className="flex items-start justify-between gap-2">
         <Icon name={way.icon} size={19} className="text-t1" />
@@ -259,7 +259,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
 
       <section className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-5 max-lg:grid-cols-1">
         {/* The prompt in a card of its own, where Higgsfield puts its offer. */}
-        <div className="relative isolate flex flex-col justify-center rounded-panel p-7 ring-1 ring-inset ring-line">
+        <div className="relative isolate flex flex-col justify-center rounded-panel p-7 ring-1 ring-inset ring-edge">
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-panel bg-surface">
             {backdrop && <ModelMedia model={backdrop} className="opacity-45" />}
             <span className="absolute inset-0 bg-gradient-to-r from-canvas via-canvas/80 to-canvas/30" />
@@ -293,7 +293,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
 
       {marketing && (
         // A studio given the whole width, as Higgsfield gives its newest.
-        <section className="relative isolate flex min-h-[340px] flex-col items-center justify-center overflow-hidden rounded-panel px-6 py-12 text-center ring-1 ring-inset ring-line">
+        <section className="relative isolate flex min-h-[340px] flex-col items-center justify-center overflow-hidden rounded-panel px-6 py-12 text-center ring-1 ring-inset ring-edge">
           <div aria-hidden className="absolute inset-0 -z-10 bg-surface">
             <ModelMedia model={marketing} className="opacity-60" />
             <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--canvas)_10%,transparent_75%)] opacity-90" />

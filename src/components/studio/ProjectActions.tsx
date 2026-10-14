@@ -70,7 +70,7 @@ export function ProjectMenuButton({ project, className = "", align = "start" }: 
       trigger={(open) => (
         <span
           aria-label={`${project.name} menu`}
-          className={`grid h-7 w-7 place-items-center rounded-full transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.08] hover:text-t1 ${
+          className={`grid h-7 w-7 place-items-center rounded-full transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${
             open ? "bg-t1/[0.08] text-t1 opacity-100" : `text-t3 ${className}`
           }`}
         >

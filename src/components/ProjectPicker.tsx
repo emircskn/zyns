@@ -62,7 +62,7 @@ export function ProjectPicker({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.08] hover:text-t1"
+            className="grid h-8 w-8 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
           >
             <Icon name="close" size={16} />
           </button>

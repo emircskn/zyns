@@ -241,7 +241,7 @@ export function FolderTree({
                 type="button"
                 aria-label={`Add a folder in ${folder.name}`}
                 onClick={() => ask(project.id, { parentId: folder.id })}
-                className={`grid h-7 w-7 place-items-center rounded-full text-t3 transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.08] hover:text-t1 ${hoverOnly}`}
+                className={`grid h-7 w-7 place-items-center rounded-full text-t3 transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${hoverOnly}`}
               >
                 <Icon name="plus" size={14} />
               </button>
@@ -252,7 +252,7 @@ export function FolderTree({
                 trigger={(open) => (
                   <span
                     aria-label={`${folder.name} menu`}
-                    className={`grid h-7 w-7 place-items-center rounded-full transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.08] hover:text-t1 ${
+                    className={`grid h-7 w-7 place-items-center rounded-full transition-[opacity,color,background-color] duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${
                       open ? "bg-t1/[0.08] text-t1 opacity-100" : `text-t3 ${hoverOnly}`
                     }`}
                   >

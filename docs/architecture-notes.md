@@ -284,3 +284,13 @@ sadece o sürüme eğitilmiş Soul ID'leri gösterir. Eğitim:
 POST /v1/custom-references, durum GET /v1/custom-references/{id}
 (`SoulWatcher` 20 sn'de bir sorar). Hesaptaki karakterleri listeleme
 belgelenmemiş; "From my Higgsfield" yine de dener, yoksa sessizce boş döner.
+
+## Tasarım dili: Higgsfield'e göre (2026-10-14, Emir)
+
+Emir Higgsfield'in renklerini ve buton dilini istedi; 2026-10-03'teki "Zyns'in kendi rengi kalsın" kararının yerine geçer.
+
+- Renkler: zemin #0b0b0b, panel #131416, kutu #1c1e20, pencere #222427; vurgu lime #d1fe17, üstünde koyu yazı #131517; mention mavisi #5b91fe.
+- Çip ve ikon butonu: beyaz %5 dolgu, neredeyse görünmez kenar (`ring-edge`), üzerine gelince %10. 12.5px kalın yazı.
+- Generate: lime, yukarıdan aydınlık, aşağı doğru sarıya dönen gradyan; masaüstünde prompt kutusunun sağında 80px yüksek karo, altında fiyat (`cta cta-lift`). Hazır değilken yarı soluk lime.
+- "+" penceresi: başlıksız; üstte kaynak sekmeleri (seçili olan beyaz zemin), sağda kapat; liste koyu bir kuyunun içinde, birden çok tür varsa All/Images/Videos/Audio satırı; masaüstünde 6 sütun, medya kırpılmadan (contain) gri karoda.
+- Referans/yükleme ekleme karoları kesik çizgili değil: dolu gri karo, ortada koyu yuvarlak içinde ikon.

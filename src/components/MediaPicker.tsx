@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import { VideoMark } from "@/components/VideoMark";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
-import { PillGroup } from "@/components/PillGroup";
 import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
 import { pickable, type LibraryElement } from "@/lib/elements";
@@ -50,11 +49,14 @@ function Thumb({
   asset,
   picked,
   taken,
+  multiple,
   onClick,
   onPreview,
 }: {
   asset: Asset;
   picked: boolean;
+  /** Several can be picked: an empty tick shows on the tile under the pointer. */
+  multiple?: boolean;
   /** Already in the field: it keeps its tick and cannot be added twice. */
   taken?: boolean;
   onClick: () => void;
@@ -63,7 +65,7 @@ function Thumb({
   onPreview?: () => void;
 }) {
   return (
-    <div className="group relative aspect-square overflow-hidden rounded-card bg-surface-2">
+    <div className="group relative aspect-square overflow-hidden rounded-[10px] bg-t1/[0.06]">
       <button
         type="button"
         onClick={taken ? undefined : onClick}
@@ -73,10 +75,10 @@ function Thumb({
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <img src={thumbSrc(asset.url, 384)} alt="" loading="lazy" className="h-full w-full object-contain" />
         ) : asset.kind === "video" ? (
           <>
-            <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <video src={videoFrame(asset.url)} muted playsInline preload="metadata" className="h-full w-full object-contain" />
             <VideoMark />
           </>
         ) : (
@@ -91,10 +93,13 @@ function Thumb({
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${
-          picked ? "ring-2 ring-t1/80" : "ring-1 ring-line group-hover:ring-line-strong"
+          picked ? "ring-2 ring-t1/80" : "ring-1 ring-edge group-hover:ring-line-strong"
         }`}
       />
-      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
+      {asset.source === "run" && asset.provider && !picked && !multiple && <ServiceBadge provider={asset.provider} small />}
+      {multiple && !picked && !taken && (
+        <span className="hover-reveal pointer-events-none absolute left-1.5 top-1.5 z-20 h-5 w-5 rounded-full border border-white/70 bg-black/30 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100" />
+      )}
       {picked && (
         <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
           <Icon name="check" size={13} strokeWidth={2.4} />
@@ -153,6 +158,8 @@ export function MediaPicker({
   const assets = useAssets();
   const { pending, error, input, send, accept: mime } = useUploader(accept);
   const [tab, setTab] = useState<Tab>("uploads");
+  // Higgsfield's second row: every kind, or one of them.
+  const [only, setOnly] = useState<Kind | "all">("all");
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
@@ -192,6 +199,7 @@ export function MediaPicker({
     setPreview(null);
     // Always opens on the first tab, Uploads, with its upload button.
     setTab("uploads");
+    setOnly("all");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -208,7 +216,9 @@ export function MediaPicker({
 
   // One height whatever the tab holds, so switching tabs never moves the window.
   const genKind = (Object.keys(GEN_TAB) as Kind[]).find((k) => GEN_TAB[k] === tab);
-  const list = genKind ? made.filter((a) => a.kind === genKind) : tab === "liked" ? liked : tab === "uploads" ? uploaded : [];
+  const all = genKind ? made.filter((a) => a.kind === genKind) : tab === "liked" ? liked : tab === "uploads" ? uploaded : [];
+  const list = only === "all" || genKind ? all : all.filter((a) => a.kind === only);
+  const filters = kinds.length > 1 && !genKind && tab !== "elements";
   const picks = chosen.length + chosenElements.length;
 
   if (!mounted || typeof document === "undefined") return null;
@@ -249,35 +259,67 @@ export function MediaPicker({
       />
       <div
         ref={sheet}
-        className={`relative flex h-[86dvh] w-full flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:h-[min(640px,86dvh)] sm:max-w-2xl sm:rounded-panel ${
+        className={`relative flex h-[86dvh] w-full flex-col overflow-hidden rounded-t-[20px] border border-edge bg-[var(--popover)] sm:h-[min(600px,86dvh)] sm:max-w-[960px] sm:rounded-[20px] ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         {/* The grip: says it can be pulled down. */}
         <span aria-hidden className="mx-auto -mb-2 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
-        <header {...swipe} className="flex shrink-0 items-center gap-2 px-4 pt-4 sm:px-5">
-          <h2 className="flex-1 text-[17px] font-semibold tracking-[-0.02em] text-t1">
+        {/* As Higgsfield's: the sources as pills along the top, white under
+            the chosen one, and the close button at the row's end. */}
+        <header {...swipe} className="flex shrink-0 items-center gap-2 px-2 pb-2 pt-2 sm:pt-2">
+          <h2 className="sr-only">
             {kinds.length > 1
               ? "Add media"
               : `Add ${kinds[0] === "image" ? "an image" : kinds[0] === "video" ? "a clip" : "audio"}`}
           </h2>
+          <div role="tablist" className="no-bar flex min-w-0 flex-1 gap-1 overflow-x-auto">
+            {tabs.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === item.id}
+                onClick={() => setTab(item.id)}
+                className={`h-8 shrink-0 whitespace-nowrap rounded-full px-3.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                  tab === item.id ? "bg-white text-accent-ink" : "text-t1/50 hover:text-t1"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-t1/[0.07] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.06] text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
           >
-            <Icon name="close" size={17} />
+            <Icon name="close" size={16} />
           </button>
         </header>
 
-        {/* One row of every source, sliding sideways on a phone when it runs past the edge. */}
-        <div className="no-bar shrink-0 overflow-x-auto px-4 py-3 sm:px-5">
-          <PillGroup value={tab} onChange={(next) => setTab(next as Tab)} items={tabs} className="w-max" />
-        </div>
+        {/* The list sits in its own darker well, its kinds above it. */}
+        <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-black/25">
+        {filters && (
+          <div className="no-bar flex shrink-0 gap-1 overflow-x-auto px-3 pt-3">
+            {(["all", ...kinds] as Array<Kind | "all">).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setOnly(k)}
+                className={`h-7 shrink-0 rounded-[8px] px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                  only === k ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
+                }`}
+              >
+                {k === "all" ? "All" : k === "image" ? "Images" : k === "video" ? "Videos" : "Audio"}
+              </button>
+            ))}
+          </div>
+        )}
 
-        <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
+        <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto p-3">
           {tab === "elements" && modelElements && (modelElements.names.length > 0 || modelElements.onDefine) && (
             <div className="mb-4 border-b border-line pb-4">
               <p className="mb-2 text-[13px] font-medium text-t2">{modelElements.label}&apos;s own elements</p>
@@ -315,17 +357,17 @@ export function MediaPicker({
           )}
           {tab === "elements" ? (
             !onElements ? null : (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {/* As Uploads starts with uploading, Elements starts with making one; it opens over this window and lands here. */}
                 <button
                   type="button"
                   onClick={() => openElementEditor({})}
-                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1"
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[10px] bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
                     <Icon name="plus" size={17} />
                   </span>
-                  <span className="px-2 text-center text-[12.5px] font-medium">Create element</span>
+                  <span className="px-2 text-center text-[12px] font-semibold">Create element</span>
                 </button>
                 {library.map((element) => {
                   const on = chosenElements.includes(element.id);
@@ -336,7 +378,7 @@ export function MediaPicker({
                       onClick={() => setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]))}
                       className="relative flex flex-col gap-1 text-left"
                     >
-                      <span className={`relative block aspect-square overflow-hidden rounded-card bg-surface ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-line"}`}>
+                      <span className={`relative block aspect-square overflow-hidden rounded-[10px] bg-t1/[0.06] ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge"}`}>
                         {element.images[0] && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
@@ -358,19 +400,19 @@ export function MediaPicker({
                 : `Nothing generated yet. ${genKind === "video" ? "Videos" : genKind === "audio" ? "Sounds" : "Images"} you make show up here.`}
             </p>
           ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {/* Uploading is one of the tiles rather than a separate errand:
                   the chooser sits where the uploads themselves are. */}
               {tab === "uploads" && (
                 <button
                   type="button"
                   onClick={() => input.current?.click()}
-                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card border border-dashed border-line-strong text-t3 transition-colors duration-[150ms] hover:border-t1/40 hover:bg-t1/[0.03] hover:text-t1 disabled:opacity-50"
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[10px] bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1] disabled:opacity-50"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.07]">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
                     <Icon name="upload" size={17} />
                   </span>
-                  <span className="px-2 text-center text-[12.5px] font-medium">Upload media</span>
+                  <span className="px-2 text-center text-[12px] font-semibold">Upload media</span>
                 </button>
               )}
               {/* A place for each file on its way up, where it will land. */}
@@ -379,7 +421,7 @@ export function MediaPicker({
                   <div
                     key={`pending-${index}`}
                     aria-label="Uploading"
-                    className="anim-pop grid aspect-square place-items-center rounded-card bg-surface ring-1 ring-inset ring-line"
+                    className="anim-pop grid aspect-square place-items-center rounded-card bg-surface ring-1 ring-inset ring-edge"
                   >
                     <span className="h-7 w-7 animate-spin rounded-full border-[2.5px] border-t1/20 border-t-t1" />
                   </div>
@@ -390,6 +432,7 @@ export function MediaPicker({
                   asset={asset}
                   picked={chosen.includes(asset.url) || taken.includes(asset.url)}
                   taken={taken.includes(asset.url)}
+                  multiple={multiple}
                   onClick={() => choose(asset)}
                   onPreview={
                     tab === "uploads" && asset.kind === "image"
@@ -405,11 +448,12 @@ export function MediaPicker({
 
         {/* An upload that failed says so under the list. */}
         {tab === "uploads" && error && (
-          <p className="shrink-0 px-4 pb-4 text-[11.5px] text-[#ff8f8f] sm:px-5 sm:pb-5">{error}</p>
+          <p className="shrink-0 px-3 pb-3 text-[11.5px] text-[#ff8f8f]">{error}</p>
         )}
+        </div>
 
         {multiple && picks > 0 && (
-          <div className="flex items-center gap-3 border-t border-line px-4 py-3 sm:px-5">
+          <div className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-1">
             <span className="flex-1 text-[12.5px] text-t3">{max ? `${picks} of ${max} selected` : `${picks} selected`}</span>
             <button
               type="button"
@@ -419,7 +463,7 @@ export function MediaPicker({
                 if (elements.length > 0) onElements?.(elements);
                 onClose();
               }}
-              className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"
+              className="key-btn h-9 rounded-[12px] px-5 text-[13px]"
             >
               Add
             </button>

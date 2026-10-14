@@ -141,7 +141,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       <button
         type="button"
         onClick={onClick}
-        className="flex h-8 shrink-0 items-center gap-1.5 rounded-[8px] pl-2.5 pr-3 text-[13px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
+        className="flex h-8 shrink-0 items-center gap-1.5 rounded-[8px] pl-2.5 pr-3 text-[13px] bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
       >
         <Icon name="plus" size={16} />
         Add {needed.label.toLowerCase()}
@@ -154,7 +154,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       onClick={onClick}
       aria-label="Add media"
       title="Add images, clips or audio"
-      className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
     >
       <Icon name="plus" size={17} />
     </button>
@@ -189,11 +189,11 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
         <button
           type="button"
           onClick={attach.open}
-          className="flex w-full flex-col items-center justify-center gap-2.5 rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 py-5 text-center transition-colors duration-[150ms] active:bg-t1/[0.05]"
+          className="flex w-full flex-col items-center justify-center gap-2.5 rounded-panel bg-t1/[0.05] px-3 py-5 text-center ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.1]"
         >
           <span className="flex items-center gap-1.5">
             {kinds.map((kind) => (
-              <span key={kind} className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08] text-t2">
+              <span key={kind} className="grid h-10 w-10 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
                 <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={18} />
               </span>
             ))}
@@ -212,9 +212,9 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
               type="button"
               onClick={attach.open}
               aria-label="Add media"
-              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06]"
+              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] bg-t1/[0.06] transition-colors duration-[150ms] active:bg-t1/[0.1]"
             >
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
                 <Icon name="plus" size={20} />
               </span>
             </button>

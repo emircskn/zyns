@@ -347,7 +347,7 @@ export function ReferencePicker({
                 <button
                   type="button"
                   onClick={() => openEditor({ kind: elementKind === "all" ? undefined : elementKind })}
-                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.04] hover:text-t1"
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                     <Icon name="plus" size={18} />
@@ -423,7 +423,7 @@ export function ReferencePicker({
                   <button
                     type="button"
                     onClick={() => uploader.input.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed border-t1/[0.14] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.04] hover:text-t1"
+                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                   >
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                       {uploader.busy ? (

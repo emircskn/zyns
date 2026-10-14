@@ -178,7 +178,7 @@ function ModelRow({ model }: { model: ModelDef }) {
     <button
       type="button"
       onClick={() => togglePicker(true, model.category, true)}
-      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-2.5 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]"
     >
       <span className="min-w-0 flex-1">
         <span className="block text-[11.5px] text-t3">Model</span>
@@ -218,7 +218,7 @@ function AdvancedRow({ count }: { count: number }) {
     <button
       type="button"
       onClick={() => toggleSettings(true)}
-      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]"
     >
       <Icon name="sliders" size={17} className="shrink-0 text-t2" />
       <span className="flex-1 text-[14px] text-t1">Advanced</span>
@@ -246,7 +246,7 @@ function BitrateRow({ field }: { field: Field }) {
       type="button"
       onClick={() => setValue(field.key, choices[(at + 1) % choices.length]?.value)}
       title={`Bitrate: ${choices.map((c) => c.label).join(" or ")}`}
-      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+      className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] px-3.5 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]"
     >
       <Icon name="video" size={17} className="shrink-0 text-t2" />
       <span className="flex-1 text-[14px] text-t1">Bitrate</span>
@@ -588,7 +588,7 @@ export function GenerateButton({
       onClick={onClick}
       disabled={disabled}
       title={apiKey ? (blocker ?? undefined) : undefined}
-      className="cta flex h-11 w-full items-center justify-center gap-2 rounded-[10px] font-display text-[14px] font-semibold uppercase tracking-[0.04em] disabled:bg-t1/[0.06] disabled:text-t4"
+      className="cta flex h-12 w-full items-center justify-center gap-2 rounded-[12px] font-display text-[14px] font-bold uppercase tracking-[0.02em]"
     >
       {busy ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -599,7 +599,7 @@ export function GenerateButton({
         </>
       ) : (
         <>
-          Generate
+          <span className="font-bold">Generate</span>
           <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
           {hint && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{hint}</span>}
         </>

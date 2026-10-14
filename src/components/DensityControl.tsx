@@ -52,7 +52,7 @@ export function PhoneGridToggle() {
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   return (
-    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-[8px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-line">
+    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-[8px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-edge">
       {([
         [false, "square", "One at a time"],
         [true, "grid", "Grid"],

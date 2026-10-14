@@ -5,7 +5,7 @@ import { FieldChip, BatchChip } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
-import { GenerateButton, PriceHint, times, usePrice } from "@/components/studio/StudioComposer";
+import { GenerateButton, times, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { typeLabel } from "@/lib/marketing/presets";
 import type { MarketingRunInfo, MarketingUi } from "@/lib/marketing/types";
@@ -100,7 +100,7 @@ function Slot({
         type="button"
         onClick={onPick}
         className={`relative flex h-[104px] w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-card text-center transition-colors duration-[120ms] ${
-          url ? "bg-t1/[0.05]" : "border-[1.5px] border-dashed border-line-strong bg-transparent hover:bg-t1/[0.04]"
+          url ? "bg-t1/[0.05]" : "border-[1.5px] border-dashed border-line-strong bg-transparent hover:bg-t1/[0.05]"
         }`}
       >
         {url ? (
@@ -264,7 +264,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
             <button
               type="button"
               onClick={() => setPresetsOpen(true)}
-              className="flex items-center gap-3 rounded-card bg-t1/[0.05] px-3 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+              className="flex items-center gap-3 rounded-card bg-t1/[0.05] px-3 py-3 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]"
             >
               <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.07] text-t2">
                 <Icon name="grid" size={16} />
@@ -303,7 +303,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
                 <button
                   type="button"
                   onClick={() => setPicking("refs")}
-                  className="flex h-[104px] w-full flex-col items-center justify-center gap-1 rounded-card border-[1.5px] border-dashed border-line-strong text-center hover:bg-t1/[0.04]"
+                  className="flex h-[104px] w-full flex-col items-center justify-center gap-1 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-center hover:bg-t1/[0.05]"
                 >
                   <Icon name="photos" size={17} className="text-t3" />
                   <span className="text-[12.5px] text-t2">More pictures</span>
@@ -346,7 +346,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
             />
             <Slot label="Product" icon="box" index={2} required url={ui.product} onPick={() => setPicking("product")} onClear={() => patch({ product: null })} />
           </div>
-          <p className="rounded-card bg-t1/[0.04] px-3 py-2.5 text-[12px] leading-relaxed text-t3">
+          <p className="rounded-card bg-t1/[0.05] px-3 py-2.5 text-[12px] leading-relaxed text-t3">
             The layout, light and composition of the ad are rebuilt around your product, with the text areas left empty to add your own words after.
             Use an ad you have the rights to.
           </p>
@@ -388,7 +388,6 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
         <span className="shrink-0">
           <BatchChip value={count} onChange={(n) => patch({ count: n })} />
         </span>
-        <PriceHint price={price} count={count} />
       </div>
 
       {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}

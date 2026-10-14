@@ -31,7 +31,7 @@ export function RecipeRuns({ recipe }: { recipe: Recipe }) {
   return (
     <div className="flex flex-col gap-3">
       {runs.map((run) => (
-        <section key={run.id} data-recipe-run={run.id} className="rounded-card bg-t1/[0.04] p-3.5 ring-1 ring-inset ring-line">
+        <section key={run.id} data-recipe-run={run.id} className="rounded-card bg-t1/[0.05] p-3.5 ring-1 ring-inset ring-edge">
           <header className="mb-2.5 flex items-center justify-between gap-2">
             <p className="text-[12.5px] text-t3">
               {new Date(run.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })} ·{" "}

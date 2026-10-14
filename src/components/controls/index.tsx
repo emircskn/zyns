@@ -261,7 +261,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
   const kind = mediaKind(url);
   return (
     <div
-      className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-line ${
+      className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-edge ${
         roomy ? "h-[88px] w-[88px] rounded-[12px]" : "h-14 w-14 rounded-chip"
       }`}
     >
@@ -300,7 +300,7 @@ function AddTile({ busy, onClick, roomy }: { busy: boolean; onClick: () => void;
         onClick={onClick}
         disabled={busy}
         aria-label="Add"
-        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
+        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
       >
         <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]">
           {busy ? <Spinner size={16} /> : <Icon name="plus" size={20} />}
@@ -313,7 +313,7 @@ function AddTile({ busy, onClick, roomy }: { busy: boolean; onClick: () => void;
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="grid h-14 w-14 shrink-0 place-items-center rounded-chip border border-dashed border-line-strong text-t4 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1 disabled:opacity-50"
+      className="grid h-14 w-14 shrink-0 place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t4 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 disabled:opacity-50"
     >
       {busy ? <Spinner /> : <Icon name="plus" size={16} />}
     </button>
@@ -355,7 +355,7 @@ function UrlField({
               event.currentTarget.blur();
             }
           }}
-          className="anim-fade absolute inset-x-0 top-6 z-10 rounded-chip bg-elevated px-2.5 py-1.5 text-[12px] text-t1 shadow-[var(--shadow-pop)] outline-none ring-1 ring-inset ring-line placeholder:text-t4"
+          className="anim-fade absolute inset-x-0 top-6 z-10 rounded-chip bg-elevated px-2.5 py-1.5 text-[12px] text-t1 shadow-[var(--shadow-pop)] outline-none ring-1 ring-inset ring-edge placeholder:text-t4"
         />
       )}
     </>
@@ -512,7 +512,7 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
       {shots.map((shot, index) => (
         <div
           key={index}
-          className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line"
+          className="anim-pop rounded-card bg-t1/[0.05] p-2.5 ring-1 ring-inset ring-edge"
         >
           <div className="mb-2 flex items-center justify-between">
             <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-t4">
@@ -562,7 +562,7 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center gap-1.5 rounded-chip border border-dashed border-line-strong py-2 text-[12.5px] text-t3 transition-all duration-[120ms] hover:border-t1/40 hover:bg-t1/[0.04] hover:text-t1"
+      className="flex items-center justify-center gap-1.5 rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge py-2 text-[12.5px] text-t3 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
     >
       <Icon name="plus" size={16} /> {label}
     </button>
@@ -586,7 +586,7 @@ export function ElementsControl({ field, value, onChange }: ControlProps) {
       {elements.map((element, index) => (
         <div
           key={index}
-          className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line"
+          className="anim-pop rounded-card bg-t1/[0.05] p-2.5 ring-1 ring-inset ring-edge"
         >
           <div className="mb-2 flex items-center gap-2">
             <input
@@ -788,7 +788,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                 title={item.title}
                 aria-pressed={on}
                 className={`group/src relative shrink-0 overflow-hidden bg-surface text-left transition-[box-shadow,opacity] duration-[150ms] ${size} ${
-                  on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-line opacity-80 hover:opacity-100"
+                  on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge opacity-80 hover:opacity-100"
                 }`}
               >
                 {kind === "video" ? (
@@ -917,7 +917,7 @@ export function RecordsControl({ field, value, onChange }: ControlProps) {
   return (
     <div className="flex flex-col gap-1.5">
       {rows.map((row, index) => (
-        <div key={index} className="anim-pop rounded-card bg-t1/[0.04] p-2.5 ring-1 ring-inset ring-line">
+        <div key={index} className="anim-pop rounded-card bg-t1/[0.05] p-2.5 ring-1 ring-inset ring-edge">
           <div className="mb-2 flex items-center justify-between">
             <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-t4">
               {field.label} {index + 1}

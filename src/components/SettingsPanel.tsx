@@ -140,7 +140,7 @@ export function SettingsPanel() {
               />
             </button>
             {showPayload && (
-              <pre className="anim-swap mt-3 max-h-72 overflow-auto rounded-card bg-canvas/60 p-3 font-mono text-[11.5px] leading-relaxed text-t2 ring-1 ring-inset ring-line">
+              <pre className="anim-swap mt-3 max-h-72 overflow-auto rounded-card bg-canvas/60 p-3 font-mono text-[11.5px] leading-relaxed text-t2 ring-1 ring-inset ring-edge">
                 {payload}
               </pre>
             )}

@@ -45,7 +45,7 @@ export function ElementGrid({ onPick }: { onPick: (urls: string[], name: string)
           title={`@${element.name}`}
           className="group flex flex-col items-center gap-1"
         >
-          <span className="block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line transition-transform duration-[120ms] group-hover:scale-[1.03]">
+          <span className="block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-edge transition-transform duration-[120ms] group-hover:scale-[1.03]">
             {element.images[0] && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />

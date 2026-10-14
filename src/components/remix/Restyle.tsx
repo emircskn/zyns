@@ -290,7 +290,7 @@ export function StyleGrid({ onPicked }: { onPicked?: () => void }) {
         <button
           type="button"
           onClick={() => openElementEditor({ kind: "style" })}
-          className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1"
+          className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1"
         >
           <Icon name="plus" size={18} />
           <span className="text-[12px]">New style</span>
@@ -355,7 +355,7 @@ export function StyleRow() {
       <>
         <div className="flex w-full items-center gap-3 rounded-panel bg-t1/[0.05] py-2.5 pl-3 pr-2">
           <span
-            className="block h-11 w-11 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
+            className="block h-11 w-11 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-edge"
             style={!preview && style ? { background: `linear-gradient(140deg, ${style.tint[0]}, ${style.tint[1]})` } : undefined}
           >
             {preview && (
@@ -379,7 +379,7 @@ export function StyleRow() {
             onClick={() => patchRemix(native ? { presetId: undefined } : { styleId: undefined })}
             aria-label="Remove style"
             title="Remove style"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.08] hover:text-t1"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
           >
             <Icon name="close" size={15} />
           </button>
@@ -397,7 +397,7 @@ export function StyleRow() {
         onClick={choose}
         lead={
         <span
-          className="block h-8 w-8 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-line"
+          className="block h-8 w-8 shrink-0 overflow-hidden rounded-chip ring-1 ring-inset ring-edge"
           style={!preview && style ? { background: `linear-gradient(140deg, ${style.tint[0]}, ${style.tint[1]})` } : undefined}
         >
           {preview ? (

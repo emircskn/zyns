@@ -264,7 +264,7 @@ export function GenerateButton({
   /** The phone's: the composer's whole width at its foot, with the price on it. */
   wide?: boolean;
 }) {
-  // The send button the Image, Video and Audio bars have: round, with the arrow, at the end of the prompt.
+  // Higgsfield's: a tall lime tile at the composer's end, the word over what it costs.
   const what = needsKey ? `Add your ${needsKey} key` : `Generate${count > 1 ? ` ×${count}` : ""}${price ? ` · ${price}` : ""} (⌘↵)`;
   return (
     <button
@@ -273,18 +273,24 @@ export function GenerateButton({
       disabled={disabled}
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
-      className={`cta flex shrink-0 items-center justify-center gap-1.5 rounded-[8px] font-display font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4 ${
-        wide ? "h-11 w-full text-[13.5px]" : "h-9 px-3.5 text-[12.5px]"
+      className={`cta cta-lift flex shrink-0 items-center justify-center rounded-[12px] font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
+        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "min-h-[80px] w-[124px] flex-col gap-1 self-stretch text-[12px]"
       }`}
     >
       {busy ? (
         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
       ) : needsKey ? (
         <Icon name="key" size={15} />
-      ) : (
+      ) : wide ? (
         <Icon name="arrow-up" size={15} strokeWidth={2.2} />
+      ) : null}
+      <span className="font-bold">{needsKey ? "Add key" : "Generate"}</span>
+      {!wide && !needsKey && price && (
+        <span className="font-mono text-[11px] font-medium normal-case tracking-normal opacity-70">
+          {price}
+          {count > 1 ? ` ×${count}` : ""}
+        </span>
       )}
-      {needsKey ? "Add key" : "Generate"}
       {wide && !needsKey && price && (
         <span className="font-mono text-[12px] font-normal normal-case tracking-normal opacity-70">
           {price}
@@ -567,18 +573,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
               </span>
             )}
             </div>
-            <PriceHint price={price} count={count} />
-            <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
-              <GenerateButton
-                onClick={() => void generate()}
-                busy={busy}
-                disabled={!!key && (busy || !!blocker)}
-                blocker={blocker}
-                price={price}
-                count={count}
-                needsKey={key ? null : PROVIDER_NAME[provider]}
-              />
-            </div>
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
             <p
@@ -590,6 +584,17 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <span className={error ? "" : "text-t3"}>{error ?? notice ?? sent?.warnings.join(" ")}</span>
             </p>
           )}
+        </div>
+        <div className="flex max-md:hidden">
+          <GenerateButton
+            onClick={() => void generate()}
+            busy={busy}
+            disabled={!!key && (busy || !!blocker)}
+            blocker={blocker}
+            price={price}
+            count={count}
+            needsKey={key ? null : PROVIDER_NAME[provider]}
+          />
         </div>
       </div>
       <div className="md:hidden">
@@ -697,7 +702,7 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
   return (
     <div className="no-bar flex gap-1.5 overflow-x-auto px-1.5 pb-1">
       {items.map(({ url, field }) => (
-        <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-surface ring-1 ring-inset ring-line">
+        <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-surface ring-1 ring-inset ring-edge">
           {mediaKind(url) === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
@@ -743,7 +748,7 @@ function SoulGrid({ version, onPick, onNew }: { version: "v1" | "v2" | "cinema";
             title={`@${element.name}`}
             className="group flex flex-col items-center gap-1 disabled:opacity-60"
           >
-            <span className="relative block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-line">
+            <span className="relative block aspect-square w-full overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-edge">
               {element.images[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
@@ -761,7 +766,7 @@ function SoulGrid({ version, onPick, onNew }: { version: "v1" | "v2" | "cinema";
         );
       })}
       <button type="button" onClick={onNew} className="flex flex-col items-center gap-1">
-        <span className="grid aspect-square w-full place-items-center rounded-card border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1">
+        <span className="grid aspect-square w-full place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1">
           <Icon name="plus" size={20} />
         </span>
         <span className="w-full truncate text-center text-[11px] text-t3">Train new</span>
@@ -911,23 +916,11 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             </span>
           )}
           </div>
-          <PriceHint price={price} count={count} />
-          <div className={`max-md:hidden ${price ? "" : "ml-auto"}`}>
-            <GenerateButton
-              onClick={() => void generate()}
-              busy={busy}
-              disabled={!!key && (busy || !!blocker)}
-              blocker={blocker}
-              price={price}
-              count={count}
-              needsKey={key ? null : PROVIDER_NAME[provider]}
-            />
-          </div>
         </div>
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
             {studio.imageRefs.map((url) => (
-              <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] ring-1 ring-inset ring-line">
+              <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] ring-1 ring-inset ring-edge">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 <button
@@ -975,6 +968,17 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {bodyLabel ?? "Auto"} / {lensLabel ?? "Auto"}
           </span>
         </button>
+      </div>
+      <div className="flex max-md:hidden">
+        <GenerateButton
+          onClick={() => void generate()}
+          busy={busy}
+          disabled={!!key && (busy || !!blocker)}
+          blocker={blocker}
+          price={price}
+          count={count}
+          needsKey={key ? null : PROVIDER_NAME[provider]}
+        />
       </div>
 
       <div className="md:hidden">

@@ -72,7 +72,7 @@ function FootButton({ icon, label, onClick, on, dot }: { icon: IconName; label: 
       aria-label={label}
       title={label}
       aria-pressed={on}
-      className={`relative grid h-10 w-10 place-items-center rounded-[8px] ring-1 ring-inset ring-line transition-colors duration-[100ms] ${
+      className={`relative grid h-10 w-10 place-items-center rounded-[8px] ring-1 ring-inset ring-edge transition-colors duration-[100ms] ${
         on ? "bg-t1/[0.1] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"
       }`}
     >

@@ -192,7 +192,7 @@ export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) 
   return (
     <div key={model.id} className={`anim-swap flex items-center justify-start gap-1.5 ${flush ? "" : "mb-2"}`}>
       <PillGroup
-        className={`!bg-elevated ring-1 ring-inset ring-line ${fill && shown.length <= 3 ? "w-full" : ""}`}
+        className={`!bg-elevated ring-1 ring-inset ring-edge ${fill && shown.length <= 3 ? "w-full" : ""}`}
         fill={fill && shown.length <= 3}
         value={current}
         onChange={setMode}
@@ -204,7 +204,7 @@ export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) 
           width={240}
           trigger={(open) => (
             <span
-              className={`flex h-[38px] items-center gap-1 rounded-full bg-elevated px-3.5 text-[13px] ring-1 ring-inset ring-line transition-colors duration-[120ms] ${
+              className={`flex h-[38px] items-center gap-1 rounded-full bg-elevated px-3.5 text-[13px] ring-1 ring-inset ring-edge transition-colors duration-[120ms] ${
                 open ? "text-t1" : "text-t3 hover:text-t1"
               }`}
             >
@@ -432,7 +432,7 @@ export function Chip({
     return (
       <span
         className={`flex h-11 w-full min-w-0 select-none items-center gap-2 rounded-card px-3 text-[14px] transition-colors duration-[120ms] ${
-          active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t1 ring-1 ring-inset ring-line hover:bg-t1/[0.08]"
+          active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
         }`}
       >
         <span className={`shrink-0 ${active ? "" : "text-t2"}`}>{icon}</span>
@@ -445,9 +445,9 @@ export function Chip({
       className={`flex select-none items-center whitespace-nowrap rounded-[8px] transition-colors duration-[100ms] ${
         large
           ? "h-10 gap-2 px-3.5 text-[14px]"
-          : "h-8 gap-1.5 px-2.5 text-[12.5px] md:gap-[7px] md:px-3 md:text-[13px]"
+          : "h-8 gap-1.5 px-2.5 text-[12.5px] font-semibold md:gap-[7px] md:px-3 md:text-[12.5px]"
       } ${
-        active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
+        active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
       }`}
     >
       {icon}
@@ -500,7 +500,7 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
       aria-label={field.label}
       onClick={onFlip}
       title={iconOnly ? `${field.label}: ${on ? "on" : "off"}${field.help ? ` · ${field.help}` : ""}` : field.help}
-      className={`flex select-none items-center whitespace-nowrap rounded-[8px] bg-t1/[0.04] ring-1 ring-inset ring-line transition-colors duration-[100ms] hover:bg-t1/[0.08] ${
+      className={`flex select-none items-center whitespace-nowrap rounded-[8px] bg-t1/[0.05] ring-1 ring-inset ring-edge transition-colors duration-[100ms] hover:bg-t1/[0.1] ${
         on ? "text-t1" : "text-t3 hover:text-t1"
       } ${
         large
@@ -556,10 +556,10 @@ export function BatchChip({ value, onChange }: { value?: number; onChange?: (cou
       title="How many to make"
       className={`flex select-none items-center gap-1 text-t2 ${
         tile
-          ? "h-11 w-full justify-between rounded-card bg-t1/[0.04] px-1.5 text-[14px] text-t1 ring-1 ring-inset ring-line"
+          ? "h-11 w-full justify-between rounded-card bg-t1/[0.05] px-1.5 text-[14px] text-t1 ring-1 ring-inset ring-edge"
           : large
-            ? "h-10 rounded-[8px] bg-t1/[0.04] px-1.5 text-[14px] ring-1 ring-inset ring-line"
-            : "h-8 rounded-[8px] bg-t1/[0.04] pl-1 pr-1 text-[12.5px] ring-1 ring-inset ring-line md:text-[13px]"
+            ? "h-10 rounded-[8px] bg-t1/[0.05] px-1.5 text-[14px] ring-1 ring-inset ring-edge"
+            : "h-8 rounded-[8px] bg-t1/[0.05] pl-1 pr-1 text-[12.5px] ring-1 ring-inset ring-edge md:text-[13px]"
       }`}
     >
       <button
@@ -1470,7 +1470,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               {text || "Describe what you want to make…"}
             </p>
             {/* The model's mark and name as one piece on one quiet fill. */}
-            <span className="mt-3.5 inline-flex h-[30px] max-w-full items-center gap-2 rounded-[8px] bg-t1/[0.04] px-2.5 text-[13px] text-t3 ring-1 ring-inset ring-line">
+            <span className="mt-3.5 inline-flex h-[30px] max-w-full items-center gap-2 rounded-[8px] bg-t1/[0.05] px-2.5 text-[13px] text-t3 ring-1 ring-inset ring-edge">
               {model ? (
                 <>
                   <VendorBadge model={model} size={15} bare />
@@ -1561,21 +1561,23 @@ export function PromptBar({
   // The centred box sits in the page's own flow; nothing pads itself for it.
   usePublishedHeight(wrapper, !centered);
 
-  // The one button that starts something, at the end of the row of chips.
+  // The one button that starts something: Higgsfield's tall lime tile at
+  // the box's right end, with the price under the word.
   const send = (
     <button
       type="button"
       onClick={run}
       disabled={busy || !!blocker || !apiKey}
       title={blocker ?? (!apiKey ? "Add your API key first" : "Generate (⌘↵)")}
-      className="cta flex h-8 shrink-0 items-center gap-1.5 rounded-[8px] px-3.5 font-display text-[12.5px] font-semibold uppercase tracking-[0.04em] disabled:cursor-not-allowed disabled:bg-t1/[0.06] disabled:text-t4"
+      className="cta cta-lift flex h-[80px] w-[120px] shrink-0 flex-col items-center justify-center gap-1 rounded-[12px] font-display text-[12px] font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed"
     >
       {busy ? (
         <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent opacity-70" />
       ) : (
-        <Icon name="arrow-up" size={15} strokeWidth={2.2} />
+        // Its own weight: the base rule for buttons outranks a utility on the button itself.
+        <span className="font-bold">Generate</span>
       )}
-      Generate
+      {hint && <span className="font-mono text-[11px] font-medium normal-case tracking-normal opacity-70">{hint}</span>}
     </button>
   );
 
@@ -1605,9 +1607,10 @@ export function PromptBar({
         <ErrorPopup message={error} onClose={() => setError(null)} />
 
         <div
-          className="rounded-[14px] border border-line bg-elevated p-3 pt-3.5 transition-[border-color] duration-[100ms] focus-within:border-line-strong"
+          className="flex items-end gap-3 rounded-[16px] border border-transparent bg-elevated p-4 transition-[border-color] duration-[100ms] focus-within:border-line"
           style={{ boxShadow: centered ? undefined : "var(--shadow-bar)" }}
         >
+          <div className="min-w-0 flex-1">
           <InputsSwitch className="mb-2.5 max-w-[320px]" />
           <Reveal>
             <InputStrip fields={stripFields} />
@@ -1675,18 +1678,15 @@ export function PromptBar({
                 type="button"
                 onClick={() => toggleSettings(true)}
                 title="Advanced settings"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
               >
                 <Icon name="sliders" size={17} />
               </button>
             )}
 
-            <div className="ml-auto flex shrink-0 items-center gap-2.5 pl-2">
-              {hint && <span className="font-mono text-[11.5px] tabular-nums text-t3">{hint}</span>}
-              {/* In the row of chips, level with them, as Higgsfield's: it never moves as the prompt grows. */}
-              {send}
-            </div>
           </div>
+          </div>
+          {send}
         </div>
 
         <p className="mt-2 hidden px-2 text-center text-[11.5px] text-t4 md:block">

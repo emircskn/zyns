@@ -209,7 +209,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
                 type="button"
                 onClick={() => input.current?.click()}
                 aria-label="Add photos"
-                className="grid aspect-square place-items-center rounded-chip border-[1.5px] border-dashed border-line-strong text-t3 transition-colors duration-[120ms] hover:text-t1"
+                className="grid aspect-square place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1"
               >
                 {uploading > 0 ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -219,7 +219,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
               </button>
             )}
             {photos.map((url) => (
-              <div key={url} className="relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-line">
+              <div key={url} className="relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-edge">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 <button
@@ -235,7 +235,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
           </div>
 
           {photos.length > 0 && (
-            <div className="mb-5 divide-y divide-line rounded-card bg-t1/[0.04]">
+            <div className="mb-5 divide-y divide-line rounded-card bg-t1/[0.05]">
               <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 text-[13.5px] text-t2">
                 <span>Number of photos</span>
                 <span className="flex items-center gap-2 text-t1">
@@ -281,7 +281,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
             ))}
           </div>
 
-          <div className="flex flex-col gap-2 rounded-card bg-t1/[0.04] px-3.5 py-3 text-[12.5px] leading-relaxed text-t2">
+          <div className="flex flex-col gap-2 rounded-card bg-t1/[0.05] px-3.5 py-3 text-[12.5px] leading-relaxed text-t2">
             <p className="flex gap-2">
               <Icon name="check" size={14} className="mt-0.5 shrink-0 text-[#7ee08f]" />
               20+ photos: one person, clear face, many angles.
