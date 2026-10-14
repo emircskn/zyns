@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { PlaceIcon } from "@/components/AppIcon";
 import { Icon, type IconName } from "@/components/Icon";
 import { ZynsMark } from "@/components/Logo";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
@@ -33,6 +34,21 @@ const ICONS: Partial<Record<Page, IconName>> = {
   tool: "tool",
 };
 
+/** Each page's lit tile, as Higgsfield's menu has them. */
+const ROW_TILE: Partial<Record<IconName, string>> = {
+  compass: "explore",
+  image: "image",
+  video: "video",
+  audio: "audio",
+  tool: "tool",
+  wand: "genjutsu",
+  film: "cinema",
+  box: "marketing",
+  folder: "assets",
+  heart: "favorites",
+  at: "elements",
+};
+
 function Row({
   icon,
   label,
@@ -56,7 +72,7 @@ function Row({
       }`}
     >
       {/* Icon and name both white, as Higgsfield's menu: the row you are on is lifted, not dimmed around. */}
-      <Icon name={icon} size={19} strokeWidth={1.7} className="shrink-0 text-t1" />
+      {ROW_TILE[icon] ? <PlaceIcon place={ROW_TILE[icon]!} size={26} /> : <Icon name={icon} size={19} strokeWidth={1.7} className="shrink-0 text-t1" />}
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {trailing}
     </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AppIcon } from "@/components/AppIcon";
 import { Icon } from "@/components/Icon";
 import { SidePanel, canHover } from "@/components/SidePanel";
 import { useNewProject } from "@/lib/newProject";
@@ -100,9 +101,7 @@ export function MoveToProject({
                 onClick={() => (on ? (setOpen(false), onDone()) : pick(project.id))}
                 className={`${item} ${on ? "bg-t1/[0.08] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"}`}
               >
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07] text-t2">
-                  <Icon name={project.visibility === "public" ? "globe" : "folder"} size={13} />
-                </span>
+                <AppIcon glyph={project.visibility === "public" ? "globe" : "folder"} tone={project.visibility === "public" ? "blue" : "amber"} size={28} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13.5px] font-medium">{project.name}</span>
                   <span className="block text-[11.5px] text-t4">

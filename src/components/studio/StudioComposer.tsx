@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { Icon, type IconName } from "@/components/Icon";
+import { AppIcon, CardArt, type CardArtKind } from "@/components/AppIcon";
 import { VideoMark } from "@/components/VideoMark";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
@@ -74,6 +75,9 @@ function cardValue(fields: Field[], values: Values): { text: string; set: boolea
 }
 
 /** One of the five cards along the top of the video composer. */
+/** Each card's own little object while nothing is chosen on it. */
+const ART: Partial<Record<IconName, CardArtKind>> = { film: "film", camera: "camera", palette: "palette", sun: "light", sliders: "more" };
+
 function Card({
   icon,
   label,
@@ -105,6 +109,8 @@ function Card({
       {box ??
         (thumb ? (
           <PreviewMedia preview={thumb} className="h-9 w-9 shrink-0 rounded-[10px]" />
+        ) : ART[icon] ? (
+          <CardArt kind={ART[icon]!} />
         ) : (
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-t1/[0.06] text-t2">
             <Icon name={icon} size={17} />
@@ -947,9 +953,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(character.images[0].storageUrl, 256)} alt="" className="h-10 w-10 rounded-full object-cover" />
           ) : (
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t2">
-              <Icon name="plus" size={16} />
-            </span>
+            <AppIcon glyph="user" tone="blue" size={34} />
           )}
           <span className="max-w-full truncate px-1 font-mono text-[10px] uppercase tracking-[0.06em] text-t3">
             {character ? `@${character.name}` : "Character"}
@@ -960,9 +964,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cameraImage} alt="" className="h-11 w-[76px] rounded-[8px] object-cover" />
           ) : (
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t2">
-              <Icon name="camera" size={16} />
-            </span>
+            <CardArt kind="camera" size={38} />
           )}
           <span className="max-w-full truncate px-1 text-[10.5px] leading-tight text-t2">
             {bodyLabel ?? "Auto"} / {lensLabel ?? "Auto"}

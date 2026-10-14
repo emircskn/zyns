@@ -9,6 +9,7 @@ import { PhoneSubnav } from "@/components/PhoneShell";
 import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer";
 import { GenerationsView, ProjectGrid, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
+import { PlaceIcon } from "@/components/AppIcon";
 
 /** The side menu's pages as a phone's chips, with the same icons. */
 const PHONE_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
@@ -69,11 +70,11 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               type="button"
               onClick={() => patchStudio({ view: item.id })}
               aria-current={view === item.id || (item.id === "projects" && view === "project") || undefined}
-              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${
+              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-1.5 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${
                 view === item.id || (item.id === "projects" && view === "project") ? "text-canvas" : "bg-t1/[0.07] text-t2"
               }`}
             >
-              <Icon name={item.icon} size={14} />
+              <PlaceIcon place={item.id} size={20} />
               {item.label}
             </button>
           ))}
