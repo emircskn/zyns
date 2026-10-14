@@ -210,7 +210,8 @@ function ToolChip({ icon, label, onClick, text }: { icon: IconName; label: strin
 
 /** Cinema Studio's own picture model, first in the image composer's menu. */
 const SOUL_CINEMA = "hf-soul-cinema";
-const SOUL_LEAD = { label: "Soul Cinema", is: (id: string) => id === SOUL_CINEMA };
+// No image model takes a camera or lens of its own, Soul Cinema included: both are written into the prompt.
+const SOUL_LEAD = { label: "Soul Cinema · camera and lens go into the prompt", is: (id: string) => id === SOUL_CINEMA, note: "camera and lens go into the prompt" };
 
 /** The model the composer sends to, picked from those that fit the mode. */
 export function ModelChip({
