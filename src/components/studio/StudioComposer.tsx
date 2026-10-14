@@ -345,7 +345,7 @@ export function GenerateButton({
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
       className={`cta cta-lift flex shrink-0 items-center justify-center rounded-[12px] font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
-        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "min-h-[80px] w-[120px] flex-col gap-1 self-stretch text-[12px]"
+        wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "h-[80px] w-[120px] flex-col gap-1 text-[12px]"
       }`}
     >
       {busy ? (
@@ -607,8 +607,9 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           {cards.more.length > 0 && more && <Card icon="sliders" label="More" value={more.text} set={more.set} note={note} onClick={() => setDialog("more")} />}
         </div>
       )}
-      <div className="flex flex-col gap-1.5 md:flex-row">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3">
+      {/* On a desktop Generate sits inside the prompt's well, as Higgsfield's does. */}
+      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-[12px] md:bg-t1/[0.05] md:pr-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <StudioPrompt
@@ -954,12 +955,12 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   }
 
   // Higgsfield's two tiles beside the prompt: 80px high, the character's square, the camera's a little wider.
-  const tile = "relative flex min-h-[80px] max-md:h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
+  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row">
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3">
+    <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-2.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <StudioPrompt

@@ -98,7 +98,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               </h1>
               {/* Held at the image composer's height in both modes: the taller video one reaches
                   into the space below, so My projects stays put when the mode changes. */}
-              <div className="w-full max-w-[1040px] md:h-[170px]">{composer}</div>
+              <div className="w-full max-w-[1180px] md:h-[170px]">{composer}</div>
             </div>
             {/* Under the composer, the projects to go on with; the heading opens them all. */}
             <section className="mt-14 w-full md:mt-24 md:px-2">
@@ -134,7 +134,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
             {/* Docked at the page's foot, as on Higgsfield's own pages; a phone keeps it on Home.
                 A Trash is for bringing things back, and its bar takes the foot instead. */}
             {!inTrash && (
-              <div className="sticky bottom-4 z-30 mx-auto hidden w-full max-w-[1040px] pb-2 md:block">
+              <div className="sticky bottom-4 z-30 mx-auto hidden w-full max-w-[1180px] pb-2 md:block">
                 <div className="rounded-panel" style={{ boxShadow: "var(--shadow-bar)" }}>
                   {composer}
                 </div>
