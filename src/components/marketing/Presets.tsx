@@ -22,18 +22,20 @@ function typeIcon(type: string): "grid" | "box" | "monitor" | "image" | "video" 
 }
 
 /** A preset's card: its preview (a clip plays while hovered), its name and its kind. */
-export function PresetCard({ preset, active, onPick }: { preset: MarketingPreset; active?: boolean; onPick: () => void }) {
+export function PresetCard({ preset, active, onPick, locked }: { preset: MarketingPreset; active?: boolean; onPick: () => void; locked?: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   return (
     <button
       type="button"
-      onClick={onPick}
+      onClick={locked ? undefined : onPick}
+      aria-disabled={locked || undefined}
+      title={locked ? "This template only works on Higgsfield" : undefined}
       onMouseEnter={() => void video.current?.play().catch(() => {})}
       onMouseLeave={() => video.current?.pause()}
       aria-pressed={active}
-      className="group relative block w-full overflow-hidden rounded-card bg-t1/[0.05] text-left"
+      className={`group relative block w-full overflow-hidden rounded-card bg-t1/[0.05] text-left ${locked ? "cursor-not-allowed" : ""}`}
     >
-      <span className="block aspect-[4/5] w-full">
+      <span className={`block aspect-[4/5] w-full ${locked ? "opacity-40 grayscale" : ""}`}>
         {preset.preview && preset.previewKind === "video" ? (
           <video ref={video} src={preset.preview} muted loop playsInline preload="metadata" className="h-full w-full object-cover" />
         ) : preset.preview ? (
@@ -49,6 +51,12 @@ export function PresetCard({ preset, active, onPick }: { preset: MarketingPreset
         <span className="block truncate text-[12.5px] font-medium text-white">{preset.name}</span>
         <span className="block truncate text-[11px] text-white/70">{typeLabel(preset.type)}</span>
       </span>
+      {/* A template is Higgsfield's own preset: KIE has nothing that reads it. */}
+      {locked && (
+        <span className="pointer-events-none absolute inset-x-2 top-2 rounded-[8px] bg-black/70 px-2 py-1.5 text-center text-[11.5px] font-medium leading-snug text-white">
+          Bu template sadece Higgsfield’da çalışır
+        </span>
+      )}
       <span
         aria-hidden
         className={`pointer-events-none absolute inset-0 rounded-card ring-inset transition-shadow duration-[120ms] ${active ? "ring-2 ring-t1" : "ring-1 ring-line"}`}
@@ -77,6 +85,7 @@ export function PresetGrid({
   side?: boolean;
 }) {
   const hfKey = useStudio((s) => s.hfKey);
+  const locked = useStudio((s) => s.provider) !== "higgsfield";
   const { items, loading, error, done, loadMore } = usePresetCatalogue();
   const [type, setType] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -182,7 +191,7 @@ export function PresetGrid({
       {shown.length > 0 && (
         <div className={`grid gap-2 ${columns}`}>
           {shown.map((preset) => (
-            <PresetCard key={preset.id} preset={preset} active={preset.id === selected} onPick={() => onPick(preset)} />
+            <PresetCard key={preset.id} preset={preset} active={preset.id === selected} onPick={() => onPick(preset)} locked={locked} />
           ))}
         </div>
       )}
