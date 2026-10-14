@@ -60,7 +60,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       {/* Folds down to its icons and back, sliding its width as it goes. */}
       <aside
-        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
+        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-4 md:block md:h-[calc(100dvh-32px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
           folded ? "w-[64px]" : "w-[229px]"
         }`}
       >

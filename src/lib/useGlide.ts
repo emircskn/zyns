@@ -21,16 +21,26 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
   useLayoutEffect(() => {
     const node = root.current;
     if (!node) return;
-    const measure = () => {
+    let frame = 0;
+    const measure = (follow = false) => {
       const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
       if (!active) return setBox(null);
+      // A container being resized (a side menu folding) carries the item
+      // with it: the highlight goes along at once rather than gliding after.
+      if (follow) setSettled(false);
       setBox({ x: active.offsetLeft, y: active.offsetTop, w: active.offsetWidth, h: active.offsetHeight });
-      requestAnimationFrame(() => setSettled(true));
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setSettled(true));
     };
     measure();
-    const observer = new ResizeObserver(measure);
+    const observer = new ResizeObserver(() => measure(true));
     observer.observe(node);
-    return () => observer.disconnect();
+    const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
+    if (active) observer.observe(active);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [root, value, ...deps]);
 

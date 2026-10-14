@@ -230,14 +230,14 @@ export function FolderTree({
       {rows.map(({ folder, depth }) => {
         const on = at === folder.id;
         return (
-          <div key={folder.id} data-pill={folder.id} className="group relative shrink-0" style={{ marginLeft: folded ? 0 : depth * 14 }}>
+          <div key={folder.id} data-pill={folder.id} className={`group relative shrink-0 ${folded ? "mx-auto w-9" : ""}`} style={{ marginLeft: folded ? 0 : depth * 14 }}>
             <button
               type="button"
               onClick={() => onOpen(folder.id)}
               aria-current={on || undefined}
               aria-label={folded ? folder.name : undefined}
               title={folded ? folder.name : undefined}
-              className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "justify-center px-0" : "pl-1.5 pr-3"} ${
+              className={`relative flex h-9 items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
                 on ? "text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
               }`}
             >

@@ -6,6 +6,7 @@ import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/DensityControl";
 import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
+import { ZynsMark } from "@/components/Logo";
 import { AppIcon, PlaceIcon } from "@/components/AppIcon";
 import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
 import { SortMenu, sortBy, type SortKey } from "@/components/studio/SortMenu";
@@ -72,7 +73,7 @@ function NavRow({
       aria-current={on || undefined}
       aria-label={folded ? label : undefined}
       title={folded ? label : undefined}
-      className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "justify-center px-0" : "pl-1.5 pr-3"} ${
+      className={`relative flex h-9 items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 shrink-0 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
         on ? `${pill ? "" : "bg-t1/[0.1]"} text-t1` : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
@@ -104,6 +105,53 @@ function FoldButton() {
     >
       <Icon name="sidebar" size={17} />
     </button>
+  );
+}
+
+/**
+ * The head of the side menu, as Higgsfield's: Cinema Studio's own mark and
+ * name, opening a menu back out to the rest of ZYNS (the page has no top
+ * bar of its own while it fills the screen).
+ */
+function StudioSwitcher() {
+  const folded = useSideCollapsed();
+  const setPage = useStudio((s) => s.setPage);
+  return (
+    <Popover
+      width={220}
+      align="start"
+      trigger={(open) => (
+        <span
+          aria-label="Switch app"
+          title={folded ? "Cinema Studio" : undefined}
+          className={`flex h-9 items-center gap-2 rounded-[10px] transition-colors duration-[120ms] ${folded ? "w-9 justify-center" : "w-full pl-1.5 pr-2"} ${open ? "bg-t1/[0.1]" : "bg-t1/[0.05] hover:bg-t1/[0.08]"}`}
+        >
+          <AppIcon glyph="film" tone="lime" size={24} />
+          {!folded && (
+            <>
+              <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left text-[14.5px] font-semibold text-t1">Cinema Studio</span>
+              <Icon name="chevron" size={13} className={`text-t3 transition-transform duration-[160ms] ${open ? "rotate-180" : ""}`} />
+            </>
+          )}
+        </span>
+      )}
+    >
+      {(close) => (
+        <div className="flex flex-col">
+          <button
+            type="button"
+            onClick={() => {
+              close();
+              setPage("home");
+            }}
+            className="flex h-10 items-center gap-2.5 rounded-[8px] px-2 text-left text-[14px] font-semibold text-t1 hover:bg-t1/[0.06]"
+          >
+            <ZynsMark size={22} />
+            ZYNS
+          </button>
+        </div>
+      )}
+    </Popover>
   );
 }
 
@@ -155,8 +203,10 @@ export function StudioSidebar() {
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
       <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
-      <div className="flex items-center gap-1 pb-1">
-        {!folded && <p className="min-w-0 flex-1 truncate whitespace-nowrap px-2 text-[15px] font-semibold tracking-[-0.01em] text-t1">Cinema Studio</p>}
+      <div className={`flex gap-1 pb-1 ${folded ? "flex-col items-center" : "items-center"}`}>
+        <div className={folded ? "" : "min-w-0 flex-1"}>
+          <StudioSwitcher />
+        </div>
         <FoldButton />
       </div>
       {STUDIO_NAV.map((item) => (
