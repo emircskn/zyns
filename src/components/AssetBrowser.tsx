@@ -3,7 +3,6 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { VideoMark } from "@/components/VideoMark";
-import { AppIcon } from "@/components/AppIcon";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { TileExtras } from "@/lib/tileExtras";
@@ -252,10 +251,9 @@ function AssetTile({
                           extras.onFolder!(asset.url, folder.id || undefined);
                           close();
                         }}
-                        className="flex items-center gap-2.5 rounded-chip px-2 py-1.5 text-left text-[13px] text-t2 hover:bg-t1/[0.06] hover:text-t1"
+                        className="flex items-center justify-between rounded-chip px-2.5 py-2 text-left text-[13px] text-t2 hover:bg-t1/[0.06] hover:text-t1"
                       >
-                        {folder.id ? <AppIcon glyph="folder" tone="amber" color={"color" in folder ? folder.color : undefined} size={20} /> : <AppIcon glyph="grid" tone="grey" size={20} />}
-                        <span className="min-w-0 flex-1 truncate">{folder.name}</span>
+                        {folder.name}
                         {(asset.folderId ?? "") === folder.id && <Icon name="check" size={14} />}
                       </button>
                     ))}

@@ -11,7 +11,7 @@ export interface TileExtrasValue {
   onReference?: (url: string) => void;
   /** Delete puts it in the Trash, to restore later. */
   trash?: boolean;
-  folders?: Array<{ id: string; name: string; color?: string }>;
+  folders?: Array<{ id: string; name: string }>;
   onFolder?: (url: string, folderId: string | undefined) => void;
 }
 export const TileExtras = createContext<TileExtrasValue | null>(null);

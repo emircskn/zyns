@@ -3,14 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { SidePanel, canHover } from "@/components/SidePanel";
 import { Icon, type IconName } from "@/components/Icon";
-import { AppIcon } from "@/components/AppIcon";
 import { Popover } from "@/components/Popover";
 import { useNewFolder } from "@/lib/newProject";
 import { FOLDER_COLORS, folderAndInside, useStudio, type Project, type ProjectFolder } from "@/store/studio";
 
-/** A folder's mark: a lit folder tile in its own colour; one holding folders of its own shows two. */
-export function FolderMark({ color, nested, size = 24 }: { color?: string; nested?: boolean; size?: number }) {
-  return <AppIcon glyph={nested ? "folders" : "folder"} tone="amber" color={color} size={size} />;
+/** A folder's mark: its folder icon in its own colour. */
+export function FolderMark({ color, size = "h-6 w-6" }: { color?: string; size?: string }) {
+  return (
+    <span
+      className={`grid ${size} shrink-0 place-items-center rounded-[8px] ${color ? "" : "bg-t1/[0.07]"}`}
+      style={color ? { backgroundColor: `${color}26`, color } : undefined}
+    >
+      <Icon name="folder" size={13} />
+    </span>
+  );
 }
 
 /** The folders in reading order (none from the Trash): each one followed by the ones inside it. */
@@ -224,7 +230,7 @@ export function FolderTree({
                 on ? "text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
               }`}
             >
-              <FolderMark color={folder.color} nested={rows.some((r) => r.folder.parentId === folder.id)} />
+              <FolderMark color={folder.color} />
               <span className="min-w-0 flex-1 truncate pr-12">{folder.name}</span>
               <span className="absolute right-3 font-mono text-[11.5px] text-t4 transition-opacity duration-[120ms] group-focus-within:opacity-0 group-hover:opacity-0 group-has-[[aria-expanded=true]]:opacity-0 pointer-coarse:opacity-0">
                 {count(folder.id)}
