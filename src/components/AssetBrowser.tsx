@@ -142,7 +142,7 @@ function AssetTile({
         type="button"
         onClick={picking ? onPick : onOpen}
         // The tile's corners go along when a press shrinks the picture.
-        className={`block w-full cursor-zoom-in overflow-hidden rounded-[inherit] ${box ? "h-full" : square ? "aspect-square" : ""}`}
+        className={`relative block w-full cursor-zoom-in overflow-hidden rounded-[inherit] ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -170,6 +170,12 @@ function AssetTile({
               source={asset.source === "upload" ? "Upload" : asset.label}
               compact={square}
             />
+          </span>
+        )}
+        {/* A clip says so: on a still frame it reads as a picture otherwise. */}
+        {asset.kind === "video" && (
+          <span className={`pointer-events-none absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm ${square ? "h-8 w-8" : "h-10 w-10"}`}>
+            <Icon name="play" size={square ? 13 : 16} fill="currentColor" />
           </span>
         )}
       </button>
