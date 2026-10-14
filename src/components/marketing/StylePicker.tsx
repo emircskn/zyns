@@ -62,7 +62,7 @@ export function StylePicker({
 
   if (!mounted || typeof document === "undefined") return null;
   const needle = query.trim().toLowerCase();
-  const shown = MARKETING_STYLES.filter((x) => (needle ? x.name.toLowerCase().includes(needle) : x.category === category));
+  const shown = MARKETING_STYLES.filter((x) => x.only !== "template" && (needle ? x.name.toLowerCase().includes(needle) : x.category === category));
   const label = STYLE_CATEGORIES.find((c) => c.id === category)?.label ?? "";
 
   return createPortal(
@@ -147,8 +147,9 @@ export function StylePicker({
  */
 export function OwnTemplateGrid({ selected, onPick }: { selected: string | null; onPick: (id: string | null) => void }) {
   const [category, setCategory] = useState<StyleCategory | "all">("all");
-  const kinds = STYLE_CATEGORIES.filter((c) => c.group === "image" && MARKETING_STYLES.some((x) => x.category === c.id));
-  const shown = MARKETING_STYLES.filter((x) => category === "all" || x.category === category);
+  const own = MARKETING_STYLES.filter((x) => x.only !== "style");
+  const kinds = STYLE_CATEGORIES.filter((c) => c.group === "image" && own.some((x) => x.category === c.id));
+  const shown = own.filter((x) => category === "all" || x.category === category);
   const chip = (id: StyleCategory | "all", label: string, icon: Parameters<typeof Icon>[0]["name"]) => (
     <button
       key={id}
