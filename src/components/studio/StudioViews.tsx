@@ -129,16 +129,20 @@ function StudioSwitcher({ open, setOpen }: { open: boolean; setOpen: (fn: (open:
         <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left text-[14.5px] font-semibold text-t1">Cinema Studio</span>
         <Icon name="chevron" size={13} className={`text-t3 transition-transform duration-[160ms] ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && (
-        <button
-          type="button"
-          onClick={() => setPage("home")}
-          className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 text-left text-[14px] font-semibold text-t3 hover:text-t1"
-        >
-          <ZynsMark size={22} />
-          ZYNS
-        </button>
-      )}
+      {/* Slides open under the name and fades in, rather than appearing at once. */}
+      <div className={`grid transition-[grid-template-rows,opacity] duration-[220ms] ease-[var(--ease)] ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+        <div className="overflow-hidden">
+          <button
+            type="button"
+            tabIndex={open ? 0 : -1}
+            onClick={() => setPage("home")}
+            className="flex h-9 w-full items-center gap-2 rounded-[10px] pl-1.5 pr-2 text-left text-[14px] font-semibold text-t3 hover:text-t1"
+          >
+            <ZynsMark size={22} />
+            ZYNS
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

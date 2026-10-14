@@ -14,6 +14,9 @@ export interface GlideBox {
  * indicator can glide to it. The first measurement lands without motion;
  * every later one is allowed to animate.
  */
+/** The transitions that move things about, as against a colour fading. */
+const LAYOUT = new Set(["grid-template-rows", "height", "max-height", "width"]);
+
 export function useGlide(root: RefObject<HTMLElement | null>, value: string, deps: unknown[] = []) {
   const [box, setBox] = useState<GlideBox | null>(null);
   const [settled, setSettled] = useState(false);
@@ -40,7 +43,31 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
     observer.observe(node);
     const active = node.querySelector<HTMLElement>(`[data-pill="${CSS.escape(value)}"]`);
     if (active) observer.observe(active);
+    // Something above the item that animates its height (a menu opening in
+    // place) moves it without resizing anything: follow it frame by frame.
+    let tracking = 0;
+    const shaping = (event: Event) =>
+      LAYOUT.has((event as TransitionEvent).propertyName) && !(event.target as HTMLElement).closest("[data-glide]");
+    const follow = (event: Event) => {
+      if (!shaping(event)) return;
+      cancelAnimationFrame(tracking);
+      const step = () => {
+        measure(true);
+        tracking = requestAnimationFrame(step);
+      };
+      step();
+    };
+    const stop = (event: Event) => {
+      if (!shaping(event)) return;
+      cancelAnimationFrame(tracking);
+      measure(true);
+    };
+    node.addEventListener("transitionstart", follow);
+    node.addEventListener("transitionend", stop);
     return () => {
+      node.removeEventListener("transitionstart", follow);
+      node.removeEventListener("transitionend", stop);
+      cancelAnimationFrame(tracking);
       observer.disconnect();
       cancelAnimationFrame(frame);
     };

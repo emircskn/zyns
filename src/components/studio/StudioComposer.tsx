@@ -1039,12 +1039,13 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 to-transparent" />
             </>
           ) : (
-            <span className="absolute left-1/2 top-1.5 -translate-x-1/2">
-              <CardArt kind="camera" size={34} />
+            // As Higgsfield's: a small lens in the corner while no camera is chosen.
+            <span className="absolute right-2 top-2 overflow-hidden rounded-full">
+              <CardArt kind="camera" size={24} />
             </span>
           )}
-          <span className="relative block max-w-full truncate text-[11.5px] font-semibold leading-tight text-t1">{bodyLabel ?? "Auto"}</span>
-          <span className="relative block max-w-full truncate text-[10px] leading-tight text-t3">{lensLabel ?? "Auto"}</span>
+          <span className="relative block max-w-full truncate text-[12px] font-semibold leading-tight text-t1">{bodyLabel ?? "Camera"}</span>
+          <span className="relative block max-w-full truncate text-[10.5px] leading-tight text-t3">{lensLabel ?? "Lens · Auto"}</span>
         </button>
       </div>
       <div className="flex max-md:hidden">
