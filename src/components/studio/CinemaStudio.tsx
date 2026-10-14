@@ -10,6 +10,7 @@ import { StudioComposer, useStudioUi } from "@/components/studio/StudioComposer"
 import { GenerationsView, ProjectGrid, ProjectView, ProjectsView, STUDIO_NAV, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { useStudio, type StudioView } from "@/store/studio";
 import { PlaceIcon } from "@/components/AppIcon";
+import { SideCollapsed } from "@/components/studio/sideCollapse";
 
 /** The side menu's pages as a phone's chips, with the same icons. */
 const PHONE_NAV: Array<{ id: StudioView; label: string; icon: IconName }> = [
@@ -32,6 +33,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const setActiveProject = useStudio((s) => s.setActiveProject);
   const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
   const view = studio.view === "project" && !project ? "projects" : studio.view;
+  const folded = !!studio.sideCollapsed;
   const inTrash = view === "trash" || (view === "project" && studio.folderId === "trash");
 
   // Inside a project, what is made is saved to it.
@@ -56,8 +58,15 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
-      <aside className="hidden w-[229px] shrink-0 md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated">
-        <StudioSidebar />
+      {/* Folds down to its icons and back, sliding its width as it goes. */}
+      <aside
+        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
+          folded ? "w-[64px]" : "w-[229px]"
+        }`}
+      >
+        <SideCollapsed.Provider value={folded}>
+          <StudioSidebar />
+        </SideCollapsed.Provider>
       </aside>
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
       <PhoneSubnav>

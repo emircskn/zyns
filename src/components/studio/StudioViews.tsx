@@ -7,6 +7,8 @@ import { DensitySlider, PhoneGridToggle, SelectToggle } from "@/components/Densi
 import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
 import { AppIcon, PlaceIcon } from "@/components/AppIcon";
+import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
+import { SortMenu, sortBy, type SortKey } from "@/components/studio/SortMenu";
 import { Popover } from "@/components/Popover";
 import { inFlight, pendingAsset, runAssets, uploadAsset, useAssets, type Asset } from "@/lib/assets";
 import { AssetBrowser } from "@/components/AssetBrowser";
@@ -61,13 +63,16 @@ function NavRow({
   /** Its id for the menu's sliding highlight, which then draws the chosen one's ground. */
   pill?: string;
 }) {
+  const folded = useSideCollapsed();
   return (
     <button
       type="button"
       onClick={onClick}
       data-pill={pill}
       aria-current={on || undefined}
-      className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 pl-1.5 pr-3 text-left text-[14px] font-medium transition-colors duration-[200ms] ${
+      aria-label={folded ? label : undefined}
+      title={folded ? label : undefined}
+      className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "justify-center px-0" : "pl-1.5 pr-3"} ${
         on ? `${pill ? "" : "bg-t1/[0.1]"} text-t1` : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
@@ -78,9 +83,39 @@ function NavRow({
       ) : (
         icon
       )}
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      {trailing}
+      {!folded && <span className="min-w-0 flex-1 truncate whitespace-nowrap">{label}</span>}
+      {!folded && trailing}
     </button>
+  );
+}
+
+/** Folds the side menu down to its icons, and opens it out again. */
+function FoldButton() {
+  const folded = useSideCollapsed();
+  const patchStudio = useStudio((s) => s.patchStudio);
+  const label = folded ? "Expand menu" : "Collapse menu";
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={() => patchStudio((st) => ({ sideCollapsed: !st.sideCollapsed }))}
+      className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.07] hover:text-t1 ${folded ? "mx-auto" : ""}`}
+    >
+      <Icon name="sidebar" size={17} />
+    </button>
+  );
+}
+
+/** A heading in the side menu; a thin rule once it is folded to its icons. */
+function SideHeading({ label, children }: { label: string; children?: ReactNode }) {
+  const folded = useSideCollapsed();
+  if (folded) return <div aria-hidden className="mx-auto mb-1 mt-3 h-px w-6 shrink-0 bg-line" />;
+  return (
+    <div className="mt-4 flex items-center justify-between px-2 pb-1">
+      <span className="text-[12px] font-medium text-t3">{label}</span>
+      <span className="flex gap-0.5">{children}</span>
+    </div>
   );
 }
 
@@ -101,34 +136,39 @@ export function StudioSidebar() {
   const askNewProject = useNewProject((s) => s.ask);
   const [q, setQ] = useState("");
   const [looking, setLooking] = useState(false);
-  const [byName, setByName] = useState(false);
+  const [sort, setSort] = useState<SortKey>("last");
+  const runs = useStudio((s) => s.runs);
+  const uploads = useStudio((s) => s.uploads);
+  // A project last changed when the newest thing was made or uploaded into it.
+  const changed = (p: Project) =>
+    Math.max(p.createdAt, ...runs.filter((r) => r.projectId === p.id).map((r) => r.createdAt), ...uploads.filter((u) => u.projectId === p.id).map((u) => u.createdAt ?? 0));
+  const order = sortBy<Project>(sort, (p) => ({ name: p.name, created: p.createdAt, changed: changed(p) }));
   const shown = projects
     .filter((p) => !q.trim() || p.name.toLowerCase().includes(q.trim().toLowerCase()))
-    .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || (byName ? a.name.localeCompare(b.name) : b.createdAt - a.createdAt))
+    .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || order(a, b))
     .slice(0, 8);
 
   const menu = useRef<HTMLDivElement>(null);
+  const folded = useSideCollapsed();
   if (studio.view === "project" && studio.projectId) return <ProjectSidebar />;
 
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" />
-      <p className="px-2 pb-1.5 pt-1 text-[15px] font-semibold tracking-[-0.01em] text-t1">Cinema Studio</p>
+      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
+      <div className="flex items-center gap-1 pb-1">
+        {!folded && <p className="min-w-0 flex-1 truncate whitespace-nowrap px-2 text-[15px] font-semibold tracking-[-0.01em] text-t1">Cinema Studio</p>}
+        <FoldButton />
+      </div>
       {STUDIO_NAV.map((item) => (
         <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.id} />} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
       ))}
-      <div className="mt-4 flex items-center justify-between px-2 pb-1">
-        <span className="text-[12px] font-medium text-t3">Projects</span>
-        <span className="flex gap-0.5">
-          <button type="button" aria-label="Search projects" onClick={() => setLooking((l) => !l)} className="grid h-6 w-6 place-items-center rounded-full text-t3 hover:text-t1">
-            <Icon name="search" size={13} />
-          </button>
-          <button type="button" aria-label={byName ? "Sort by newest" : "Sort by name"} onClick={() => setByName((b) => !b)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${byName ? "text-t1" : "text-t3"}`}>
-            <Icon name="sort" size={13} />
-          </button>
-        </span>
-      </div>
-      {looking && (
+      <SideHeading label="Projects">
+        <button type="button" aria-label="Search projects" onClick={() => setLooking((l) => !l)} className="grid h-6 w-6 place-items-center rounded-full text-t3 hover:text-t1">
+          <Icon name="search" size={13} />
+        </button>
+        <SortMenu value={sort} onChange={setSort} label="Sort projects" />
+      </SideHeading>
+      {looking && !folded && (
         <input
           autoFocus
           value={q}
@@ -155,7 +195,7 @@ export function StudioSidebar() {
                 </span>
               }
             />
-            <span className="absolute right-1 top-1/2 -translate-y-1/2">
+            <span className={`absolute right-1 top-1/2 -translate-y-1/2 ${folded ? "hidden" : ""}`}>
               <ProjectMenuButton
                 project={project}
                 className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
@@ -188,8 +228,9 @@ function ProjectSidebar() {
   const askFolder = useNewFolder((s) => s.ask);
   const [q, setQ] = useState("");
   const [looking, setLooking] = useState(false);
-  const [byName, setByName] = useState(false);
+  const [sort, setSort] = useState<SortKey>("first");
   const menu = useRef<HTMLDivElement>(null);
+  const folded = useSideCollapsed();
   if (!project) return null;
 
   const inProject = (x: { projectId?: string; trashedAt?: number }) => x.projectId === project.id && !x.trashedAt;
@@ -204,7 +245,9 @@ function ProjectSidebar() {
   const go = (folderId: string) => patchStudio({ folderId });
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, byName]} />
+      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, sort, folded]} />
+      {folded && <FoldButton />}
+      <div className="flex items-center gap-1">
       <NavRow
         icon={<PlaceIcon place="back" />}
         label="Back"
@@ -214,6 +257,13 @@ function ProjectSidebar() {
           patchStudio({ view: "home" });
         }}
       />
+      {!folded && <FoldButton />}
+      </div>
+      {folded ? (
+        <div className="flex justify-center pb-1 pt-1" title={project.name}>
+          <CoverThumb project={project} size="h-8 w-8 rounded-[10px]" />
+        </div>
+      ) : (
       <div className="flex items-center gap-2 px-2 pb-2 pt-2">
         <CoverThumb project={project} size="h-8 w-8 rounded-[10px]" />
         <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-t1">{project.name}</p>
@@ -239,21 +289,17 @@ function ProjectSidebar() {
           )}
         </Popover>
       </div>
+      )}
       <NavRow pill="brief" icon={<PlaceIcon place="brief" />} label="Project brief" on={at === "brief"} onClick={() => go("brief")} />
       <NavRow pill="settings" icon={<PlaceIcon place="settings" />} label="Settings" on={at === "settings"} onClick={() => go("settings")} />
       <NavRow pill="elements" icon={<PlaceIcon place="elements" />} label="Elements" on={at === "elements"} onClick={() => go("elements")} />
-      <div className="mt-4 flex items-center justify-between px-2 pb-1">
-        <span className="text-[12px] font-medium text-t3">Folders</span>
-        <span className="flex gap-0.5">
-          <button type="button" aria-label="Search folders" onClick={() => setLooking((l) => !l)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${looking ? "text-t1" : "text-t3"}`}>
-            <Icon name="search" size={13} />
-          </button>
-          <button type="button" aria-label={byName ? "Sort folders by newest" : "Sort folders by name"} onClick={() => setByName((b) => !b)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${byName ? "text-t1" : "text-t3"}`}>
-            <Icon name="sort" size={13} />
-          </button>
-        </span>
-      </div>
-      {looking && (
+      <SideHeading label="Folders">
+        <button type="button" aria-label="Search folders" onClick={() => setLooking((l) => !l)} className={`grid h-6 w-6 place-items-center rounded-full hover:text-t1 ${looking ? "text-t1" : "text-t3"}`}>
+          <Icon name="search" size={13} />
+        </button>
+        <SortMenu value={sort} onChange={setSort} label="Sort folders" />
+      </SideHeading>
+      {looking && !folded && (
         <input
           autoFocus
           value={q}
@@ -271,8 +317,8 @@ function ProjectSidebar() {
         trailing={<span className="font-mono text-[11.5px] text-t4">{all}</span>}
       />
       {/* The folders hang under All assets, as its parts. */}
-      <div className="no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pl-3">
-        <FolderTree project={project} at={at} onOpen={go} count={inFolder} q={q} byName={byName} />
+      <div className={`no-bar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto ${folded ? "" : "pl-3"}`}>
+        <FolderTree project={project} at={at} onOpen={go} count={inFolder} q={folded ? "" : q} sort={sort} />
         <NavRow
           icon={<PlaceIcon place="add" />}
           label="Add folder"

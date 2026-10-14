@@ -246,6 +246,8 @@ export interface StudioUi {
   character: string | null;
   imageCamera: string;
   imageLens: string;
+  /** The side menu folded down to its icons. */
+  sideCollapsed?: boolean;
 }
 
 export const EMPTY_STUDIO: StudioUi = {

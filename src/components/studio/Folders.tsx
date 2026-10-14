@@ -6,6 +6,8 @@ import { Icon, type IconName } from "@/components/Icon";
 import { AppIcon } from "@/components/AppIcon";
 import { Popover } from "@/components/Popover";
 import { useNewFolder } from "@/lib/newProject";
+import { sortBy, type SortKey } from "@/components/studio/SortMenu";
+import { useSideCollapsed } from "@/components/studio/sideCollapse";
 import { FOLDER_COLORS, folderAndInside, useStudio, type Project, type ProjectFolder } from "@/store/studio";
 
 /** A folder's mark: a lit folder tile in its own colour; one holding folders of its own shows two. */
@@ -14,11 +16,18 @@ export function FolderMark({ color, nested, size = 24 }: { color?: string; neste
 }
 
 /** The folders in reading order (none from the Trash): each one followed by the ones inside it. */
-export function folderRows(all: ProjectFolder[], byName = false): Array<{ folder: ProjectFolder; depth: number }> {
+export function folderRows(
+  all: ProjectFolder[],
+  sort: SortKey = "first",
+  changed: (folder: ProjectFolder) => number = (f) => f.createdAt ?? 0,
+): Array<{ folder: ProjectFolder; depth: number }> {
   // What is in the Trash is left out, and so is what is inside it.
   const folders = all.filter((f) => !f.trashedAt);
   const ids = new Set(folders.map((f) => f.id));
-  const order = (list: ProjectFolder[]) => (byName ? [...list].sort((a, b) => a.name.localeCompare(b.name)) : list);
+  // Folders made before they kept a date stay in the order they were made in.
+  const made = new Map(folders.map((f, i) => [f.id, f.createdAt ?? i]));
+  const compare = sortBy<ProjectFolder>(sort, (f) => ({ name: f.name, created: made.get(f.id) ?? 0, changed: Math.max(made.get(f.id) ?? 0, changed(f)) }));
+  const order = (list: ProjectFolder[]) => [...list].sort(compare);
   const out: Array<{ folder: ProjectFolder; depth: number }> = [];
   const walk = (parent: string | undefined, depth: number) => {
     for (const folder of order(folders.filter((f) => (f.parentId && ids.has(f.parentId) ? f.parentId : undefined) === parent))) {
@@ -190,22 +199,28 @@ export function FolderTree({
   onOpen,
   count,
   q,
-  byName,
+  sort,
 }: {
   project: Project;
   at: string;
   onOpen: (id: string) => void;
   count: (id: string) => number;
   q: string;
-  byName: boolean;
+  sort: SortKey;
 }) {
   const ask = useNewFolder((s) => s.ask);
   const folders = project.folders ?? [];
   const needle = q.trim().toLowerCase();
+  const folded = useSideCollapsed();
+  const runs = useStudio((s) => s.runs);
+  const uploads = useStudio((s) => s.uploads);
+  // A folder last changed when the newest thing landed in it.
+  const changed = (f: ProjectFolder) =>
+    Math.max(0, ...runs.filter((r) => r.projectId === project.id && r.folderId === f.id).map((r) => r.createdAt), ...uploads.filter((u) => u.projectId === project.id && u.folderId === f.id).map((u) => u.createdAt ?? 0));
   // A search lists what matches, flat; otherwise the folders nest.
   const rows = needle
-    ? folderRows(folders, byName).filter(({ folder }) => folder.name.toLowerCase().includes(needle)).map(({ folder }) => ({ folder, depth: 0 }))
-    : folderRows(folders, byName);
+    ? folderRows(folders, sort, changed).filter(({ folder }) => folder.name.toLowerCase().includes(needle)).map(({ folder }) => ({ folder, depth: 0 }))
+    : folderRows(folders, sort, changed);
   // Shown on hover, while its menu is open, and always where there is no hover.
   const hoverOnly =
     "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-has-[[aria-expanded=true]]:opacity-100 pointer-coarse:opacity-100";
@@ -215,22 +230,24 @@ export function FolderTree({
       {rows.map(({ folder, depth }) => {
         const on = at === folder.id;
         return (
-          <div key={folder.id} data-pill={folder.id} className="group relative shrink-0" style={{ marginLeft: depth * 14 }}>
+          <div key={folder.id} data-pill={folder.id} className="group relative shrink-0" style={{ marginLeft: folded ? 0 : depth * 14 }}>
             <button
               type="button"
               onClick={() => onOpen(folder.id)}
               aria-current={on || undefined}
-              className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 pl-1.5 pr-3 text-left text-[14px] font-medium transition-colors duration-[200ms] ${
+              aria-label={folded ? folder.name : undefined}
+              title={folded ? folder.name : undefined}
+              className={`relative flex h-9 w-full items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "justify-center px-0" : "pl-1.5 pr-3"} ${
                 on ? "text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
               }`}
             >
               <FolderMark color={folder.color} nested={rows.some((r) => r.folder.parentId === folder.id)} />
-              <span className="min-w-0 flex-1 truncate pr-12">{folder.name}</span>
-              <span className="absolute right-3 font-mono text-[11.5px] text-t4 transition-opacity duration-[120ms] group-focus-within:opacity-0 group-hover:opacity-0 group-has-[[aria-expanded=true]]:opacity-0 pointer-coarse:opacity-0">
+              {!folded && <span className="min-w-0 flex-1 truncate whitespace-nowrap pr-12">{folder.name}</span>}
+              <span className={`absolute right-3 font-mono text-[11.5px] text-t4 transition-opacity duration-[120ms] group-focus-within:opacity-0 group-hover:opacity-0 group-has-[[aria-expanded=true]]:opacity-0 pointer-coarse:opacity-0 ${folded ? "hidden" : ""}`}>
                 {count(folder.id)}
               </span>
             </button>
-            <span className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center">
+            <span className={`absolute right-1 top-1/2 flex -translate-y-1/2 items-center ${folded ? "hidden" : ""}`}>
               <button
                 type="button"
                 aria-label={`Add a folder in ${folder.name}`}
