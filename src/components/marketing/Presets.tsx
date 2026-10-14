@@ -47,7 +47,7 @@ export function PresetCard({ preset, active, onPick, locked }: { preset: Marketi
           </span>
         )}
       </span>
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2.5 pb-2 pt-8">
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2.5 pb-2.5 pt-12">
         <span className="block truncate text-[12.5px] font-medium text-white">{preset.name}</span>
         <span className="block truncate text-[11px] text-white/70">{typeLabel(preset.type)}</span>
       </span>

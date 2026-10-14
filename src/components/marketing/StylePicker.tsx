@@ -10,7 +10,7 @@ import { usePresence } from "@/lib/usePresence";
 export function StyleCard({ id, name, on, onPick }: { id: string; name: string; on: boolean; onPick: () => void }) {
   const [missing, setMissing] = useState(false);
   return (
-    <button type="button" onClick={onPick} aria-pressed={on} className="flex flex-col gap-2 text-left">
+    <button type="button" onClick={onPick} aria-pressed={on} className="block text-left">
       <span className={`relative block aspect-[3/4] overflow-hidden rounded-[14px] bg-t1/[0.06] ${on ? "ring-2 ring-accent" : "ring-1 ring-inset ring-edge"}`}>
         {!missing ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -20,8 +20,11 @@ export function StyleCard({ id, name, on, onPick }: { id: string; name: string; 
             <Icon name="image" size={22} />
           </span>
         )}
+        {/* The name on the picture, over a soft dark fade, as Higgsfield's templates. */}
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2.5 pb-2.5 pt-12">
+          <span className="block truncate text-[13px] font-semibold text-white">{name}</span>
+        </span>
       </span>
-      <span className="truncate text-[13px] font-semibold text-t1">{name}</span>
     </button>
   );
 }
