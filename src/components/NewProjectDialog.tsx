@@ -53,7 +53,8 @@ export function NewProjectDialog() {
       close();
       return;
     }
-    const project = addProject(name, visibility);
+    // Made from Marketing Studio, it is one of its projects.
+    const project = addProject(name, visibility, useStudio.getState().page === "marketing" ? "marketing" : undefined);
     close();
     onCreated?.(project);
   };

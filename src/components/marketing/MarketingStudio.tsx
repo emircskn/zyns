@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useRef } from "react";
-import { Gallery } from "@/components/Gallery";
-import { GlideMark } from "@/components/GlideMark";
-import { AppIcon, PlaceIcon } from "@/components/AppIcon";
-import { FoldButton, NavRow, SideHeading } from "@/components/studio/StudioViews";
+import { PlaceIcon } from "@/components/AppIcon";
+import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
+import { StudioNav, type StudioNavValue } from "@/components/studio/studioNav";
 import { ModeSwitch } from "@/components/studio/StudioComposer";
-import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
+import { SideCollapsed } from "@/components/studio/sideCollapse";
 import { Icon } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { Chip } from "@/components/PromptBar";
@@ -15,16 +14,13 @@ import { isMarketingModel, MarketingComposer, marketingModels, useMarketing } fr
 import { PresetGrid } from "@/components/marketing/Presets";
 import { ProductLink } from "@/components/marketing/ProductLink";
 import { RecipeComposer } from "@/components/recipes/RecipeComposer";
-import { RecipeRuns } from "@/components/recipes/RecipeRuns";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { inUse } from "@/lib/elements";
-import type { MarketingView } from "@/lib/marketing/types";
+import type { MarketingUi, MarketingView } from "@/lib/marketing/types";
 import { mediaSrc } from "@/lib/storage/client";
 import { MARKETING_RECIPES } from "@/recipes";
 import { useStudio, type Run } from "@/store/studio";
 
-/** Made here: its gallery is these runs alone. Module-level, so the gallery's memo holds. */
-const madeHere = (run: Run) => !!run.marketing;
 
 
 /** The products in the library: each one's cover, to use as the product or to open. */
@@ -83,32 +79,6 @@ const TOOL_NAV: Array<{ id: MarketingView; label: string; place: string }> = [
   { id: "product-link", label: "Product Link", place: "productLink" },
 ];
 
-/** The side menu, as Cinema Studio's: its pages, then its tools. */
-function MarketingSidebar({ view, onView }: { view: MarketingView; onView: (view: MarketingView) => void }) {
-  const folded = useSideCollapsed();
-  return (
-    <div className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
-      <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
-        {!folded && (
-          <div className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-t1/[0.05] pl-1.5 pr-2">
-            <AppIcon glyph="box" tone="lime" size={24} />
-            <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">Marketing Studio</span>
-          </div>
-        )}
-        <FoldButton />
-      </div>
-      {NAV.map((item) => (
-        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={view === item.id} onClick={() => onView(item.id)} />
-      ))}
-      <SideHeading label="Tools" />
-      {TOOL_NAV.map((item) => (
-        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={view === item.id} onClick={() => onView(item.id)} />
-      ))}
-    </div>
-  );
-}
-
 /**
  * Marketing Studio, laid out as Cinema Studio is: a side menu of its pages
  * and tools, and beside it the page chosen there. Home is a large title over
@@ -122,12 +92,20 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const provider = useStudio((s) => s.provider);
   const hydrated = useStudio((s) => s.hydrated);
   const folded = useStudio((s) => !!s.studio.sideCollapsed);
-  const favorites = useStudio((s) => s.favorites);
+  const recipeRuns = useStudio((s) => s.recipeRuns);
   const top = useRef<HTMLDivElement>(null);
   const recipe = MARKETING_RECIPES.find((r) => r.id === ui.recipeId) ?? MARKETING_RECIPES[0];
   const video = ui.mode === "video";
   const view = ui.view ?? "home";
-  const liked = useCallback((run: Run) => !!run.marketing && run.urls.some((u) => favorites.includes(u)), [favorites]);
+  // What Marketing Studio made: its pictures, and every step of its video recipes.
+  const owns = useCallback(
+    (run: Run) => !!run.marketing || (!!run.recipeRunId && MARKETING_RECIPES.some((r) => r.id === recipeRuns.find((x) => x.id === run.recipeRunId)?.recipeId)),
+    [recipeRuns],
+  );
+  const nav = useMemo<StudioNavValue>(
+    () => ({ ui: { view, projectId: ui.projectId, folderId: ui.folderId }, patch: (p) => patch(p as Partial<MarketingUi>), owns, name: "Marketing Studio", app: "marketing" }),
+    [view, ui.projectId, ui.folderId, patch, owns],
+  );
 
   // What was sent shows at once, among what was made here.
   const showMade = () => patch({ view: "generations" });
@@ -208,9 +186,15 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
       </div>
     ) : view === "generations" ? (
-      video ? hydrated && <RecipeRuns recipe={recipe} /> : <Gallery filter={madeHere} />
+      <GenerationsView />
     ) : view === "favorites" ? (
-      <Gallery filter={liked} />
+      <GenerationsView favoritesOnly />
+    ) : view === "projects" ? (
+      <ProjectsView />
+    ) : view === "project" ? (
+      <ProjectView />
+    ) : view === "trash" ? (
+      <StudioTrash />
     ) : view === "products" ? (
       <div className="px-4 pb-8 pt-4 md:px-1">
         <Products
@@ -241,6 +225,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
     );
 
   return (
+    <StudioNav.Provider value={nav}>
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       <aside
         className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
@@ -248,16 +233,44 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
         }`}
       >
         <SideCollapsed.Provider value={folded}>
-          <MarketingSidebar view={view} onView={(next) => patch({ view: next })} />
+          <StudioSidebar
+            items={NAV}
+            glyph="box"
+            extra={
+              <>
+                <SideHeading label="Tools" />
+                {TOOL_NAV.map((item) => (
+                  <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={view === item.id} onClick={() => patch({ view: item.id })} />
+                ))}
+              </>
+            }
+          />
         </SideCollapsed.Provider>
       </aside>
       {/* A phone has no side menu: the pages are a row of tabs. */}
       <div className="no-bar overflow-x-auto px-4 pb-1 pt-2 md:hidden">
-        <PillGroup plain value={view} onChange={(next) => patch({ view: next })} items={[...NAV, ...TOOL_NAV].map(({ id, label }) => ({ id, label }))} />
+        <PillGroup
+          plain
+          value={view === "project" ? "projects" : view}
+          onChange={(next) => patch({ view: next })}
+          items={[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects" }, { id: "trash" as MarketingView, label: "Trash" }].map(({ id, label }) => ({ id, label }))}
+        />
       </div>
       <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
         {page}
+        {/* Docked at the foot of what it fills, as Cinema Studio's: a phone keeps it on Home. */}
+        {(view === "generations" || view === "favorites" || view === "project") && (
+          <div className="sticky bottom-4 z-30 mx-auto mt-auto hidden w-full max-w-[1180px] pb-2 md:block">
+            <div className="flex gap-2 rounded-panel" style={{ boxShadow: "var(--shadow-bar)" }}>
+              <div className="self-center">
+                <ModeSwitch mode={ui.mode} onMode={(mode) => patch({ mode })} />
+              </div>
+              <div className="min-w-0 flex-1">{composer}</div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
+    </StudioNav.Provider>
   );
 }

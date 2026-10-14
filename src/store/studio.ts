@@ -131,10 +131,13 @@ export type Page = Category | "assets" | "favorites" | "elements" | "home" | "re
 export function filingProjectId(state: {
   page: Page;
   studio?: { view?: string; projectId?: string };
+  marketing?: { view?: string; projectId?: string };
   projects: Array<{ id: string; trashedAt?: number }>;
 }): string | undefined {
-  const id = state.studio?.projectId;
-  if (state.page !== "studio" || state.studio?.view !== "project" || !id) return undefined;
+  // Cinema Studio and Marketing Studio share the projects: either one's open project takes what is made.
+  const ui = state.page === "studio" ? state.studio : state.page === "marketing" ? state.marketing : undefined;
+  const id = ui?.projectId;
+  if (ui?.view !== "project" || !id) return undefined;
   return state.projects.some((p) => p.id === id && !p.trashedAt) ? id : undefined;
 }
 
@@ -176,6 +179,8 @@ export interface Upload {
 export interface Project {
   id: string;
   name: string;
+  /** Marketing Studio's own projects; Cinema Studio's carry none. Neither studio lists the other's. */
+  app?: "marketing";
   coverUrl?: string;
   createdAt: number;
   /** What the project is for, in a few lines. */
@@ -425,7 +430,7 @@ interface StudioState {
   setCopy: (source: string, copy: StoredCopy) => void;
   saveElement: (element: LibraryElement) => void;
   addRecipeRun: (run: RecipeRun) => void;
-  addProject: (name: string, visibility?: ProjectVisibility) => Project;
+  addProject: (name: string, visibility?: ProjectVisibility, app?: "marketing") => Project;
   renameProject: (id: string, name: string) => void;
   removeProject: (id: string) => void;
   /** Files what is already made (by its media URLs) under a project, or under none. */
@@ -1040,12 +1045,13 @@ export const useStudio = create<StudioState>()(
             ? state.elements.map((e) => (e.id === element.id ? element : e))
             : [element, ...state.elements],
         })),
-      addProject: (name, visibility) => {
+      addProject: (name, visibility, app) => {
         const project: Project = {
           id: `project-${Date.now().toString(36)}`,
           name: name.trim() || "Untitled",
           createdAt: Date.now(),
           ...(visibility ? { visibility } : {}),
+          ...(app ? { app } : {}),
         };
         set((state) => ({ projects: [project, ...state.projects] }));
         return project;

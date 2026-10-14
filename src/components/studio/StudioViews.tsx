@@ -8,6 +8,7 @@ import { TileExtras, type TileExtrasValue } from "@/components/Gallery";
 import { Icon, type IconName } from "@/components/Icon";
 import { AppIcon, PlaceIcon } from "@/components/AppIcon";
 import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
+import { ofApp, useStudioNav } from "@/components/studio/studioNav";
 import { SortMenu, sortBy, type SortKey } from "@/components/studio/SortMenu";
 import { Popover } from "@/components/Popover";
 import { inFlight, pendingAsset, runAssets, uploadAsset, useAssets, type Asset } from "@/lib/assets";
@@ -15,7 +16,7 @@ import { AssetBrowser } from "@/components/AssetBrowser";
 import { calledElements } from "@/lib/elements";
 import { getModel } from "@/lib/registry";
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
-import { isStudioRun, studioReference } from "@/lib/studio/reuse";
+import { studioReference } from "@/lib/studio/reuse";
 import { mediaKind } from "@/lib/upload";
 import { useNewFolder, useNewProject, useProjectDelete } from "@/lib/newProject";
 import { FolderMenu, FolderTree, folderRows } from "@/components/studio/Folders";
@@ -112,11 +113,11 @@ export function FoldButton() {
  * name, opening a menu back out to the rest of ZYNS (the page has no top
  * bar of its own while it fills the screen).
  */
-function StudioSwitcher() {
+function StudioSwitcher({ glyph, title }: { glyph: "film" | "box"; title: string }) {
   return (
     <div className="flex h-9 items-center gap-2 rounded-[10px] bg-t1/[0.05] pl-1.5 pr-2">
-      <AppIcon glyph="film" tone="lime" size={24} />
-      <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">Cinema Studio</span>
+      <AppIcon glyph={glyph} tone="lime" size={24} />
+      <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">{title}</span>
     </div>
   );
 }
@@ -141,10 +142,21 @@ export const STUDIO_NAV: Array<{ id: StudioView; label: string; icon: IconName; 
 ];
 
 /** Cinema Studio's own menu down the left: its pages, then its projects. */
-export function StudioSidebar() {
-  const studio = useStudio((s) => s.studio);
-  const patchStudio = useStudio((s) => s.patchStudio);
-  const allProjects = useStudio((s) => s.projects);
+export function StudioSidebar({
+  items = STUDIO_NAV.map((n) => ({ id: n.id, label: n.label, place: n.id })),
+  glyph = "film",
+  extra,
+}: {
+  /** The studio's own pages at the top (Marketing Studio has its own). */
+  items?: Array<{ id: string; label: string; place: string }>;
+  glyph?: "film" | "box";
+  /** Anything after the pages, before the projects (Marketing Studio's tools). */
+  extra?: ReactNode;
+} = {}) {
+  const nav = useStudioNav();
+  const studio = nav.ui;
+  const patchStudio = nav.patch;
+  const allProjects = useStudio((s) => s.projects).filter(ofApp(nav));
   const projects = liveProjects(allProjects);
   const trashedProjects = allProjects.length - projects.length;
   const askNewProject = useNewProject((s) => s.ask);
@@ -172,14 +184,15 @@ export function StudioSidebar() {
       <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
         {!folded && (
           <div className="min-w-0 flex-1">
-            <StudioSwitcher />
+            <StudioSwitcher glyph={glyph} title={nav.name} />
           </div>
         )}
         <FoldButton />
       </div>
-      {STUDIO_NAV.map((item) => (
-        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.id} />} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
+      {items.map((item) => (
+        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={studio.view === item.id} onClick={() => patchStudio({ view: item.id })} />
       ))}
+      {extra}
       <SideHeading label="Projects">
         <button type="button" aria-label="Search projects" onClick={() => setLooking((l) => !l)} className="grid h-6 w-6 place-items-center rounded-full text-t3 hover:text-t1">
           <Icon name="search" size={13} />
@@ -236,10 +249,11 @@ export function StudioSidebar() {
 }
 
 /** Inside a project: back, its name and menu, its brief, settings, elements, folders and Trash. */
-function ProjectSidebar() {
-  const studio = useStudio((s) => s.studio);
-  const patchStudio = useStudio((s) => s.patchStudio);
-  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
+export function ProjectSidebar() {
+  const nav = useStudioNav();
+  const studio = nav.ui;
+  const patchStudio = nav.patch;
+  const project = useStudio((s) => s.projects.find((p) => p.id === studio.projectId && !p.trashedAt));
   const patchProject = useStudio((s) => s.patchProject);
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
@@ -509,7 +523,6 @@ function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string
   return true;
 }
 
-const studioOnly = (run: Run) => isStudioRun(run);
 
 /**
  * Runs and uploads as one wall, as Assets lays it out: what is still being
@@ -527,6 +540,8 @@ function wallOf(runs: Run[], uploads: Upload[] = []): Asset[] {
 
 /** Everything made in Cinema Studio, with Filter and View. */
 export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) {
+  const nav = useStudioNav();
+  const studioOnly = nav.owns;
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const favorites = useStudio((s) => s.favorites);
@@ -534,7 +549,7 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const [filter, setFilter] = useState<GenFilter>(favoritesOnly ? { ...NO_FILTER, activity: "liked" } : NO_FILTER);
   const mine = runs.filter((r) => !r.trashedAt && studioOnly(r));
   const models = [...new Map(mine.map((r) => [r.modelId, { id: r.modelId, name: getModel(r.modelId)?.name ?? r.modelName }])).values()];
-  const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [filter, favorites, downloaded]);
+  const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [studioOnly, filter, favorites, downloaded]);
   const count = mine.filter(show).length;
   // Deleting here moves to Cinema Studio's Trash, to restore for a while, never straight out.
   const extras: TileExtrasValue = useMemo(
@@ -571,7 +586,7 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
             <Empty text="No uploads yet." />
           )
         ) : count === 0 ? (
-          <Empty text={favoritesOnly ? "Nothing liked yet. Tap the heart on a shot to keep it here." : "Nothing here yet. What you make in Cinema Studio shows up here."} />
+          <Empty text={favoritesOnly ? "Nothing liked yet. Tap the heart on a shot to keep it here." : `Nothing here yet. What you make in ${nav.name} shows up here.`} />
         ) : (
           <TileExtras.Provider value={extras}>
             <AssetBrowser assets={wallOf(runs.filter(show))} />
@@ -604,7 +619,7 @@ function Empty({ text }: { text: string }) {
 
 /** Every project, as cards: a new one first. */
 export function ProjectsView() {
-  const projects = liveProjects(useStudio((s) => s.projects));
+  const projects = liveProjects(useStudio((s) => s.projects).filter(ofApp(useStudioNav())));
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <ProjectGrid className="grid-cols-2 px-4 pt-2 md:grid-cols-3 md:px-1 md:pt-4" />
@@ -614,9 +629,9 @@ export function ProjectsView() {
 
 /** Every project as a card, a new one first; `className` sets its columns. */
 export function ProjectGrid({ className }: { className: string }) {
-  const projects = liveProjects(useStudio((s) => s.projects));
+  const projects = liveProjects(useStudio((s) => s.projects).filter(ofApp(useStudioNav())));
   const askNewProject = useNewProject((s) => s.ask);
-  const patchStudio = useStudio((s) => s.patchStudio);
+  const patchStudio = useStudioNav().patch;
   return (
     <div className={`grid gap-3 ${className}`}>
       <button
@@ -674,7 +689,9 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
 
 /** Cinema Studio's own Trash: the projects deleted, kept a while. */
 export function StudioTrash() {
-  const projects = useStudio((s) => s.projects);
+  const nav = useStudioNav();
+  const studioOnly = nav.owns;
+  const projects = useStudio((s) => s.projects).filter(ofApp(nav));
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const trashProject = useStudio((s) => s.trashProject);
@@ -745,12 +762,13 @@ function ProjectTrashCover({ project }: { project: Project }) {
 /** A project open: its assets (all, or a folder's), its brief, settings, elements or Trash. */
 export function ProjectView() {
   const askFolder = useNewFolder((s) => s.ask);
-  const studio = useStudio((s) => s.studio);
-  const project = useStudio((s) => s.projects.find((p) => p.id === s.studio.projectId && !p.trashedAt));
+  const nav = useStudioNav();
+  const studio = nav.ui;
+  const project = useStudio((s) => s.projects.find((p) => p.id === studio.projectId && !p.trashedAt));
   const runs = useStudio((s) => s.runs);
   const uploads = useStudio((s) => s.uploads);
   const elements = useStudio((s) => s.elements);
-  const patchStudio = useStudio((s) => s.patchStudio);
+  const patchStudio = nav.patch;
   const patchProject = useStudio((s) => s.patchProject);
   const renameProject = useStudio((s) => s.renameProject);
   const trashProject = useStudio((s) => s.trashProject);
@@ -953,7 +971,7 @@ export function ProjectView() {
             <ConfirmPopup
               open={deleting}
               title={`Delete ${project.name}?`}
-              message={`It goes to Cinema Studio's Trash for ${TRASH_DAYS} days; what was made in it stays in your studio.`}
+              message={`It goes to ${nav.name}'s Trash for ${TRASH_DAYS} days; what was made in it stays in your studio.`}
               confirmLabel="Delete"
               onConfirm={() => {
                 setDeleting(false);

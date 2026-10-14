@@ -3,6 +3,7 @@
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
 import { useNewFolder, useNewProject } from "@/lib/newProject";
+import { useStudioNav } from "@/components/studio/studioNav";
 import { useStudio, type Project } from "@/store/studio";
 
 function Row({ icon, label, onClick, danger }: { icon: IconName; label: string; onClick: () => void; danger?: boolean }) {
@@ -28,7 +29,8 @@ function Row({ icon, label, onClick, danger }: { icon: IconName; label: string; 
 export function ProjectMenu({ project, close }: { project: Project; close: () => void }) {
   const patchProject = useStudio((s) => s.patchProject);
   const trashProject = useStudio((s) => s.trashProject);
-  const patchStudio = useStudio((s) => s.patchStudio);
+  const nav = useStudioNav();
+  const patchStudio = nav.patch;
   const edit = useNewProject((s) => s.edit);
   const askFolder = useNewFolder((s) => s.ask);
   return (
@@ -52,7 +54,7 @@ export function ProjectMenu({ project, close }: { project: Project; close: () =>
         danger
         onClick={() => {
           trashProject(project.id, true);
-          if (useStudio.getState().studio.projectId === project.id && useStudio.getState().studio.view === "project") patchStudio({ view: "projects" });
+          if (nav.ui.projectId === project.id && nav.ui.view === "project") patchStudio({ view: "projects" });
           close();
         }}
       />

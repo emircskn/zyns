@@ -18,12 +18,15 @@ export interface MarketingPreset {
 export type MarketingTab = "templates" | "generations" | "products";
 export type MarketingTool = "create" | "product-link" | "ad-reference";
 /** The page open from the side menu, as Cinema Studio's. */
-export type MarketingView = "home" | "generations" | "favorites" | "products" | "ad-reference" | "product-link";
+export type MarketingView = "home" | "generations" | "favorites" | "products" | "ad-reference" | "product-link" | "projects" | "project" | "trash";
 
 export interface MarketingUi {
   /** Pictures on Marketing Studio itself, or video by a recipe. */
   mode: "image" | "video";
   view: MarketingView;
+  /** The project open on the project page, and the folder in it, as Cinema Studio's. */
+  projectId?: string;
+  folderId?: string;
   tab: MarketingTab;
   tool: MarketingTool;
   /** The Marketing Studio variant sent to ("" until one is picked). */
