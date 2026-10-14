@@ -127,7 +127,7 @@ export function Popover({ trigger, children, align = "start", width = 264, title
         createPortal(
           <div
             ref={panel}
-            className={`surface-pop fixed z-[90] rounded-panel p-1.5 ${
+            className={`surface-pop fixed z-[125] rounded-panel p-1.5 ${
               exiting ? `${place.top !== undefined ? "anim-drop-out" : "anim-rise-out"} pointer-events-none` : place.top !== undefined ? "anim-drop" : "anim-rise"
             }`}
             style={{ left: place.left, top: place.top, bottom: place.bottom, width: place.width, transformOrigin: place.origin }}

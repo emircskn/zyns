@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import {
+  CHIP_KEYS,
   isMarketingModel,
   marketingModels,
   marketingValues,
@@ -11,14 +12,16 @@ import {
   otherValues,
   pageModels,
   takesPerson,
+  UI_KEY,
   useMarketing,
 } from "@/components/marketing/MarketingComposer";
+import { FieldChip } from "@/components/PromptBar";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { GenerateButton, ModelChip, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { styleById, styleCover } from "@/lib/marketing/styles";
 import type { MarketingPreset, MarketingUi } from "@/lib/marketing/types";
-import { defaultValues, getModel, providerOf, validateValues, type Values } from "@/lib/registry";
+import { activeFields, defaultValues, getModel, providerOf, validateValues, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { usePresence } from "@/lib/usePresence";
 import { keyFor, useStudio } from "@/store/studio";
@@ -51,11 +54,13 @@ export function RecreateTemplate({
   const provider = useStudio((s) => s.provider);
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
-  const valuesByModel = useStudio((s) => s.valuesByModel);
   const [product, setProduct] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
-  const [modelId, setModelId] = useState("");
+  // Its own model and settings, apart from the prompt box's: kept from one template to the next.
+  const [modelId, setModelId] = useState(() => marketingModels()[0]?.id ?? "");
+  const [shotSettings, setShotSettings] = useState<Partial<Pick<MarketingUi, "resolution" | "aspect" | "quality">>>({});
+  const [ownByModel, setOwnByModel] = useState<Record<string, Values>>({});
   const [picking, setPicking] = useState<"product" | "avatar" | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,12 +73,10 @@ export function RecreateTemplate({
     setAvatar(null);
     setPrompt("");
     setError(null);
-    const first = marketingModels()[0]?.id ?? "";
-    setModelId(template.kind === "hf" ? (isMarketingModel(ui.modelId) ? ui.modelId : first) : ui.modelId || first);
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-    // Only when a template is picked: it starts from the page's product and model.
+    // Only when a template is picked: it starts from the page's product.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template]);
 
@@ -84,12 +87,17 @@ export function RecreateTemplate({
   const model = models.find((m) => m.id === modelId) ?? models[0];
   const marketing = isMarketingModel(model?.id);
   const person = hf ? takesPerson(hf) : true;
-  const own: Values = model && !marketing ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
-  const sendUi: MarketingUi = { ...ui, product, avatar: person ? avatar : null, prompt, refs: [], style: style?.id ?? null, preset: hf, count: 1 };
+  const own: Values = model && !marketing ? (ownByModel[model.id] ?? defaultValues(model)) : {};
+  const sendUi: MarketingUi = { ...ui, ...shotSettings, product, avatar: person ? avatar : null, prompt, refs: [], style: style?.id ?? null, preset: hf, count: 1 };
   const built = model ? (marketing ? marketingValues(model, sendUi, "create") : otherValues(model, sendUi, own)) : null;
   const blocker = !model ? "Choose a model." : !product ? "Add your product." : built ? validateValues(model, built.values) : null;
   const price = usePrice(model, built?.values ?? {}, blocker);
   const key = keyFor({ apiKey, hfKey }, providerOf(model));
+  const chips = model && built
+    ? marketing
+      ? activeFields(model, built.values).filter((f) => (CHIP_KEYS as readonly string[]).includes(f.key))
+      : activeFields(model, own).filter((f) => f.placement === "bar")
+    : [];
 
   async function recreate() {
     if (!model || !built) return;
@@ -115,7 +123,7 @@ export function RecreateTemplate({
         <button
           type="button"
           onClick={onPick}
-          className="relative flex h-[140px] w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[14px] bg-t1/[0.04] text-[13px] font-semibold text-t1 ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+          className="relative flex h-[110px] w-full sm:h-[140px] flex-col items-center justify-center gap-2 overflow-hidden rounded-[14px] bg-t1/[0.04] text-[13px] font-semibold text-t1 ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.08]"
         >
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -179,9 +187,27 @@ export function RecreateTemplate({
               className="w-full resize-none rounded-[14px] bg-t1/[0.04] p-3 text-[14px] text-t1 outline-none ring-1 ring-inset ring-edge placeholder:text-t4 focus:ring-line-strong"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <ModelChip models={models} model={model} onPick={setModelId} lead={MARKETING_LEAD} />
-            {hf && <span className="text-[11.5px] text-t4">Higgsfield templates run on Marketing Studio.</span>}
+          <div className="flex flex-col gap-2">
+            <p className="text-[13px] text-t2">Model and settings</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <ModelChip models={models} model={model} onPick={setModelId} lead={MARKETING_LEAD} />
+              {model &&
+                built &&
+                chips.map((field) => (
+                  <span key={field.key} className="shrink-0">
+                    <FieldChip
+                      field={field}
+                      values={marketing ? built.values : own}
+                      onChange={(k, v) => {
+                        if (!marketing) return setOwnByModel((m) => ({ ...m, [model.id]: { ...own, [k]: v } }));
+                        const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
+                        if (name) setShotSettings((x) => ({ ...x, [name]: typeof v === "string" ? v : String(v ?? "") }));
+                      }}
+                    />
+                  </span>
+                ))}
+            </div>
+            {hf && <p className="text-[11.5px] text-t4">Higgsfield templates run on Marketing Studio&apos;s own models.</p>}
           </div>
           <GenerateButton
             wide

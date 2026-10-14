@@ -81,8 +81,8 @@ export function takesPerson(preset: { type?: string } | null): boolean {
   return preset?.type !== "product_shots";
 }
 
-const CHIP_KEYS = ["resolution", "aspect_ratio", "quality"] as const;
-const UI_KEY: Record<(typeof CHIP_KEYS)[number], "resolution" | "aspect" | "quality"> = {
+export const CHIP_KEYS = ["resolution", "aspect_ratio", "quality"] as const;
+export const UI_KEY: Record<(typeof CHIP_KEYS)[number], "resolution" | "aspect" | "quality"> = {
   resolution: "resolution",
   aspect_ratio: "aspect",
   quality: "quality",
