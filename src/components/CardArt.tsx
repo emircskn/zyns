@@ -5,7 +5,7 @@ import { useId } from "react";
 /**
  * The setting cards' pictures while nothing is chosen, drawn as small
  * objects the way Higgsfield's are: a strip of film, a lens, a painter's
- * palette, a studio lamp, a row of faders.
+ * palette, a ring light, a row of faders.
  */
 export type CardArtKind = "film" | "camera" | "palette" | "light" | "more";
 
@@ -36,15 +36,15 @@ export function CardArt({ kind, size = 36, className = "" }: { kind: CardArtKind
           <stop offset="0" stopColor="#efe2c8" />
           <stop offset="1" stopColor="#b8956a" />
         </linearGradient>
-        <radialGradient id={`${id}warm`} cx="0.62" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#ffd9a0" stopOpacity="0.5" />
+        <radialGradient id={`${id}warm`} cx="0.5" cy="0.42" r="0.5">
+          <stop offset="0" stopColor="#fff0d0" stopOpacity="0.45" />
           <stop offset="1" stopColor="#ffd9a0" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id={`${id}bulb`} cx="0.45" cy="0.45" r="0.6">
-          <stop offset="0" stopColor="#fffaf0" />
-          <stop offset="0.6" stopColor="#ffd38a" />
-          <stop offset="1" stopColor="#d9862e" />
-        </radialGradient>
+        <linearGradient id={`${id}ringlit`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.6" stopColor="#fff1d6" />
+          <stop offset="1" stopColor="#f2c27a" />
+        </linearGradient>
         <linearGradient id={`${id}shine`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0.18" />
           <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
@@ -93,16 +93,15 @@ export function CardArt({ kind, size = 36, className = "" }: { kind: CardArtKind
         </g>
       )}
       {kind === "light" && (
-        // A studio lamp on its yoke, its lens lit warm and throwing a soft glow.
+        // A ring light on its stand: a glowing white circle with the dark middle a camera looks through.
         <g>
-          <circle cx="20" cy="15" r="13" fill={`url(#${id}warm)`} />
-          <path d="M14 20.5v7.5M14 28l-4 3.2M14 28l4 3.2M14 28v3.4" stroke="#8a8e96" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          <g transform="rotate(-18 16 15)">
-            <rect x="6.5" y="9" width="14" height="12" rx="3" fill={`url(#${id}ring)`} />
-            <path d="M8.5 11.5v7M11 11.5v7" stroke="#0e0f12" strokeOpacity="0.6" strokeWidth="1" strokeLinecap="round" />
-            <ellipse cx="22" cy="15" rx="3.2" ry="6.4" fill="#2a2c31" />
-            <ellipse cx="22.4" cy="15" rx="2.4" ry="5.4" fill={`url(#${id}bulb)`} />
-          </g>
+          <circle cx="18" cy="15" r="14" fill={`url(#${id}warm)`} />
+          <path d="M18 25.5v5.2M14 31.5h8" stroke="#8a8e96" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="18" cy="15" r="9.6" fill="none" stroke="#2a2c31" strokeWidth="5.2" />
+          <circle cx="18" cy="15" r="9.6" fill="none" stroke={`url(#${id}ringlit)`} strokeWidth="3.4" />
+          <circle cx="18" cy="15" r="4.2" fill="#0d0e11" />
+          <circle cx="18" cy="15" r="1.4" fill="#3a4a66" />
+          <path d="M11.6 9.6a8.6 8.6 0 0 1 5-3" stroke="#fff" strokeOpacity="0.9" strokeWidth="1.1" strokeLinecap="round" fill="none" />
         </g>
       )}
       {kind === "more" && (
