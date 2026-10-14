@@ -21,7 +21,7 @@ import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { imageRefs } from "@/lib/mentions";
-import { activeFields, defaultValues, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
+import { activeFields, defaultValues, getModel, modesFor, providerOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { CINEMA, bottomFields, cardFields, cinemaModel, cinemaSpec, labelOf, listOf, referenceFields } from "@/lib/studio/cinema";
@@ -880,10 +880,12 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const studioCount = useStudio((s) => s.studioCount);
   const setCount = useStudio((s) => s.setStudioCount);
   const provider_ = useStudio((s) => s.provider);
-  // Soul Cinema leads, as Cinema Studio's own picture model; the rest follow as "Other models".
+  // Soul Cinema leads whichever service is chosen up top, as Cinema Studio's own
+  // picture model (on the Higgsfield key); that service's models follow as "Other models".
   const models = useMemo(() => {
-    const all = studioImageModels(provider_);
-    return [...all.filter((m) => m.id === SOUL_CINEMA), ...all.filter((m) => m.id !== SOUL_CINEMA)];
+    const soul = getModel(SOUL_CINEMA);
+    const rest = studioImageModels(provider_).filter((m) => m.id !== SOUL_CINEMA);
+    return soul ? [soul, ...rest] : rest;
   }, [provider_]);
   const model = models.find((m) => m.id === studio.imageModelId) ?? models[0];
   const own: Values = model ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
