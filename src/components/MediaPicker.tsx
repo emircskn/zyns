@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { VideoMark } from "@/components/VideoMark";
@@ -159,7 +159,6 @@ export function MediaPicker({
   // Pulled down on a phone, it closes.
   const swipe = useSwipeDismiss(sheet, onClose);
   const scroller = useRef<HTMLDivElement>(null);
-  const lastHeight = useRef<number | null>(null);
 
   const kinds = useMemo(() => (Array.isArray(accept) ? accept : [accept]), [accept]);
   const favorites = useStudio((s) => s.favorites);
@@ -206,38 +205,10 @@ export function MediaPicker({
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose, preview]);
 
-  // The sheet is as tall as what it holds, so switching tabs, or a list
-  // growing, changes its height. It moves there rather than jumping: the
-  // old height is kept for a moment and eased into the new one.
+  // One height whatever the tab holds, so switching tabs never moves the window.
   const genKind = (Object.keys(GEN_TAB) as Kind[]).find((k) => GEN_TAB[k] === tab);
   const list = genKind ? made.filter((a) => a.kind === genKind) : tab === "liked" ? liked : tab === "uploads" ? uploaded : [];
   const picks = chosen.length + chosenElements.length;
-  const shape = `${tab}:${list.length}:${pending}:${picks > 0}:${!!error}`;
-  useLayoutEffect(() => {
-    const node = sheet.current;
-    if (!node) {
-      lastHeight.current = null;
-      return;
-    }
-    const next = node.getBoundingClientRect().height;
-    const previous = lastHeight.current;
-    lastHeight.current = next;
-    if (previous === null || Math.abs(previous - next) < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // While it moves, the list is briefly taller than the sheet: its scroll
-    // bar would flash up and away, so scrolling waits for the sheet to land.
-    const list = scroller.current;
-    if (list) list.style.overflowY = "hidden";
-    const motion = node.animate([{ height: `${previous}px` }, { height: `${next}px` }], {
-      duration: 320,
-      easing: "cubic-bezier(0.32, 0.72, 0, 1)",
-    });
-    const settle = () => {
-      if (list) list.style.overflowY = "";
-    };
-    motion.onfinish = settle;
-    motion.oncancel = settle;
-  }, [shape, mounted]);
 
   if (!mounted || typeof document === "undefined") return null;
 
@@ -277,14 +248,14 @@ export function MediaPicker({
       />
       <div
         ref={sheet}
-        className={`relative flex max-h-[86dvh] w-full flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:max-w-2xl sm:rounded-panel ${
+        className={`relative flex h-[86dvh] w-full flex-col overflow-hidden rounded-t-panel border border-line bg-elevated sm:h-[min(640px,86dvh)] sm:max-w-2xl sm:rounded-panel ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         {/* The grip: says it can be pulled down. */}
         <span aria-hidden className="mx-auto -mb-2 mt-2 block h-1 w-9 shrink-0 rounded-full bg-t1/20 sm:hidden" />
-        <header {...swipe} className="flex items-center gap-2 px-4 pt-4 sm:px-5">
+        <header {...swipe} className="flex shrink-0 items-center gap-2 px-4 pt-4 sm:px-5">
           <h2 className="flex-1 text-[17px] font-semibold tracking-[-0.02em] text-t1">
             {kinds.length > 1
               ? "Add media"
@@ -301,7 +272,7 @@ export function MediaPicker({
         </header>
 
         {/* One row of every source, sliding sideways on a phone when it runs past the edge. */}
-        <div className="no-bar overflow-x-auto px-4 py-3 sm:px-5">
+        <div className="no-bar shrink-0 overflow-x-auto px-4 py-3 sm:px-5">
           <PillGroup value={tab} onChange={(next) => setTab(next as Tab)} items={tabs} className="w-max" />
         </div>
 
