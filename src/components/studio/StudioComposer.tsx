@@ -133,7 +133,7 @@ function Card({
  * runs long, with a small round arrow at the end (as Higgsfield's) to bring
  * the rest in. A phone wraps them instead.
  */
-function ChipRow({ children }: { children: ReactNode }) {
+export function ChipRow({ children }: { children: ReactNode }) {
   const row = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState({ left: false, right: false });
   useEffect(() => {
@@ -290,7 +290,7 @@ function ModelChip({ models, model, onPick }: { models: ModelDef[]; model: Model
 }
 
 /** Image | Video, beside the composer on a desktop and over it on a phone. */
-function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: "video" | "image") => void }) {
+export function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: (mode: "video" | "image") => void }) {
   const item = (id: "image" | "video", icon: IconName, label: string) => (
     <button
       type="button"

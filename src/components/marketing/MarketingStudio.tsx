@@ -1,7 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Gallery } from "@/components/Gallery";
+import { GlideMark } from "@/components/GlideMark";
+import { AppIcon, PlaceIcon } from "@/components/AppIcon";
+import { FoldButton, NavRow, SideHeading } from "@/components/studio/StudioViews";
+import { ModeSwitch } from "@/components/studio/StudioComposer";
+import { SideCollapsed, useSideCollapsed } from "@/components/studio/sideCollapse";
 import { Icon } from "@/components/Icon";
 import { PillGroup } from "@/components/PillGroup";
 import { MarketingComposer, useMarketing } from "@/components/marketing/MarketingComposer";
@@ -11,7 +16,7 @@ import { RecipeComposer } from "@/components/recipes/RecipeComposer";
 import { RecipeRuns } from "@/components/recipes/RecipeRuns";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { inUse } from "@/lib/elements";
-import type { MarketingTab, MarketingTool } from "@/lib/marketing/types";
+import type { MarketingView } from "@/lib/marketing/types";
 import { mediaSrc } from "@/lib/storage/client";
 import { MARKETING_RECIPES } from "@/recipes";
 import { useStudio, type Run } from "@/store/studio";
@@ -19,11 +24,6 @@ import { useStudio, type Run } from "@/store/studio";
 /** Made here: its gallery is these runs alone. Module-level, so the gallery's memo holds. */
 const madeHere = (run: Run) => !!run.marketing;
 
-const TOOLS: Array<{ id: MarketingTool; label: string }> = [
-  { id: "create", label: "Create" },
-  { id: "ad-reference", label: "Ad reference" },
-  { id: "product-link", label: "Product link" },
-];
 
 /** The products in the library: each one's cover, to use as the product or to open. */
 function Products({ onUse }: { onUse: (url: string) => void }) {
@@ -70,114 +70,155 @@ function Products({ onUse }: { onUse: (url: string) => void }) {
   );
 }
 
+const NAV: Array<{ id: MarketingView; label: string; place: string }> = [
+  { id: "home", label: "Home", place: "home" },
+  { id: "generations", label: "My generations", place: "generations" },
+  { id: "favorites", label: "My favorites", place: "favorites" },
+  { id: "products", label: "My products", place: "products" },
+];
+const TOOL_NAV: Array<{ id: MarketingView; label: string; place: string }> = [
+  { id: "ad-reference", label: "Ad Reference", place: "adReference" },
+  { id: "product-link", label: "Product Link", place: "productLink" },
+];
+
+/** The side menu, as Cinema Studio's: its pages, then its tools. */
+function MarketingSidebar({ view, onView }: { view: MarketingView; onView: (view: MarketingView) => void }) {
+  const folded = useSideCollapsed();
+  return (
+    <div className="relative flex h-full flex-col gap-1 p-2">
+      <GlideMark value={view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
+      <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
+        {!folded && (
+          <div className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-t1/[0.05] pl-1.5 pr-2">
+            <AppIcon glyph="box" tone="lime" size={24} />
+            <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">Marketing Studio</span>
+          </div>
+        )}
+        <FoldButton />
+      </div>
+      {NAV.map((item) => (
+        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={view === item.id} onClick={() => onView(item.id)} />
+      ))}
+      <SideHeading label="Tools" />
+      {TOOL_NAV.map((item) => (
+        <NavRow key={item.id} pill={item.id} icon={<PlaceIcon place={item.place} />} label={item.label} on={view === item.id} onClick={() => onView(item.id)} />
+      ))}
+    </div>
+  );
+}
+
 /**
- * Marketing Studio, laid out as Genjutsu is: on a desktop the composer is a
- * panel down the left and the presets, what was made and the products are
- * beside it; on a phone it reads top to bottom. Image mode runs on
- * Marketing Studio itself (Create, Ad reference) and reads product pages
- * (Product link); Video mode runs recipes, a model chosen for every step.
+ * Marketing Studio, laid out as Cinema Studio is: a side menu of its pages
+ * and tools, and beside it the page chosen there. Home is a large title over
+ * the composer (Image on Marketing Studio itself, Video by recipes) with the
+ * presets under it.
  */
 export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
   const hfKey = useStudio((s) => s.hfKey);
   const hydrated = useStudio((s) => s.hydrated);
+  const folded = useStudio((s) => !!s.studio.sideCollapsed);
+  const favorites = useStudio((s) => s.favorites);
   const top = useRef<HTMLDivElement>(null);
   const recipe = MARKETING_RECIPES.find((r) => r.id === ui.recipeId) ?? MARKETING_RECIPES[0];
   const video = ui.mode === "video";
+  const view = ui.view ?? "home";
+  const liked = useCallback((run: Run) => !!run.marketing && run.urls.some((u) => favorites.includes(u)), [favorites]);
 
-  // What was sent shows at once: the gallery beside the composer.
-  const showMade = () => patch({ tab: "generations" });
-  const toComposer = () => {
-    if (window.matchMedia("(max-width: 767px)").matches) top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  // What was sent shows at once, among what was made here.
+  const showMade = () => patch({ view: "generations" });
+  const toComposer = () => top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const needsHf = (feature: string) => !hfKey && <NeedsHiggsfield onKeyClick={onKeyClick} feature={feature} />;
 
-  // Video runs on any service's models; the image tools need Higgsfield's Marketing Studio.
-  const needsKey = !video && ui.tool !== "product-link" && !hfKey;
-
-  const composer = (
-    <div className="no-bar flex min-h-0 flex-1 flex-col gap-3 md:overflow-y-auto md:p-3">
-      <PillGroup
-        fill
-        value={ui.mode}
-        onChange={(mode) => patch({ mode })}
-        items={[
-          { id: "image", label: "Image" },
-          { id: "video", label: "Video" },
-        ]}
-      />
-      {video ? (
-        <>
-          <PillGroup
-            plain
-            value={recipe.id}
-            onChange={(recipeId) => patch({ recipeId })}
-            items={MARKETING_RECIPES.map((r) => ({ id: r.id, label: r.name }))}
-          />
-          <p className="text-[12.5px] leading-relaxed text-t3">{recipe.description}</p>
-          {hydrated && <RecipeComposer key={recipe.id} recipe={recipe} onStarted={showMade} />}
-        </>
-      ) : (
-        <>
-          <PillGroup plain value={ui.tool} onChange={(tool) => patch({ tool })} items={TOOLS} />
-          {needsKey ? (
-            <NeedsHiggsfield onKeyClick={onKeyClick} feature="Marketing Studio runs on Higgsfield" />
-          ) : ui.tool === "product-link" ? (
-            <ProductLink
-              onSaved={(element) => {
-                const cover = element.images[0]?.storageUrl;
-                patch({ tab: "products", ...(cover ? { product: cover } : {}) });
-              }}
-            />
-          ) : (
-            <MarketingComposer tool={ui.tool} onKeyClick={onKeyClick} onSent={showMade} />
-          )}
-        </>
-      )}
+  const composer = video ? (
+    <div className="mx-auto flex w-full max-w-[560px] flex-col gap-3 rounded-panel border border-line bg-elevated p-3">
+      <PillGroup plain value={recipe.id} onChange={(recipeId) => patch({ recipeId })} items={MARKETING_RECIPES.map((r) => ({ id: r.id, label: r.name }))} />
+      <p className="text-[12.5px] leading-relaxed text-t3">{recipe.description}</p>
+      {hydrated && <RecipeComposer key={recipe.id} recipe={recipe} onStarted={showMade} />}
     </div>
+  ) : (
+    needsHf("Marketing Studio runs on Higgsfield") || <MarketingComposer bar tool="create" onKeyClick={onKeyClick} onSent={showMade} />
   );
 
-  const tabs: Array<{ id: MarketingTab; label: string }> = [
-    { id: "templates", label: "Presets" },
-    { id: "generations", label: "Generations" },
-    { id: "products", label: "Products" },
-  ];
-  const tab = ui.tab;
+  const page =
+    view === "home" ? (
+      <div className="flex flex-col items-center gap-8 px-4 pb-12 pt-4 md:px-0 md:pt-[10vh]">
+        <h1 className="studio-title text-center text-[30px] font-bold uppercase leading-[1.02] tracking-[-0.03em] md:text-[46px]">
+          Turn any product
+          <span className="block text-t3">into ready to post content</span>
+        </h1>
+        <div ref={top} className="flex w-full max-w-[1180px] scroll-mt-24 flex-col gap-2 md:flex-row md:items-stretch">
+          <div className="md:hidden">
+            <PillGroup fill value={ui.mode} onChange={(mode) => patch({ mode })} items={[{ id: "image", label: "Image" }, { id: "video", label: "Video" }]} />
+          </div>
+          <div className={`max-md:hidden ${video ? "md:self-start" : "md:self-center"}`}>
+            <ModeSwitch mode={ui.mode} onMode={(mode) => patch({ mode })} />
+          </div>
+          <div className="min-w-0 flex-1">{composer}</div>
+        </div>
+        <div className="w-full">
+          <h2 className="studio-title mb-4 text-[22px] font-bold uppercase tracking-[-0.02em] text-t1">Explore templates</h2>
+          <PresetGrid
+            selected={ui.preset?.id}
+            onPick={(preset) => {
+              patch({ preset, mode: "image", tool: "create" });
+              toComposer();
+            }}
+          />
+        </div>
+      </div>
+    ) : view === "generations" ? (
+      video ? hydrated && <RecipeRuns recipe={recipe} /> : <Gallery filter={madeHere} />
+    ) : view === "favorites" ? (
+      <Gallery filter={liked} />
+    ) : view === "products" ? (
+      <div className="px-4 pb-8 pt-4 md:px-1">
+        <Products
+          onUse={(url) => {
+            patch({ product: url, mode: "image", tool: "create", view: "home" });
+          }}
+        />
+      </div>
+    ) : view === "ad-reference" ? (
+      <div className="mx-auto w-full max-w-[560px] px-4 pb-10 pt-6 md:px-0">
+        {needsHf("Ad Reference runs on Higgsfield") || (
+          <div className="rounded-panel border border-line bg-elevated p-4">
+            <MarketingComposer tool="ad-reference" onKeyClick={onKeyClick} onSent={showMade} />
+          </div>
+        )}
+      </div>
+    ) : (
+      <div className="mx-auto w-full max-w-[560px] px-4 pb-10 pt-6 md:px-0">
+        <div className="rounded-panel border border-line bg-elevated p-4">
+          <ProductLink
+            onSaved={(element) => {
+              const cover = element.images[0]?.storageUrl;
+              patch({ view: "products", ...(cover ? { product: cover } : {}) });
+            }}
+          />
+        </div>
+      </div>
+    );
 
   return (
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
-      {/* Where the composer starts, to scroll back to; no line under the title. */}
-      <div ref={top} className="h-1 scroll-mt-4 md:hidden" />
-      <aside className="flex w-full shrink-0 flex-col px-4 md:sticky md:top-[76px] md:h-[calc(100dvh-92px)] md:w-[360px] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated md:px-0">
-        {composer}
+      <aside
+        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
+          folded ? "w-[64px]" : "w-[229px]"
+        }`}
+      >
+        <SideCollapsed.Provider value={folded}>
+          <MarketingSidebar view={view} onView={(next) => patch({ view: next })} />
+        </SideCollapsed.Provider>
       </aside>
-      <section className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-6 md:min-h-[56px] md:px-1 md:py-2.5">
-          <PillGroup plain value={tab} onChange={(t) => patch({ tab: t })} items={tabs} />
-        </div>
-        <div key={`${tab}-${video ? recipe.id : "image"}`} className="anim-fade flex-1 px-4 pb-8 md:px-1">
-          {tab === "templates" ? (
-            <PresetGrid
-              selected={ui.preset?.id}
-              onPick={(preset) => {
-                patch({ preset, mode: "image", tool: "create" });
-                toComposer();
-              }}
-            />
-          ) : tab === "products" ? (
-            <Products
-              onUse={(url) => {
-                patch({ product: url, mode: ui.mode === "video" ? "image" : ui.mode, tool: ui.tool === "product-link" ? "create" : ui.tool });
-                toComposer();
-              }}
-            />
-          ) : video ? (
-            hydrated && <RecipeRuns recipe={recipe} />
-          ) : (
-            <Gallery filter={madeHere} />
-          )}
-        </div>
-      </section>
+      {/* A phone has no side menu: the pages are a row of tabs. */}
+      <div className="no-bar overflow-x-auto px-4 pb-1 pt-2 md:hidden">
+        <PillGroup plain value={view} onChange={(next) => patch({ view: next })} items={[...NAV, ...TOOL_NAV].map(({ id, label }) => ({ id, label }))} />
+      </div>
+      <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
+        {page}
+      </main>
     </div>
   );
 }

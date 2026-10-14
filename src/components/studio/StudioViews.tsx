@@ -47,7 +47,7 @@ function CoverThumb({ project, size }: { project: Project; size: string }) {
   );
 }
 
-function NavRow({
+export function NavRow({
   icon,
   label,
   on,
@@ -90,7 +90,7 @@ function NavRow({
 }
 
 /** Folds the side menu down to its icons, and opens it out again. */
-function FoldButton() {
+export function FoldButton() {
   const folded = useSideCollapsed();
   const patchStudio = useStudio((s) => s.patchStudio);
   const label = folded ? "Expand menu" : "Collapse menu";
@@ -122,7 +122,7 @@ function StudioSwitcher() {
 }
 
 /** A heading in the side menu; a thin rule once it is folded to its icons. */
-function SideHeading({ label, children }: { label: string; children?: ReactNode }) {
+export function SideHeading({ label, children }: { label: string; children?: ReactNode }) {
   const folded = useSideCollapsed();
   if (folded) return <div aria-hidden className="mx-auto mb-1 mt-3 h-px w-6 shrink-0 bg-line" />;
   return (

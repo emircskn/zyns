@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FieldChip, BatchChip } from "@/components/PromptBar";
+import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
+import { Popover } from "@/components/Popover";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
-import { GenerateButton, times, usePrice } from "@/components/studio/StudioComposer";
+import { ChipRow, GenerateButton, times, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { typeLabel } from "@/lib/marketing/presets";
 import type { MarketingRunInfo, MarketingUi } from "@/lib/marketing/types";
@@ -49,7 +50,7 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
       ? [ui.adReference, ui.product].filter((u): u is string => !!u)
       : preset
         ? [ui.product, ui.avatar].filter((u): u is string => !!u)
-        : [ui.product, ...ui.refs].filter((u): u is string => !!u);
+        : [ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u);
   const mode = preset ? "preset" : images.length > 0 ? "edit" : "generate";
   const values: Values = { ...defaultValues(model), __mode: mode };
   const text = ui.prompt.trim();
@@ -147,7 +148,18 @@ type Picking = "product" | "avatar" | "refs" | "adReference" | null;
  * without, the pictures are something to edit from, or there are none.
  * Ad Reference is the same composer with the ad in place of a preset.
  */
-export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create" | "ad-reference"; onKeyClick: () => void; onSent?: () => void }) {
+export function MarketingComposer({
+  tool,
+  onKeyClick,
+  onSent,
+  bar = false,
+}: {
+  tool: "create" | "ad-reference";
+  onKeyClick: () => void;
+  onSent?: () => void;
+  /** Laid out as Cinema Studio's bar on a desktop: the prompt and its chips, Avatar, Product and Generate in one box. */
+  bar?: boolean;
+}) {
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
   const apiKey = useStudio((s) => s.apiKey);
@@ -161,7 +173,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
 
   const preset = tool === "create" ? ui.preset : null;
   const built = model ? marketingValues(model, ui, tool) : null;
-  const maxRefs = 16 - (ui.product ? 1 : 0);
+  const maxRefs = 16 - (ui.product ? 1 : 0) - (ui.avatar ? 1 : 0);
   const blocker = !model
     ? "Choose a Marketing Studio version."
     : tool === "ad-reference" && !ui.adReference
@@ -199,6 +211,162 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
   }
 
   const pickedUrls = [ui.product, ui.avatar, ui.adReference, ...ui.refs].filter((u): u is string => !!u);
+  const pickers = (
+    <>
+      <PresetPicker
+        open={presetsOpen}
+        selected={ui.preset?.id}
+        onPick={(p) => patch({ preset: p })}
+        onClose={() => setPresetsOpen(false)}
+      />
+      <ReferencePicker
+        open={!!picking}
+        onClose={() => setPicking(null)}
+        kinds={["image"]}
+        room={{ image: picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1, video: 0, audio: 0 }}
+        taken={pickedUrls}
+        startTab={picking === "product" || picking === "avatar" ? "elements" : "uploads"}
+        onAdd={(picked) => {
+          const urls = picked.filter((p) => p.kind === "image").map((p) => p.url);
+          if (urls.length === 0 || !picking) return;
+          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...urls].slice(0, maxRefs) }));
+          else patch({ [picking]: urls[0] } as Partial<MarketingUi>);
+        }}
+        onElements={(elements) => {
+          // An element's cover stands for it: a product shot of the product, a person for the model.
+          const covers = elements.map((e) => e.images[0]?.storageUrl).filter((u): u is string => !!u);
+          if (covers.length === 0 || !picking) return;
+          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...covers].slice(0, maxRefs) }));
+          else patch({ [picking]: covers[0] } as Partial<MarketingUi>);
+        }}
+      />
+    </>
+  );
+
+  if (bar && tool === "create") {
+    const tile =
+      "relative flex h-[80px] w-[80px] max-md:w-full shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1]";
+    const slot = (label: string, url: string | null, onPick: () => void, onClear: () => void) => (
+      <div className="relative max-md:w-full">
+        <button type="button" onClick={onPick} className={tile} aria-label={url ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}>
+          {url ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={mediaSrc(url)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
+            </>
+          ) : (
+            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1 ring-1 ring-inset ring-t1/20">
+              <Icon name="plus" size={13} />
+            </span>
+          )}
+          <span className="relative truncate text-[10px] font-bold uppercase text-t1">{label}</span>
+        </button>
+        {url && (
+          <button type="button" onClick={onClear} aria-label={`Remove ${label.toLowerCase()}`} className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white">
+            <Icon name="close" size={10} />
+          </button>
+        )}
+      </div>
+    );
+    return (
+      <div
+        className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            void generate();
+          }
+        }}
+      >
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:bg-transparent">
+          <textarea
+            value={ui.prompt}
+            onChange={(event) => patch({ prompt: event.target.value })}
+            rows={2}
+            placeholder={preset ? "Optional: what to change from the preset" : "Describe what you want to create…"}
+            className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+          />
+          <div className="flex items-center gap-1.5">
+            <ChipRow>
+              <button
+                type="button"
+                onClick={() => setPicking("refs")}
+                aria-label="Add pictures"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
+              >
+                {ui.refs.length ? <span className="font-mono text-[12px]">{ui.refs.length}</span> : <Icon name="plus" size={16} />}
+              </button>
+              <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
+              <Popover
+                width={240}
+                align="start"
+                title="Model"
+                trigger={() => <Chip icon={<Icon name="spark" size={15} />} value={model ? model.name : "Choose model"} />}
+              >
+                {(close) => (
+                  <div className="flex flex-col">
+                    {models.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => {
+                          patch({ modelId: m.id });
+                          close();
+                        }}
+                        className="flex h-9 items-center justify-between rounded-[8px] px-2.5 text-left text-[13px] text-t1 hover:bg-t1/[0.06]"
+                      >
+                        {m.name}
+                        {m.id === ui.modelId && <Icon name="check" size={14} className="text-accent" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Popover>
+              <button type="button" onClick={() => setPresetsOpen(true)} className="shrink-0">
+                <Chip icon={<Icon name="grid" size={15} />} value={preset ? preset.name : "Preset"} active={!!preset} />
+              </button>
+              {preset && (
+                <button type="button" onClick={() => patch({ preset: null })} aria-label="No preset" className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] text-t3 hover:bg-t1/[0.07] hover:text-t1">
+                  <Icon name="close" size={14} />
+                </button>
+              )}
+              {model &&
+                built &&
+                chips.map((field) => (
+                  <span key={field.key} className="shrink-0">
+                    <FieldChip
+                      field={field}
+                      values={built.values}
+                      onChange={(k, v) => {
+                        const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
+                        if (name) patch({ [name]: typeof v === "string" ? v : String(v ?? "") } as Partial<MarketingUi>);
+                      }}
+                    />
+                  </span>
+                ))}
+              <span className="shrink-0">
+                <BatchChip value={count} onChange={(n) => patch({ count: n })} />
+              </span>
+            </ChipRow>
+          </div>
+          {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
+        </div>
+        <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
+          {slot("Avatar", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
+          {slot("Product", ui.product, () => setPicking("product"), () => patch({ product: null }))}
+        </div>
+        <div className="flex max-md:hidden">
+          <GenerateButton onClick={() => void generate()} busy={busy} disabled={!!key && (busy || !!blocker)} blocker={blocker} price={price} count={count} needsKey={key ? null : PROVIDER_NAME[provider]} />
+        </div>
+        <div className="md:hidden">
+          <GenerateButton wide onClick={() => void generate()} busy={busy} disabled={!!key && (busy || !!blocker)} blocker={blocker} price={price} count={count} needsKey={key ? null : PROVIDER_NAME[provider]} />
+        </div>
+        {key && blocker && <p className="px-2 pb-0.5 text-[11.5px] text-t4 md:hidden">{blocker}</p>}
+        {pickers}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -404,33 +572,7 @@ export function MarketingComposer({ tool, onKeyClick, onSent }: { tool: "create"
         />
       </div>
 
-      <PresetPicker
-        open={presetsOpen}
-        selected={ui.preset?.id}
-        onPick={(p) => patch({ preset: p })}
-        onClose={() => setPresetsOpen(false)}
-      />
-      <ReferencePicker
-        open={!!picking}
-        onClose={() => setPicking(null)}
-        kinds={["image"]}
-        room={{ image: picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1, video: 0, audio: 0 }}
-        taken={pickedUrls}
-        startTab={picking === "product" || picking === "avatar" ? "elements" : "uploads"}
-        onAdd={(picked) => {
-          const urls = picked.filter((p) => p.kind === "image").map((p) => p.url);
-          if (urls.length === 0 || !picking) return;
-          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...urls].slice(0, maxRefs) }));
-          else patch({ [picking]: urls[0] } as Partial<MarketingUi>);
-        }}
-        onElements={(elements) => {
-          // An element's cover stands for it: a product shot of the product, a person for the model.
-          const covers = elements.map((e) => e.images[0]?.storageUrl).filter((u): u is string => !!u);
-          if (covers.length === 0 || !picking) return;
-          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...covers].slice(0, maxRefs) }));
-          else patch({ [picking]: covers[0] } as Partial<MarketingUi>);
-        }}
-      />
+      {pickers}
     </div>
   );
 }
