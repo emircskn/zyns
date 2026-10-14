@@ -19,7 +19,6 @@ import { Control, InputLabel, chipCaption, sourceItems } from "@/components/cont
 import { PillGroup } from "@/components/PillGroup";
 import { Icon, type IconName } from "@/components/Icon";
 import { Popover } from "@/components/Popover";
-import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { submitRun } from "@/lib/generate";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import {
@@ -33,11 +32,11 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
-import { AddChip, AttachRow, useAttach } from "@/components/Attachments";
+import { AddChip, AttachRow, useAttach, type AttachExtras } from "@/components/Attachments";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
-import { activeFields, barAndPanel, getModel, inputsOf, providerOf, shownInputs, tabOf, validateValues, type Field, type Values } from "@/lib/registry";
+import { activeFields, barAndPanel, getModel, inputsOf, providerOf, shownInputs, tabOf, validateValues, type Field, type ModelDef, type Values } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { dockedSpot, type MenuSpot } from "@/lib/menuSpot";
 import { useEstimate } from "@/lib/useEstimate";
@@ -458,48 +457,31 @@ export function Chip({
 }
 
 /**
- * "@ Elements" by the prompt: opens the Elements window (as Cinema Studio's
- * references have it) to pick any number; each comes into the prompt as
- * `@name` where the caret was, as typing `@` would. A model with elements
- * of its own (Kling's) lists those above yours, with the way to define
- * another, so the prompt box has one place for both rather than two rows.
+ * What the "+" window gets from the prompt box: elements picked there are
+ * written in as `@name`, and a model with elements of its own (Kling's)
+ * lists those on the same tab, with the way to define another.
  */
-export function ElementsChip({
-  onPick,
-  model,
-}: {
-  onPick: (name: string) => void;
-  /** The model's own elements: their names, the prompt (to mark those in use) and where more are defined. */
-  model?: { label: string; names: string[]; text: string; onDefine?: () => void };
-}) {
-  const [open, setOpen] = useState(false);
-  const used = model ? usedMentions(model.text, model.names) : new Set<string>();
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={`flex h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-[8px] pl-2.5 pr-3 text-[12.5px] transition-colors duration-[100ms] md:text-[13px] ${
-          open ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.04] text-t2 ring-1 ring-inset ring-line hover:bg-t1/[0.08] hover:text-t1"
-        }`}
-      >
-        <Icon name="at" size={15} />
-        Elements
-      </button>
-      <ReferencePicker
-        open={open}
-        onClose={() => setOpen(false)}
-        elementsOnly
-        room={{ image: 0, video: 0, audio: 0 }}
-        taken={[]}
-        onAdd={() => undefined}
-        // Several at once go in together: written one by one, each would start from the same old prompt.
-        onElements={(chosen) => chosen.length > 0 && onPick(chosen.map((e) => e.name).join(" @"))}
-        modelElements={model && (model.names.length > 0 || model.onDefine) ? { label: model.label, names: model.names, used, onPick, onDefine: model.onDefine } : undefined}
-      />
-    </>
-  );
+export function attachExtras(
+  model: ModelDef | undefined,
+  values: Values,
+  c: { mentionable: boolean; definedInPanel: boolean; names: string[]; firstPrompt?: Field; insertToken: (name: string) => void },
+): AttachExtras {
+  if (!model || !c.firstPrompt) return {};
+  const text = (values[c.firstPrompt.key] as string) ?? "";
+  return {
+    insert: c.insertToken,
+    modelElements: c.mentionable
+      ? {
+          label: model.name,
+          names: c.names,
+          used: usedMentions(text, c.names),
+          onPick: c.insertToken,
+          onDefine: c.definedInPanel ? () => useStudio.getState().toggleSettings(true) : undefined,
+        }
+      : undefined,
+  };
 }
+
 
 /**
  * A flag on the bar, like a model's own audio: the chip names it and a
@@ -1567,7 +1549,7 @@ export function PromptBar({
     insertToken,
     run,
   } = useComposer();
-  const attach = useAttach(attachFields);
+  const attach = useAttach(attachFields, attachExtras(model, values, { mentionable, definedInPanel, names, firstPrompt, insertToken }));
   const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
   const toggleSettings = useStudio((s) => s.toggleSettings);
   const selecting = useStudio((s) => s.selecting);

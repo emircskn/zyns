@@ -10,7 +10,7 @@ import { Sheet } from "@/components/remix/Restyle";
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
 import { FrameGrab } from "@/components/studio/FrameGrab";
-import { ReferencePicker, type Kind } from "@/components/studio/ReferencePicker";
+import type { Kind } from "@/components/studio/ReferencePicker";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ElementGrid, PreviewMedia } from "@/components/studio/Settings";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
@@ -553,7 +553,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           <div className="flex items-center gap-1.5">
             <div className="flex flex-1 flex-wrap items-center gap-1.5 md:min-w-0 md:flex-nowrap no-bar md:overflow-x-auto md:[mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)]">
             <ToolChip icon="plus" label="Add references" onClick={() => setRefsOpen("uploads")} />
-            <ToolChip icon="at" label="Add an element" onClick={() => setRefsOpen("elements")} />
             <ToolChip icon="frame" label="Take a frame from a clip" onClick={() => setGrabbing(true)} />
             <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
             <ModelChip models={models} model={model} onPick={(id) => patchStudio({ videoModelId: id })} />
@@ -656,11 +655,13 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           )}
         </>
       )}
-      {/* As in Genjutsu: "+" opens the window for media (generated, uploads, liked), the @ button the Elements one. */}
+      {/* One "+" for everything, as Higgsfield's window has it: uploads, elements, what was made by kind, the liked. */}
       <MediaPicker
         open={refsOpen === "uploads"}
         accept={refs.map((f) => (f.accept ?? "image") as Kind)}
         multiple
+        onElements={addElements}
+        max={room}
         taken={refs.flatMap((f) => listOf(values[f.key]))}
         onPick={(urls, pickedKinds) => {
           const picked = urls.map((url, i) => ({ url, kind: pickedKinds[i] ?? "image" }));
@@ -673,29 +674,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           }
         }}
         onClose={() => setRefsOpen(null)}
-      />
-      <ReferencePicker
-        open={refsOpen === "elements"}
-        elementsOnly
-        styles={false}
-        onClose={() => setRefsOpen(null)}
-        room={{
-          image: Math.max(0, (fieldOf("image")?.maxItems ?? 0) - listOf(values[fieldOf("image")?.key ?? ""]).length),
-          video: Math.max(0, (fieldOf("video")?.maxItems ?? 0) - listOf(values[fieldOf("video")?.key ?? ""]).length),
-          audio: Math.max(0, (fieldOf("audio")?.maxItems ?? 0) - listOf(values[fieldOf("audio")?.key ?? ""]).length),
-        }}
-        kinds={refs.map((f) => (f.accept ?? "image") as Kind)}
-        taken={refs.flatMap((f) => listOf(values[f.key]))}
-        onAdd={(picked) => {
-          for (const kind of ["image", "video", "audio"] as Kind[]) {
-            const field = fieldOf(kind);
-            const urls = picked.filter((p) => p.kind === kind).map((p) => p.url);
-            if (!field || urls.length === 0) continue;
-            const now = listOf(useStudio.getState().valuesByModel[CINEMA]?.[field.key]);
-            set(field.key, [...now, ...urls.filter((u) => !now.includes(u))].slice(0, field.maxItems ?? 30));
-          }
-        }}
-        onElements={addElements}
       />
       <ReferenceStrip refs={refs} values={values} onSet={set} />
       <FrameGrab
@@ -1081,6 +1059,13 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         open={refsOpen !== null}
         accept="image"
         multiple
+        max={14}
+        onElements={(chosen) =>
+          patchStudio((s) => ({
+            imagePrompt: `${(s.imagePrompt ?? "").trimEnd()} ${chosen.map((e) => `@${e.name}`).join(" ")} `.trimStart(),
+            imageRefs: [...(s.imageRefs ?? []), ...chosen.flatMap((e) => e.images.map((r) => r.storageUrl)).filter((u) => !(s.imageRefs ?? []).includes(u))].slice(0, 14),
+          }))
+        }
         taken={studio.imageRefs}
         onPick={(urls) => patchStudio((s) => ({ imageRefs: [...s.imageRefs, ...urls.filter((u) => !s.imageRefs.includes(u))].slice(0, 14) }))}
         onClose={() => setRefsOpen(null)}

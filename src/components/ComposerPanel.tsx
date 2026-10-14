@@ -9,7 +9,7 @@ import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import {
   BatchChip,
-  ElementsChip,
+  attachExtras,
   FieldChip,
   InputsSwitch,
   MentionStrip,
@@ -120,6 +120,16 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         onPick={(picked) =>
           clip ? chooseClip(picked[0]) : setValue(field.key, many ? [...urls, ...picked] : picked[0])
         }
+        // A slot of several pictures takes an element's pictures too; a single frame is one picture of yours.
+        onElements={
+          many && kind === "image"
+            ? (chosen) => {
+                const pictures = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl)).filter((u) => !urls.includes(u));
+                setValue(field.key, [...urls, ...pictures].slice(0, field.maxItems ?? 50));
+              }
+            : undefined
+        }
+        max={many ? field.maxItems : undefined}
         onClose={() => setPicking(false)}
       />
     </>
@@ -407,8 +417,6 @@ export function ComposerBody({
   // A phone heads only video with the model's card; everywhere else on a
   // phone the model is a line at the foot of the prompt box.
   const promptBox = promptFields.length > 0 || toggles.length > 0;
-  // Video's prompt has its elements a tap away, beside its switches.
-  const elementsChip = model.category === "video" && !!firstPrompt;
   const inlineModel = phone && model.category !== "video" && promptBox;
 
   return (
@@ -417,7 +425,8 @@ export function ComposerBody({
       {!(phone && model.category !== "video") && <ModelBanner model={model} />}
       <InputsSwitch />
 
-      <AttachPanel fields={attachFields} />
+      {/* Elements come in from the "+" window's own tab, beside the media. */}
+      <AttachPanel fields={attachFields} extras={attachExtras(model, values, { mentionable, definedInPanel, names, firstPrompt, insertToken })} />
       {stripFields.length > 0 && (
         <div className={stripFields.length > 1 ? "grid grid-cols-2 gap-2.5" : ""}>
           {stripFields.map((field) => {
@@ -495,8 +504,7 @@ export function ComposerBody({
             ))}
           </div>
           <PromptFolds folded={prompts.folded} onOpen={prompts.open} />
-          {/* Where the Elements chip is, the model's own elements are inside it rather than a row of their own. */}
-          {mentionable && firstPrompt && !elementsChip && (
+          {mentionable && firstPrompt && (
             <MentionStrip
               names={names}
               text={(values[firstPrompt.key] as string) ?? ""}
@@ -504,23 +512,8 @@ export function ComposerBody({
               onDefine={definedInPanel ? () => toggleSettings(true) : undefined}
             />
           )}
-          {(toggles.length > 0 || elementsChip) && !full && (
+          {toggles.length > 0 && !full && (
             <div className="mt-1 flex flex-wrap gap-1.5">
-              {elementsChip && (
-                <ElementsChip
-                  onPick={insertToken}
-                  model={
-                    mentionable && firstPrompt
-                      ? {
-                          label: model.name,
-                          names,
-                          text: (values[firstPrompt.key] as string) ?? "",
-                          onDefine: definedInPanel ? () => toggleSettings(true) : undefined,
-                        }
-                      : undefined
-                  }
-                />
-              )}
               {toggles.map((field) => (
                 <FieldChip key={field.key} field={field} />
               ))}

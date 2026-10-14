@@ -476,6 +476,17 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
           const room = field.maxItems ? field.maxItems - urls.length : picked.length;
           onChange([...urls, ...picked.slice(0, Math.max(room, 0))]);
         }}
+        // Pictures take an element's pictures too; clips and sounds have no elements to give.
+        onElements={
+          (field.accept ?? "image") === "image"
+            ? (chosen) => {
+                const pictures = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl)).filter((u) => !urls.includes(u));
+                const room = field.maxItems ? field.maxItems - urls.length : pictures.length;
+                onChange([...urls, ...pictures.slice(0, Math.max(room, 0))]);
+              }
+            : undefined
+        }
+        max={field.maxItems}
         onClose={() => setPicking(false)}
       />
     </div>

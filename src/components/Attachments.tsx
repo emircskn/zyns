@@ -47,7 +47,13 @@ function useAttachedOrder(items: Attached[]) {
  * fields still take, whose picks are filed by kind (see attachMedia). Opened
  * from the "+" chip or the add tile at the end of the attached row.
  */
-export function useAttach(fields: Field[]) {
+/** What the prompt box lends the "+" window: writing `@name` where the caret is, and the model's own elements. */
+export interface AttachExtras {
+  insert?: (name: string) => void;
+  modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
+}
+
+export function useAttach(fields: Field[], extras: AttachExtras = {}) {
   const values = useValues();
   const [open, setOpen] = useState(false);
   const withRoom = fields.filter((f) => roomIn(f, values[f.key]) > 0);
@@ -65,6 +71,18 @@ export function useAttach(fields: Field[]) {
       onPick={(urls, picked) => {
         attachMedia(urls.map((url, i) => ({ url, kind: picked[i] as MediaKind })));
       }}
+      // Elements come into the prompt as `@name`, their pictures into the model's slots, as typing `@` does.
+      onElements={
+        extras.insert && kinds.includes("image")
+          ? (chosen) => {
+              extras.insert!(chosen.map((e) => e.name).join(" @"));
+              const attached = new Set(fields.flatMap((f) => urlsIn(f, values[f.key])));
+              const pictures = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl)).filter((url) => !attached.has(url));
+              if (pictures.length > 0) attachMedia(pictures.map((url) => ({ url, kind: "image" as const })));
+            }
+          : undefined
+      }
+      modelElements={extras.modelElements}
       onClose={() => setOpen(false)}
     />
   );
@@ -151,10 +169,10 @@ const KIND_WORD: Record<MediaKind, string> = { image: "images", video: "video", 
  * by slot when the model has several. Several boxes, one per slot, crowded
  * the prompt off a small screen.
  */
-export function AttachPanel({ fields }: { fields: Field[] }) {
+export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: AttachExtras }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
-  const attach = useAttach(fields);
+  const attach = useAttach(fields, extras);
   const items = attachedIn(fields, values);
   const reorder = useAttachedOrder(items);
   if (fields.length === 0) return null;

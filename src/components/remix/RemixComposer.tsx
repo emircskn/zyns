@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
-import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { Row } from "@/components/remix/Row";
 import { ModelMedia } from "@/components/ModelMedia";
 import { FieldChip, TileChips } from "@/components/PromptBar";
@@ -290,15 +289,14 @@ function RefsBox({
   required,
   onChange,
   onAdd,
-  onElements,
 }: {
   label: string;
   refs: string[];
   room: number;
   required: boolean;
   onChange: (refs: string[]) => void;
+  /** The "+" window, whose Elements tab brings elements' pictures in too. */
   onAdd: () => void;
-  onElements: () => void;
 }) {
   const keys = keysFor(refs);
   const reorder = useReorder(refs.length, (from, to) => onChange(moveItem(refs, from, to)));
@@ -310,12 +308,6 @@ function RefsBox({
         label={label}
         note={`up to ${room}${required ? "" : " · optional"}`}
         onClick={onAdd}
-        extra={
-          <SmallPill onClick={onElements}>
-            <Icon name="user" size={13} />
-            From Elements
-          </SmallPill>
-        }
       />
     );
   }
@@ -349,10 +341,6 @@ function RefsBox({
           {label} · {refs.length}/{room}
           {refs.length > 1 ? " · hold to reorder" : ""}
         </span>
-        <SmallPill onClick={onElements}>
-          <Icon name="user" size={13} />
-          Elements
-        </SmallPill>
       </div>
     </div>
   );
@@ -407,7 +395,6 @@ export function RemixComposer({
   const target = targetOf(remix);
   const model = getModel(target.modelId);
   const [picking, setPicking] = useState<"source" | "refs" | null>(null);
-  const [choosing, setChoosing] = useState(false);
   const [trimming, setTrimming] = useState(false);
   const [library, setLibrary] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -518,25 +505,8 @@ export function RemixComposer({
             required={!!refsField.required}
             onChange={(refs) => patchRemix({ refs })}
             onAdd={() => setPicking("refs")}
-            onElements={() => setChoosing(true)}
           />
         )}
-        {/* Elements come in as their pictures, in the Elements window the Video page's prompt opens. */}
-        <ReferencePicker
-          open={choosing}
-          onClose={() => setChoosing(false)}
-          elementsOnly
-          styles={false}
-          room={{ image: 0, video: 0, audio: 0 }}
-          taken={[]}
-          onAdd={() => undefined}
-          onElements={(chosen) =>
-            patchRemix((r) => {
-              const urls = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl));
-              return { refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) };
-            })
-          }
-        />
         {below}
         <PromptBox
           on={promptOn}
@@ -630,6 +600,17 @@ export function RemixComposer({
           if (picking === "source") patchRemix({ source: urls[0] ?? null });
           else patchRemix((r) => ({ refs: [...r.refs, ...urls].slice(0, room) }));
         }}
+        // Elements come in as their pictures, from the window's own tab.
+        onElements={
+          picking === "refs"
+            ? (chosen) =>
+                patchRemix((r) => {
+                  const urls = chosen.flatMap((e) => e.images.map((ref) => ref.storageUrl));
+                  return { refs: [...r.refs, ...urls.filter((u) => !r.refs.includes(u))].slice(0, room) };
+                })
+            : undefined
+        }
+        max={picking === "refs" ? room : undefined}
         onClose={() => setPicking(null)}
       />
       <Sheet open={library} title="Motion library" sub="Clips kept for their motion" onClose={() => setLibrary(false)}>

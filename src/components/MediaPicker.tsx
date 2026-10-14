@@ -9,13 +9,16 @@ import { ServiceBadge } from "@/components/ServiceBadge";
 import { PillGroup } from "@/components/PillGroup";
 import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
+import { pickable, type LibraryElement } from "@/lib/elements";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
 import { useStudio } from "@/store/studio";
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
 
 type Kind = "image" | "video" | "audio";
-type Tab = "generated" | "uploads" | "liked";
+type Tab = "uploads" | "elements" | "gen-image" | "gen-video" | "gen-audio" | "liked";
+const GEN_TAB: Record<Kind, Tab> = { image: "gen-image", video: "gen-video", audio: "gen-audio" };
+const GEN_LABEL: Record<Kind, string> = { image: "Image Generations", video: "Video Generations", audio: "Audio Generations" };
 
 function TileAction({
   icon,
@@ -119,6 +122,9 @@ export function MediaPicker({
   onPick,
   onClose,
   above,
+  onElements,
+  modelElements,
+  max,
 }: {
   open: boolean;
   /** One kind, or several for the bar's "+", which files each where it goes. */
@@ -130,6 +136,12 @@ export function MediaPicker({
   onClose: () => void;
   /** Opened from a window that itself sits over the page's other windows (the element editor). */
   above?: boolean;
+  /** Elements picked from their own tab, as Higgsfield's window has one; no tab without this. */
+  onElements?: (elements: LibraryElement[]) => void;
+  /** A model's own elements (Kling's), above yours on the Elements tab: a pick goes straight into the prompt. */
+  modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
+  /** How many may be added, for the "N of max selected" count. */
+  max?: number;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   // What it was opened for, kept while it closes: a caller that resets its
@@ -140,7 +152,7 @@ export function MediaPicker({
   const { accept, multiple, taken } = kept.current;
   const assets = useAssets();
   const { pending, error, input, send, accept: mime } = useUploader(accept);
-  const [tab, setTab] = useState<Tab>("generated");
+  const [tab, setTab] = useState<Tab>("uploads");
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
@@ -163,12 +175,23 @@ export function MediaPicker({
     () => made.filter((a) => favorites.includes(a.url)),
     [made, favorites],
   );
+  const library = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && pickable(e));
+  const [chosenElements, setChosenElements] = useState<string[]>([]);
+  // As Higgsfield lays its window out: uploads, elements, then what was made by kind, then the liked.
+  const tabs: Array<{ id: Tab; label: string }> = [
+    { id: "uploads", label: "Uploads" },
+    ...(onElements || modelElements ? [{ id: "elements" as Tab, label: "Elements" }] : []),
+    ...kinds.map((k) => ({ id: GEN_TAB[k], label: GEN_LABEL[k] })),
+    { id: "liked", label: "Liked" },
+  ];
 
   useEffect(() => {
     if (!open) return;
     setChosen([]);
+    setChosenElements([]);
     setPreview(null);
-    setTab(made.length > 0 ? "generated" : "uploads");
+    const firstMade = kinds.find((k) => made.some((a) => a.kind === k));
+    setTab(firstMade ? GEN_TAB[firstMade] : "uploads");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -186,8 +209,10 @@ export function MediaPicker({
   // The sheet is as tall as what it holds, so switching tabs, or a list
   // growing, changes its height. It moves there rather than jumping: the
   // old height is kept for a moment and eased into the new one.
-  const list = tab === "generated" ? made : tab === "liked" ? liked : uploaded;
-  const shape = `${tab}:${list.length}:${pending}:${chosen.length > 0}:${!!error}`;
+  const genKind = (Object.keys(GEN_TAB) as Kind[]).find((k) => GEN_TAB[k] === tab);
+  const list = genKind ? made.filter((a) => a.kind === genKind) : tab === "liked" ? liked : tab === "uploads" ? uploaded : [];
+  const picks = chosen.length + chosenElements.length;
+  const shape = `${tab}:${list.length}:${pending}:${picks > 0}:${!!error}`;
   useLayoutEffect(() => {
     const node = sheet.current;
     if (!node) {
@@ -275,24 +300,81 @@ export function MediaPicker({
           </button>
         </header>
 
-        <div className="flex items-center px-4 py-3 sm:px-5">
-          <PillGroup
-            value={tab}
-            onChange={(next) => setTab(next as Tab)}
-            items={[
-              { id: "generated", label: "Generated" },
-              { id: "uploads", label: "Uploads" },
-              { id: "liked", label: "Liked" },
-            ]}
-          />
+        {/* One row of every source, sliding sideways on a phone when it runs past the edge. */}
+        <div className="no-bar overflow-x-auto px-4 py-3 sm:px-5">
+          <PillGroup value={tab} onChange={(next) => setTab(next as Tab)} items={tabs} className="w-max" />
         </div>
 
         <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-5 sm:pb-5">
-          {tab !== "uploads" && list.length === 0 ? (
+          {tab === "elements" && modelElements && (modelElements.names.length > 0 || modelElements.onDefine) && (
+            <div className="mb-4 border-b border-line pb-4">
+              <p className="mb-2 text-[13px] font-medium text-t2">{modelElements.label}&apos;s own elements</p>
+              <div className="flex flex-wrap gap-1.5">
+                {modelElements.names.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => {
+                      modelElements.onPick(name);
+                      onClose();
+                    }}
+                    className={`h-8 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
+                      modelElements.used.has(name) ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+                    }`}
+                  >
+                    @{name}
+                  </button>
+                ))}
+                {modelElements.onDefine && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      modelElements.onDefine!();
+                    }}
+                    className="flex h-8 items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+                  >
+                    <Icon name="plus" size={13} />
+                    {modelElements.names.length === 0 ? `Define a ${modelElements.label} element` : "Define another"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {tab === "elements" ? (
+            !onElements ? null : library.length === 0 ? (
+              <p className="py-14 text-center text-[13px] text-t4">No elements yet. Make one on the Elements page.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {library.map((element) => {
+                  const on = chosenElements.includes(element.id);
+                  return (
+                    <button
+                      key={element.id}
+                      type="button"
+                      onClick={() => setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]))}
+                      className="relative flex flex-col gap-1 text-left"
+                    >
+                      <span className={`relative block aspect-square overflow-hidden rounded-card bg-surface ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-line"}`}>
+                        {element.images[0] && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        )}
+                        <span className={`absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border ${on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"}`}>
+                          <Icon name="check" size={12} strokeWidth={2.6} />
+                        </span>
+                      </span>
+                      <span className="truncate text-[12px] text-t2">@{element.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          ) : tab !== "uploads" && list.length === 0 ? (
             <p className="py-14 text-center text-[13px] text-t4">
               {tab === "liked"
                 ? `Nothing liked yet. ${noun[0].toUpperCase() + noun.slice(1)} you heart show up here.`
-                : `Nothing generated yet. Runs that produce ${noun} show up here.`}
+                : `Nothing generated yet. ${genKind === "video" ? "Videos" : genKind === "audio" ? "Sounds" : "Images"} you make show up here.`}
             </p>
           ) : (
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -345,13 +427,15 @@ export function MediaPicker({
           <p className="shrink-0 px-4 pb-4 text-[11.5px] text-[#ff8f8f] sm:px-5 sm:pb-5">{error}</p>
         )}
 
-        {multiple && chosen.length > 0 && (
+        {multiple && picks > 0 && (
           <div className="flex items-center gap-3 border-t border-line px-4 py-3 sm:px-5">
-            <span className="flex-1 text-[12.5px] text-t3">{chosen.length} selected</span>
+            <span className="flex-1 text-[12.5px] text-t3">{max ? `${picks} of ${max} selected` : `${picks} selected`}</span>
             <button
               type="button"
               onClick={() => {
-                onPick(chosen, chosen.map(kindOf));
+                if (chosen.length > 0) onPick(chosen, chosen.map(kindOf));
+                const elements = library.filter((e) => chosenElements.includes(e.id));
+                if (elements.length > 0) onElements?.(elements);
                 onClose();
               }}
               className="cta rounded-full px-4 py-2 text-[12.5px] font-medium"
