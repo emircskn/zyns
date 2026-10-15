@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
+import { GlideMark } from "@/components/GlideMark";
 import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { StudioNav, type StudioNavValue } from "@/components/studio/studioNav";
 import { SideCollapsed } from "@/components/studio/sideCollapse";
@@ -71,8 +72,8 @@ function Products({ onUse }: { onUse: (url: string) => void }) {
 
 const NAV: Array<{ id: MarketingView; label: string; place: string }> = [
   { id: "home", label: "Home", place: "home" },
-  { id: "generations", label: "My generations", place: "generations" },
-  { id: "favorites", label: "My favorites", place: "favorites" },
+  { id: "generations", label: "Generations", place: "generations" },
+  { id: "favorites", label: "Favorites", place: "favorites" },
   { id: "products", label: "My products", place: "products" },
 ];
 const TOOL_NAV: Array<{ id: MarketingView; label: string; place: string }> = [
@@ -248,14 +249,25 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           />
         </SideCollapsed.Provider>
       </aside>
-      {/* A phone has no side menu: the pages are a row of tabs. */}
-      <div className="no-bar overflow-x-auto px-4 pb-1 pt-2 md:hidden">
-        <PillGroup
-          plain
-          value={view === "project" ? "projects" : view}
-          onChange={(next) => patch({ view: next })}
-          items={[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects" }, { id: "trash" as MarketingView, label: "Trash" }].map(({ id, label }) => ({ id, label }))}
-        />
+      {/* A phone has no side menu: the pages are a row of chips with the side menu's icons, as Cinema Studio's. */}
+      <div className="no-bar relative flex gap-1.5 overflow-x-auto px-4 pb-1 pt-2 md:hidden">
+        <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
+        {[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects", place: "projects" }, { id: "trash" as MarketingView, label: "Trash", place: "trash" }].map((item) => {
+          const on = view === item.id || (item.id === "projects" && view === "project");
+          return (
+            <button
+              key={item.id}
+              data-pill={item.id}
+              type="button"
+              onClick={() => patch({ view: item.id })}
+              aria-current={on || undefined}
+              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-1.5 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${on ? "text-canvas" : "bg-t1/[0.07] text-t2"}`}
+            >
+              <PlaceIcon place={item.place} size={20} />
+              {item.label}
+            </button>
+          );
+        })}
       </div>
       <RecreateTemplate template={picked} onClose={() => setPicked(null)} onKeyClick={onKeyClick} onSent={showMade} />
       <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
