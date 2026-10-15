@@ -124,11 +124,23 @@ export async function getCredits(apiKey: string): Promise<number | null> {
 /** What this app's own server route can pass on: Vercel refuses bodies over 4.5 MB. */
 const SERVER_UPLOAD_LIMIT = 4 * 1024 * 1024;
 
-async function uploadDirect(apiKey: string, file: File): Promise<string> {
+/**
+ * A name no other upload has. KIE keeps a file at its name, so two pictures
+ * both called "image.jpg" (as a phone names every photo it hands over) came
+ * back as one address, and the first one stood in for all of them.
+ */
+function uniqueName(name: string): string {
+  const dot = name.lastIndexOf(".");
+  const base = (dot > 0 ? name.slice(0, dot) : name) || "upload";
+  const ext = dot > 0 ? name.slice(dot) : "";
+  return `${base}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}${ext}`;
+}
+
+async function uploadDirect(apiKey: string, file: File, name = uniqueName(file.name)): Promise<string> {
   const form = new FormData();
-  form.append("file", file, file.name);
+  form.append("file", file, name);
   form.append("uploadPath", "images/user-uploads");
-  form.append("fileName", file.name);
+  form.append("fileName", name);
   const envelope = (await direct(apiKey, `${KIE_UPLOAD_BASE}/api/file-stream-upload`, {
     method: "POST",
     body: form,
@@ -155,7 +167,7 @@ export async function uploadFile(apiKey: string, file: File): Promise<string> {
     if (!blocked || isDirect() || file.size > SERVER_UPLOAD_LIMIT) throw error;
   }
   const form = new FormData();
-  form.append("file", file);
+  form.append("file", file, uniqueName(file.name));
   const res = await fetch("/api/kie/upload", {
     method: "POST",
     headers: { "x-kie-key": apiKey },
