@@ -1585,7 +1585,7 @@ export function PromptBar({
   // The centred box sits in the page's own flow; nothing pads itself for it.
   usePublishedHeight(wrapper, !centered);
 
-  // The one button that starts something: Higgsfield's tall lime tile at
+  // The one button that starts something: Higgsfield's tall accent tile at
   // the box's right end, with the price under the word.
   const send = (
     <button

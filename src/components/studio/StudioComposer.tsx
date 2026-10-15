@@ -352,7 +352,7 @@ export function GenerateButton({
   /** The phone's: the composer's whole width at its foot, with the price on it. */
   wide?: boolean;
 }) {
-  // Higgsfield's: a tall lime tile at the composer's end, the word over what it costs.
+  // Higgsfield's: a tall accent tile at the composer's end, the word over what it costs.
   const what = needsKey ? `Add your ${needsKey} key` : `Generate${count > 1 ? ` ×${count}` : ""}${price ? ` · ${price}` : ""} (⌘↵)`;
   return (
     <button
