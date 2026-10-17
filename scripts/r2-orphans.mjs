@@ -130,7 +130,7 @@ async function main() {
       orphans.slice(i, i + 8).map(async (o) => {
         const res = await fetch(sign(env, "DELETE", o.key));
         if (res.ok || res.status === 404) done++;
-        else console.log(`  failed ${o.key}: HTTP ${res.status}`);
+        else console.log(`  failed ${o.key}: HTTP ${res.status} ${(await res.text()).replace(/\s+/g, " ").slice(0, 300)}`);
       }),
     );
   }
