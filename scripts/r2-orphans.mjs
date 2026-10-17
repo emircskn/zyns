@@ -8,6 +8,7 @@
  * "Pointed at" is read from the shared libraries kept in the bucket itself
  * (library/*.json: runs, uploads, elements, copies), so every device's work
  * counts, not just one browser's. Without --delete it only reports.
+ * --explain says why each file counts as in use (report only).
  * --state adds a browser's own saved state (copy(localStorage.zyns)) for work
  * not shared yet. Files newer than --min-age-days are never touched.
  */
@@ -32,6 +33,46 @@ export function findOrphans(objects, ids, now, minAgeMs) {
     const id = idOf(o.key);
     return id && !ids.has(id) && now - o.modified >= minAgeMs;
   });
+}
+
+/**
+ * Who holds each file, from the parsed library documents: id -> [{how, label}].
+ * how: "out" (a run's result), "in" (a run's reference), "own" (an upload or
+ * element), "record" (only a note that a copy exists, which keeps nothing alive).
+ */
+export function holders(docs) {
+  const map = new Map();
+  const add = (id, how, label) => (map.get(id) ?? map.set(id, []).get(id)).push({ how, label });
+  const day = (t) => (t ? new Date(t).toISOString().slice(0, 10) : "?");
+  for (const doc of docs) {
+    // A run names its files by where they came from; the copy notes say which stored file that is.
+    const copies = Object.entries(doc.copies ?? {}).map(([url, c]) => [url, referencedIds(String(c.key ?? ""))]);
+    const idsIn = (value) => {
+      const text = typeof value === "string" ? value : JSON.stringify(value ?? null);
+      const found = referencedIds(text);
+      for (const [url, ids] of copies) if (text.includes(url)) ids.forEach((i) => found.add(i));
+      return found;
+    };
+    for (const r of doc.runs ?? []) {
+      const label = `run ${String(r.id).slice(0, 8)} ${r.modelName ?? ""} ${day(r.createdAt)}${r.trashedAt ? " (Trash)" : ""} "${String(r.prompt ?? "").slice(0, 30)}"`;
+      idsIn(r.urls).forEach((i) => add(i, "out", label));
+      idsIn(r.values).forEach((i) => add(i, "in", label));
+    }
+    for (const u of doc.uploads ?? []) idsIn(u.url).forEach((i) => add(i, "own", `upload "${u.name ?? ""}" ${day(u.createdAt)}${u.trashedAt ? " (Trash)" : ""}`));
+    for (const e of doc.elements ?? []) idsIn(e).forEach((i) => add(i, "own", `element ${e.name ?? ""}`));
+    for (const c of doc.motionClips ?? []) idsIn(c).forEach((i) => add(i, "own", "motion clip"));
+    for (const [, ids] of copies) ids.forEach((i) => add(i, "record", "copy note"));
+    for (const k of Object.keys(doc.remotes ?? {})) referencedIds(k).forEach((i) => add(i, "record", "remote note"));
+    idsIn(doc.favorites).forEach((i) => add(i, "record", "favorite"));
+  }
+  return map;
+}
+
+/** used: something shows it; inputOnly: only a run's reference; recordOnly: only notes; none: nothing. */
+export function category(entries = []) {
+  if (entries.some((e) => e.how === "out" || e.how === "own")) return "used";
+  if (entries.some((e) => e.how === "in")) return "inputOnly";
+  return entries.length ? "recordOnly" : "none";
 }
 
 export function parseList(xml) {
@@ -88,6 +129,32 @@ async function listAll(env) {
   return all;
 }
 
+function explain(objects, docs) {
+  const h = holders(docs);
+  const mb = (n) => (n / 1048576).toFixed(1);
+  const groups = { used: [], inputOnly: [], recordOnly: [], none: [] };
+  for (const o of objects.filter((x) => x.key.startsWith("media/"))) {
+    groups[category(h.get(idOf(o.key)))].push(o);
+  }
+  const total = (list) => `${list.length} files, ${mb(list.reduce((n, o) => n + o.size, 0))} MB`;
+  console.log(`\nMedia in the bucket: ${Object.values(groups).flat().length}`);
+  console.log(`  shown in the studio (a result, an upload or an element): ${total(groups.used)}`);
+  console.log(`  held only as a reference of some run:                    ${total(groups.inputOnly)}`);
+  console.log(`  only a note that a copy exists, nothing uses it:         ${total(groups.recordOnly)}`);
+  console.log(`  in no library at all:                                    ${total(groups.none)}`);
+  const show = (title, list) => {
+    if (list.length === 0) return;
+    console.log(`\n${title}`);
+    for (const o of list.slice(0, 40)) {
+      const who = [...new Set((h.get(idOf(o.key)) ?? []).filter((e) => e.how !== "record").map((e) => e.label))].slice(0, 2).join(" | ");
+      console.log(`  ${o.key}  ${mb(o.size)} MB  ${new Date(o.modified).toISOString().slice(0, 10)}  ${who}`);
+    }
+    if (list.length > 40) console.log(`  … and ${list.length - 40} more`);
+  };
+  show("Held only as a reference of a run (delete the run and these go):", groups.inputOnly);
+  show("Only a note that a copy exists, nothing uses them:", groups.recordOnly);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const flag = (name) => args.includes(name);
@@ -104,11 +171,19 @@ async function main() {
   if (libraries.length === 0 && !value("--state")) throw new Error("No library found in the bucket: nothing to compare with, stopping.");
 
   let ids = new Set();
+  const docs = [];
   for (const lib of libraries) {
     const text = await (await ok(await fetch(sign(env, "GET", lib.key)), `read ${lib.key}`)).text();
     ids = new Set([...ids, ...referencedIds(text)]);
+    try {
+      docs.push(JSON.parse(text));
+    } catch {
+      console.log(`  (could not read ${lib.key} as a library, only counted)`);
+    }
   }
   if (value("--state")) ids = new Set([...ids, ...referencedIds(readFileSync(value("--state"), "utf8"))]);
+
+  if (flag("--explain")) return explain(objects, docs);
 
   const orphans = findOrphans(objects, ids, Date.now(), minAgeMs);
   const mb = (n) => (n / 1048576).toFixed(1);
