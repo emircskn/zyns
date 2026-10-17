@@ -184,6 +184,7 @@ async function main() {
   }
   // A note that a copy exists keeps nothing alive; only something that shows the file does.
   if (flag("--notes-too")) {
+    console.log("--notes-too on: a file that only has a copy note counts as unused.");
     if (docs.length < libraries.length) throw new Error("A library could not be read, so --notes-too would be guessing: stopping.");
     ids = new Set([...holders(docs)].filter(([, e]) => ["used", "inputOnly"].includes(category(e))).map(([id]) => id));
   }
