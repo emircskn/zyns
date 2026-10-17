@@ -9,6 +9,7 @@
  * (library/*.json: runs, uploads, elements, copies), so every device's work
  * counts, not just one browser's. Without --delete it only reports.
  * --explain says why each file counts as in use (report only).
+ * --notes-too also counts as unused a file that only has a "copy exists" note.
  * --state adds a browser's own saved state (copy(localStorage.zyns)) for work
  * not shared yet. Files newer than --min-age-days are never touched.
  */
@@ -180,6 +181,11 @@ async function main() {
     } catch {
       console.log(`  (could not read ${lib.key} as a library, only counted)`);
     }
+  }
+  // A note that a copy exists keeps nothing alive; only something that shows the file does.
+  if (flag("--notes-too")) {
+    if (docs.length < libraries.length) throw new Error("A library could not be read, so --notes-too would be guessing: stopping.");
+    ids = new Set([...holders(docs)].filter(([, e]) => ["used", "inputOnly"].includes(category(e))).map(([id]) => id));
   }
   if (value("--state")) ids = new Set([...ids, ...referencedIds(readFileSync(value("--state"), "utf8"))]);
 
