@@ -12,6 +12,7 @@ import { ElementsPage } from "@/components/ElementsPage";
 import { CategoryPage } from "@/components/CategoryPage";
 import { CreateSheet } from "@/components/CreateSheet";
 import { NewFolderDialog } from "@/components/NewFolderDialog";
+import { ScrollLock } from "@/components/ScrollLock";
 import { ViewportSync } from "@/components/ViewportSync";
 import { TrashSweeper } from "@/components/studio/Trash";
 import { ProjectDeleteDialog } from "@/components/ProjectDeleteDialog";
@@ -185,6 +186,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
       <RecipeDriver />
       <ThemeSync />
       <ViewportSync />
+      <ScrollLock />
       <ApiKeyDialog open={keyOpen} onClose={() => setKeyOpen(false)} />
     </div>
   );
