@@ -759,6 +759,9 @@ function ProjectTrashCover({ project }: { project: Project }) {
   );
 }
 
+/** The headings a brief is usually written under. */
+const BRIEF_TEMPLATE = ["Context", "Narrative", "Visuals", "Production", "Status", "Resources", "Notes"].map((h) => `${h}\n\n`).join("\n");
+
 /** A project open: its assets (all, or a folder's), its brief, settings, elements or Trash. */
 export function ProjectView() {
   const askFolder = useNewFolder((s) => s.ask);
@@ -923,14 +926,25 @@ export function ProjectView() {
       />
       <div key={folder || "all"} className="anim-fade px-4 md:px-1">
         {folder === "brief" ? (
-          <textarea
-            aria-label="Project brief"
-            value={project.brief ?? ""}
-            onChange={(event) => patchProject(project.id, { brief: event.target.value })}
-            rows={10}
-            placeholder="What this project is for: the story, the look, who it is for, what is still to make."
-            className={`${field} min-h-[220px] max-w-[720px] resize-y leading-relaxed`}
-          />
+          <div className="flex max-w-[720px] flex-col items-start gap-2.5">
+            {!project.brief?.trim() && (
+              <button
+                type="button"
+                onClick={() => patchProject(project.id, { brief: BRIEF_TEMPLATE })}
+                className="rounded-chip bg-t1/[0.06] px-3 py-1.5 text-[13px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+              >
+                Start from a template
+              </button>
+            )}
+            <textarea
+              aria-label="Project brief"
+              value={project.brief ?? ""}
+              onChange={(event) => patchProject(project.id, { brief: event.target.value })}
+              rows={10}
+              placeholder="What this project is for: the story, the look, who it is for, what is still to make."
+              className={`${field} min-h-[220px] resize-y leading-relaxed`}
+            />
+          </div>
         ) : folder === "settings" ? (
           <div className="flex max-w-[520px] flex-col gap-5">
             <div>
