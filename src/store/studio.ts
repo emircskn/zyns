@@ -402,6 +402,9 @@ interface StudioState {
   /** Media saved to the device, by URL, for the "Downloaded" filter. */
   downloaded: string[];
   markDownloaded: (urls: string[]) => void;
+  /** Media opened in the enlarged view, by URL, for the "Not viewed" filter. */
+  viewed: string[];
+  markViewed: (urls: string[]) => void;
   /** Put runs and uploads (by media URL) in the Trash, or take them out. */
   setTrashed: (urls: string[], trashed: boolean) => void;
   /** Move what is made (by media URL) into a folder of its project, or out of one. */
@@ -830,6 +833,12 @@ export const useStudio = create<StudioState>()(
       downloaded: [],
       markDownloaded: (urls) =>
         set((state) => ({ downloaded: [...urls.filter((u) => !state.downloaded.includes(u)), ...state.downloaded].slice(0, 2000) })),
+      viewed: [],
+      markViewed: (urls) =>
+        set((state) => {
+          const fresh = urls.filter((u) => !state.viewed.includes(u));
+          return fresh.length === 0 ? state : { viewed: [...fresh, ...state.viewed].slice(0, 2000) };
+        }),
       setTrashed: (urls, trashed) =>
         set((state) => {
           const picked = new Set(urls);
@@ -1154,6 +1163,7 @@ export const useStudio = create<StudioState>()(
         studio: state.studio,
         marketing: state.marketing,
         downloaded: state.downloaded,
+        viewed: state.viewed,
         modelByCategory: state.modelByCategory,
         promptByCategory: state.promptByCategory,
         refsByCategory: state.refsByCategory,

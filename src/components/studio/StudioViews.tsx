@@ -406,7 +406,7 @@ export interface GenFilter {
   date: "all" | "today" | "week" | "month";
   status: "all" | "done" | "running" | "failed";
   hideFailed: boolean;
-  activity: "all" | "generated" | "uploaded" | "liked" | "downloaded";
+  activity: "all" | "generated" | "uploaded" | "liked" | "downloaded" | "unviewed";
   service: "all" | "kie" | "higgsfield";
 }
 export const NO_FILTER: GenFilter = { type: "all", model: "", date: "all", status: "all", hideFailed: false, activity: "all", service: "all" };
@@ -491,6 +491,7 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
               ["uploaded", "Uploaded"],
               ["liked", "Liked"],
               ["downloaded", "Downloaded"],
+              ["unviewed", "Not viewed"],
             ] as const
           ).map(([id, label]) => <Choice key={id} on={filter.activity === id} label={label} onClick={() => set({ activity: id })} />),
         )}
@@ -506,7 +507,7 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
 
 const DAY = 24 * 60 * 60 * 1000;
 
-function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string[]): boolean {
+function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string[], viewed: string[]): boolean {
   if (f.type !== "all" && run.output !== f.type) return false;
   if (f.model && run.modelId !== f.model) return false;
   if (f.service !== "all" && (run.provider ?? "kie") !== f.service) return false;
@@ -520,6 +521,7 @@ function matches(run: Run, f: GenFilter, favorites: string[], downloaded: string
   if (f.hideFailed && run.state === "failed") return false;
   if (f.activity === "liked" && !run.urls.some((u) => favorites.includes(u))) return false;
   if (f.activity === "downloaded" && !run.urls.some((u) => downloaded.includes(u))) return false;
+  if (f.activity === "unviewed" && run.urls.some((u) => viewed.includes(u))) return false;
   return true;
 }
 
@@ -546,10 +548,11 @@ export function GenerationsView({ favoritesOnly }: { favoritesOnly?: boolean }) 
   const uploads = useStudio((s) => s.uploads);
   const favorites = useStudio((s) => s.favorites);
   const downloaded = useStudio((s) => s.downloaded);
+  const viewed = useStudio((s) => s.viewed);
   const [filter, setFilter] = useState<GenFilter>(favoritesOnly ? { ...NO_FILTER, activity: "liked" } : NO_FILTER);
   const mine = runs.filter((r) => !r.trashedAt && studioOnly(r));
   const models = [...new Map(mine.map((r) => [r.modelId, { id: r.modelId, name: getModel(r.modelId)?.name ?? r.modelName }])).values()];
-  const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded), [studioOnly, filter, favorites, downloaded]);
+  const show = useMemo(() => (run: Run) => studioOnly(run) && matches(run, filter, favorites, downloaded, viewed), [studioOnly, filter, favorites, downloaded, viewed]);
   const count = mine.filter(show).length;
   // Deleting here moves to Cinema Studio's Trash, to restore for a while, never straight out.
   const extras: TileExtrasValue = useMemo(

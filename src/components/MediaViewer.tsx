@@ -580,6 +580,10 @@ export function MediaViewer({
   const isImage = shown ? mediaKind(shown) === "image" : false;
   const kept = !!shown && favorites.includes(shown);
   const openElementEditor = useStudio((s) => s.openElementEditor);
+  const markViewed = useStudio((s) => s.markViewed);
+  useEffect(() => {
+    if (shown) markViewed([shown]);
+  }, [shown, markViewed]);
 
   // Which model a picture can be handed to, as a reference and as a first
   // frame. Both follow the bar when it takes pictures and otherwise the model
