@@ -91,6 +91,16 @@ function mergeSet(base: string[], local: string[], remote: string[]): string[] {
   return out;
 }
 
+/** A keyed map merged the same way: gone where either side removed it, kept or added otherwise, this device's value first. */
+function mergeMap<T>(base: Record<string, T>, local: Record<string, T>, remote: Record<string, T>): Record<string, T> {
+  const out: Record<string, T> = {};
+  for (const key of new Set([...Object.keys(remote), ...Object.keys(local)])) {
+    if (key in base && (!(key in local) || !(key in remote))) continue;
+    out[key] = key in local ? local[key] : remote[key];
+  }
+  return out;
+}
+
 export function mergeDocs(base: LibraryDoc, local: LibraryDoc, remote: LibraryDoc, now = Date.now()): LibraryDoc {
   const deleted: Record<string, number> = {};
   for (const [id, at] of [...Object.entries(remote.deleted ?? {}), ...Object.entries(local.deleted ?? {})]) {
@@ -104,8 +114,9 @@ export function mergeDocs(base: LibraryDoc, local: LibraryDoc, remote: LibraryDo
     elements: mergeList(base.elements, local.elements, remote.elements ?? [], deleted),
     motionClips: mergeList(base.motionClips, local.motionClips, remote.motionClips ?? [], deleted),
     favorites: mergeSet(base.favorites, local.favorites, remote.favorites ?? []),
-    copies: { ...(remote.copies ?? {}), ...local.copies },
-    remotes: { ...(remote.remotes ?? {}), ...local.remotes },
+    // Merged like a set: a note dropped after its file was deleted must not come back from storage.
+    copies: mergeMap(base.copies, local.copies, remote.copies ?? {}),
+    remotes: mergeMap(base.remotes, local.remotes, remote.remotes ?? {}),
     deleted,
   };
 }
