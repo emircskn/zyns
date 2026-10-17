@@ -53,10 +53,10 @@ export function RemixPage({
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       {/* No line under the title; the header names the page. */}
       <div className="h-1 md:hidden" />
-      <aside className="flex w-full shrink-0 flex-col px-4 md:sticky md:top-[76px] md:h-[calc(100dvh-92px)] md:w-[340px] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated md:px-0">
+      <aside className="flex w-full shrink-0 flex-col px-4 md:sticky md:top-[76px] md:h-[calc(100dvh-92px)] md:w-[340px] md:overflow-hidden md:rounded-panel md:bg-[var(--panel)] md:px-0">
         {hfKey ? composer : <NeedsHiggsfield onKeyClick={onKeyClick} />}
       </aside>
-      <section className="flex min-w-0 flex-1 flex-col">
+      <section className="flex min-w-0 flex-1 flex-col md:min-h-[calc(100dvh-92px)] md:rounded-panel md:bg-[var(--panel)] md:p-3">
         {offered.length > 0 && current && (
           <>
             {/* A slim strip over what is shown, as on the Video page. */}

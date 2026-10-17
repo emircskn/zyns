@@ -240,7 +240,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
     <StudioNav.Provider value={nav}>
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       <aside
-        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
+        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:bg-[var(--panel)] ${
           folded ? "w-[64px]" : "w-[229px]"
         }`}
       >
@@ -282,7 +282,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
       </div>
       </PhoneSubnav>
       <RecreateTemplate template={picked} initial={initial} onClose={() => (setPicked(null), setInitial(null))} onKeyClick={onKeyClick} onSent={showMade} />
-      <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
+      <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col md:min-h-[calc(100dvh-92px)] md:rounded-panel md:bg-[var(--panel)] md:p-3">
         {page}
         {/* Docked at the foot of what it fills, as Cinema Studio's: a phone keeps it on Home. */}
         {(view === "generations" || view === "favorites" || view === "project") && (

@@ -60,7 +60,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
     <div className="anim-fade flex flex-1 flex-col md:flex-row md:gap-4 md:px-4 md:pt-4">
       {/* Folds down to its icons and back, sliding its width as it goes. */}
       <aside
-        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:border md:border-line md:bg-elevated ${
+        className={`hidden shrink-0 transition-[width] duration-[260ms] ease-[var(--ease)] md:sticky md:top-[76px] md:block md:h-[calc(100dvh-92px)] md:overflow-hidden md:rounded-panel md:bg-[var(--panel)] ${
           folded ? "w-[64px]" : "w-[229px]"
         }`}
       >
@@ -89,7 +89,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
           ))}
         </div>
       </PhoneSubnav>
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col md:min-h-[calc(100dvh-92px)] md:rounded-panel md:bg-[var(--panel)] md:p-3">
         {view === "home" ? (
           <div key="home" className="anim-fade flex flex-1 flex-col items-center px-4 pb-12 pt-4 md:px-0 md:pt-[12vh]">
             <div className="flex w-full flex-col items-center gap-8">

@@ -54,6 +54,8 @@
   --surface: #131416;
   --surface-2: #1c1e20;
   --elevated: #1c1e20;
+  /* The two rounded panels of a studio page on a desktop (side menu and page): a faint lift off the canvas, no border. */
+  --panel: color-mix(in oklab, var(--t1) 4%, var(--canvas));
   /* A window over the page (the "+" window): a step lighter again. */
   --popover: #222427;
   /* The prompt well in a composer (the box, lifted by white at 5%): what a chip row fades into. */
