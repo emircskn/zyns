@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
+import { PhoneSubnav } from "@/components/PhoneShell";
 import { GlideMark } from "@/components/GlideMark";
 import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
 import { StudioNav, type StudioNavValue } from "@/components/studio/studioNav";
@@ -259,7 +260,8 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
         </SideCollapsed.Provider>
       </aside>
       {/* A phone has no side menu: the pages are a row of chips with the side menu's icons, as Cinema Studio's. */}
-      <div className="no-bar relative flex gap-1.5 overflow-x-auto px-4 pb-1 pt-2 md:hidden">
+      <PhoneSubnav>
+      <div className="no-bar relative flex gap-1.5 overflow-x-auto px-4">
         <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
         {[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects", place: "projects" }, { id: "trash" as MarketingView, label: "Trash", place: "trash" }].map((item) => {
           const on = view === item.id || (item.id === "projects" && view === "project");
@@ -278,6 +280,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           );
         })}
       </div>
+      </PhoneSubnav>
       <RecreateTemplate template={picked} initial={initial} onClose={() => (setPicked(null), setInitial(null))} onKeyClick={onKeyClick} onSent={showMade} />
       <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
         {page}
