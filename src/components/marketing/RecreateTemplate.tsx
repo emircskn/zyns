@@ -20,7 +20,7 @@ import { ReferencePicker } from "@/components/studio/ReferencePicker";
 import { GenerateButton, ModelChip, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { styleById, styleCover } from "@/lib/marketing/styles";
-import type { MarketingPreset, MarketingUi } from "@/lib/marketing/types";
+import type { MarketingPreset, MarketingUi, TemplateStart } from "@/lib/marketing/types";
 import { activeFields, defaultValues, getModel, providerOf, validateValues, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { usePresence } from "@/lib/usePresence";
@@ -41,8 +41,11 @@ export function RecreateTemplate({
   onClose,
   onKeyClick,
   onSent,
+  initial,
 }: {
   template: PickedTemplate | null;
+  /** A finished run's details, to start from instead of empty. */
+  initial?: TemplateStart | null;
   onClose: () => void;
   onKeyClick: () => void;
   onSent?: () => void;
@@ -69,10 +72,17 @@ export function RecreateTemplate({
   useEffect(() => {
     if (!template) return;
     setShown(template);
-    setProduct(ui.product);
-    setAvatar(null);
-    setPrompt("");
+    setProduct(initial ? initial.product : ui.product);
+    setAvatar(initial?.avatar ?? null);
+    setPrompt(initial?.prompt ?? "");
     setError(null);
+    if (initial) {
+      setModelId(initial.modelId);
+      const v = initial.values;
+      setShotSettings(Object.fromEntries(CHIP_KEYS.filter((k) => typeof v[k] === "string").map((k) => [UI_KEY[k], v[k]])));
+      const m = getModel(initial.modelId);
+      if (m) setOwnByModel((all) => ({ ...all, [m.id]: { ...defaultValues(m), ...v } as Values }));
+    }
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -105,7 +115,7 @@ export function RecreateTemplate({
     if (busy || blocker) return;
     setBusy(true);
     setError(null);
-    const result = await submitModelRun(getModel(model.id) ?? model, built.values, { marketing: built.info }, { schema: true });
+    const result = await submitModelRun(getModel(model.id) ?? model, built.values, { marketing: { ...built.info, template: hf ? "hf" : "zyns" } }, { schema: true });
     setBusy(false);
     if (!result.ok) return setError(result.error ?? "Could not send this.");
     onClose();

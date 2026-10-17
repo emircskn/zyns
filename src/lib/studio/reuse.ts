@@ -50,7 +50,13 @@ export function studioRecreate(run: Run): boolean {
     store.patchStudio({ mode: "video", videoModelId: CINEMA });
   } else if (run.studio === "image") {
     store.setModelValues(run.modelId, values, true);
-    store.patchStudio({ mode: "image", imageModelId: run.modelId, imagePrompt: run.prompt });
+    const img = run.studioImage;
+    store.patchStudio({
+      mode: "image",
+      imageModelId: run.modelId,
+      imagePrompt: img?.prompt ?? run.prompt,
+      ...(img && { imageCamera: img.camera, imageLens: img.lens, character: img.character, imageRefs: img.refs }),
+    });
   } else {
     store.setModelValues(run.modelId, values, true);
     store.setModelValues(CINEMA, { prompt: run.prompt });

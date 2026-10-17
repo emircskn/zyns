@@ -50,6 +50,19 @@ export interface MarketingUi {
   adReference: string | null;
   /** The video recipe open in the Video tab. */
   recipeId: string;
+  /** Set by Recreate on a template's run: MarketingStudio opens that template's window with these, and clears it. */
+  reopen?: TemplateStart;
+}
+
+/** A template's Recreate window as a finished run left it. */
+export interface TemplateStart {
+  template: { kind: "zyns"; styleId: string } | { kind: "hf"; preset: MarketingPreset };
+  product: string | null;
+  avatar: string | null;
+  prompt: string;
+  modelId: string;
+  /** The run's own values: the model's settings are read from them. */
+  values: Record<string, unknown>;
 }
 
 export const EMPTY_MARKETING: MarketingUi = {
@@ -79,4 +92,13 @@ export interface MarketingRunInfo {
   presetName?: string;
   product?: string;
   avatar?: string;
+  /** What the person wrote, apart from the style or template text our prompt adds. */
+  prompt?: string;
+  /** The "Choose style" style it was made with. */
+  style?: string;
+  /** Set when it came from a template: ours ("zyns", a cover to copy) or Higgsfield's (the preset). */
+  template?: "zyns" | "hf";
+  preset?: MarketingPreset;
+  refs?: string[];
+  adReference?: string;
 }

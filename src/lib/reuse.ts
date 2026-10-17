@@ -1,6 +1,7 @@
 "use client";
 
 import { restoreRemix } from "@/lib/remix/reuse";
+import { isMarketingRun, marketingRecreate } from "@/lib/marketing/reuse";
 import { isStudioRun, studioRecreate } from "@/lib/studio/reuse";
 import { GENJUTSU } from "@/lib/remix/targets";
 import {
@@ -148,7 +149,7 @@ export function readyToWrite() {
 
 /** Recreate from a tile: the run's settings back in the bar, and the bar open to write in. */
 export function recreateAndOpen(run: Run): boolean {
-  const own = run.modelId === GENJUTSU || isStudioRun(run);
+  const own = run.modelId === GENJUTSU || isStudioRun(run) || isMarketingRun(run);
   const ok = recreateRun(run);
   if (ok && !own) readyToWrite();
   return ok;
@@ -163,6 +164,7 @@ export function recreateRun(run: Run): boolean {
   // Cinema Studio's go back to its page, with every setting they had.
   // Cinema Studio's runs (its own model, or another picked in it) go back to its composer.
   if (isStudioRun(run)) return studioRecreate(run);
+  if (isMarketingRun(run)) return marketingRecreate(run);
   const model = getModel(run.modelId);
   const store = useStudio.getState();
   store.selectModel(run.modelId);

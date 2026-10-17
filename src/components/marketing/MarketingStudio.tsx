@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
 import { GlideMark } from "@/components/GlideMark";
 import { GenerationsView, NavRow, ProjectsView, ProjectView, SideHeading, StudioSidebar, StudioTrash } from "@/components/studio/StudioViews";
@@ -18,7 +18,7 @@ import { ProductLink } from "@/components/marketing/ProductLink";
 import { RecipeComposer } from "@/components/recipes/RecipeComposer";
 import { NeedsHiggsfield } from "@/components/remix/RemixPage";
 import { inUse } from "@/lib/elements";
-import type { MarketingUi, MarketingView } from "@/lib/marketing/types";
+import type { MarketingUi, MarketingView, TemplateStart } from "@/lib/marketing/types";
 import { mediaSrc } from "@/lib/storage/client";
 import { MARKETING_RECIPES } from "@/recipes";
 import { useStudio, type Run } from "@/store/studio";
@@ -93,6 +93,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const [source, setSource] = useState<"zyns" | "higgsfield">(() => (ui.preset ? "higgsfield" : "zyns"));
   // A template picked under Explore templates opens Higgsfield's Recreate window.
   const [picked, setPicked] = useState<PickedTemplate | null>(null);
+  const [initial, setInitial] = useState<TemplateStart | null>(null);
   const patch = useStudio((s) => s.patchMarketing);
   const hfKey = useStudio((s) => s.hfKey);
   const provider = useStudio((s) => s.provider);
@@ -113,6 +114,14 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
     () => ({ ui: { view, projectId: ui.projectId, folderId: ui.folderId }, patch: (p) => patch(p as Partial<MarketingUi>), owns, name: "Marketing Studio", app: "marketing" }),
     [view, ui.projectId, ui.folderId, patch, owns],
   );
+
+  // Recreate on a template's run: its window opens, filled in with that run's details.
+  useEffect(() => {
+    if (!ui.reopen) return;
+    setInitial(ui.reopen);
+    setPicked(ui.reopen.template);
+    patch({ reopen: undefined });
+  }, [ui.reopen, patch]);
 
   // What was sent shows at once, among what was made here.
   const showMade = () => patch({ view: "generations" });
@@ -269,7 +278,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           );
         })}
       </div>
-      <RecreateTemplate template={picked} onClose={() => setPicked(null)} onKeyClick={onKeyClick} onSent={showMade} />
+      <RecreateTemplate template={picked} initial={initial} onClose={() => (setPicked(null), setInitial(null))} onKeyClick={onKeyClick} onSent={showMade} />
       <main key={view} className="anim-fade flex min-w-0 flex-1 flex-col">
         {page}
         {/* Docked at the foot of what it fills, as Cinema Studio's: a phone keeps it on Home. */}

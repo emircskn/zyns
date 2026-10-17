@@ -93,6 +93,8 @@ export interface Run {
   remix?: RemixRunInfo;
   /** Made in Cinema Studio, in which of its modes (its own model, or another one picked there). */
   studio?: "video" | "image";
+  /** Cinema Studio image: what was in its composer, so Recreate puts it all back. */
+  studioImage?: { prompt: string; camera: string; lens: string; character: string | null; refs: string[] };
   /** Made in Marketing Studio: how, and with which preset and pictures. */
   marketing?: MarketingRunInfo;
   /** The folder of its project it sits in. */

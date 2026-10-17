@@ -74,7 +74,7 @@ export function otherValues(model: ModelDef, ui: MarketingUi, own: Values): { va
     if (field.placement === "prompt" || field.placement === "input") continue;
     if (own[field.key] !== undefined) values[field.key] = own[field.key];
   }
-  return { values, info: { tool: "direct", product: ui.product ?? undefined } };
+  return { values, info: { tool: "direct", product: ui.product ?? undefined, avatar: ui.avatar ?? undefined, prompt: ui.prompt, style: ui.style ?? undefined, refs: ui.refs } };
 }
 
 /** The page's state with every field it has now, whatever was saved before. */
@@ -140,10 +140,10 @@ export function marketingValues(model: ModelDef, ui: MarketingUi, tool: "create"
   }
   const info: MarketingRunInfo =
     tool === "ad-reference"
-      ? { tool: "ad-reference", product: ui.product ?? undefined }
+      ? { tool: "ad-reference", product: ui.product ?? undefined, prompt: ui.prompt, adReference: ui.adReference ?? undefined }
       : preset
-        ? { tool: "preset", presetId: preset.id, presetName: preset.name, product: ui.product ?? undefined, avatar: ui.avatar ?? undefined }
-        : { tool: "direct", product: ui.product ?? undefined };
+        ? { tool: "preset", presetId: preset.id, presetName: preset.name, preset, template: "hf", product: ui.product ?? undefined, avatar: ui.avatar ?? undefined, prompt: ui.prompt }
+        : { tool: "direct", product: ui.product ?? undefined, avatar: ui.avatar ?? undefined, prompt: ui.prompt, style: ui.style ?? undefined, refs: ui.refs };
   return { values, info };
 }
 

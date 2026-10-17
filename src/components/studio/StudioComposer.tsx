@@ -965,7 +965,10 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     setBusy(true);
     setError(null);
     for (let i = 0; i < count; i += 1) {
-      const result = await submitModelRun(model, sent.values, { studio: "image" });
+      const result = await submitModelRun(model, sent.values, {
+        studio: "image",
+        studioImage: { prompt: studio.imagePrompt, camera: studio.imageCamera, lens: studio.imageLens, character: studio.character, refs: studio.imageRefs },
+      });
       if (!result.ok) {
         setError(result.error ?? "Could not send this.");
         setBusy(false);

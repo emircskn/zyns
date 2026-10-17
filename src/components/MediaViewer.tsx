@@ -30,6 +30,7 @@ import {
 } from "@/lib/reuse";
 import { prefetchMedia, useSave } from "@/lib/download";
 import { restoreRemix } from "@/lib/remix/reuse";
+import { marketingRecreate } from "@/lib/marketing/reuse";
 import { saveMotionClip } from "@/lib/remix/library";
 import { mediaKind } from "@/lib/upload";
 import { usePresence } from "@/lib/usePresence";
@@ -615,6 +616,11 @@ export function MediaViewer({
     if (!run) return;
     if (isStudioRun(run)) {
       studioRecreate(run);
+      onClose();
+      return;
+    }
+    if (run.marketing) {
+      marketingRecreate(run);
       onClose();
       return;
     }
