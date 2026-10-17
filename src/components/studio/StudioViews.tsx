@@ -778,7 +778,6 @@ export function ProjectView() {
   const removeRun = useStudio((s) => s.removeRun);
   const removeUpload = useStudio((s) => s.removeUpload);
   const restoreFolder = useStudio((s) => s.restoreFolder);
-  const leaveProject = useStudio((s) => s.leaveProject);
   const purgeFolder = useStudio((s) => s.purgeFolder);
   const openEditor = useStudio((s) => s.openElementEditor);
   const assets = useAssets();
@@ -813,7 +812,7 @@ export function ProjectView() {
         trashedAt: r.trashedAt!,
         preview: <TrashMedia url={r.urls[0]} />,
         restore: () => setTrashed(r.urls, false),
-        purge: () => leaveProject(r.urls),
+        purge: () => removeRun(r.id),
       })),
     ...uploads
       .filter((u) => u.projectId === project.id && u.trashedAt && !u.trashedWith)
@@ -824,7 +823,7 @@ export function ProjectView() {
         trashedAt: u.trashedAt!,
         preview: <TrashMedia url={u.url} />,
         restore: () => setTrashed([u.url], false),
-        purge: () => leaveProject([u.url]),
+        purge: () => removeUpload(u.id),
       })),
     ...(project.folders ?? [])
       .filter((f) => f.trashedAt && !f.trashedWith)
@@ -1013,7 +1012,7 @@ export function ProjectView() {
               items={trashItems}
               tabs={TRASH_TABS}
               note={`Items can be restored to this project for ${TRASH_DAYS} days.`}
-              purgeNote="It can no longer be restored to this project. What was made stays in My Generations and Assets."
+              purgeNote="It is deleted for good, from My Generations and Assets too."
             />
           </div>
         ) : myRuns.length + myUploads.length === 0 ? (

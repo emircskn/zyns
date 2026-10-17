@@ -413,7 +413,6 @@ interface StudioState {
   /** Gone for good: the folder and the folders inside it; the work that went with it leaves the project. */
   purgeFolder: (projectId: string, folderId: string) => void;
   /** Takes work out of its project (and folder, and that project's Trash); it stays in the studio. */
-  leaveProject: (urls: string[]) => void;
   /** A project to the Trash, or back. Its work stays where it is. */
   trashProject: (id: string, trashed: boolean) => void;
   /** Lets go of whatever has been in a Trash longer than TRASH_DAYS. */
@@ -891,11 +890,9 @@ export const useStudio = create<StudioState>()(
         const project = state.projects.find((p) => p.id === projectId);
         if (!project) return;
         const gone = folderAndInside(project.folders ?? [], folderId);
-        // Its work leaves the project; it stays in My Generations and Assets.
-        state.leaveProject([
-          ...state.runs.filter((r) => r.trashedWith === folderId).flatMap((r) => r.urls),
-          ...state.uploads.filter((u) => u.trashedWith === folderId).map((u) => u.url),
-        ]);
+        // Its work goes for good with it.
+        for (const r of state.runs) if (r.trashedWith === folderId) state.removeRun(r.id);
+        for (const u of state.uploads) if (u.trashedWith === folderId) state.removeUpload(u.id);
         set((now) => ({
           projects: now.projects.map((p) => (p.id === projectId ? { ...p, folders: (p.folders ?? []).filter((f) => !gone.has(f.id)) } : p)),
           // Anything else that was filed there (it was trashed on its own) is simply no longer in a folder.
@@ -903,15 +900,6 @@ export const useStudio = create<StudioState>()(
           uploads: now.uploads.map((u) => (u.projectId === projectId && u.folderId && gone.has(u.folderId) ? { ...u, folderId: undefined } : u)),
         }));
       },
-      leaveProject: (urls) =>
-        set((state) => {
-          const picked = new Set(urls);
-          const out = { projectId: undefined, folderId: undefined, trashedAt: undefined, trashedWith: undefined };
-          return {
-            runs: state.runs.map((run) => (run.urls.some((u) => picked.has(u)) ? { ...run, ...out } : run)),
-            uploads: state.uploads.map((upload) => (picked.has(upload.url) ? { ...upload, ...out } : upload)),
-          };
-        }),
       trashProject: (id, trashed) =>
         set((state) => ({
           projects: state.projects.map((p) => (p.id === id ? { ...p, trashedAt: trashed ? Date.now() : undefined } : p)),
@@ -924,14 +912,10 @@ export const useStudio = create<StudioState>()(
           if (p.trashedAt && p.trashedAt < old) state.removeProject(p.id);
           else for (const f of p.folders ?? []) if (f.trashedAt && !f.trashedWith && f.trashedAt < old) get().purgeFolder(p.id, f.id);
         }
-        // Work kept too long in a project's Trash leaves the project; it stays in the studio.
-        get().leaveProject([
-          ...get().runs.filter((r) => r.projectId && r.trashedAt && !r.trashedWith && r.trashedAt < old).flatMap((r) => r.urls),
-          ...get().uploads.filter((u) => u.projectId && u.trashedAt && !u.trashedWith && u.trashedAt < old).map((u) => u.url),
-        ]);
-        // Kept too long in Cinema Studio's own Trash, it goes for good.
-        for (const r of get().runs) if (!r.projectId && r.trashedAt && r.trashedAt < old) get().removeRun(r.id);
-        for (const u of get().uploads) if (!u.projectId && u.trashedAt && u.trashedAt < old) get().removeUpload(u.id);
+        // Kept too long in a Trash (a project's or Cinema Studio's own), it goes for good.
+        // Work trashed with a folder leaves with the folder, above.
+        for (const r of get().runs) if (r.trashedAt && !r.trashedWith && r.trashedAt < old) get().removeRun(r.id);
+        for (const u of get().uploads) if (u.trashedAt && !u.trashedWith && u.trashedAt < old) get().removeUpload(u.id);
       },
       fileInFolder: (urls, folderId) =>
         set((state) => {
