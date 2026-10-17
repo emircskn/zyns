@@ -73,12 +73,12 @@ export function NavRow({
       aria-current={on || undefined}
       aria-label={folded ? label : undefined}
       title={folded ? label : undefined}
-      className={`relative flex h-9 items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 shrink-0 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
+      className={`relative flex h-9 items-center gap-2.5 rounded-card py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 shrink-0 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
         on ? `${pill ? "" : "bg-t1/[0.1]"} text-t1` : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
       }`}
     >
       {typeof icon === "string" ? (
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] bg-t1/[0.07]">
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-chip bg-t1/[0.07]">
           <Icon name={icon as IconName} size={14} />
         </span>
       ) : (
@@ -101,7 +101,7 @@ export function FoldButton() {
       aria-label={label}
       title={label}
       onClick={() => patchStudio((st) => ({ sideCollapsed: !st.sideCollapsed }))}
-      className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-t1/[0.05] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${folded ? "mx-auto" : ""}`}
+      className={`grid h-9 w-9 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 ${folded ? "mx-auto" : ""}`}
     >
       <Icon name="sidebar" size={17} />
     </button>
@@ -115,7 +115,7 @@ export function FoldButton() {
  */
 function StudioSwitcher({ glyph, title }: { glyph: "film" | "box"; title: string }) {
   return (
-    <div className="flex h-9 items-center gap-2 rounded-[10px] bg-t1/[0.05] pl-1.5 pr-2">
+    <div className="flex h-9 items-center gap-2 rounded-card bg-t1/[0.05] pl-1.5 pr-2">
       <AppIcon glyph={glyph} tone="lime" size={24} />
       <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[14.5px] font-semibold text-t1">{title}</span>
     </div>
@@ -180,7 +180,7 @@ export function StudioSidebar({
 
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={studio.view} className="rounded-[12px] bg-t1/[0.1]" deps={[folded]} />
+      <GlideMark value={studio.view} className="rounded-card bg-t1/[0.1]" deps={[folded]} />
       <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
         {!folded && (
           <div className="min-w-0 flex-1">
@@ -217,7 +217,7 @@ export function StudioSidebar({
         {shown.map((project) => (
           <div key={project.id} className="group relative shrink-0">
             <NavRow
-              icon={<CoverThumb project={project} size="h-6 w-6 rounded-[8px]" />}
+              icon={<CoverThumb project={project} size="h-6 w-6 rounded-chip" />}
               label={project.name}
               onClick={() => patchStudio({ view: "project", projectId: project.id, folderId: "" })}
               trailing={
@@ -277,7 +277,7 @@ export function ProjectSidebar() {
   const go = (folderId: string) => patchStudio({ folderId });
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={at || "all"} className="rounded-[12px] bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, sort, folded]} />
+      <GlideMark value={at || "all"} className="rounded-card bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, sort, folded]} />
       {folded && <FoldButton />}
       <div className="flex items-center gap-1">
       <NavRow
@@ -293,11 +293,11 @@ export function ProjectSidebar() {
       </div>
       {folded ? (
         <div className="flex justify-center pb-1 pt-1" title={project.name}>
-          <CoverThumb project={project} size="h-8 w-8 rounded-[10px]" />
+          <CoverThumb project={project} size="h-8 w-8 rounded-card" />
         </div>
       ) : (
       <div className="flex items-center gap-2 px-2 pb-2 pt-2">
-        <CoverThumb project={project} size="h-8 w-8 rounded-[10px]" />
+        <CoverThumb project={project} size="h-8 w-8 rounded-card" />
         <p className="min-w-0 flex-1 truncate text-[15px] font-semibold text-t1">{project.name}</p>
         <Popover
           width={200}

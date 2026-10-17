@@ -141,7 +141,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
   }
 
   const field = "w-full rounded-chip bg-t1/[0.05] px-3.5 py-2.5 text-[15px] text-t1 outline-none ring-1 ring-inset ring-transparent placeholder:text-t4 focus:ring-line-strong md:text-[14px]";
-  const badge = (grade: Grade) => <span className={`rounded-[6px] px-2 py-0.5 text-[11.5px] font-medium ${GRADE_TONE[grade]}`}>{grade}</span>;
+  const badge = (grade: Grade) => <span className={`rounded-chip px-2 py-0.5 text-[11.5px] font-medium ${GRADE_TONE[grade]}`}>{grade}</span>;
 
   return (
     <div className="fixed inset-0 z-[119] flex items-end justify-center sm:items-center sm:p-4">

@@ -110,11 +110,11 @@ function Card({
     >
       {box ??
         (thumb ? (
-          <PreviewMedia preview={thumb} className="h-9 w-9 shrink-0 rounded-[10px]" />
+          <PreviewMedia preview={thumb} className="h-9 w-9 shrink-0 rounded-card" />
         ) : ART[icon] ? (
           <CardArt kind={ART[icon]!} />
         ) : (
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-t1/[0.06] text-t2">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-card bg-t1/[0.06] text-t2">
             <Icon name={icon} size={17} />
           </span>
         ))}
@@ -171,7 +171,7 @@ export function ChipRow({ children }: { children: ReactNode }) {
             type="button"
             aria-label="Scroll chips back"
             onClick={() => slide(-240)}
-            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-[10px] bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
+            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-card bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
           >
             <Icon name="chevron" size={15} className="rotate-90" />
           </button>
@@ -183,7 +183,7 @@ export function ChipRow({ children }: { children: ReactNode }) {
             type="button"
             aria-label="Scroll chips on"
             onClick={() => slide(240)}
-            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-[10px] bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
+            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-card bg-[#34363a] text-t1 transition-colors duration-[120ms] hover:bg-[#3e4045]"
           >
             <Icon name="chevron" size={15} className="-rotate-90" />
           </button>
@@ -242,7 +242,7 @@ export function ModelChip({
         onPick(m.id);
         close();
       }}
-      className={`flex w-full items-center gap-2.5 rounded-[12px] px-2 py-2 text-left transition-colors duration-[120ms] ${
+      className={`flex w-full items-center gap-2.5 rounded-card px-2 py-2 text-left transition-colors duration-[120ms] ${
         m.id === model?.id ? "bg-t1/[0.08]" : "hover:bg-t1/[0.05]"
       }`}
     >
@@ -315,7 +315,7 @@ export function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: 
       data-pill={id}
       onClick={() => onMode(id)}
       aria-pressed={mode === id}
-      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-[8px] text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
+      className={`relative flex flex-1 items-center justify-center gap-1.5 rounded-chip text-[12px] font-semibold transition-colors duration-[var(--d-slow)] ease-[var(--ease)] md:h-[52px] md:w-16 md:flex-none md:flex-col md:gap-1 md:text-[10.5px] max-md:h-9 ${
         mode === id ? "text-t1" : "text-t3 hover:text-t1"
       }`}
     >
@@ -324,8 +324,8 @@ export function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: 
     </button>
   );
   return (
-    <div className="relative flex shrink-0 gap-1 rounded-[12px] border border-line bg-elevated p-1 md:flex-col">
-      <GlideMark value={mode} className="rounded-[8px] bg-t1/[0.1]" />
+    <div className="relative flex shrink-0 gap-1 rounded-card border border-line bg-elevated p-1 md:flex-col">
+      <GlideMark value={mode} className="rounded-chip bg-t1/[0.1]" />
       {item("image", "image", "Image")}
       {item("video", "video", "Video")}
     </div>
@@ -362,7 +362,7 @@ export function GenerateButton({
       disabled={disabled}
       aria-label={needsKey ? `Add your ${needsKey} key` : "Generate"}
       title={blocker ?? what}
-      className={`cta cta-lift flex shrink-0 items-center justify-center rounded-[12px] font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
+      className={`cta cta-lift flex shrink-0 items-center justify-center rounded-card font-display font-bold uppercase tracking-[0.02em] disabled:cursor-not-allowed ${
         wide ? "h-12 w-full gap-1.5 text-[13.5px]" : "h-[80px] w-[120px] flex-col gap-1 text-[12px]"
       }`}
     >
@@ -599,7 +599,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
               thumbs.length > 0 ? (
                 <span className="flex h-9 w-9 shrink-0">
                   {thumbs.map((url) => (
-                    <span key={url} className="h-9 w-9 shrink-0 overflow-hidden rounded-[10px] bg-surface">
+                    <span key={url} className="h-9 w-9 shrink-0 overflow-hidden rounded-card bg-surface">
                       {mediaKind(url) === "image" ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
@@ -612,7 +612,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
                   ))}
                 </span>
               ) : (
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-t1/[0.06] text-t2">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-card bg-t1/[0.06] text-t2">
                   <Icon name="plus" size={17} />
                 </span>
               )
@@ -626,8 +626,8 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
       )}
       {/* On a desktop Generate sits inside the prompt's well, as Higgsfield's does. */}
-      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-[12px] md:bg-t1/[0.05] md:pr-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
+      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-card md:bg-t1/[0.05] md:pr-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <StudioPrompt
@@ -798,7 +798,7 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
   return (
     <div className="no-bar flex gap-1.5 overflow-x-auto px-1.5 pb-1">
       {items.map(({ url, field }) => (
-        <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-surface ring-1 ring-inset ring-edge">
+        <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-edge">
           {mediaKind(url) === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
@@ -988,12 +988,12 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   }
 
   // Higgsfield's two tiles beside the prompt: 80px high, the character's square, the camera's a little wider.
-  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
+  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
     <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <StudioPrompt
@@ -1034,7 +1034,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         {studio.imageRefs.length > 0 && (
           <div className="no-bar flex gap-1.5 overflow-x-auto">
             {studio.imageRefs.map((url) => (
-              <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] ring-1 ring-inset ring-edge">
+              <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
                 <button

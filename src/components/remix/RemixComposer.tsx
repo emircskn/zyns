@@ -320,7 +320,7 @@ function RefsBox({
             type="button"
             onClick={onAdd}
             aria-label="Add pictures"
-            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06]"
+            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06]"
           >
             <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
               <Icon name="plus" size={20} />
@@ -571,7 +571,7 @@ export function RemixComposer({
           onClick={() => void generate()}
           disabled={!!key && (busy || !!blocker)}
           title={blocker ?? undefined}
-          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-panel text-[15.5px] font-semibold disabled:opacity-40"
+          className="cta flex h-12 w-full items-center justify-center gap-2 rounded-card text-[15.5px] font-semibold disabled:opacity-40"
         >
           {busy ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

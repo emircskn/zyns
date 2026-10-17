@@ -137,7 +137,7 @@ export function ProductLink({ onSaved }: { onSaved?: (element: LibraryElement) =
                       type="button"
                       onClick={() => toggle(image)}
                       aria-pressed={on}
-                      className="relative aspect-square overflow-hidden rounded-[10px] bg-t1/[0.05]"
+                      className="relative aspect-square overflow-hidden rounded-card bg-t1/[0.05]"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={image} alt="" loading="lazy" className={`h-full w-full object-cover transition-opacity duration-[120ms] ${on ? "" : "opacity-45"}`} />

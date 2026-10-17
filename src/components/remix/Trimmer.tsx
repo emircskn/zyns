@@ -203,7 +203,7 @@ export function Trimmer({
             type="button"
             onClick={() => void trim()}
             disabled={working || tooShort || !trimType()}
-            className="cta relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-panel text-[15px] font-semibold disabled:opacity-40"
+            className="cta relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-card text-[15px] font-semibold disabled:opacity-40"
           >
             {working ? (
               <>

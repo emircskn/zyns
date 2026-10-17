@@ -262,7 +262,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
   return (
     <div
       className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-edge ${
-        roomy ? "h-[88px] w-[88px] rounded-[12px]" : "h-14 w-14 rounded-chip"
+        roomy ? "h-[88px] w-[88px] rounded-card" : "h-14 w-14 rounded-chip"
       }`}
     >
       {kind === "image" && (
@@ -300,7 +300,7 @@ function AddTile({ busy, onClick, roomy }: { busy: boolean; onClick: () => void;
         onClick={onClick}
         disabled={busy}
         aria-label="Add"
-        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-[12px] bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
+        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
       >
         <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]">
           {busy ? <Spinner size={16} /> : <Icon name="plus" size={20} />}
@@ -742,7 +742,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
     }
   }
 
-  const size = roomy ? "h-[88px] w-[88px] rounded-[12px]" : "h-14 w-14 rounded-chip";
+  const size = roomy ? "h-[88px] w-[88px] rounded-card" : "h-14 w-14 rounded-chip";
   return (
     <div className="min-w-0">
       <SlotHeader label={field.label} count={many ? `${picked.length}/${max}` : undefined} help={field.help}>

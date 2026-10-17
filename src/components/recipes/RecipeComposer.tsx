@@ -146,7 +146,7 @@ export function RecipeComposer({
     const blocker = missingModel ? `Choose a model for ${missingModel.label ?? missingModel.id}` : slotProblem ?? null;
     return (
       <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:min-h-[130px] md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 md:self-stretch md:justify-between md:bg-transparent">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 md:self-stretch md:justify-between md:bg-transparent">
           {main && (
             <textarea
               value={(slots[main.key] as string) ?? ""}
@@ -200,7 +200,7 @@ export function RecipeComposer({
                             setChoices((all) => ({ ...all, [choice.key]: option }));
                             close();
                           }}
-                          className="flex h-9 items-center justify-between rounded-[8px] px-2.5 text-left text-[13px] text-t1 hover:bg-t1/[0.06]"
+                          className="flex h-9 items-center justify-between rounded-chip px-2.5 text-left text-[13px] text-t1 hover:bg-t1/[0.06]"
                         >
                           {option}
                           {choices[choice.key] === option && <Icon name="check" size={14} className="text-accent" />}
@@ -234,7 +234,7 @@ export function RecipeComposer({
                   onClick={() => setMediaFor(slot.key)}
                   aria-label={`Add ${slot.label.toLowerCase()}`}
                   title={slot.label}
-                  className="relative flex h-[80px] w-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full"
+                  className="relative flex h-[80px] w-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full"
                 >
                   {cover ? (
                     <>

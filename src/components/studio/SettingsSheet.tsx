@@ -44,7 +44,7 @@ export function SettingsSheet({ rows }: { rows: SettingRow[] }) {
               ref={sheet}
               role="dialog"
               aria-label="Settings"
-              className={`relative flex w-full flex-col gap-1 rounded-t-[24px] border-t border-line bg-[var(--popover)] px-4 pb-[max(16px,env(safe-area-inset-bottom))] ${exiting ? "anim-sheet-out" : "anim-sheet"}`}
+              className={`relative flex w-full flex-col gap-1 rounded-t-panel border-t border-line bg-[var(--popover)] px-4 pb-[max(16px,env(safe-area-inset-bottom))] ${exiting ? "anim-sheet-out" : "anim-sheet"}`}
             >
               <header {...swipe} className="relative flex items-center justify-center pb-2 pt-4">
                 <span className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-t1/20" />

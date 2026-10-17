@@ -56,7 +56,7 @@ export function PresetCard({ preset, active, onPick, locked }: { preset: Marketi
       </span>
       {/* A template is Higgsfield's own preset: KIE has nothing that reads it. */}
       {locked && (
-        <span className="pointer-events-none absolute inset-x-2 top-2 rounded-[8px] bg-black/70 px-2 py-1.5 text-center text-[11.5px] font-medium leading-snug text-white">
+        <span className="pointer-events-none absolute inset-x-2 top-2 rounded-chip bg-black/70 px-2 py-1.5 text-center text-[11.5px] font-medium leading-snug text-white">
           This template only works on Higgsfield
         </span>
       )}
@@ -131,7 +131,7 @@ export function PresetGrid({
               type="button"
               onClick={() => setType(t)}
               aria-pressed={type === t}
-              className={`flex h-9 items-center justify-between rounded-[10px] px-3 text-left text-[13.5px] transition-colors duration-[120ms] ${
+              className={`flex h-9 items-center justify-between rounded-card px-3 text-left text-[13.5px] transition-colors duration-[120ms] ${
                 type === t ? "bg-t1/[0.09] text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
               }`}
             >

@@ -31,8 +31,8 @@
   --color-accent-ink: var(--accent-ink);
 
   /* Tight, tool-like corners: a SaaS console rather than a toy. */
-  --radius-chip: 6px;
-  --radius-card: 10px;
+  --radius-chip: 8px;
+  --radius-card: 12px;
   --radius-panel: 16px;
 
   --font-sans: "Inter", ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;

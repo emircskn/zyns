@@ -46,7 +46,7 @@ function MediaTile({
   onDelete?: () => void;
 }) {
   return (
-    <div className={`group relative aspect-square overflow-hidden rounded-[10px] bg-canvas-deep ${disabled ? "opacity-35" : ""}`}>
+    <div className={`group relative aspect-square overflow-hidden rounded-card bg-canvas-deep ${disabled ? "opacity-35" : ""}`}>
       <button
         type="button"
         onClick={disabled ? undefined : onToggle}
@@ -71,7 +71,7 @@ function MediaTile({
       </button>
       <span
         aria-hidden
-        className={`pointer-events-none absolute inset-0 rounded-[10px] ring-inset ${picked ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
+        className={`pointer-events-none absolute inset-0 rounded-card ring-inset ${picked ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
       />
       {/* The check takes the corner once picked, so the service mark steps aside. */}
       {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
@@ -271,7 +271,7 @@ export function ReferencePicker({
         </header>
 
         {tab === "elements" ? (
-          <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-[12px] sm:bg-elevated sm:p-1.5">
+          <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:rounded-card sm:bg-elevated sm:p-1.5">
             <nav className="hidden w-[170px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
               {ELEMENT_KINDS.filter((k) => styles || k.id !== "style").map((k) => (
                 <button
@@ -279,7 +279,7 @@ export function ReferencePicker({
                   type="button"
                   onClick={() => setElementKind(k.id)}
                   aria-current={elementKind === k.id || undefined}
-                  className={`flex h-9 items-center rounded-[12px] px-2.5 text-[14px] transition-colors duration-[120ms] ${
+                  className={`flex h-9 items-center rounded-card px-2.5 text-[14px] transition-colors duration-[120ms] ${
                     elementKind === k.id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
                   }`}
                 >
@@ -347,7 +347,7 @@ export function ReferencePicker({
                 <button
                   type="button"
                   onClick={() => openEditor({ kind: elementKind === "all" ? undefined : elementKind })}
-                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                     <Icon name="plus" size={18} />
@@ -364,7 +364,7 @@ export function ReferencePicker({
                       onClick={() => setPickedElements((now) => (on ? now.filter((id) => id !== element.id) : [...now, element.id]))}
                       className="group flex flex-col gap-1 text-left"
                     >
-                      <span className="relative block aspect-square w-full overflow-hidden rounded-[10px] bg-surface-2">
+                      <span className="relative block aspect-square w-full overflow-hidden rounded-card bg-surface-2">
                         {element.images[0] && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" className="h-full w-full object-cover" />
@@ -372,7 +372,7 @@ export function ReferencePicker({
                         {/* Marked as the media tiles are: a frame over the picture and a check in its corner. */}
                         <span
                           aria-hidden
-                          className={`pointer-events-none absolute inset-0 rounded-[10px] ring-inset ${on ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
+                          className={`pointer-events-none absolute inset-0 rounded-card ring-inset ${on ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
                         />
                         <span
                           aria-hidden
@@ -391,7 +391,7 @@ export function ReferencePicker({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col sm:mx-1.5 sm:rounded-[12px] sm:bg-elevated sm:p-1.5">
+          <div className="flex min-h-0 flex-1 flex-col sm:mx-1.5 sm:rounded-card sm:bg-elevated sm:p-1.5">
             <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-2 pt-1 sm:p-3">
               <div className="no-bar flex gap-1 overflow-x-auto">
                 {filters.map((f) => (
@@ -423,7 +423,7 @@ export function ReferencePicker({
                   <button
                     type="button"
                     onClick={() => uploader.input.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[10px] bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
+                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                   >
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                       {uploader.busy ? (

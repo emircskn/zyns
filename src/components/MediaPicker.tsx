@@ -65,7 +65,7 @@ function Thumb({
   onPreview?: () => void;
 }) {
   return (
-    <div className="group relative aspect-square overflow-hidden rounded-[10px] bg-t1/[0.06]">
+    <div className="group relative aspect-square overflow-hidden rounded-card bg-t1/[0.06]">
       <button
         type="button"
         onClick={taken ? undefined : onClick}
@@ -262,7 +262,7 @@ export function MediaPicker({
       />
       <div
         ref={sheet}
-        className={`relative flex h-[86dvh] w-full flex-col overflow-hidden rounded-t-[20px] border border-edge bg-[var(--popover)] sm:h-[min(600px,86dvh)] sm:max-w-[960px] sm:rounded-[20px] ${
+        className={`relative flex h-[86dvh] w-full flex-col overflow-hidden rounded-t-panel border border-edge bg-[var(--popover)] sm:h-[min(600px,86dvh)] sm:max-w-[960px] sm:rounded-panel ${
           exiting ? "anim-sheet-out" : "anim-sheet"
         }`}
         style={{ boxShadow: "var(--shadow-pop)" }}
@@ -304,7 +304,7 @@ export function MediaPicker({
         </header>
 
         {/* The list sits in its own darker well, its kinds above it. */}
-        <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-black/25">
+        <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-card bg-black/25">
         {filters && (
           <div className="no-bar flex shrink-0 gap-1 overflow-x-auto px-3 pt-3">
             {(["all", ...kinds] as Array<Kind | "all">).map((k) => (
@@ -312,7 +312,7 @@ export function MediaPicker({
                 key={k}
                 type="button"
                 onClick={() => setOnly(k)}
-                className={`h-7 shrink-0 rounded-[8px] px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                className={`h-7 shrink-0 rounded-chip px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
                   only === k ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
                 }`}
               >
@@ -329,7 +329,7 @@ export function MediaPicker({
                 key={k.id}
                 type="button"
                 onClick={() => setElementKind(k.id)}
-                className={`h-7 shrink-0 rounded-[8px] px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                className={`h-7 shrink-0 rounded-chip px-2.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
                   elementKind === k.id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
                 }`}
               >
@@ -382,7 +382,7 @@ export function MediaPicker({
                 <button
                   type="button"
                   onClick={() => openElementEditor(elementKind === "all" ? {} : { kind: elementKind })}
-                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[10px] bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
                     <Icon name="plus" size={17} />
@@ -398,7 +398,7 @@ export function MediaPicker({
                       onClick={() => setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]))}
                       className="relative flex flex-col gap-1 text-left"
                     >
-                      <span className={`relative block aspect-square overflow-hidden rounded-[10px] bg-t1/[0.06] ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge"}`}>
+                      <span className={`relative block aspect-square overflow-hidden rounded-card bg-t1/[0.06] ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge"}`}>
                         {element.images[0] && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
@@ -427,7 +427,7 @@ export function MediaPicker({
                 <button
                   type="button"
                   onClick={() => input.current?.click()}
-                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-[10px] bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1] disabled:opacity-50"
+                  className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1] disabled:opacity-50"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
                     <Icon name="upload" size={17} />
@@ -483,7 +483,7 @@ export function MediaPicker({
                 if (elements.length > 0) onElements?.(elements);
                 onClose();
               }}
-              className="key-btn h-9 rounded-[12px] px-5 text-[13px]"
+              className="key-btn h-9 rounded-card px-5 text-[13px]"
             >
               Add
             </button>

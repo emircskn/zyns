@@ -85,7 +85,7 @@ export function MoveToProject({
           <p className="px-2.5 pb-1.5 pt-1 text-[10.5px] font-medium uppercase tracking-[0.08em] text-t4">Projects</p>
           {current && (
             <button type="button" onClick={() => pick(null)} className={`${item} text-t2 hover:bg-t1/[0.06] hover:text-t1`}>
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px] bg-t1/[0.06] text-t3">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-chip bg-t1/[0.06] text-t3">
                 <Icon name="close" size={13} />
               </span>
               <span className="text-[13.5px]">No project</span>
@@ -122,7 +122,7 @@ export function MoveToProject({
             }}
             className={`${item} text-t2 hover:bg-t1/[0.06] hover:text-t1`}
           >
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px] bg-t1/[0.06]">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-chip bg-t1/[0.06]">
               <Icon name="plus" size={14} />
             </span>
             <span className="text-[13.5px]">Create new project</span>

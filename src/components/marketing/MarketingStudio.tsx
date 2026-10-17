@@ -153,7 +153,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
                       patch({ recipeId: r.id });
                       close();
                     }}
-                    className="flex flex-col rounded-[8px] px-2.5 py-2 text-left hover:bg-t1/[0.06]"
+                    className="flex flex-col rounded-chip px-2.5 py-2 text-left hover:bg-t1/[0.06]"
                   >
                     <span className="flex items-center justify-between text-[13px] font-semibold text-t1">
                       {r.name}

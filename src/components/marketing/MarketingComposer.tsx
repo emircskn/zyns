@@ -354,7 +354,7 @@ export function MarketingComposer({
 
   if (bar && tool === "create") {
     const tile =
-      "relative flex h-[80px] w-[80px] max-md:w-full shrink-0 flex-col justify-end overflow-hidden rounded-[16px] bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1]";
+      "relative flex h-[80px] w-[80px] max-md:w-full shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1]";
     const slot = (label: string, url: string | null, onPick: () => void, onClear: () => void) => (
       <div className="relative max-md:w-full">
         <button type="button" onClick={onPick} className={tile} aria-label={url ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}>
@@ -388,7 +388,7 @@ export function MarketingComposer({
           }
         }}
       >
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-[12px] bg-t1/[0.05] p-3 max-md:gap-4 md:self-stretch md:justify-between md:bg-transparent">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-4 md:self-stretch md:justify-between md:bg-transparent">
           <textarea
             value={ui.prompt}
             onChange={(event) => patch({ prompt: event.target.value })}
@@ -403,7 +403,7 @@ export function MarketingComposer({
                 type="button"
                 onClick={() => setPicking("refs")}
                 aria-label="Add pictures"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
               >
                 {ui.refs.length ? <span className="font-mono text-[12px]">{ui.refs.length}</span> : <Icon name="plus" size={16} />}
               </button>
@@ -486,7 +486,7 @@ export function MarketingComposer({
           {/* The preset, or none: with none the prompt alone decides. */}
           {preset ? (
             <div className="flex items-center gap-3 rounded-card bg-t1/[0.05] p-2 pr-2.5">
-              <span className="h-14 w-11 shrink-0 overflow-hidden rounded-[10px] bg-t1/[0.06]">
+              <span className="h-14 w-11 shrink-0 overflow-hidden rounded-card bg-t1/[0.06]">
                 {preset.preview && preset.previewKind !== "video" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={preset.preview} alt="" className="h-full w-full object-cover" />
@@ -567,7 +567,7 @@ export function MarketingComposer({
           {!preset && ui.refs.length > 0 && (
             <div className="no-bar flex gap-1.5 overflow-x-auto">
               {ui.refs.map((url, i) => (
-                <span key={url} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[10px] bg-t1/[0.05]">
+                <span key={url} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-card bg-t1/[0.05]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
                   <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1 font-mono text-[9.5px] text-white">{i + (ui.product ? 2 : 1)}</span>

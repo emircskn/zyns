@@ -52,7 +52,7 @@ export function PhoneGridToggle() {
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   return (
-    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-[8px] bg-t1/[0.05] p-1 ring-1 ring-inset ring-edge">
+    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-chip bg-t1/[0.05] p-1 ring-1 ring-inset ring-edge">
       {([
         [false, "square", "One at a time"],
         [true, "grid", "Grid"],
@@ -64,7 +64,7 @@ export function PhoneGridToggle() {
           aria-checked={phoneGrid === grid}
           aria-label={label}
           onClick={() => setPhoneGrid(grid)}
-          className={`grid h-7 w-8 place-items-center rounded-[6px] transition-colors duration-[120ms] ${
+          className={`grid h-7 w-8 place-items-center rounded-chip transition-colors duration-[120ms] ${
             phoneGrid === grid ? "bg-t1/[0.14] text-t1" : "text-t3"
           }`}
         >

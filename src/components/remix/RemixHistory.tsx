@@ -78,7 +78,7 @@ function RemixCard({
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
           {info.refs.slice(0, 5).map((ref) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={ref} src={mediaSrc(ref)} alt="" className="h-7 w-7 shrink-0 rounded-[8px] object-cover ring-1 ring-inset ring-edge" />
+            <img key={ref} src={mediaSrc(ref)} alt="" className="h-7 w-7 shrink-0 rounded-chip object-cover ring-1 ring-inset ring-edge" />
           ))}
           <span className="ml-1 truncate text-[12px] text-t4">
             {run.modelName} · {ago(run.createdAt)}

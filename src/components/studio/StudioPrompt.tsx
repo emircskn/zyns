@@ -324,13 +324,13 @@ export function StudioPrompt({
                 }`}
               >
                 {option.kind === "move" ? (
-                  <InViewLoop poster={option.thumb} video={option.video} className="h-9 w-14 rounded-[8px]" />
+                  <InViewLoop poster={option.thumb} video={option.video} className="h-9 w-14 rounded-chip" />
                 ) : option.thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={mediaSrc(option.thumb)}
                     alt=""
-                    className={`h-8 w-8 shrink-0 bg-t1/[0.07] object-cover ${option.kind === "ref" ? "rounded-[8px]" : "rounded-full"}`}
+                    className={`h-8 w-8 shrink-0 bg-t1/[0.07] object-cover ${option.kind === "ref" ? "rounded-chip" : "rounded-full"}`}
                   />
                 ) : (
                   <span className="grid h-8 w-8 shrink-0 place-items-center">

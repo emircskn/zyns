@@ -43,12 +43,12 @@ function HeroCard({ feature }: { feature: Feature }) {
     <button
       type="button"
       onClick={feature.open}
-      className="relative block aspect-[16/11] w-full shrink-0 snap-center overflow-hidden rounded-[12px] bg-surface-2 text-left ring-1 ring-inset ring-edge"
+      className="relative block aspect-[16/11] w-full shrink-0 snap-center overflow-hidden rounded-card bg-surface-2 text-left ring-1 ring-inset ring-edge"
     >
       <ModelMedia model={feature.model} />
       <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
       {feature.badge && (
-        <span className="absolute left-3 top-3 rounded-[6px] bg-accent px-2 py-0.5 font-display text-[10.5px] font-bold uppercase tracking-[0.04em] text-accent-ink">
+        <span className="absolute left-3 top-3 rounded-chip bg-accent px-2 py-0.5 font-display text-[10.5px] font-bold uppercase tracking-[0.04em] text-accent-ink">
           {feature.badge}
         </span>
       )}
@@ -64,7 +64,7 @@ function HeroCard({ feature }: { feature: Feature }) {
 function Tile({ label, model, onPick }: { label: string; model?: ModelDef; onPick: () => void }) {
   return (
     <button type="button" onClick={onPick} className="flex min-w-0 flex-col items-center gap-2">
-      <span className="relative block aspect-square w-full overflow-hidden rounded-[12px] bg-accent">
+      <span className="relative block aspect-square w-full overflow-hidden rounded-card bg-accent">
         <span className="absolute inset-[9%] -rotate-[6deg] overflow-hidden rounded-[9px] bg-surface-2 shadow-[0_6px_14px_rgb(0_0_0/0.35)]">
           {model && <ModelMedia model={model} />}
         </span>
@@ -78,7 +78,7 @@ function Tile({ label, model, onPick }: { label: string; model?: ModelDef; onPic
 function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
   return (
     <button type="button" onClick={onPick} className="w-[42vw] max-w-[180px] shrink-0 snap-start text-left">
-      <span className="relative block aspect-[4/5] overflow-hidden rounded-[10px] bg-surface-2 ring-1 ring-inset ring-edge">
+      <span className="relative block aspect-[4/5] overflow-hidden rounded-card bg-surface-2 ring-1 ring-inset ring-edge">
         <ModelMedia model={model} />
         {model.badge && (
           <span className="absolute left-2 top-2 rounded-[5px] bg-accent px-1.5 py-px font-display text-[9.5px] font-bold uppercase text-accent-ink">{model.badge}</span>
@@ -94,7 +94,7 @@ function ModelCard({ model, onPick }: { model: ModelDef; onPick: () => void }) {
 function ListRow({ model, title, line, badge, onPick }: { model: ModelDef; title: string; line: string; badge?: string; onPick: () => void }) {
   return (
     <button type="button" onClick={onPick} className="flex w-full items-center gap-4 py-2 text-left">
-      <span className="relative block aspect-[4/3] w-[96px] shrink-0 overflow-hidden rounded-[8px] bg-surface-2">
+      <span className="relative block aspect-[4/3] w-[96px] shrink-0 overflow-hidden rounded-chip bg-surface-2">
         <ModelMedia model={model} />
       </span>
       <span className="min-w-0 flex-1">
@@ -218,7 +218,7 @@ export function PhoneExplore() {
             type="button"
             onClick={() => setFilter(chip.id)}
             aria-pressed={filter === chip.id}
-            className={`h-8 shrink-0 rounded-[8px] px-3 text-[13px] font-medium transition-colors duration-[100ms] ${
+            className={`h-8 shrink-0 rounded-chip px-3 text-[13px] font-medium transition-colors duration-[100ms] ${
               filter === chip.id ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 ring-1 ring-inset ring-edge"
             }`}
           >

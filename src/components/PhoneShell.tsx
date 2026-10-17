@@ -51,7 +51,7 @@ function Row({
       type="button"
       onClick={onClick}
       aria-current={on ? "page" : undefined}
-      className={`flex h-11 w-full items-center gap-3 rounded-[10px] px-3 text-left text-[15px] font-medium text-t1 transition-colors duration-[100ms] ${
+      className={`flex h-11 w-full items-center gap-3 rounded-card px-3 text-left text-[15px] font-medium text-t1 transition-colors duration-[100ms] ${
         on ? "bg-t1/[0.07]" : "hover:bg-t1/[0.05]"
       }`}
     >
@@ -72,7 +72,7 @@ function FootButton({ icon, label, onClick, on, dot }: { icon: IconName; label: 
       aria-label={label}
       title={label}
       aria-pressed={on}
-      className={`relative grid h-10 w-10 place-items-center rounded-[8px] ring-1 ring-inset ring-edge transition-colors duration-[100ms] ${
+      className={`relative grid h-10 w-10 place-items-center rounded-chip ring-1 ring-inset ring-edge transition-colors duration-[100ms] ${
         on ? "bg-t1/[0.1] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"
       }`}
     >
@@ -157,7 +157,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="grid h-9 w-9 place-items-center rounded-[8px] text-t3 hover:bg-t1/[0.06] hover:text-t1"
+            className="grid h-9 w-9 place-items-center rounded-chip text-t3 hover:bg-t1/[0.06] hover:text-t1"
           >
             <Icon name="sidebar" size={20} />
           </button>
@@ -171,7 +171,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
               setCreateOpen(true);
             }}
             // Higgsfield's Create: a yellow wash that fades out to the right, a faint yellow edge, yellow words.
-            className="mb-1.5 flex h-11 w-full items-center gap-3 rounded-[10px] border border-transparent px-3 text-left text-[15px] font-semibold text-accent transition-opacity duration-[100ms] hover:opacity-90"
+            className="mb-1.5 flex h-11 w-full items-center gap-3 rounded-card border border-transparent px-3 text-left text-[15px] font-semibold text-accent transition-opacity duration-[100ms] hover:opacity-90"
             style={{
               // The wash and its edge both fade out to the right: one gradient fills, one draws the border.
               background:
@@ -253,7 +253,7 @@ export function PhoneHeader({ onKeyClick }: { onKeyClick: () => void }) {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-[8px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
+            className="grid h-10 w-10 place-items-center rounded-chip text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.06] hover:text-t1"
           >
             <Icon name="sidebar" size={22} />
           </button>

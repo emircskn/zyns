@@ -70,7 +70,7 @@ export function FrameGrab({ open, onClose, onFrame }: { open: boolean; onClose: 
             type="button"
             onClick={() => void grab()}
             disabled={uploader.busy || !length}
-            className="cta flex h-11 w-full items-center justify-center gap-2 rounded-panel text-[14.5px] font-semibold disabled:opacity-40"
+            className="cta flex h-11 w-full items-center justify-center gap-2 rounded-card text-[14.5px] font-semibold disabled:opacity-40"
           >
             {uploader.busy ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

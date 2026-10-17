@@ -71,7 +71,7 @@ function Card({
       />
       <span
         aria-hidden
-        className={`pointer-events-none absolute left-2 top-2 grid h-5 w-5 place-items-center rounded-[6px] border transition-opacity duration-[120ms] ${
+        className={`pointer-events-none absolute left-2 top-2 grid h-5 w-5 place-items-center rounded-chip border transition-opacity duration-[120ms] ${
           picked ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
         } ${reveal}`}
       >

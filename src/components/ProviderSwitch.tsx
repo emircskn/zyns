@@ -39,12 +39,12 @@ export function ProviderSwitch({
       ref={root}
       role="radiogroup"
       aria-label="Service"
-      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-[10px] bg-t1/[0.05] p-0.5 ring-1 ring-inset ring-edge ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-0.5 ring-1 ring-inset ring-edge ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-[8px] bg-[var(--surface-2)] shadow-[0_1px_2px_rgb(0_0_0/0.25)] ring-1 ring-inset ring-line-strong"
+          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-[var(--surface-2)] shadow-[0_1px_2px_rgb(0_0_0/0.25)] ring-1 ring-inset ring-line-strong"
           style={{
             width: box.w,
             height: box.h,
@@ -69,7 +69,7 @@ export function ProviderSwitch({
             }}
             aria-label={option.label}
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
-            className={`relative flex items-center justify-center gap-1.5 rounded-[8px] font-medium transition-colors duration-[100ms] ${
+            className={`relative flex items-center justify-center gap-1.5 rounded-chip font-medium transition-colors duration-[100ms] ${
               size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3.5" : "h-7 px-3"
             } ${on ? "text-t1" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-[var(--surface-2)]" : ""}`}
           >

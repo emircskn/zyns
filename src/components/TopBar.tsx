@@ -56,7 +56,7 @@ function PageNav() {
                 data-pill={item.id}
                 onClick={() => setPage(item.id)}
                 aria-current={on ? "page" : undefined}
-                className={`relative h-8 whitespace-nowrap rounded-[8px] px-3 text-[13.5px] transition-colors duration-[100ms] ${
+                className={`relative h-8 whitespace-nowrap rounded-chip px-3 text-[13.5px] transition-colors duration-[100ms] ${
                   on ? "font-medium text-accent" : "text-t3 hover:text-t1"
                 }`}
               >
@@ -83,7 +83,7 @@ export function CreditsPill({ onKeyClick, compact }: { onKeyClick: () => void; c
   const [checking, setChecking] = useState(false);
 
   const pill =
-    "flex h-9 items-center gap-1.5 rounded-[8px] bg-t1/[0.05] px-3 text-[13px] text-t2 ring-1 ring-inset ring-edge transition-colors duration-[100ms] hover:bg-t1/[0.1] hover:text-t1";
+    "flex h-9 items-center gap-1.5 rounded-chip bg-t1/[0.05] px-3 text-[13px] text-t2 ring-1 ring-inset ring-edge transition-colors duration-[100ms] hover:bg-t1/[0.1] hover:text-t1";
 
   if (!hydrated) return null;
 
@@ -92,7 +92,7 @@ export function CreditsPill({ onKeyClick, compact }: { onKeyClick: () => void; c
       <button
         type="button"
         onClick={onKeyClick}
-        className="cta flex h-9 items-center gap-1.5 rounded-[8px] px-3 text-[13px]"
+        className="cta flex h-9 items-center gap-1.5 rounded-chip px-3 text-[13px]"
         title="Add an API key to start making"
       >
         <Icon name="key" size={15} />

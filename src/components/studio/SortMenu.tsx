@@ -61,7 +61,7 @@ export function SortMenu({ value, onChange, label }: { value: SortKey; onChange:
                 onChange(option.id);
                 close();
               }}
-              className="flex h-9 items-center justify-between rounded-[8px] px-2.5 text-left text-[13.5px] text-t1 hover:bg-t1/[0.06]"
+              className="flex h-9 items-center justify-between rounded-chip px-2.5 text-left text-[13.5px] text-t1 hover:bg-t1/[0.06]"
             >
               <span className="font-semibold">{option.label}</span>
               {value === option.id && <Icon name="check" size={14} className="text-accent" />}

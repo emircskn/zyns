@@ -237,7 +237,7 @@ export function FolderTree({
               aria-current={on || undefined}
               aria-label={folded ? folder.name : undefined}
               title={folded ? folder.name : undefined}
-              className={`relative flex h-9 items-center gap-2.5 rounded-[12px] py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
+              className={`relative flex h-9 items-center gap-2.5 rounded-card py-1.5 text-left text-[14px] font-medium transition-colors duration-[200ms] ${folded ? "mx-auto w-9 justify-center px-0" : "w-full pl-1.5 pr-3"} ${
                 on ? "text-t1" : "text-t2 hover:bg-t1/[0.05] hover:text-t1"
               }`}
             >

@@ -125,7 +125,7 @@ function FeatureStrip() {
             onClick={feature.open}
             className="group w-[calc((100%-40px)/3)] shrink-0 snap-start text-left"
           >
-            <span className="relative block aspect-[16/9] overflow-hidden rounded-[10px] bg-surface-2">
+            <span className="relative block aspect-[16/9] overflow-hidden rounded-card bg-surface-2">
               <ModelMedia model={feature.model} className="transition-transform duration-[400ms] ease-[var(--ease)] group-hover:scale-[1.02]" />
               {feature.badge && (
                 <span className="absolute left-3 top-3">
@@ -147,7 +147,7 @@ function FeatureStrip() {
             onClick={() => step(side === "prev" ? -1 : 1)}
             aria-label={side === "prev" ? "Previous" : "Next"}
             tabIndex={hidden ? -1 : 0}
-            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-[8px] bg-canvas/85 text-t1 ring-1 ring-inset ring-edge backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
+            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-chip bg-canvas/85 text-t1 ring-1 ring-inset ring-edge backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
               side === "prev" ? "left-3" : "right-3"
             } ${hidden ? "pointer-events-none opacity-0" : "opacity-0 group-hover/strip:opacity-100 focus-visible:opacity-100"}`}
           >
@@ -175,11 +175,11 @@ function WayCard({ way }: { way: Way }) {
     <button
       type="button"
       onClick={way.open}
-      className="flex min-h-[124px] flex-col rounded-[10px] bg-surface p-4 text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:bg-surface-2"
+      className="flex min-h-[124px] flex-col rounded-card bg-surface p-4 text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:bg-surface-2"
     >
       <span className="flex items-start justify-between gap-2">
         <Icon name={way.icon} size={19} className="text-t1" />
-        {way.kind && <span className="rounded-[6px] bg-t1/[0.06] px-2 py-0.5 text-[11.5px] text-t2">{way.kind}</span>}
+        {way.kind && <span className="rounded-chip bg-t1/[0.06] px-2 py-0.5 text-[11.5px] text-t2">{way.kind}</span>}
       </span>
       <span className="mt-auto flex items-center gap-2 pt-4">
         <span className="truncate text-[15px] font-semibold text-t1">{way.name}</span>
@@ -204,7 +204,7 @@ function ModelRow({ title, models, onPick, onAll }: { title: string; models: Mod
       <div className="no-bar flex snap-x gap-4 overflow-x-auto">
         {models.slice(0, 14).map((model) => (
           <button key={model.id} type="button" onClick={onPick(model)} className="group w-[220px] shrink-0 snap-start text-left">
-            <span className="relative block aspect-[4/5] overflow-hidden rounded-[10px] bg-surface-2">
+            <span className="relative block aspect-[4/5] overflow-hidden rounded-card bg-surface-2">
               <ModelMedia model={model} className="transition-transform duration-[400ms] ease-[var(--ease)] group-hover:scale-[1.03]" />
               {model.badge && (
                 <span className="absolute left-2.5 top-2.5">
@@ -303,7 +303,7 @@ function DesktopExplore({ onKeyClick }: { onKeyClick: () => void }) {
             Shots that <span className="text-accent">sell</span>
           </h2>
           <p className="mt-3 text-[15px] text-t2">Bring a product. Pick a preset. Get the ad.</p>
-          <button type="button" onClick={() => setPage("marketing")} className="cta mt-6 h-11 rounded-[8px] px-5 text-[14px] font-semibold">
+          <button type="button" onClick={() => setPage("marketing")} className="cta mt-6 h-11 rounded-chip px-5 text-[14px] font-semibold">
             Open Marketing Studio
           </button>
         </section>

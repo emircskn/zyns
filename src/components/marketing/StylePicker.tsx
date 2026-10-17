@@ -14,7 +14,7 @@ export function StyleCard({ id, name, on, onPick }: { id: string; name: string; 
   const [missing, setMissing] = useState(false);
   return (
     <button type="button" onClick={onPick} aria-pressed={on} className="block text-left">
-      <span className={`relative block aspect-[3/4] overflow-hidden rounded-[14px] bg-t1/[0.06] ${on ? "ring-2 ring-accent" : "ring-1 ring-inset ring-edge"}`}>
+      <span className={`relative block aspect-[3/4] overflow-hidden rounded-card bg-t1/[0.06] ${on ? "ring-2 ring-accent" : "ring-1 ring-inset ring-edge"}`}>
         {!missing ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={styleCover(id)} alt="" loading="lazy" onError={() => setMissing(true)} className="h-full w-full object-cover" />
@@ -74,7 +74,7 @@ export function StylePicker({
       <div
         role="dialog"
         aria-label="Choose style"
-        className={`relative flex h-[90dvh] w-full flex-col overflow-hidden rounded-t-[20px] border border-edge bg-[var(--popover)] sm:h-[min(820px,90dvh)] sm:max-w-[1080px] sm:rounded-[20px] ${exiting ? "anim-sheet-out" : "anim-sheet"}`}
+        className={`relative flex h-[90dvh] w-full flex-col overflow-hidden rounded-t-panel border border-edge bg-[var(--popover)] sm:h-[min(820px,90dvh)] sm:max-w-[1080px] sm:rounded-panel ${exiting ? "anim-sheet-out" : "anim-sheet"}`}
         style={{ boxShadow: "var(--shadow-pop)" }}
       >
         <header className="flex shrink-0 items-center justify-between px-4 py-3 sm:px-5">
@@ -83,7 +83,7 @@ export function StylePicker({
             <Icon name="close" size={16} />
           </button>
         </header>
-        <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-black/25 sm:flex-row">
+        <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-card bg-black/25 sm:flex-row">
           <nav className="no-bar flex shrink-0 gap-1 overflow-x-auto border-line p-2 sm:w-[184px] sm:flex-col sm:overflow-visible sm:border-r sm:p-3">
             {(["image"] as const).map((group) => (
               <div key={group} className="flex shrink-0 gap-1 sm:flex-col">
@@ -96,7 +96,7 @@ export function StylePicker({
                       setCategory(c.id);
                       setQuery("");
                     }}
-                    className={`flex h-9 shrink-0 items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[14px] transition-colors duration-[120ms] ${
+                    className={`flex h-9 shrink-0 items-center gap-2.5 rounded-card px-2.5 text-left text-[14px] transition-colors duration-[120ms] ${
                       category === c.id && !needle ? "bg-t1/[0.1] font-semibold text-t1" : "text-t3 hover:text-t1"
                     }`}
                   >
@@ -110,7 +110,7 @@ export function StylePicker({
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3">
               <p className="text-[14.5px] font-bold text-t1">{needle ? "Search" : label}</p>
-              <label className="flex h-9 w-[200px] items-center gap-2 rounded-[10px] bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
+              <label className="flex h-9 w-[200px] items-center gap-2 rounded-card bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
                 <Icon name="search" size={14} className="text-t4" />
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="min-w-0 flex-1 bg-transparent text-[13px] text-t1 outline-none placeholder:text-t4" />
               </label>

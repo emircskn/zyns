@@ -107,10 +107,10 @@ export function StudioDialog({
             <PillGroup fill value={tab ?? nav[0].id} onChange={(id) => onTab?.(id)} items={nav.map((n) => ({ id: n.id, label: n.label }))} />
           </div>
         )}
-        <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:mb-1.5 sm:rounded-[12px] sm:bg-elevated sm:p-1.5">
+        <div className="flex min-h-0 flex-1 gap-1.5 sm:mx-1.5 sm:mb-1.5 sm:rounded-card sm:bg-elevated sm:p-1.5">
           {menu && (
             <nav ref={side} className="relative hidden w-[184px] shrink-0 flex-col gap-1 rounded-card bg-t1/[0.03] p-2 sm:flex">
-              <GlideMark value={tab ?? nav[0].id} className="rounded-[12px] bg-t1/[0.1]" deps={[mounted]} />
+              <GlideMark value={tab ?? nav[0].id} className="rounded-card bg-t1/[0.1]" deps={[mounted]} />
               {nav.map((item) => (
                 <button
                   key={item.id}
@@ -118,7 +118,7 @@ export function StudioDialog({
                   type="button"
                   onClick={() => onTab?.(item.id)}
                   aria-current={tab === item.id || undefined}
-                  className={`relative flex h-9 items-center gap-2 rounded-[12px] px-2.5 text-[14px] transition-colors duration-[200ms] ${
+                  className={`relative flex h-9 items-center gap-2 rounded-card px-2.5 text-[14px] transition-colors duration-[200ms] ${
                     tab === item.id ? "text-t1" : "text-t3 hover:bg-t1/[0.05] hover:text-t1"
                   }`}
                 >
