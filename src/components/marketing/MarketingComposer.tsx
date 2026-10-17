@@ -279,10 +279,20 @@ export function MarketingComposer({
       : activeFields(model, own).filter((f) => f.placement === "bar")
     : [];
 
+  // A template from below shows as itself; otherwise our styles, as Higgsfield's Choose style.
+  const styleChip = preset ? (
+    <Chip icon={<Icon name="grid" size={15} />} value={preset.name} active onClear={() => patch({ preset: null })} />
+  ) : (
+    <button type="button" onClick={() => setStylesOpen(true)} className="shrink-0">
+      <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} onClear={ui.style ? () => patch({ style: null }) : undefined} />
+    </button>
+  );
+
   // Every setting with its control, for the chip row on a desktop and the settings sheet on a phone.
   const settingRows =
     model && built
       ? [
+          ...(bar && tool === "create" ? [{ key: "style", label: preset ? "Template" : "Style", node: styleChip }] : []),
           ...chips.map((field) => ({
             key: field.key,
             label: field.label,
@@ -410,16 +420,8 @@ export function MarketingComposer({
               <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
               </>)}
               <ModelChip models={barModels} model={model} onPick={(id) => patch({ modelId: id, ...(isMarketingModel(id) ? {} : { preset: null }) })} lead={MARKETING_LEAD} />
-              {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. */}
-              {preset ? (
-                <span className="shrink-0">
-                  <Chip icon={<Icon name="grid" size={15} />} value={preset.name} active onClear={() => patch({ preset: null })} />
-                </span>
-              ) : (
-                <button type="button" onClick={() => setStylesOpen(true)} className="shrink-0">
-                  <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} onClear={ui.style ? () => patch({ style: null }) : undefined} />
-                </button>
-              )}
+              {/* A template from below shows here as itself; otherwise our styles, as Higgsfield's Choose style. A phone has it in Settings. */}
+              <span className="shrink-0 max-md:hidden">{styleChip}</span>
               {model && built && (
                 <>
                   {settingRows.map((row) => (

@@ -38,7 +38,7 @@ export function SettingsSheet({ rows }: { rows: SettingRow[] }) {
       {mounted &&
         typeof document !== "undefined" &&
         createPortal(
-          <div className="fixed inset-0 z-[116] flex items-end md:hidden">
+          <div className="fixed inset-0 z-[115] flex items-end md:hidden">
             <button type="button" aria-label="Close" onClick={() => setOpen(false)} className={`absolute inset-0 bg-canvas-deep/80 backdrop-blur-md ${exiting ? "anim-fade-out" : "anim-fade"}`} />
             <div
               ref={sheet}
