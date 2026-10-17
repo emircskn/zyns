@@ -16,7 +16,7 @@ const TONES: Record<AppTone, [string, string]> = {
   blue: ["#6ea4ff", "#2a54c4"],
   pink: ["#ff8fc0", "#c8336f"],
   // The brand accent (ZYNS orange), kept under its old name.
-  lime: ["#fdba74", "#ea580c"],
+  lime: ["#ffcf99", "#f98f24"],
   orange: ["#ffb163", "#d9581c"],
   purple: ["#b99bff", "#6a3fd1"],
   green: ["#7fe39a", "#239a4c"],

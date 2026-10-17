@@ -59,7 +59,7 @@ export function SettingsSheet({ rows }: { rows: SettingRow[] }) {
                   {row.node}
                 </div>
               ))}
-              <button type="button" onClick={() => setOpen(false)} className="mt-2 h-12 w-full rounded-full bg-accent text-[15px] font-semibold text-accent-ink">
+              <button type="button" onClick={() => setOpen(false)} className="mt-2 h-12 w-full cta rounded-card text-[15px]">
                 Apply
               </button>
             </div>
