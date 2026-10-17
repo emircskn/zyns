@@ -16,7 +16,7 @@ import {
   useMarketing,
 } from "@/components/marketing/MarketingComposer";
 import { FieldChip } from "@/components/PromptBar";
-import { ReferencePicker } from "@/components/studio/ReferencePicker";
+import { MediaPicker } from "@/components/MediaPicker";
 import { GenerateButton, ModelChip, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { styleById, styleCover } from "@/lib/marketing/styles";
@@ -232,16 +232,13 @@ export function RecreateTemplate({
           {(error || (key && blocker)) && <p className={`-mt-3 text-[12px] ${error ? "text-[#ff8f8f]" : "text-t4"}`}>{error ?? blocker}</p>}
         </div>
       </div>
-      <ReferencePicker
+      <MediaPicker
         open={!!picking}
         onClose={() => setPicking(null)}
-        kinds={["image"]}
-        room={{ image: 1, video: 0, audio: 0 }}
+        accept="image"
         taken={[product, avatar].filter((u): u is string => !!u)}
-        startTab="elements"
-        onAdd={(picked) => {
-          const url = picked.find((p) => p.kind === "image")?.url;
-          if (url) (picking === "product" ? setProduct : setAvatar)(url);
+        onPick={(urls) => {
+          if (urls[0]) (picking === "product" ? setProduct : setAvatar)(urls[0]);
         }}
         onElements={(elements) => {
           const url = elements[0]?.images[0]?.storageUrl;

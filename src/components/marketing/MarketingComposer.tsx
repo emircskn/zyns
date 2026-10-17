@@ -8,7 +8,7 @@ import { StylePicker } from "@/components/marketing/StylePicker";
 import { studioImageModels } from "@/lib/studio/compose";
 import { STYLE_CATEGORIES, styleById, styleCover } from "@/lib/marketing/styles";
 
-import { ReferencePicker } from "@/components/studio/ReferencePicker";
+import { MediaPicker } from "@/components/MediaPicker";
 import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -329,15 +329,14 @@ export function MarketingComposer({
         onPick={(p) => patch({ preset: p, style: null })}
         onClose={() => setPresetsOpen(false)}
       />
-      <ReferencePicker
+      <MediaPicker
         open={!!picking}
         onClose={() => setPicking(null)}
-        kinds={["image"]}
-        room={{ image: picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1, video: 0, audio: 0 }}
+        accept="image"
+        multiple={picking === "refs"}
+        max={picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1}
         taken={pickedUrls}
-        startTab={picking === "product" || picking === "avatar" ? "elements" : "uploads"}
-        onAdd={(picked) => {
-          const urls = picked.filter((p) => p.kind === "image").map((p) => p.url);
+        onPick={(urls) => {
           if (urls.length === 0 || !picking) return;
           if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...urls].slice(0, maxRefs) }));
           else patch({ [picking]: urls[0] } as Partial<MarketingUi>);
