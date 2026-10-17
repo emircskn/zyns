@@ -44,19 +44,20 @@ export function ProjectList({
         editing === project.id ? (
           <form
             key={project.id}
-            className="flex items-center gap-1.5 px-1 py-0.5"
+            className="flex items-center gap-2.5 rounded-full bg-t1/[0.1] py-1 pl-3 pr-1 ring-1 ring-inset ring-line-strong"
             onSubmit={(event) => {
               event.preventDefault();
               renameProject(project.id, draft);
               setEditing(null);
             }}
           >
+            <AppIcon glyph="folder" tone="amber" size={20} />
             <input
               autoFocus
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               aria-label="Project name"
-              className="min-w-0 flex-1 rounded-full bg-t1/[0.06] px-3 py-1.5 text-[13.5px] text-t1 outline-none"
+              className="min-w-0 flex-1 bg-transparent text-[13.5px] text-t1 outline-none"
             />
             <button
               type="button"
@@ -66,8 +67,8 @@ export function ProjectList({
             >
               <Icon name="trash" size={15} />
             </button>
-            <button type="submit" className="cta rounded-full px-3 py-1.5 text-[12.5px] font-medium">
-              Save
+            <button type="submit" aria-label="Save name" className="cta grid h-8 w-8 shrink-0 place-items-center rounded-full">
+              <Icon name="check" size={16} strokeWidth={2.4} />
             </button>
             <ConfirmPopup
               open={confirming}
