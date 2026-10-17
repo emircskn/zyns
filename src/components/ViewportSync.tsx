@@ -5,7 +5,7 @@ import { useStudio } from "@/store/studio";
 
 /** The width a phone lays the page out at in desktop view. */
 export const DESKTOP_WIDTH = 1280;
-const PHONE = "width=device-width, initial-scale=1, viewport-fit=cover";
+const PHONE = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
 
 /**
  * Desktop view on a phone: the page is laid out at a desktop's width and

@@ -11,6 +11,9 @@ export const viewport: Viewport = {
   themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
+  // iOS zooms the page when a field under 16px takes focus; a fixed scale stops it everywhere.
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
