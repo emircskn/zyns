@@ -761,7 +761,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         open={refsOpen === "uploads"}
         accept={refs.map((f) => (f.accept ?? "image") as Kind)}
         multiple
-        onElements={addElements}
+        onElements={(chosen) => addElements(chosen, false)}
         max={room}
         taken={refs.flatMap((f) => listOf(values[f.key]))}
         onPick={(urls, pickedKinds) => {
@@ -1186,7 +1186,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         max={14}
         onElements={(chosen) =>
           patchStudio((s) => ({
-            imagePrompt: `${(s.imagePrompt ?? "").trimEnd()} ${chosen.map((e) => `@${e.name}`).join(" ")} `.trimStart(),
             imageRefs: [...(s.imageRefs ?? []), ...chosen.flatMap((e) => e.images.map((r) => r.storageUrl)).filter((u) => !(s.imageRefs ?? []).includes(u))].slice(0, 14),
           }))
         }
