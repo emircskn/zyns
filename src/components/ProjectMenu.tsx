@@ -35,7 +35,7 @@ export function ProjectList({
     }`;
 
   return (
-    <div className="flex flex-col gap-0.5 p-1.5">
+    <div className="flex flex-col gap-2 p-1.5">
       <button type="button" className={row(current === null)} onClick={() => (onPick(null), close())}>
         <Icon name="layers" size={15} />
         {noneLabel}
@@ -44,7 +44,7 @@ export function ProjectList({
         editing === project.id ? (
           <form
             key={project.id}
-            className="flex items-center gap-2 rounded-full bg-t1/[0.1] py-1.5 pl-3 pr-2 ring-1 ring-inset ring-line-strong"
+            className="flex items-center gap-2 rounded-full bg-t1/[0.1] py-1 pl-3 pr-2 ring-1 ring-inset ring-line-strong"
             onSubmit={(event) => {
               event.preventDefault();
               renameProject(project.id, draft);
@@ -63,9 +63,9 @@ export function ProjectList({
               type="button"
               onClick={() => setConfirming(true)}
               aria-label={`Delete ${project.name}`}
-              className="ml-auto grid h-7 w-7 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+              className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
             >
-              <Icon name="trash" size={14} />
+              <Icon name="trash" size={15} />
             </button>
             <button type="submit" aria-label="Save name" className="cta grid h-7 w-7 shrink-0 place-items-center rounded-full">
               <Icon name="check" size={14} strokeWidth={2.4} />
