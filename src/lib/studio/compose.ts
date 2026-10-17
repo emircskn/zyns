@@ -71,8 +71,10 @@ export function putMove(text: string, value: string, field: Field | undefined, a
   let base = text;
   let caret = at ?? text.length;
   for (const move of [...existing].reverse()) {
-    base = base.slice(0, move.start) + base.slice(move.end);
-    if (caret > move.start) caret -= Math.min(caret, move.end) - move.start;
+    // The space after the chip goes with it, or each swap leaves another gap behind.
+    const end = move.end + (base[move.end] === " " ? 1 : 0);
+    base = base.slice(0, move.start) + base.slice(end);
+    if (caret > move.start) caret -= Math.min(caret, end) - move.start;
   }
   const lead = caret > 0 && !/\s/.test(base[caret - 1]) ? " " : "";
   const token = `${lead}#${value} `;

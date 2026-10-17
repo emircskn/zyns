@@ -46,7 +46,7 @@ export function mentionAtCaret(text: string, caret: number): { start: number; qu
 /** Replace `[start, caret)` with `@name ` and report where the caret lands. */
 export function insertMention(text: string, start: number, caret: number, name: string) {
   const token = `@${name} `;
-  const next = text.slice(0, start) + token + text.slice(caret);
+  const next = text.slice(0, start) + token + text.slice(caret).replace(/^ /, "");
   return { text: next, caret: start + token.length };
 }
 
