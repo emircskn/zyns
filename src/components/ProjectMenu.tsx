@@ -44,7 +44,7 @@ export function ProjectList({
         editing === project.id ? (
           <form
             key={project.id}
-            className="flex items-center gap-2.5 rounded-full bg-t1/[0.1] py-1 pl-3 pr-1 ring-1 ring-inset ring-line-strong"
+            className="flex items-center gap-2 rounded-full bg-t1/[0.1] py-1.5 pl-3 pr-2 ring-1 ring-inset ring-line-strong"
             onSubmit={(event) => {
               event.preventDefault();
               renameProject(project.id, draft);
@@ -63,12 +63,12 @@ export function ProjectList({
               type="button"
               onClick={() => setConfirming(true)}
               aria-label={`Delete ${project.name}`}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
+              className="ml-auto grid h-7 w-7 shrink-0 place-items-center rounded-full text-t3 transition-colors duration-[120ms] hover:bg-[#ff6b6b]/10 hover:text-[#ff8f8f]"
             >
-              <Icon name="trash" size={15} />
+              <Icon name="trash" size={14} />
             </button>
-            <button type="submit" aria-label="Save name" className="cta grid h-8 w-8 shrink-0 place-items-center rounded-full">
-              <Icon name="check" size={16} strokeWidth={2.4} />
+            <button type="submit" aria-label="Save name" className="cta grid h-7 w-7 shrink-0 place-items-center rounded-full">
+              <Icon name="check" size={14} strokeWidth={2.4} />
             </button>
             <ConfirmPopup
               open={confirming}
