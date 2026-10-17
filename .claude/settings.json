@@ -1,1 +1,14 @@
-
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(git clone *)",
+      "Bash(npm *)",
+      "Bash(node *)",
+      "FileRead(*)",
+      "FileWrite(*)",
+      "WebFetch(*)"
+    ],
+    "deny": []
+  }
+}
