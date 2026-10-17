@@ -627,7 +627,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
       )}
       {/* On a desktop Generate sits inside the prompt's well, as Higgsfield's does. */}
       <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-card md:bg-t1/[0.05] md:pr-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:bg-transparent">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <StudioPrompt
@@ -993,7 +993,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
 
   return (
     <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-4 md:bg-transparent">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:bg-transparent">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <StudioPrompt
