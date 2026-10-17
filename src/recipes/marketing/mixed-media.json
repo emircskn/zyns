@@ -1,0 +1,71 @@
+{
+  "id": "marketing-mixed-media",
+  "name": "Mixed media",
+  "category": "mixed-media",
+  "description": "A collage ad: your product cut out on paper textures with doodles, torn edges and halftone, moving like stop-motion.",
+  "output": "video",
+  "slots": [
+    {
+      "key": "product",
+      "type": "image",
+      "label": "Product",
+      "required": true,
+      "min": 1,
+      "max": 4,
+      "elementKind": "product"
+    },
+    {
+      "key": "theme",
+      "type": "text",
+      "label": "Theme",
+      "required": false,
+      "placeholder": "Retro summer, torn magazine paper, hand-drawn stars"
+    },
+    {
+      "key": "motion",
+      "type": "text",
+      "label": "Motion",
+      "required": false,
+      "placeholder": "Paper pieces flick into place, doodles draw on"
+    }
+  ],
+  "choices": [
+    {
+      "key": "ratio",
+      "label": "Aspect ratio",
+      "options": [
+        "9:16",
+        "1:1",
+        "16:9"
+      ],
+      "default": "9:16"
+    }
+  ],
+  "steps": [
+    {
+      "id": "frame",
+      "label": "Frame",
+      "capability": "image-edit-multi",
+      "params": {
+        "prompt": "A mixed-media collage advertisement: the product from the reference image, kept exactly as it is, cut out and placed on paper textures with torn edges, halftone dots, tape and hand-drawn doodles. {{slots.theme}}",
+        "images": [
+          "{{slots.product}}"
+        ],
+        "aspect_ratio": "{{choices.ratio}}"
+      }
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "capability": "image-to-video",
+      "params": {
+        "prompt": "Stop-motion mixed media animation: paper pieces flick into place, doodles draw themselves on, slight jittery hand-made timing. {{slots.motion}}. The product stays unchanged.",
+        "images": [
+          "{{steps.frame.output.url}}"
+        ],
+        "aspect_ratio": "{{choices.ratio}}",
+        "duration": 5
+      }
+    }
+  ]
+}

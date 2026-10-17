@@ -47,7 +47,7 @@ export interface Step {
 export interface Recipe {
   id: string;
   name: string;
-  category: "effect" | "product-motion" | "ugc";
+  category: "effect" | "product-motion" | "ugc" | "hypermotion" | "motion-2d" | "mixed-media" | "saas-motion";
   description: string;
   preview?: { thumbUrl: string; videoUrl?: string };
   output: "image" | "video";

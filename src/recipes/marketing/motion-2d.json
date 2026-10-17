@@ -1,0 +1,71 @@
+{
+  "id": "marketing-2d-motion",
+  "name": "2D motion",
+  "category": "motion-2d",
+  "description": "Flat, illustrated motion-graphics ad: your product drawn into a colourful 2D scene that moves.",
+  "output": "video",
+  "slots": [
+    {
+      "key": "product",
+      "type": "image",
+      "label": "Product",
+      "required": true,
+      "min": 1,
+      "max": 4,
+      "elementKind": "product"
+    },
+    {
+      "key": "style",
+      "type": "text",
+      "label": "Colours and style",
+      "required": false,
+      "placeholder": "Bright pastel shapes, bold outlines, playful"
+    },
+    {
+      "key": "motion",
+      "type": "text",
+      "label": "Motion",
+      "required": false,
+      "placeholder": "Shapes pop in on the beat, the product bounces up from below"
+    }
+  ],
+  "choices": [
+    {
+      "key": "ratio",
+      "label": "Aspect ratio",
+      "options": [
+        "9:16",
+        "1:1",
+        "16:9"
+      ],
+      "default": "9:16"
+    }
+  ],
+  "steps": [
+    {
+      "id": "frame",
+      "label": "Frame",
+      "capability": "image-edit-multi",
+      "params": {
+        "prompt": "A flat 2D vector illustration ad: the product from the reference image redrawn faithfully (same shape, colours, label and logo) on a colourful graphic backdrop of simple geometric shapes. {{slots.style}}",
+        "images": [
+          "{{slots.product}}"
+        ],
+        "aspect_ratio": "{{choices.ratio}}"
+      }
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "capability": "image-to-video",
+      "params": {
+        "prompt": "2D motion graphics animation: flat shapes slide, pop and bounce in with snappy easing, the illustrated product enters and settles. {{slots.motion}}. Keep the product design unchanged.",
+        "images": [
+          "{{steps.frame.output.url}}"
+        ],
+        "aspect_ratio": "{{choices.ratio}}",
+        "duration": 5
+      }
+    }
+  ]
+}

@@ -34,3 +34,11 @@
 ## Image templates (checked on Higgsfield)
 - A template's `type` decides its inputs: `product_shots` = product only; `product_shots_people` = product + avatar. Product is required, prompt ("Describe your result") is optional.
 - With a template, extra reference pictures are not sent, so the bar hides "+"; on `product_shots` it also hides the Avatar tile.
+
+## Kie eşleme kararları (2026-10-17, Emir onayladı)
+- Kural: Higgsfield API'sinde karşılığı olan özellik için Kie karşılığı yazılmaz; ana seçenek Higgsfield. Kie modelleri yine üstteki sağlayıcı geçişinden kullanılabilir.
+- Higgsfield API'sinde var (Kie yazılmadı): Soul ID, AI Influencer, Ads Studio, Genjutsu, Kling Motion Control, Cinema Studio video, Marketing Studio image.
+- Kie ile yapılanlar (API'de yok): Marketing Studio video (recipe'ler: UGC, Product motion, Hypermotion, 2D motion, Mixed media, SaaS motion). Sıradakiler: reframe/outpaint, relight, remove background, upscale (image/video), dubbing, video edit.
+- Ads Studio metin kısmı için LLM istenirse Kie'nin LLM'i kullanılacak (Higgsfield Ads Studio API'de olduğu için şimdilik gerek yok).
+- **HATIRLAT (Emir'e):** 3D ve Virality predictor satırları Kie'de karşılık yok; kapsam dışı bırakılmadı, ileride konuşulacak.
+- Canvas: Higgsfield arayüzüne giriş otomatik izin sisteminden geçmedi; arayüz incelenemedi. Ekran görüntüsü / HAR gelirse eşlenecek.
