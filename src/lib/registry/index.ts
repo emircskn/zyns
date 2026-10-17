@@ -7,6 +7,7 @@ import { FAMILIES as HF_FAMILIES } from "./hf/curation";
 import { withAutoMode, withFold, type FoldSpec } from "./autoMode";
 import { inOrder } from "./order";
 import { withActions } from "./actions";
+import { editToolModels } from "./edits";
 import type { Category, Field, ModelDef, Provider, Values } from "./types";
 
 export * from "./types";
@@ -116,6 +117,9 @@ export const KIE_MODELS: ModelDef[] = inOrder(FAMILIES.map(familyToModel)
   .map(withActions)
   .map(withCover)
   .map((m) => ({ ...m, provider: "kie" as const })));
+
+/** Edits Higgsfield's app has and its API lacks, made on a KIE model (see edits.ts). */
+KIE_MODELS.push(...editToolModels(KIE_MODELS.find((m) => m.id === "nano-banana-pro")));
 
 /**
  * Every Higgsfield family, from Higgsfield's own schemas. Both catalogues

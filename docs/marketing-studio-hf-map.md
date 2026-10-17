@@ -38,7 +38,7 @@
 ## Kie eşleme kararları (2026-10-17, Emir onayladı)
 - Kural: Higgsfield API'sinde karşılığı olan özellik için Kie karşılığı yazılmaz; ana seçenek Higgsfield. Kie modelleri yine üstteki sağlayıcı geçişinden kullanılabilir.
 - Higgsfield API'sinde var (Kie yazılmadı): Soul ID, AI Influencer, Ads Studio, Genjutsu, Kling Motion Control, Cinema Studio video, Marketing Studio image.
-- Kie ile yapılanlar (API'de yok): Marketing Studio video (recipe'ler: UGC, Product motion, Hypermotion, 2D motion, Mixed media, SaaS motion). Sıradakiler: reframe/outpaint, relight, remove background, upscale (image/video), dubbing, video edit.
+- Kie ile yapılanlar (API'de yok): Marketing Studio video (recipe'ler: UGC, Product motion, Hypermotion, 2D motion, Mixed media, SaaS motion). Tools sayfasında zaten vardı: Upscale (image/video), Remove background, Audio isolation. Bu oturumda eklendi: Relight ve Outpaint (Nano Banana Pro edit üstünde, src/lib/registry/edits.ts). Sıradakiler: dubbing/voice change, video reframe, Canvas.
 - Ads Studio metin kısmı için LLM istenirse Kie'nin LLM'i kullanılacak (Higgsfield Ads Studio API'de olduğu için şimdilik gerek yok).
 - **HATIRLAT (Emir'e):** 3D ve Virality predictor satırları Kie'de karşılık yok; kapsam dışı bırakılmadı, ileride konuşulacak.
 - Canvas: Higgsfield arayüzüne giriş otomatik izin sisteminden geçmedi; arayüz incelenemedi. Ekran görüntüsü / HAR gelirse eşlenecek.
