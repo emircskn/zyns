@@ -15,6 +15,7 @@ import { FrameGrab } from "@/components/studio/FrameGrab";
 import type { Kind } from "@/components/studio/ReferencePicker";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ElementGrid, PreviewMedia } from "@/components/studio/Settings";
+import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
@@ -652,15 +653,21 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
             <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
             <ModelChip models={models} model={model} onPick={(id) => patchStudio({ videoModelId: id })} />
             {chips.map((field) => (
-              <span key={field.key} className="shrink-0">
+              <span key={field.key} className="shrink-0 max-md:hidden">
                 <FieldChip field={field} values={isCinema ? values : own} onChange={isCinema ? set : setOwn} />
               </span>
             ))}
             {!selfCount && (
-              <span className="shrink-0">
+              <span className="shrink-0 max-md:hidden">
                 <BatchChip value={count} onChange={setCount} />
               </span>
             )}
+            <SettingsSheet
+              rows={[
+                ...chips.map((field) => ({ key: field.key, label: field.label, node: <FieldChip field={field} values={isCinema ? values : own} onChange={isCinema ? set : setOwn} /> })),
+                ...(selfCount ? [] : [{ key: "batch", label: "Batch size", node: <BatchChip value={count} onChange={setCount} /> }]),
+              ]}
+            />
             </ChipRow>
           </div>
           {(error || notice || (sent && sent.warnings.length > 0)) && (
@@ -1005,14 +1012,22 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} lead={SOUL_LEAD} />
           {model &&
             chips.map((field) => (
-              <span key={field.key} className="shrink-0">
+              <span key={field.key} className="shrink-0 max-md:hidden">
                 <FieldChip field={field} values={own} onChange={(k, v) => setModelValues(model.id, { [k]: v })} />
               </span>
             ))}
           {!selfCount && (
-            <span className="shrink-0">
+            <span className="shrink-0 max-md:hidden">
               <BatchChip value={count} onChange={setCount} />
             </span>
+          )}
+          {model && (
+            <SettingsSheet
+              rows={[
+                ...chips.map((field) => ({ key: field.key, label: field.label, node: <FieldChip field={field} values={own} onChange={(k, v) => setModelValues(model.id, { [k]: v })} /> })),
+                ...(selfCount ? [] : [{ key: "batch", label: "Batch size", node: <BatchChip value={count} onChange={setCount} /> }]),
+              ]}
+            />
           )}
           </ChipRow>
         </div>

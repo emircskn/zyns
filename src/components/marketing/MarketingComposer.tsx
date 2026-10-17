@@ -9,6 +9,7 @@ import { studioImageModels } from "@/lib/studio/compose";
 import { STYLE_CATEGORIES, styleById, styleCover } from "@/lib/marketing/styles";
 
 import { ReferencePicker } from "@/components/studio/ReferencePicker";
+import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { ChipRow, GenerateButton, ModelChip, times, usePrice } from "@/components/studio/StudioComposer";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
@@ -278,6 +279,29 @@ export function MarketingComposer({
       : activeFields(model, own).filter((f) => f.placement === "bar")
     : [];
 
+  // Every setting with its control, for the chip row on a desktop and the settings sheet on a phone.
+  const settingRows =
+    model && built
+      ? [
+          ...chips.map((field) => ({
+            key: field.key,
+            label: field.label,
+            node: (
+              <FieldChip
+                field={field}
+                values={marketing ? built.values : own}
+                onChange={(k, v) => {
+                  if (!marketing) return setModelValues(model.id, { [k]: v });
+                  const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
+                  if (name) patch({ [name]: typeof v === "string" ? v : String(v ?? "") } as Partial<MarketingUi>);
+                }}
+              />
+            ),
+          })),
+          { key: "batch", label: "Batch size", node: <BatchChip value={count} onChange={(n) => patch({ count: n })} /> },
+        ]
+      : [];
+
   async function generate() {
     if (!model || !built) return;
     if (!key) return onKeyClick();
@@ -397,24 +421,16 @@ export function MarketingComposer({
                   <Chip icon={<Icon name={STYLE_CATEGORIES.find((c) => c.id === styleById(ui.style)?.category)?.icon ?? "brush"} size={15} />} value={styleById(ui.style)?.name ?? "Choose style"} active={!!ui.style} onClear={ui.style ? () => patch({ style: null }) : undefined} />
                 </button>
               )}
-              {model &&
-                built &&
-                chips.map((field) => (
-                  <span key={field.key} className="shrink-0">
-                    <FieldChip
-                      field={field}
-                      values={marketing ? built.values : own}
-                      onChange={(k, v) => {
-                        if (!marketing) return setModelValues(model.id, { [k]: v });
-                        const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
-                        if (name) patch({ [name]: typeof v === "string" ? v : String(v ?? "") } as Partial<MarketingUi>);
-                      }}
-                    />
-                  </span>
-                ))}
-              <span className="shrink-0">
-                <BatchChip value={count} onChange={(n) => patch({ count: n })} />
-              </span>
+              {model && built && (
+                <>
+                  {settingRows.map((row) => (
+                    <span key={row.key} className="shrink-0 max-md:hidden">
+                      {row.node}
+                    </span>
+                  ))}
+                  <SettingsSheet rows={settingRows} />
+                </>
+              )}
             </ChipRow>
           </div>
           {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
@@ -608,23 +624,16 @@ export function MarketingComposer({
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
-        {model &&
-          built &&
-          chips.map((field) => (
-            <span key={field.key} className="shrink-0">
-              <FieldChip
-                field={field}
-                values={built.values}
-                onChange={(k, v) => {
-                  const name = UI_KEY[k as (typeof CHIP_KEYS)[number]];
-                  if (name) patch({ [name]: typeof v === "string" ? v : String(v ?? "") } as Partial<MarketingUi>);
-                }}
-              />
-            </span>
-          ))}
-        <span className="shrink-0">
-          <BatchChip value={count} onChange={(n) => patch({ count: n })} />
-        </span>
+        {model && built && (
+          <>
+            {settingRows.map((row) => (
+              <span key={row.key} className="shrink-0 max-md:hidden">
+                {row.node}
+              </span>
+            ))}
+            <SettingsSheet rows={settingRows} />
+          </>
+        )}
       </div>
 
       {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
