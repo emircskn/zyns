@@ -1475,7 +1475,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
           style={{
             width: folded ? pillW : "100%",
             height: folded ? PILL_H : (full?.h ?? "auto"),
-            borderRadius: folded ? 10 : 16,
+            borderRadius: folded ? 12 : 16,
             boxShadow: centered ? undefined : "var(--shadow-bar)",
             transition: `width ${MORPH}, height ${MORPH}, border-radius ${MORPH}`,
           }}
