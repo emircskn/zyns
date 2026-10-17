@@ -8,13 +8,12 @@ import { AppIcon } from "@/components/AppIcon";
 import { VideoMark } from "@/components/VideoMark";
 import { Popover } from "@/components/Popover";
 import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
-import { Sheet } from "@/components/remix/Restyle";
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
 import { FrameGrab } from "@/components/studio/FrameGrab";
 import type { Kind } from "@/components/studio/ReferencePicker";
 import { MediaPicker } from "@/components/MediaPicker";
-import { ElementGrid, PreviewMedia } from "@/components/studio/Settings";
+import { PreviewMedia } from "@/components/studio/Settings";
 import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
@@ -1138,46 +1137,15 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
         <p className="mt-2 px-1 text-[12px] text-t4">Image models take these as words in the prompt.</p>
       </StudioDialog>
-      <Sheet
+      <MediaPicker
         open={choosing}
-        title="Character"
-        sub={soulVersion ? `Soul ID characters trained for ${model?.name}` : "Its pictures go with the prompt"}
+        characters
+        accept="image"
+        onElements={(chosen) => chosen[0] && patchStudio({ character: chosen[0].id })}
+        onClear={character ? () => patchStudio({ character: null }) : undefined}
+        onPick={() => {}}
         onClose={() => setChoosing(false)}
-      >
-        {character && (
-          <button
-            type="button"
-            onClick={() => {
-              patchStudio({ character: null });
-              setChoosing(false);
-            }}
-            className="mb-3 rounded-full bg-t1/[0.07] px-3 py-1.5 text-[12.5px] text-t2 hover:text-t1"
-          >
-            No character
-          </button>
-        )}
-        {soulVersion ? (
-          <SoulGrid
-            version={soulVersion}
-            onPick={(id) => {
-              patchStudio({ character: id });
-              setChoosing(false);
-            }}
-            onNew={() => {
-              setChoosing(false);
-              openTrainer({ version: soulVersion });
-            }}
-          />
-        ) : (
-          <ElementGrid
-            onPick={(_, name) => {
-              const element = useStudio.getState().elements.find((e) => e.name === name);
-              if (element) patchStudio({ character: element.id });
-              setChoosing(false);
-            }}
-          />
-        )}
-      </Sheet>
+      />
       {/* Pictures come in from the same window Genjutsu opens for its references. */}
       <MediaPicker
         open={refsOpen !== null}

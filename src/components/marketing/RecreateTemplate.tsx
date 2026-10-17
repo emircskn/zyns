@@ -236,6 +236,7 @@ export function RecreateTemplate({
         open={!!picking}
         onClose={() => setPicking(null)}
         accept="image"
+        characters={picking === "avatar"}
         taken={[product, avatar].filter((u): u is string => !!u)}
         onPick={(urls) => {
           if (urls[0]) (picking === "product" ? setProduct : setAvatar)(urls[0]);

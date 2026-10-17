@@ -130,6 +130,8 @@ export function MediaPicker({
   onElements,
   modelElements,
   max,
+  characters = false,
+  onClear,
 }: {
   open: boolean;
   /** One kind, or several for the bar's "+", which files each where it goes. */
@@ -147,6 +149,10 @@ export function MediaPicker({
   modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
   /** How many may be added, for the "N of max selected" count. */
   max?: number;
+  /** Only the Characters part (one pick, no uploads or generations): a character tile closes it. */
+  characters?: boolean;
+  /** With `characters`: a way to let go of the character already chosen. */
+  onClear?: () => void;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   // What it was opened for, kept while it closes: a caller that resets its
@@ -187,7 +193,7 @@ export function MediaPicker({
   const openElementEditor = useStudio((s) => s.openElementEditor);
   const [chosenElements, setChosenElements] = useState<string[]>([]);
   // As Higgsfield lays its window out: uploads, elements, then what was made by kind, then the liked.
-  const tabs: Array<{ id: Tab; label: string }> = [
+  const tabs: Array<{ id: Tab; label: string }> = characters ? [{ id: "elements", label: "Characters" }] : [
     { id: "uploads", label: "Uploads" },
     ...(onElements || modelElements ? [{ id: "elements" as Tab, label: "Elements" }] : []),
     ...kinds.map((k) => ({ id: GEN_TAB[k], label: GEN_LABEL[k] })),
@@ -200,9 +206,9 @@ export function MediaPicker({
     setChosenElements([]);
     setPreview(null);
     // Always opens on the first tab, Uploads, with its upload button.
-    setTab("uploads");
+    setTab(characters ? "elements" : "uploads");
     setOnly("all");
-    setElementKind("all");
+    setElementKind(characters ? "character" : "all");
     // Only when the dialog opens: the lists move as uploads land.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -322,7 +328,7 @@ export function MediaPicker({
           </div>
         )}
 
-        {tab === "elements" && onElements && (
+        {tab === "elements" && onElements && !characters && (
           <div className="no-bar flex shrink-0 gap-1 overflow-x-auto px-3 pt-3">
             {([{ id: "all", plural: "All" }, ...ELEMENT_KINDS.filter((k) => k.id !== "style")] as Array<{ id: ElementKind | "all"; plural: string }>).map((k) => (
               <button
@@ -377,6 +383,19 @@ export function MediaPicker({
           )}
           {tab === "elements" ? (
             !onElements ? null : (
+              <>
+              {characters && onClear && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClear();
+                    onClose();
+                  }}
+                  className="mb-3 h-8 rounded-chip bg-t1/[0.07] px-3 text-[12.5px] text-t2 hover:text-t1"
+                >
+                  No character
+                </button>
+              )}
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {/* As Uploads starts with uploading, Elements starts with making one; it opens over this window and lands here. */}
                 <button
@@ -387,15 +406,22 @@ export function MediaPicker({
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
                     <Icon name="plus" size={17} />
                   </span>
-                  <span className="px-2 text-center text-[12px] font-semibold">Create element</span>
+                  <span className="px-2 text-center text-[12px] font-semibold">{characters ? "Create character" : "Create element"}</span>
                 </button>
-                {library.filter((e) => elementKind === "all" || e.kind === elementKind).map((element) => {
+                {library.filter((e) => (characters ? e.kind === "character" : elementKind === "all" || e.kind === elementKind)).map((element) => {
                   const on = chosenElements.includes(element.id);
                   return (
                     <button
                       key={element.id}
                       type="button"
-                      onClick={() => setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]))}
+                      onClick={() => {
+                        if (characters) {
+                          onElements?.([element]);
+                          onClose();
+                          return;
+                        }
+                        setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]));
+                      }}
                       className="relative flex flex-col gap-1 text-left"
                     >
                       <span className={`relative block aspect-square overflow-hidden rounded-card bg-t1/[0.06] ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge"}`}>
@@ -403,7 +429,7 @@ export function MediaPicker({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
                         )}
-                        <span className={`absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border ${on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"}`}>
+                        <span className={`${characters ? "hidden " : ""}absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border ${on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"}`}>
                           <Icon name="check" size={12} strokeWidth={2.6} />
                         </span>
                       </span>
@@ -412,6 +438,7 @@ export function MediaPicker({
                   );
                 })}
               </div>
+              </>
             )
           ) : tab !== "uploads" && list.length === 0 ? (
             <p className="py-14 text-center text-[13px] text-t4">

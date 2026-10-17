@@ -343,6 +343,8 @@ export function MarketingComposer({
         open={!!picking}
         onClose={() => setPicking(null)}
         accept="image"
+        characters={picking === "avatar"}
+        onClear={picking === "avatar" && ui.avatar ? () => patch({ avatar: null }) : undefined}
         multiple={picking === "refs"}
         max={picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1}
         taken={pickedUrls}
@@ -437,7 +439,7 @@ export function MarketingComposer({
           {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
         </div>
         <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
-          {(!preset || takesPerson(preset)) && slot("Avatar", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
+          {(!preset || takesPerson(preset)) && slot("Character", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
           {slot("Product", ui.product, () => setPicking("product"), () => patch({ product: null }))}
         </div>
         <div className="flex max-md:hidden">
@@ -544,7 +546,7 @@ export function MarketingComposer({
               <div className="min-w-0 flex-1" />
             ) : preset ? (
               <Slot
-                label="Model"
+                label="Character"
                 icon="user"
                 index={2}
                 hint="Optional · without one, the product alone"
