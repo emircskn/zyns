@@ -34,7 +34,7 @@ const tiered = (id: string, label: string, tiers: Record<string, string>, extra:
 function soulFields(version: "v1" | "v2" | "cinema"): Record<string, Partial<Field>> {
   return {
     custom_reference_id: { kind: "soul", soul: version, placement: "bar", label: "Character", group: undefined },
-    custom_reference_strength: { label: "Character strength", placement: "panel", when: (v: Values) => !!v.custom_reference_id },
+    custom_reference_strength: { label: "Soul ID strength", placement: "panel", when: (v: Values) => !!v.custom_reference_id },
   };
 }
 

@@ -237,9 +237,11 @@ export const BAR_CHIPS = 5;
  */
 export function barAndPanel(fields: Field[]): { bar: Field[]; panel: Field[] } {
   const bar = fields.filter((f) => f.placement === "bar");
+  // The style card is a tile beside Generate, not a chip: it takes no chip's place.
+  const chips = bar.filter((f) => f.kind !== "soulStyle");
   return {
-    bar: bar.slice(0, BAR_CHIPS),
-    panel: [...bar.slice(BAR_CHIPS), ...fields.filter((f) => f.placement === "panel")],
+    bar: [...chips.slice(0, BAR_CHIPS), ...bar.filter((f) => f.kind === "soulStyle")],
+    panel: [...chips.slice(BAR_CHIPS), ...fields.filter((f) => f.placement === "panel")],
   };
 }
 
