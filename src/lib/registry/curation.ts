@@ -330,6 +330,15 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
+    id: "video-lip-sync",
+    name: "Video Lip Sync",
+    vendor: "ByteDance",
+    category: "video",
+    output: "video",
+    tagline: "Re-sync the lips of the people in a video to new audio.",
+    modes: [m("sync", "Lip sync", "volcengine/video-to-video-lip-sync")],
+  },
+  {
     id: "gpt-image-1-5",
     name: "GPT Image 1.5",
     vendor: "OpenAI",

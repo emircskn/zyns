@@ -122,7 +122,7 @@ export function imageApp(def: AppDef): ModelDef {
         input: compact({
           prompt: promptOf(def, v),
           image_input: pictures(def, v),
-          aspect_ratio: "auto",
+          aspect_ratio: String(v.aspect_ratio ?? "auto"),
           resolution: String(v.resolution ?? "2K"),
           output_format: "png",
         }),

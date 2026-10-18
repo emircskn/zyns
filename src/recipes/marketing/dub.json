@@ -1,0 +1,21 @@
+{
+  "id": "dub-translate",
+  "name": "Dub & translate",
+  "category": "effect",
+  "description": "Give a video a new voice, or the same speech in another language, with the lips matched. Write what they should say; the voice is made and synced onto the video.",
+  "output": "video",
+  "slots": [
+    { "key": "video", "type": "video", "label": "Video", "required": true },
+    { "key": "script", "type": "text", "label": "What they say", "required": true, "placeholder": "The words to speak, in the language you want (translate the original yourself or with any assistant)" }
+  ],
+  "choices": [],
+  "steps": [
+    { "id": "voice", "label": "Voice", "capability": "text-to-speech", "params": { "prompt": "{{slots.script}}" } },
+    {
+      "id": "dub",
+      "label": "Lip sync",
+      "capability": "video-lipsync",
+      "params": { "video": "{{slots.video}}", "audio": "{{steps.voice.output.url}}" }
+    }
+  ]
+}

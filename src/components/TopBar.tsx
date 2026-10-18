@@ -66,6 +66,10 @@ function PageNav() {
           })}
         </div>
       ))}
+      {/* Canvas has a page of its own, outside the studio's pages. */}
+      <a href="/canvas" className="relative h-8 shrink-0 whitespace-nowrap rounded-chip px-3 text-[13.5px] leading-8 text-t3 transition-colors duration-[100ms] hover:text-t1">
+        Canvas
+      </a>
     </nav>
   );
 }

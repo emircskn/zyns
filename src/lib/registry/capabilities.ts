@@ -18,6 +18,7 @@ export type Capability =
   | "motion-transfer"
   | "object-swap"
   | "lipsync-from-audio"
+  | "video-lipsync"
   | "text-to-speech";
 
 /** Model id → capability → the modes that provide it, preferred first. */
@@ -55,6 +56,7 @@ export const CAPABILITIES: Record<string, Partial<Record<Capability, string[]>>>
   "kling-2-6": { "image-to-video": ["image-to-video"] },
   "kling-3-motion-control": { "motion-transfer": ["generate"] },
   "kling-2-6-motion-control": { "motion-transfer": ["generate"] },
+  "video-lip-sync": { "video-lipsync": ["sync"] },
   "kling-avatar": { "lipsync-from-audio": ["generate"] },
   "kling-avatar-pro": { "lipsync-from-audio": ["generate"] },
   "minimax-h3": { "image-to-video": ["image-to-video"], "reference-to-video": ["reference-to-video"] },
