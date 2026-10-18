@@ -839,11 +839,13 @@ export const useStudio = create<StudioState>()(
       markDownloaded: (urls) =>
         set((state) => ({ downloaded: [...urls.filter((u) => !state.downloaded.includes(u)), ...state.downloaded].slice(0, 2000) })),
       viewed: [],
+      // Newest first: the one at the head is the media opened last, even when it had been opened before.
       markViewed: (urls) =>
-        set((state) => {
-          const fresh = urls.filter((u) => !state.viewed.includes(u));
-          return fresh.length === 0 ? state : { viewed: [...fresh, ...state.viewed].slice(0, 2000) };
-        }),
+        set((state) =>
+          urls.length === 1 && state.viewed[0] === urls[0]
+            ? state
+            : { viewed: [...urls, ...state.viewed.filter((u) => !urls.includes(u))].slice(0, 2000) },
+        ),
       setTrashed: (urls, trashed) =>
         set((state) => {
           const picked = new Set(urls);

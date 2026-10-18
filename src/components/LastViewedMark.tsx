@@ -8,12 +8,12 @@ export function LastViewedMark({ url, small }: { url: string; small?: boolean })
   if (!last) return null;
   return (
     <span className="pointer-events-none absolute inset-0 z-[5] grid place-items-center rounded-[inherit] bg-black/45">
-      <span className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
+      <span className={`flex items-center gap-1.5 font-semibold text-white ${small ? "text-[11px]" : "text-[13px]"}`}>
         <svg width={small ? 14 : 16} height={small ? 14 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        {!small && "Last viewed"}
+        Last viewed
       </span>
     </span>
   );
