@@ -58,7 +58,8 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
   }, [open]);
   if (!mounted || typeof document === "undefined") return null;
   const needle = query.trim().toLowerCase();
-  const shown = styles.filter((s) => !needle || s.name.toLowerCase().includes(needle));
+  // General leads, wherever the live list puts it.
+  const shown = styles.filter((s) => !needle || s.name.toLowerCase().includes(needle)).sort((a, b) => Number(b.id === DEFAULT_SOUL_STYLE) - Number(a.id === DEFAULT_SOUL_STYLE));
   const current = selected || DEFAULT_SOUL_STYLE;
 
   return createPortal(
@@ -81,8 +82,7 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
         </header>
         <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-card bg-black/25">
           <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3">
-            <p className="rounded-chip bg-t1/[0.1] px-3 py-1.5 text-[13px] font-semibold text-t1">Curated</p>
-            <label className="flex h-9 w-[220px] items-center gap-2 rounded-card bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
+            <label className="ml-auto flex h-9 w-[220px] items-center gap-2 rounded-card bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
               <Icon name="search" size={14} className="text-t4" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search presets…" className="min-w-0 flex-1 bg-transparent text-[13px] text-t1 outline-none placeholder:text-t4" />
             </label>
