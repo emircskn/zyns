@@ -600,7 +600,11 @@ export const FAMILIES: Family[] = [
     ],
     fields: {
       // The Draft switch is a chip in the bar, not a line in Advanced.
-      draft: { placement: "bar", label: "Draft" },
+      draft: {
+        placement: "bar",
+        label: "Draft",
+        explain: "Makes a quick, cheap preview of your clip so you can check the idea first. Like it? Open the result and choose Finalize draft to render it in full quality.",
+      },
       draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5"] } },
     },
   },

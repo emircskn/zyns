@@ -72,6 +72,8 @@ export interface Field {
   accept?: "image" | "video" | "audio";
   placeholder?: string;
   help?: string;
+  /** A plain-words note behind a small "?" next to a toggle chip, shown on hover. */
+  explain?: string;
   required?: boolean;
   /** Short icon/glyph for the chip. */
   icon?: string;

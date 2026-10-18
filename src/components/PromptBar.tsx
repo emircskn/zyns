@@ -516,7 +516,7 @@ export function attachExtras(
 function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: () => void }) {
   const large = useContext(LargeChips);
   const iconOnly = ICON_ONLY.test(field.key);
-  return (
+  const chip = (
     <button
       type="button"
       role="switch"
@@ -548,6 +548,23 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
         />
       </span>
     </button>
+  );
+  if (!field.explain) return chip;
+  return (
+    <span className="group/q relative inline-flex items-center gap-1">
+      {chip}
+      <span
+        tabIndex={0}
+        role="note"
+        aria-label={field.explain}
+        className="grid h-5 w-5 shrink-0 cursor-help select-none place-items-center rounded-full bg-t1/[0.08] text-[11px] font-semibold text-t3 outline-none transition-colors duration-[100ms] hover:bg-t1/[0.16] hover:text-t1 focus-visible:text-t1"
+      >
+        ?
+        <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-[230px] -translate-x-1/2 rounded-card bg-[var(--popover)] px-3 py-2 text-left text-[12px] font-normal leading-snug text-t2 opacity-0 ring-1 ring-inset ring-edge transition-opacity duration-[120ms] group-focus-within/q:opacity-100 group-hover/q:opacity-100" style={{ boxShadow: "var(--shadow-pop)" }}>
+          {field.explain}
+        </span>
+      </span>
+    </span>
   );
 }
 
