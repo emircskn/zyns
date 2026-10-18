@@ -81,8 +81,14 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose, stren
           </button>
         </header>
         <div className="mx-2 mb-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-card bg-black/25">
-          <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3">
-            <label className="ml-auto flex h-9 w-[220px] items-center gap-2 rounded-card bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 pb-2 pt-3">
+            {/* Higgsfield keeps the Soul ID's strength beside the style; it only counts when a Soul ID is chosen. */}
+            <label className="flex min-w-0 items-center gap-2.5 text-[13px] text-t2">
+              <span className="shrink-0 font-semibold text-t1">Soul ID strength</span>
+              <input type="range" min={0.01} max={1} step={0.01} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="w-[140px] min-w-0 accent-[var(--accent)] sm:w-[200px]" aria-label="Soul ID strength" />
+              <span className="w-9 shrink-0 text-right tabular-nums text-t3">{strength.toFixed(2)}</span>
+            </label>
+            <label className="flex h-9 w-full items-center gap-2 rounded-card sm:w-[220px] bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">
               <Icon name="search" size={14} className="text-t4" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search presets…" className="min-w-0 flex-1 bg-transparent text-[13px] text-t1 outline-none placeholder:text-t4" />
             </label>
@@ -112,12 +118,6 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose, stren
               </div>
             )}
           </div>
-          {/* Higgsfield keeps the Soul ID's strength beside the style; it only counts when a Soul ID is chosen. */}
-          <label className="flex shrink-0 items-center gap-3 border-t border-edge px-4 py-3 text-[13px] text-t2">
-            <span className="shrink-0 font-semibold text-t1">Soul ID strength</span>
-            <input type="range" min={0.01} max={1} step={0.01} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="min-w-0 flex-1 accent-[var(--accent)]" aria-label="Soul ID strength" />
-            <span className="w-9 shrink-0 text-right tabular-nums text-t3">{strength.toFixed(2)}</span>
-          </label>
         </div>
       </div>
     </div>,
