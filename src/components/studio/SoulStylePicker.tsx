@@ -115,7 +115,7 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose, stren
           {/* Higgsfield keeps the Soul ID's strength beside the style; it only counts when a Soul ID is chosen. */}
           <label className="flex shrink-0 items-center gap-3 border-t border-edge px-4 py-3 text-[13px] text-t2">
             <span className="shrink-0 font-semibold text-t1">Soul ID strength</span>
-            <input type="range" min={0.05} max={1} step={0.05} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="min-w-0 flex-1 accent-[var(--accent)]" aria-label="Soul ID strength" />
+            <input type="range" min={0.01} max={1} step={0.01} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="min-w-0 flex-1 accent-[var(--accent)]" aria-label="Soul ID strength" />
             <span className="w-9 shrink-0 text-right tabular-nums text-t3">{strength.toFixed(2)}</span>
           </label>
         </div>
