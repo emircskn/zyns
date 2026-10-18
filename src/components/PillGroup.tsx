@@ -1,5 +1,6 @@
 "use client";
 
+import { InfoDot } from "@/components/InfoDot";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 
@@ -10,6 +11,8 @@ export interface PillItem<T extends string> {
   id: T;
   label: string;
   hint?: string;
+  /** A note shown on hover behind a small (i) beside the label. */
+  info?: string;
   /** How many things are behind this pill, set beside the label. */
   count?: number;
 }
@@ -235,6 +238,11 @@ export function PillGroup<T extends string>({
             } ${active ? "text-t1" : "text-t3 hover:text-t1"}`}
           >
             {item.label}
+            {item.info && (
+              <span className="ml-1.5 inline-flex align-middle">
+                <InfoDot text={item.info} />
+              </span>
+            )}
             {item.count !== undefined && !plain && (
               <span
                 className={`ml-1.5 font-mono text-[0.86em] tabular-nums ${
