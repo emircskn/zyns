@@ -122,7 +122,7 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio" | "marketing";
+export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio" | "marketing" | "apps" | "effects";
 
 /** The pages that keep things rather than make them. */
 /**
@@ -160,7 +160,7 @@ export function ownPageOf(id: string | undefined): Page | undefined {
 
 /** The pages of one kind of work, each with its own models and prompt bar. */
 export function isCategoryPage(page: Page): page is Category {
-  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio" && page !== "marketing";
+  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio" && page !== "marketing" && page !== "apps" && page !== "effects";
 }
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */

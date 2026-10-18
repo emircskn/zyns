@@ -8,7 +8,7 @@ import { VIDEO_EDIT_APPS } from "./videoEdits";
 /** Every app (see factory.ts), ready to join the registry as Tools. */
 export const appModels = (): ModelDef[] => [
   ...IMAGE_APPS.map(imageApp),
-  ...VIDEO_APPS.map(videoApp),
-  ...EFFECT_APPS.map(videoApp),
+  ...VIDEO_APPS.map((def) => videoApp(def)),
+  ...EFFECT_APPS.map((def) => videoApp(def, "effects")),
   ...VIDEO_EDIT_APPS.map(videoEditApp),
 ];

@@ -31,6 +31,8 @@ export interface AppDef {
   mode?: "first" | "frames" | "refs";
   /** Video-to-video apps: which Kie model carries the request (see videoEditApp). */
   engine?: "wan-replace" | "wan-edit" | "kling-motion" | "kling-reference";
+  /** Image apps: the first picture is painted over to say where the change goes. */
+  draw?: boolean;
 }
 
 /** A slot spec: "?" first marks it optional, then "video:" or "audio:" says what it takes (a picture otherwise). */
@@ -66,7 +68,7 @@ function fieldsOf(def: AppDef, video: boolean): Field[] {
     label: "Details",
     kind: "textarea",
     placement: "prompt",
-    placeholder: "Optional: anything else to say about the result",
+    placeholder: def.draw ? "What should the painted area become?" : "Optional: anything else to say about the result",
   };
   const size: Field[] = video
     ? [
@@ -83,7 +85,7 @@ function fieldsOf(def: AppDef, video: boolean): Field[] {
 function promptOf(def: AppDef, v: Values): string {
   let text = def.prompt;
   for (const o of def.options ?? []) text = text.replaceAll(`{${o.key}}`, String(v[o.key] ?? choice(o.choices[0]).value));
-  return `${text} ${v.prompt ?? ""}`.trim();
+  return text.includes("{note}") ? text.replace("{note}", String(v.prompt ?? "").trim()) : `${text} ${v.prompt ?? ""}`.trim();
 }
 
 function validateOf(def: AppDef) {
@@ -92,6 +94,7 @@ function validateOf(def: AppDef) {
       const { label, optional } = slotOf(spec);
       if (!optional && !urlOf(v[`slot${i}`])) return `Add the ${label.toLowerCase()}.`;
     }
+    if (def.draw && !String(v.prompt ?? "").trim()) return "Describe what should change in the painted area.";
     return null;
   };
 }
@@ -113,6 +116,9 @@ export function imageApp(def: AppDef): ModelDef {
     tagline: def.tagline,
     tags: ["app", def.group.toLowerCase(), def.name.toLowerCase()],
     badge: def.group.toUpperCase(),
+    app: "apps",
+    draw: def.draw,
+    runsOn: () => "Nano Banana Pro",
     fields: fieldsOf(def, false),
     validate: validateOf(def),
     build: (v) => ({
@@ -121,7 +127,7 @@ export function imageApp(def: AppDef): ModelDef {
         model: "nano-banana-pro",
         input: compact({
           prompt: promptOf(def, v),
-          image_input: pictures(def, v),
+          image_input: [...pictures(def, v), ...(def.draw && v.mask ? [v.mask] : [])],
           aspect_ratio: String(v.aspect_ratio ?? "auto"),
           resolution: String(v.resolution ?? "2K"),
           output_format: "png",
@@ -132,7 +138,7 @@ export function imageApp(def: AppDef): ModelDef {
 }
 
 /** A picture-to-video app, run on Seedance 2.0 (see `mode` for how the slots are sent). */
-export function videoApp(def: AppDef): ModelDef {
+export function videoApp(def: AppDef, app: "apps" | "effects" = "apps"): ModelDef {
   return {
     ...common,
     id: `app-${def.id}`,
@@ -141,6 +147,8 @@ export function videoApp(def: AppDef): ModelDef {
     tagline: def.tagline,
     tags: ["app", def.group.toLowerCase(), def.name.toLowerCase()],
     badge: def.group.toUpperCase(),
+    app,
+    runsOn: (v) => (v.engine === "bytedance/seedance-2-fast" ? "Seedance 2.0 Fast" : "Seedance 2.0"),
     fields: fieldsOf(def, true),
     validate: validateOf(def),
     build: (v) => {
@@ -187,6 +195,8 @@ export function videoEditApp(def: AppDef): ModelDef {
     tagline: def.tagline,
     tags: ["app", def.group.toLowerCase(), def.name.toLowerCase()],
     badge: def.group.toUpperCase(),
+    app: "apps",
+    runsOn: () => ({ "wan-replace": "Wan 2.2 Animate", "wan-edit": "Wan 2.7 VideoEdit", "kling-motion": "Kling 3.0 Motion Control", "kling-reference": "Kling 3.0 Omni" })[def.engine ?? "wan-edit"],
     fields: [...fields.slice(0, -1), ...extra, fields[fields.length - 1]],
     validate: validateOf(def),
     build: (v) => {

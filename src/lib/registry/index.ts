@@ -178,7 +178,7 @@ export function applyHiggsfieldCatalog(next: HfCatalog): boolean {
 
 /** The chosen provider's models. */
 export function modelsFor(provider: Provider): ModelDef[] {
-  return provider === "higgsfield" ? HF_MODELS : KIE_MODELS;
+  return provider === "higgsfield" ? HF_MODELS : KIE_MODELS.filter((m) => !m.app);
 }
 
 /** KIE's, for code that has no provider in hand. */

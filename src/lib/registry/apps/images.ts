@@ -220,4 +220,13 @@ export const IMAGE_APPS: AppDef[] = [
     ],
     prompt: "A character sheet of one original virtual influencer: {kind}, {gender}, {age}, {build} build, {hair} in {colour}, {skin} skin, {eyes} eyes, dressed in a {outfit} look. Show three full-body views (front, side and back) plus a close-up face portrait on a clean neutral background with soft studio light, consistent design across every view. If a photo is given, base the face and features on it.",
   },
+  {
+    id: "draw-to-edit",
+    name: "Draw to Edit",
+    group: "Edit",
+    tagline: "Paint over the part of a picture to change, then say what it should become.",
+    slots: ["picture"],
+    draw: true,
+    prompt: "The second picture is a mask: its white area marks the only part of the first picture to change. Inside that area: {note}. Everything outside the white area stays exactly as it is, pixel for pixel, with the same light, grain and perspective, and the change blends in seamlessly.",
+  },
 ];

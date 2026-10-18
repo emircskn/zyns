@@ -206,6 +206,12 @@ export interface ModelDef {
   preview?: { video?: string; poster?: string; image?: string };
   /** Higgsfield: its catalogue price, as people read it ("from $0.14/s"). */
   price?: string;
+  /** A one-click app that lives on its own page (Apps, Effects), not in the model picker. */
+  app?: "apps" | "effects";
+  /** The model that really carries the request, for the app's page to name. */
+  runsOn?: (v: Values) => string;
+  /** The first picture is painted over to mark the area to change; the mask goes in as `mask`. */
+  draw?: boolean;
 }
 
 export const MODE_KEY = "__mode";

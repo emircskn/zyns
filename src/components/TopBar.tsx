@@ -24,6 +24,9 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
       { id: "studio", label: "Cinema Studio" },
       // Marketing Studio's own page: product shots, ads and listings, and video made from them.
       { id: "marketing", label: "Marketing Studio" },
+      // The one-click apps and the effects, each on a page of its own as on Higgsfield.
+      { id: "effects", label: "Effects" },
+      { id: "apps", label: "Apps" },
     ],
     [
       { id: "assets", label: "Assets" },

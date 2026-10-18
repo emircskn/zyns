@@ -27,6 +27,7 @@ import { MediaFallback } from "@/components/MediaFallback";
 import { PromptBar, PromptCard } from "@/components/PromptBar";
 import { RunPoller } from "@/components/RunPoller";
 import { StorageKeeper } from "@/components/StorageKeeper";
+import { AppsPages } from "@/components/apps/AppsPages";
 import { RecipeDriver } from "@/components/recipes/RecipeDriver";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { CreditsPill, TopBar } from "@/components/TopBar";
@@ -89,8 +90,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   useEffect(() => {
     if (!hydrated || !arrived || !/^https?:$/.test(window.location.protocol)) return;
     const here = window.location.pathname.replace(/\/$/, "") || "/";
-    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio" && here !== "/marketing") return;
-    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : "/";
+    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio" && here !== "/marketing" && here !== "/apps" && here !== "/effects") return;
+    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : page === "apps" ? "/apps" : page === "effects" ? "/effects" : "/";
     if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
   }, [page, hydrated, arrived]);
   // Redraws the studio when Higgsfield's live catalogue changes its models.
@@ -128,13 +129,13 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
         // A page that makes things, and the library pages, are a wall of
         // media edge to edge; each pads its own toolbar and empty state.
         className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
-          composing || browsing || page === "remix" || page === "studio" || page === "marketing" ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
+          composing || browsing || page === "remix" || page === "studio" || page === "marketing" || page === "apps" || page === "effects" ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
         } ${
           composing
             ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}`
             : browsing
               ? "below-card"
-              : page === "remix" || page === "studio" || page === "marketing"
+              : page === "remix" || page === "studio" || page === "marketing" || page === "apps" || page === "effects"
                 ? "below-nav md:pb-6"
                 : "below-nav"
         }`}
@@ -155,6 +156,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
               <CinemaStudio onKeyClick={() => setKeyOpen(true)} />
             ) : shown === "marketing" ? (
               <MarketingStudio onKeyClick={() => setKeyOpen(true)} />
+            ) : shown === "apps" || shown === "effects" ? (
+              <AppsPages kind={shown} onKeyClick={() => setKeyOpen(true)} />
             ) : (
               // Keyed by page: without it React reuses this element between
               // categories and the empty state's reveal never runs again.

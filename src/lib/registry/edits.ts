@@ -47,7 +47,7 @@ const one = (v: Values): string | undefined => (Array.isArray(v.image) ? v.image
 
 export function editToolModels(base: ModelDef | undefined): ModelDef[] {
   if (!base) return [];
-  const common = { vendor: "ZYNS", category: "tool" as const, output: "image" as const, provider: "kie" as const };
+  const common = { vendor: "ZYNS", category: "tool" as const, output: "image" as const, provider: "kie" as const, app: "apps" as const, runsOn: () => "Nano Banana Pro" };
   const resolution: Field = {
     key: "resolution",
     label: "Resolution",
@@ -63,6 +63,7 @@ export function editToolModels(base: ModelDef | undefined): ModelDef[] {
     name: "Relight",
     tagline: "Change the light on a picture and keep everything else.",
     tags: ["relight", "lighting", "edit"],
+    badge: "STYLE",
     fields: [
       imageField,
       { key: "light", label: "Light", kind: "select", placement: "bar", default: LIGHTS[0].value, choices: LIGHTS },
@@ -82,6 +83,7 @@ export function editToolModels(base: ModelDef | undefined): ModelDef[] {
     name: "Outpaint",
     tagline: "Extend a picture to a new shape, continuing the scene past its edges.",
     tags: ["outpaint", "extend", "expand", "reframe", "aspect ratio", "edit"],
+    badge: "CAMERA",
     fields: [
       imageField,
       { key: "aspect_ratio", label: "New shape", kind: "ratio", placement: "bar", default: "16:9", choices: choices(RATIOS.map((r) => [r, r])) },

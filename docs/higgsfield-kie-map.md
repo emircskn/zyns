@@ -98,3 +98,11 @@ Durum: **VAR** = zyns'te çalışıyor · **KISMEN** · **YAPILACAK** · **YOK**
 - **Canvas** (`/canvas`): Text, Image/Video/Audio upload, Image ve Video düğümleri; bağla, çalıştır. Tarif motorunun üstünde.
 - **Color grading** (`/grade`): tarayıcıda, kredi harcamaz.
 - Bilerek yapılmadı: Auto model kuralı, Brand kit, 40'lık avatar kütüphanesi (SaaS aşamasına), TTS ses süzgeci (Kie'nin sabit ses listesi var), Video Background Remover / Reframe / SDR→HDR / FPS Boost / Depth Map (Kie'de yok), Virality Predictor.
+
+### Yerleşim düzeltmesi (Higgsfield'ın menü yapısına göre)
+- **Effects** artık kendi menü sayfası (`/effects`): solda efekt kartı + Change (87'lik ızgara + arama), sağda History.
+- **Apps** kendi menü sayfası (`/apps`): arama, kategori çipleri (Professional, Enhance & Style, Face & Identity, Video Editing, Ads & Products, Trending Templates, Extras), kapak kartları, her kart kendi sayfasında.
+- Apps/Effects artık **Tools'ta ve model seçicide yok**; sonuçları Tools sayfasında değil kendi History'sinde.
+- Her sayfada **hangi modelin çalıştığı** yazar ("Runs on Seedance 2.0 · KIE") ve fiyat görsel eklenmeden de görünür.
+- **Draw to Edit** (Apps > Professional): resmin üstüne fırçayla boya → maske (beyaz = değişecek yer) + resim Nano Banana Pro'ya gider. Relight ve Outpaint (Expand image) de Apps'e taşındı.
+- Kapak resimleri: `public/app-covers/<uygulama-id>.webp` (yoksa sade kutu). Id'ler: `app-<ad>`, efektler `app-fx-<ad>`.
