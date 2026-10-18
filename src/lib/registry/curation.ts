@@ -387,6 +387,9 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "gpt-image-2-5-flare-text-to-image"),
       m("edit", "Edit", "gpt-image-2-5-flare-image-to-image"),
     ],
+    // KIE: the background option only works at 1K.
+    fields: { background: { when: (v) => v.resolution === "1K" } },
+    prepare: (v) => (v.resolution === "1K" ? v : { ...v, background: undefined }),
   },
   {
     id: "gpt-image-2-5-sunburst",
@@ -400,6 +403,9 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "gpt-image-2-5-sunburst-text-to-image"),
       m("edit", "Edit", "gpt-image-2-5-sunburst-image-to-image"),
     ],
+    // KIE: the background option only works at 1K.
+    fields: { background: { when: (v) => v.resolution === "1K" } },
+    prepare: (v) => (v.resolution === "1K" ? v : { ...v, background: undefined }),
   },
   {
     id: "flux-2-pro",
