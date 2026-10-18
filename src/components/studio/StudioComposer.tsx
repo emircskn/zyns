@@ -956,7 +956,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
       if (character?.soul) values.custom_reference_id = character.soul.id;
       else delete values.custom_reference_id;
     }
-    if (styled && own.style_id) values.style_id = own.style_id;
+    // A style does not combine with reference pictures.
+    if (styled && own.style_id && images.length === 0) values.style_id = own.style_id;
     // The pictures as the model gets them, in order, for `@Image N`.
     return { values, warnings: placed.warnings, unusable: !!character && !character.soul && taken === 0, refs: imageRefs(model, values) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1075,7 +1076,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {character ? `@${character.name}` : "Character"}
           </span>
         </button>
-        {styled ? (
+        {styled && studio.imageRefs.length === 0 ? (
           <SoulStyleTile value={String(own.style_id ?? "")} onChange={(id) => setModelValues(model.id, { style_id: id })} className="md:w-[120px]" />
         ) : (
         <button type="button" onClick={() => setCameraOpen(true)} className={`${tile} md:w-[120px]`} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>

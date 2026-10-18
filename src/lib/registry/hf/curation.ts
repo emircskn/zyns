@@ -144,10 +144,11 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: ["style_strength"] }),
       m("edit", "Edit", "higgsfield-ai/soul/v2/image-to-image", {
         hint: "Restyle a photo",
-        hide: ["style_strength"],
+        // Higgsfield: a style works with a Soul ID but not with a reference picture.
+        hide: ["style_id", "style_strength"],
       }),
     ],
-    fields: { ...soulFields("v2"), style_id: { kind: "soulStyle", label: "Style", placement: "bar" } },
+    fields: { ...soulFields("v2"), style_id: { kind: "soulStyle", label: "Style", placement: "bar", when: (v: Values) => v.__mode !== "edit" } },
   },
   {
     id: "soul-cinema",

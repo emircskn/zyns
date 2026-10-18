@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import SNAPSHOT from "@/lib/higgsfield/soulStyles.json";
 import { getSoulStyles } from "@/lib/higgsfield/transport";
 import type { SoulStyle } from "@/lib/higgsfield/client";
 import { usePresence } from "@/lib/usePresence";
@@ -28,13 +29,13 @@ export function SoulStyleCover({ style, className = "" }: { style?: SoulStyle; c
   );
 }
 
-/** Soul 2.0's styles with the Higgsfield key; empty until they arrive (or with no key). */
+/** Soul 2.0's styles: the shipped list at once, replaced by the live one when the Higgsfield key can fetch it. */
 export function useSoulStyles(hfKey: string, enabled = true): SoulStyle[] {
-  const [styles, setStyles] = useState<SoulStyle[]>([]);
+  const [styles, setStyles] = useState<SoulStyle[]>(SNAPSHOT);
   useEffect(() => {
     if (!enabled || !hfKey) return;
     let live = true;
-    getSoulStyles(hfKey).then((list) => live && setStyles(list), () => {});
+    getSoulStyles(hfKey).then((list) => live && list.length > 0 && setStyles(list), () => {});
     return () => {
       live = false;
     };
@@ -88,7 +89,7 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
             {shown.length === 0 ? (
-              <p className="py-16 text-center text-[13px] text-t4">{styles.length === 0 ? "Styles load with your Higgsfield key." : "No style by that name."}</p>
+              <p className="py-16 text-center text-[13px] text-t4">{styles.length === 0 ? "No styles yet." : "No style by that name."}</p>
             ) : (
               <div className="grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-5">
                 {shown.map((s) => (
