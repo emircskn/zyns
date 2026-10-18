@@ -27,6 +27,23 @@ export function roomIn(field: Field, value: unknown): number {
   return urlsIn(field, value).length ? 0 : 1;
 }
 
+/**
+ * What a picker may still add of each kind, and what to say when it is full:
+ * the model's own count (Nano Banana 2's "up to 10"), from its fields.
+ */
+export function limitsFor(fields: Field[], values: Values, name: string): Partial<Record<MediaKind, { room: number; note: string }>> {
+  const out: Partial<Record<MediaKind, { room: number; note: string }>> = {};
+  for (const kind of ["image", "video", "audio"] as MediaKind[]) {
+    const mine = fields.filter((f) => kindOf(f) === kind);
+    const cap = mine.reduce((n, f) => n + (f.kind === "images" ? (f.maxItems ?? Infinity) : 1), 0);
+    if (mine.length === 0 || !Number.isFinite(cap)) continue;
+    const room = mine.reduce((n, f) => n + Math.max(roomIn(f, values[f.key]), 0), 0);
+    const noun = kind === "audio" ? "audio file" : kind;
+    out[kind] = { room, note: `${name} takes up to ${cap} ${noun}${cap === 1 ? "" : "s"}.${room < cap ? ` ${cap - room} already added.` : ""}` };
+  }
+  return out;
+}
+
 function attachFields(model: NonNullable<ReturnType<typeof getModel>>, values: Values): Field[] {
   return activeFields(model, values).filter((f) => f.placement === "input" && isAttachField(f));
 }

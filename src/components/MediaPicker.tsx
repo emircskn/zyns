@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { VideoMark } from "@/components/VideoMark";
+import { ErrorPopup } from "@/components/ErrorPopup";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
@@ -130,6 +131,7 @@ export function MediaPicker({
   onElements,
   modelElements,
   max,
+  limits,
   characters = false,
   onClear,
 }: {
@@ -149,6 +151,8 @@ export function MediaPicker({
   modelElements?: { label: string; names: string[]; used: Set<string>; onPick: (name: string) => void; onDefine?: () => void };
   /** How many may be added, for the "N of max selected" count. */
   max?: number;
+  /** How many more of each kind the model takes, and what to tell when a pick would pass it. */
+  limits?: Partial<Record<Kind, { room: number; note: string }>>;
   /** Only the Characters part (one pick, no uploads or generations): a character tile closes it. */
   characters?: boolean;
   /** With `characters`: a way to let go of the character already chosen. */
@@ -170,6 +174,7 @@ export function MediaPicker({
   const [elementKind, setElementKind] = useState<ElementKind | "all">("all");
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
+  const [limitNote, setLimitNote] = useState<string | null>(null);
   const sheet = useRef<HTMLDivElement>(null);
   // Pulled down on a phone, it closes.
   const swipe = useSwipeDismiss(sheet, onClose);
@@ -205,6 +210,7 @@ export function MediaPicker({
     setChosen([]);
     setChosenElements([]);
     setPreview(null);
+    setLimitNote(null);
     // Always opens on the first tab, Uploads, with its upload button.
     setTab(characters ? "elements" : "uploads");
     setOnly("all");
@@ -243,6 +249,11 @@ export function MediaPicker({
     if (!multiple) {
       onPick([asset.url], [asset.kind]);
       onClose();
+      return;
+    }
+    const limit = limits?.[asset.kind];
+    if (limit && !chosen.includes(asset.url) && chosen.filter((u) => kindOf(u) === asset.kind).length >= limit.room) {
+      setLimitNote(limit.note);
       return;
     }
     setChosen((current) =>
@@ -535,6 +546,7 @@ export function MediaPicker({
         />
       </div>
       <MediaPreview url={preview} onClose={() => setPreview(null)} z={130} />
+      <ErrorPopup message={limitNote} title="Limit reached" onClose={() => setLimitNote(null)} />
     </div>,
     document.body,
   );

@@ -4,9 +4,9 @@ import { useState } from "react";
 import { MediaThumb } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
-import { attachMedia, kindOf, roomIn, urlsIn, type MediaKind } from "@/lib/attach";
+import { attachMedia, kindOf, limitsFor, roomIn, urlsIn, type MediaKind } from "@/lib/attach";
 import type { Field } from "@/lib/registry";
-import { useStudio, useValues } from "@/store/studio";
+import { useModel, useStudio, useValues } from "@/store/studio";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 
 interface Attached {
@@ -62,11 +62,13 @@ export function useAttach(fields: Field[], extras: AttachExtras = {}) {
   // The first field that still needs something, to name on the chip.
   const needed = fields.find((f) => f.required && urlsIn(f, values[f.key]).length === 0);
 
+  const name = useModel()?.name ?? "This model";
   const picker = (
     <MediaPicker
       open={open}
       accept={kinds.length ? kinds : ["image"]}
       multiple
+      limits={limitsFor(fields, values, name)}
       taken={taken}
       onPick={(urls, picked) => {
         attachMedia(urls.map((url, i) => ({ url, kind: picked[i] as MediaKind })));

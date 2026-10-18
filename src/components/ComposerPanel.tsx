@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { AttachPanel } from "@/components/Attachments";
+import { limitsFor } from "@/lib/attach";
 import { Control, InputLabel } from "@/components/controls";
 import { CoverArt } from "@/components/CoverArt";
 import { Icon } from "@/components/Icon";
@@ -25,7 +26,7 @@ import { VendorBadge } from "@/components/VendorMark";
 import { openingClip, videoDuration } from "@/lib/clips";
 import { isBitrate, type Field, type ModelDef } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
-import { activeKey, useStudio, useValues } from "@/store/studio";
+import { activeKey, useModel, useStudio, useValues } from "@/store/studio";
 import { GenjutsuComposer } from "@/components/remix/RemixStudio";
 import { GENJUTSU } from "@/lib/remix/targets";
 import { ModelMedia } from "@/components/ModelMedia";
@@ -40,6 +41,7 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   const values = useValues();
   const setValue = useStudio((s) => s.setValue);
   const [picking, setPicking] = useState(false);
+  const modelName = useModel()?.name ?? "This model";
   const value = values[field.key];
   const many = field.kind === "images";
   const clip = field.kind === "clips";
@@ -117,6 +119,7 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         open={picking}
         accept={kind}
         multiple={many}
+        limits={many ? limitsFor([field], { [field.key]: urls }, modelName) : undefined}
         taken={urls}
         onPick={(picked) =>
           clip ? chooseClip(picked[0]) : setValue(field.key, many ? [...urls, ...picked] : picked[0])

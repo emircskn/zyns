@@ -15,6 +15,7 @@ import { sourceItems, type SourceItem } from "@/lib/sources";
 
 export { sourceItems };
 import { useUploader } from "@/lib/useUploader";
+import { limitsFor } from "@/lib/attach";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { SOUL_MODELS, soulsFor } from "@/lib/elements";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
@@ -454,6 +455,7 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
   const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
+  const modelName = useModel()?.name ?? "This model";
   // Held and dragged to a new place: the order is the order the model reads them in.
   const reorder = useReorder(urls.length, (from, to) => onChange(moveItem(urls, from, to)));
   const keys = keysFor(urls);
@@ -503,6 +505,7 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
         open={picking}
         accept={field.accept ?? "image"}
         multiple
+        limits={limitsFor([field], { [field.key]: urls }, modelName)}
         taken={urls}
         onPick={(picked) => {
           const room = field.maxItems ? field.maxItems - urls.length : picked.length;

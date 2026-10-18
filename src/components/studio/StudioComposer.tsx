@@ -18,6 +18,7 @@ import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
+import { limitsFor } from "@/lib/attach";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -763,6 +764,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         multiple
         onElements={(chosen) => addElements(chosen, false)}
         max={room}
+        limits={limitsFor(refs, values, cinema?.name ?? "This model")}
         taken={refs.flatMap((f) => listOf(values[f.key]))}
         onPick={(urls, pickedKinds) => {
           const picked = urls.map((url, i) => ({ url, kind: pickedKinds[i] ?? "image" }));
@@ -896,6 +898,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     return soul ? [soul, ...rest] : rest;
   }, [provider_]);
   const model = models.find((m) => m.id === studio.imageModelId) ?? models[0];
+  // How many pictures the chosen model takes as references (its own count, 14 when it does not say).
+  const refMax = model?.fields.find((f) => f.kind === "images")?.maxItems ?? 14;
   const own: Values = model ? (valuesByModel[model.id] ?? defaultValues(model)) : {};
   // A model with its own count (how many per run) keeps it; ours then sends one run.
   const selfCount = !!model && hasOwnCount(activeFields(model, own));
@@ -1165,14 +1169,15 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         open={refsOpen !== null}
         accept="image"
         multiple
-        max={14}
+        max={refMax}
+        limits={{ image: { room: Math.max(refMax - studio.imageRefs.length, 0), note: `${model?.name ?? "This model"} takes up to ${refMax} images.${studio.imageRefs.length ? ` ${studio.imageRefs.length} already added.` : ""}` } }}
         onElements={(chosen) =>
           patchStudio((s) => ({
-            imageRefs: [...(s.imageRefs ?? []), ...chosen.flatMap((e) => e.images.map((r) => r.storageUrl)).filter((u) => !(s.imageRefs ?? []).includes(u))].slice(0, 14),
+            imageRefs: [...(s.imageRefs ?? []), ...chosen.flatMap((e) => e.images.map((r) => r.storageUrl)).filter((u) => !(s.imageRefs ?? []).includes(u))].slice(0, refMax),
           }))
         }
         taken={studio.imageRefs}
-        onPick={(urls) => patchStudio((s) => ({ imageRefs: [...s.imageRefs, ...urls.filter((u) => !s.imageRefs.includes(u))].slice(0, 14) }))}
+        onPick={(urls) => patchStudio((s) => ({ imageRefs: [...s.imageRefs, ...urls.filter((u) => !s.imageRefs.includes(u))].slice(0, refMax) }))}
         onClose={() => setRefsOpen(null)}
       />
     </div>
