@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { Icon } from "@/components/Icon";
+import { MediaPreview } from "@/components/MediaViewer";
+import { Popover } from "@/components/Popover";
 import { Stagger } from "@/components/Stagger";
-import { ELEMENT_KINDS, SOUL_MODELS, elementName, inUse, type ElementKind, type LibraryElement } from "@/lib/elements";
+import { ELEMENT_KINDS, ELEMENT_STATUSES, SOUL_MODELS, elementName, inUse, type ElementKind, type LibraryElement } from "@/lib/elements";
 import { listSouls } from "@/lib/higgsfield/transport";
 import { makeMediaRef } from "@/lib/media";
 import { mediaSrc, thumbSrc } from "@/lib/storage/client";
@@ -26,6 +29,9 @@ export function ElementsPage() {
   const [importing, setImporting] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const saveElement = useStudio((s) => s.saveElement);
+  const removeElement = useStudio((s) => s.removeElement);
+  const [looking, setLooking] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<LibraryElement | null>(null);
   const archived = elements.filter((e) => !inUse(e));
   const souls = filter === "character" && side === "soul";
   // Archived ones keep to their own tab, out of the way of the ones in use.
@@ -188,11 +194,13 @@ export function ElementsPage() {
             const cover = element.images[0];
             const kind = ELEMENT_KINDS.find((k) => k.id === element.kind);
             return (
-              <button
+              <div
                 key={element.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => openEditor({ id: element.id })}
-                className="group flex flex-col overflow-hidden rounded-card bg-elevated text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:ring-line-strong"
+                onKeyDown={(event) => event.target === event.currentTarget && (event.key === "Enter" || event.key === " ") && (event.preventDefault(), openEditor({ id: element.id }))}
+                className="group flex cursor-pointer flex-col overflow-hidden rounded-card bg-elevated text-left ring-1 ring-inset ring-edge transition-colors duration-[150ms] hover:ring-line-strong"
               >
                 <span className="relative block aspect-[3/4] w-full overflow-hidden bg-t1/[0.05]">
                   {cover && (
@@ -205,7 +213,7 @@ export function ElementsPage() {
                     />
                   )}
                   {element.images.length > 1 && !element.soul && (
-                    <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] tabular-nums text-white">
+                    <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] tabular-nums text-white">
                       {element.images.length}
                     </span>
                   )}
@@ -219,6 +227,50 @@ export function ElementsPage() {
                       {SOUL_MODELS.find((m) => m.version === element.soul!.version)?.label}
                     </span>
                   )}
+                  {/* Over the picture: full screen and delete up top, the review status in the corner. Clicks stop here so the card does not open. */}
+                  <span className="absolute right-2 top-2 flex flex-col gap-1.5" onClick={(event) => event.stopPropagation()}>
+                    {cover && (
+                      <button type="button" aria-label="View full screen" onClick={() => setLooking(cover.storageUrl)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-colors duration-[120ms] hover:bg-black/80">
+                        <Icon name="expand" size={14} />
+                      </button>
+                    )}
+                    <button type="button" aria-label="Delete element" onClick={() => setDeleting(element)} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white transition-colors duration-[120ms] hover:bg-[#ff6b6b]/80">
+                      <Icon name="trash" size={14} />
+                    </button>
+                  </span>
+                  <span className="absolute bottom-2 left-2" onClick={(event) => event.stopPropagation()}>
+                    <Popover
+                      width={230}
+                      title="Status"
+                      trigger={() => {
+                        const now = ELEMENT_STATUSES.find((x) => x.id === element.status);
+                        return (
+                          <span role="img" aria-label={`Status: ${now?.label ?? "none"}`} className="grid h-7 w-7 place-items-center rounded-full bg-black/55 ring-1 ring-inset ring-white/25 transition-colors duration-[120ms] hover:bg-black/80">
+                            {now ? <span className="h-3 w-3 rounded-full" style={{ background: now.dot }} /> : <span className="h-3 w-3 rounded-full border border-dashed border-white/70" />}
+                          </span>
+                        );
+                      }}
+                    >
+                      {(close) => (
+                        <>
+                          {[...ELEMENT_STATUSES, { id: undefined, label: "No status", dot: undefined }].map((x) => (
+                            <button
+                              key={x.id ?? "none"}
+                              type="button"
+                              onClick={() => {
+                                saveElement({ ...element, status: x.id });
+                                close();
+                              }}
+                              className={`flex w-full items-center gap-3 rounded-chip px-3 py-2.5 text-left text-[14px] font-medium transition-colors duration-[120ms] ${element.status === x.id ? "bg-t1/[0.08] text-t1" : "text-t2 hover:bg-t1/[0.06] hover:text-t1"}`}
+                            >
+                              {x.dot ? <span className="h-3 w-3 rounded-full" style={{ background: x.dot }} /> : <span className="h-3 w-3 rounded-full border border-dashed border-t3" />}
+                              {x.label}
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </Popover>
+                  </span>
                 </span>
                 <span className="block px-3 py-2.5">
                   <span className="block truncate text-[14px] font-medium text-t1">@{element.name}</span>
@@ -254,11 +306,23 @@ export function ElementsPage() {
                     )}
                   </span>
                 </span>
-              </button>
+              </div>
             );
           })}
         </div>
       )}
+      <MediaPreview url={looking} onClose={() => setLooking(null)} />
+      <ConfirmPopup
+        open={!!deleting}
+        title={deleting ? `Delete @${deleting.name}?` : ""}
+        message="Prompts that call it will no longer find it. Its pictures stay in your studio."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deleting) removeElement(deleting.id);
+          setDeleting(null);
+        }}
+        onClose={() => setDeleting(null)}
+      />
     </div>
   );
 }
