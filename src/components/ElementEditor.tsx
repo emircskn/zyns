@@ -26,8 +26,8 @@ import { useStudio } from "@/store/studio";
 
 /**
  * Making or changing an element, laid out as Higgsfield's: the pictures on a
- * wide stage, the details (category, name, version, id, description, status,
- * custom properties) in a column beside it.
+ * wide stage, the details (category, name, id, description, status)
+ * in a column beside it.
  * Opened from the Elements page, or from a picture's "Make element".
  */
 export function ElementEditor() {
@@ -42,8 +42,6 @@ export function ElementEditor() {
   if (!mounted || !shown) return null;
   return <EditorSheet key={shown.id ?? `new-${(shown.images ?? []).join()}`} start={shown} exiting={exiting} onClose={() => close(null)} />;
 }
-
-type Prop = { key: string; value: string; multi: boolean };
 
 const rowCls = "flex w-full items-center gap-2.5 rounded-chip px-2.5 py-2 text-left text-[14px] transition-colors duration-[120ms]";
 
@@ -66,14 +64,11 @@ function EditorSheet({
 
   const [title, setTitle] = useState(existing ? (existing.title ?? existing.name) : "");
   const [handle, setHandle] = useState(existing?.name ?? "");
-  // The id follows category, name and version until it is written over.
+  // The id follows category and name until it is written over.
   const [ownHandle, setOwnHandle] = useState(!!existing);
   const [kind, setKind] = useState<ElementKind>(existing?.kind ?? start.kind ?? "character");
   const [notes, setNotes] = useState(existing?.notes ?? "");
-  const [version, setVersion] = useState(existing?.version ?? "");
   const [status, setStatus] = useState<ElementStatus | undefined>(existing?.status);
-  const [props, setProps] = useState<Prop[]>(Object.entries(existing?.props ?? {}).map(([key, value]) => ({ key, value, multi: false })));
-  const [newProp, setNewProp] = useState<{ multi: boolean; name: string } | null>(null);
   const [dragging, setDragging] = useState(false);
   const uploader = useUploader("image");
   // Pictures by the address shown; those already kept carry their MediaRef.
@@ -94,7 +89,7 @@ function EditorSheet({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose, picking, confirming]);
 
-  const auto = title.trim() ? elementName([KIND_PREFIX[kind], title, version].filter((part) => part.trim()).join(" ")) : "";
+  const auto = title.trim() ? elementName(`${KIND_PREFIX[kind]} ${title}`) : "";
   const slug = ownHandle ? elementName(handle) : auto;
   const taken = elements.some((e) => e.name === slug && e.id !== existing?.id);
   const current = images[Math.min(shown, images.length - 1)];
@@ -115,7 +110,6 @@ function EditorSheet({
       const known = new Map((existing?.images ?? []).map((ref) => [ref.storageUrl, ref]));
       const refs: MediaRef[] = [];
       for (const url of images) refs.push(known.get(url) ?? (await makeMediaRef(url, "image")));
-      const kept = props.filter((p) => p.key.trim() && p.value.trim());
       const element: LibraryElement = {
         id: existing?.id ?? crypto.randomUUID(),
         kind,
@@ -123,9 +117,9 @@ function EditorSheet({
         title: title.trim() || undefined,
         images: refs,
         notes: notes.trim() || undefined,
-        version: version.trim() || undefined,
+        version: existing?.version,
         status,
-        props: kept.length ? Object.fromEntries(kept.map((p) => [p.key.trim(), p.value.trim()])) : undefined,
+        props: existing?.props,
         soul: existing?.soul,
         createdAt: existing?.createdAt ?? Date.now(),
       };
@@ -301,12 +295,7 @@ function EditorSheet({
             <p className="mt-1.5 text-[12px] text-t4">The display name, e.g. Cal, Oli, Elena</p>
 
             <p className={label}>
-              Version <InfoDot text="Use versions to keep different takes of the same element under one name." />
-            </p>
-            <input aria-label="Version" value={version} onChange={(event) => setVersion(event.target.value)} placeholder="e.g. v1" className={field} />
-
-            <p className={label}>
-              Element ID <InfoDot text="Auto-generated from category, name and version. Edit it to use your own — it stops updating once you do." />
+              Element ID <InfoDot text="Auto-generated from category and name. Edit it to use your own — it stops updating once you do." />
             </p>
             <div className="relative">
               <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[15px] text-t3 md:text-[14px]">@</span>
@@ -360,97 +349,6 @@ function EditorSheet({
               )}
             </Popover>
 
-            <p className="mb-2 mt-5 border-t border-line pt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-t4">Custom properties</p>
-            <div className="flex flex-col gap-3">
-              {props.map((prop, i) => (
-                <div key={i}>
-                  <div className="mb-1 flex items-center justify-between text-[13px] font-semibold text-t1">
-                    {prop.key}
-                    <button type="button" aria-label="Remove property" onClick={() => setProps((all) => all.filter((_, j) => j !== i))} className="grid h-6 w-6 place-items-center rounded-full text-t3 hover:bg-t1/[0.08] hover:text-t1">
-                      <Icon name="close" size={13} />
-                    </button>
-                  </div>
-                  {prop.multi ? (
-                    <TagInput value={prop.value} onChange={(value) => setProps((all) => all.map((p, j) => (j === i ? { ...p, value } : p)))} className={field} />
-                  ) : (
-                    <input
-                      aria-label={prop.key}
-                      value={prop.value}
-                      onChange={(event) => setProps((all) => all.map((p, j) => (j === i ? { ...p, value: event.target.value } : p)))}
-                      placeholder="Value"
-                      className={field}
-                    />
-                  )}
-                </div>
-              ))}
-              {newProp ? (
-                <div className="rounded-card bg-t1/[0.05] p-3 ring-1 ring-inset ring-edge">
-                  <p className="mb-2 text-[12px] text-t3">{newProp.multi ? "Multi-select" : "Text"} property name</p>
-                  <input
-                    autoFocus
-                    value={newProp.name}
-                    onChange={(event) => setNewProp({ ...newProp, name: event.target.value })}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" && newProp.name.trim()) {
-                        setProps((all) => [...all, { key: newProp.name.trim(), value: "", multi: newProp.multi }]);
-                        setNewProp(null);
-                      }
-                    }}
-                    placeholder="Property name"
-                    className={field}
-                  />
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => setNewProp(null)} className="rounded-chip bg-t1/[0.08] py-2 text-[13px] font-medium text-t1 hover:bg-t1/[0.14]">
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={!newProp.name.trim()}
-                      onClick={() => {
-                        setProps((all) => [...all, { key: newProp.name.trim(), value: "", multi: newProp.multi }]);
-                        setNewProp(null);
-                      }}
-                      className="rounded-chip bg-t1/[0.2] py-2 text-[13px] font-medium text-t1 hover:bg-t1/[0.28] disabled:opacity-40"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <Popover
-                  width={220}
-                  full
-                  trigger={() => (
-                    <span className="flex items-center gap-2 rounded-chip px-1 py-2 text-[13.5px] text-t2 transition-colors duration-[120ms] hover:text-t1">
-                      <Icon name="plus" size={14} />
-                      Add custom property
-                    </span>
-                  )}
-                >
-                  {(close) => (
-                    <>
-                      {[
-                        { multi: false, label: "Text", icon: "pencil" as const },
-                        { multi: true, label: "Multi-select", icon: "list" as const },
-                      ].map((x) => (
-                        <button
-                          key={x.label}
-                          type="button"
-                          onClick={() => {
-                            setNewProp({ multi: x.multi, name: "" });
-                            close();
-                          }}
-                          className={`${rowCls} text-t1 hover:bg-t1/[0.06]`}
-                        >
-                          <Icon name={x.icon} size={15} className="text-t3" />
-                          <span className="font-medium">{x.label}</span>
-                        </button>
-                      ))}
-                    </>
-                  )}
-                </Popover>
-              )}
-            </div>
             {problem && <p className="mt-3 text-[13px] text-[#ff8f8f]">{problem}</p>}
           </div>
         </div>
@@ -500,40 +398,5 @@ function StatusDot({ color }: { color?: string }) {
     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />
   ) : (
     <span className="h-3 w-3 shrink-0 rounded-full border border-dashed border-t3" />
-  );
-}
-
-/** A comma-joined list kept as chips: Enter or a comma adds one, × takes one out. */
-function TagInput({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
-  const [text, setText] = useState("");
-  const tags = value.split(",").map((t) => t.trim()).filter(Boolean);
-  const add = () => {
-    const next = text.trim();
-    if (next && !tags.includes(next)) onChange([...tags, next].join(", "));
-    setText("");
-  };
-  return (
-    <div className="flex flex-col gap-1.5">
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span key={tag} className="flex items-center gap-1 rounded-full bg-t1/[0.1] py-1 pl-2.5 pr-1.5 text-[12.5px] text-t1">
-              {tag}
-              <button type="button" aria-label={`Remove ${tag}`} onClick={() => onChange(tags.filter((t) => t !== tag).join(", "))} className="grid h-4 w-4 place-items-center rounded-full text-t3 hover:text-t1">
-                <Icon name="close" size={10} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-      <input
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        onKeyDown={(event) => (event.key === "Enter" || event.key === ",") && (event.preventDefault(), add())}
-        onBlur={add}
-        placeholder="Add an option, then Enter"
-        className={className}
-      />
-    </div>
   );
 }
