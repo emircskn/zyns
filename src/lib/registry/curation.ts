@@ -330,6 +330,43 @@ export const FAMILIES: Family[] = [
     ],
   },
   {
+    id: "gpt-image-1-5",
+    name: "GPT Image 1.5",
+    vendor: "OpenAI",
+    category: "image",
+    output: "image",
+    tagline: "OpenAI's earlier image model: quick edits with up to 16 references.",
+    modes: [
+      m("generate", "Generate", "gpt-image/1.5-text-to-image"),
+      m("edit", "Edit", "gpt-image/1.5-image-to-image", { hint: "Up to 16 references" }),
+    ],
+  },
+  {
+    id: "seedream-4",
+    name: "Seedream 4.0",
+    vendor: "ByteDance",
+    category: "image",
+    output: "image",
+    tagline: "Seedream 4.0: generation and multi-image editing up to 4K.",
+    modes: [
+      m("generate", "Generate", "bytedance/seedream-v4-text-to-image"),
+      m("edit", "Edit", "bytedance/seedream-v4-edit", { hint: "Edit with reference images" }),
+    ],
+  },
+  {
+    id: "imagen-4",
+    name: "Imagen 4",
+    vendor: "Google",
+    category: "image",
+    output: "image",
+    tagline: "Google's photoreal text-to-image, in standard, fast and ultra.",
+    modes: [
+      m("standard", "Standard", "google/imagen4"),
+      m("fast", "Fast", "google/imagen4-fast"),
+      m("ultra", "Ultra", "google/imagen4-ultra"),
+    ],
+  },
+  {
     id: "gpt-image-2-5-flare",
     name: "GPT Image 2.5 Flare",
     vendor: "OpenAI",

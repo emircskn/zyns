@@ -14,7 +14,15 @@ export type Slot =
   | { key: string; type: "image"; label: string; required: boolean; min?: number; max?: number; elementKind?: ElementKind }
   | { key: string; type: "video"; label: string; required: boolean }
   | { key: string; type: "audio"; label: string; required: boolean }
-  | { key: string; type: "text"; label: string; required: boolean; placeholder?: string; hiddenByDefault?: boolean };
+  | { key: string; type: "text"; label: string; required: boolean; placeholder?: string; hiddenByDefault?: boolean; presets?: TextPreset[] };
+
+/** A ready-made piece of text a text slot offers to fill itself with (a Hook, a Setting). */
+export interface TextPreset {
+  name: string;
+  text: string;
+  /** A tab in the list ("Stunt", "Subtle"). */
+  group?: string;
+}
 
 /** A setting the person picks for the whole recipe ("RecipeChoice": the registry has a Choice of its own). */
 export interface RecipeChoice {
@@ -47,6 +55,8 @@ export interface Step {
 export interface Recipe {
   id: string;
   name: string;
+  /** The kind of video in Marketing Studio's picker ("UGC", "TikTok"…); recipes without one list first. */
+  group?: string;
   category: "effect" | "product-motion" | "ugc" | "hypermotion" | "motion-2d" | "mixed-media" | "saas-motion";
   description: string;
   preview?: { thumbUrl: string; videoUrl?: string };

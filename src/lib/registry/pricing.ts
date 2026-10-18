@@ -136,6 +136,11 @@ const RULES: Record<string, Rule> = {
     charge(row("gpt image 2 5 sunburst", "text to image", lc(i.resolution) ?? "1k")),
   "gpt-image-2-5-sunburst-image-to-image": (i) =>
     charge(row("gpt image 2 5 sunburst", "image to image", lc(i.resolution) ?? "1k")),
+  "bytedance/seedream-v4-text-to-image": () => charge(row("seedream v4", "text to image")),
+  "bytedance/seedream-v4-edit": () => charge(row("seedream v4", "edit")),
+  "google/imagen4": () => charge(row("google imagen4", "default")),
+  "google/imagen4-fast": () => charge(row("google imagen4", "fast")),
+  "google/imagen4-ultra": () => charge(row("google imagen4", "ultra")),
   "gpt-image/1.5-text-to-image": (i) => charge(row("gpt image 1.5", "text to image", lc(i.quality) ?? "medium")),
   "gpt-image/1.5-image-to-image": (i) => charge(row("gpt image 1.5", "image to image", lc(i.quality) ?? "medium")),
   "flux-2/pro-text-to-image": (i) => charge(row("black forest labs flux 2 pro", "text to image", lc(i.resolution) ?? "1k")),

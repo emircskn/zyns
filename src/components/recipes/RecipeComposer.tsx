@@ -18,7 +18,7 @@ import {
   stepsNeeded,
   stepValues,
 } from "@/lib/recipes/engine";
-import type { Recipe, RecipeInputs, Step } from "@/lib/recipes/types";
+import type { Recipe, RecipeInputs, Slot, Step } from "@/lib/recipes/types";
 import { type LibraryElement, pickable } from "@/lib/elements";
 import { activeFields, getModel, providerOf, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
@@ -31,6 +31,29 @@ import { StepModelPicker, capabilityLabel } from "./StepModelPicker";
  * says so, and nothing can be sent until every step has one; the last pick
  * for each step is remembered for next time.
  */
+/** The ready-made pieces a text slot offers (Hooks, Settings): a tap writes one into the text, to edit from there. */
+function Presets({ slot, onPick }: { slot: Extract<Slot, { type: "text" }>; onPick: (text: string) => void }) {
+  if (!slot.presets?.length) return null;
+  return (
+    <div className="mb-2 flex max-h-[260px] flex-col overflow-y-auto">
+      {slot.presets.map((preset) => (
+        <button
+          key={preset.name}
+          type="button"
+          onClick={() => onPick(preset.text)}
+          className="flex flex-col rounded-chip px-2.5 py-1.5 text-left hover:bg-t1/[0.06]"
+        >
+          <span className="text-[12.5px] font-semibold text-t1">
+            {preset.name}
+            {preset.group && <span className="ml-1.5 text-[10.5px] font-medium uppercase text-t4">{preset.group}</span>}
+          </span>
+          <span className="line-clamp-2 text-[11.5px] leading-snug text-t3">{preset.text}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function RecipeComposer({
   recipe,
   onStarted,
@@ -170,6 +193,8 @@ export function RecipeComposer({
                     trigger={() => <Chip icon={<Icon name="pencil" size={14} />} value={text.trim() ? `${slot.label}: ${text.trim()}`.slice(0, 28) : slot.label} active={!!text.trim()} />}
                   >
                     {() => (
+                      <>
+                      <Presets slot={slot} onPick={(text) => setSlots((all) => ({ ...all, [slot.key]: text }))} />
                       <textarea
                         autoFocus
                         value={text}
@@ -178,6 +203,7 @@ export function RecipeComposer({
                         rows={3}
                         className={`${field} resize-none`}
                       />
+                      </>
                     )}
                   </Popover>
                 );
@@ -295,6 +321,8 @@ export function RecipeComposer({
             {!slot.required && <span className="font-normal text-t4"> · optional</span>}
           </p>
           {slot.type === "text" ? (
+            <>
+            <Presets slot={slot} onPick={(text) => setSlots((all) => ({ ...all, [slot.key]: text }))} />
             <textarea
               value={(slots[slot.key] as string) ?? ""}
               onChange={(event) => setSlots((all) => ({ ...all, [slot.key]: event.target.value }))}
@@ -302,6 +330,7 @@ export function RecipeComposer({
               rows={2}
               className={`${field} resize-none`}
             />
+            </>
           ) : (
             <div className="flex flex-wrap gap-2">
               {((Array.isArray(slots[slot.key]) ? slots[slot.key] : slots[slot.key] ? [slots[slot.key]] : []) as string[]).map((url) => (

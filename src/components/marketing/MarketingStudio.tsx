@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
 import { PhoneSubnav } from "@/components/PhoneShell";
 import { GlideMark } from "@/components/GlideMark";
@@ -145,10 +145,13 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
             trigger={() => <Chip icon={<Icon name="film" size={14} />} value={recipe.name} />}
           >
             {(close) => (
-              <div className="flex flex-col">
-                {MARKETING_RECIPES.map((r) => (
+              <div className="flex max-h-[60vh] flex-col overflow-y-auto">
+                {MARKETING_RECIPES.map((r, i) => (
+                  <Fragment key={r.id}>
+                  {r.group && r.group !== MARKETING_RECIPES[i - 1]?.group && (
+                    <p className="px-2.5 pb-0.5 pt-2.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-t4">{r.group}</p>
+                  )}
                   <button
-                    key={r.id}
                     type="button"
                     onClick={() => {
                       patch({ recipeId: r.id });
@@ -162,6 +165,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
                     </span>
                     <span className="text-[11.5px] leading-snug text-t3">{r.description}</span>
                   </button>
+                  </Fragment>
                 ))}
               </div>
             )}
