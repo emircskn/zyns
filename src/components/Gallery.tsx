@@ -1,5 +1,6 @@
 "use client";
 
+import { LastViewedMark } from "@/components/LastViewedMark";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Popover } from "@/components/Popover";
 import { ServiceBadge } from "@/components/ServiceBadge";
@@ -326,6 +327,7 @@ export function Tile({
             className="block h-full w-full cursor-zoom-in overflow-hidden rounded-[inherit]"
           >
             <Media url={url} run={run} compact={square} />
+            <LastViewedMark url={url} small={square} />
             {extras && mediaKind(url) === "video" && (
               <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white">
                 <Icon name="play" size={16} fill="currentColor" />

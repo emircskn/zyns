@@ -1,5 +1,6 @@
 "use client";
 
+import { LastViewedMark } from "@/components/LastViewedMark";
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { AudioFace, AudioPlay, audioTitle } from "@/components/AudioCard";
 import { VideoMark } from "@/components/VideoMark";
@@ -146,6 +147,7 @@ function AssetTile({
         // The tile's corners go along when a press shrinks the picture.
         className={`relative block w-full cursor-zoom-in overflow-hidden rounded-[inherit] ${box ? "h-full" : square ? "aspect-square" : ""}`}
       >
+        <LastViewedMark url={asset.url} small={square} />
         {asset.kind === "image" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
