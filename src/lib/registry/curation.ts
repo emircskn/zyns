@@ -594,6 +594,17 @@ export const FAMILIES: Family[] = [
     badge: "AUDIO",
     tagline: "Multimodal references, first/last-frame control and native audio.",
     modes: seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"] })),
+    fields: {
+      // 480p is the draft's resolution: picking it moves to the Draft model.
+      resolution: {
+        kind: "select",
+        choices: [
+          { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality", switchTo: "seedance-2-5-draft" },
+          { value: "720p", label: "720p" },
+          { value: "1080p", label: "1080p" },
+        ],
+      },
+    },
   },
   {
     id: "seedance-2-5-draft",
@@ -615,8 +626,8 @@ export const FAMILIES: Family[] = [
         default: "480p",
         choices: [
           { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality" },
-          { value: "720p", label: "720p" },
-          { value: "1080p", label: "1080p" },
+          { value: "720p", label: "720p", switchTo: "seedance-2-5" },
+          { value: "1080p", label: "1080p", switchTo: "seedance-2-5" },
         ],
       },
       draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5-draft"] } },

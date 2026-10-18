@@ -2,7 +2,8 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { activeFields, type Field, type ItemField, type Values } from "@/lib/registry";
+import { activeFields, getModel, type Field, type ItemField, type Values } from "@/lib/registry";
+import { notify } from "@/lib/notify";
 import { PillGroup } from "@/components/PillGroup";
 import { GLIDE_TRANSITION, useGlide } from "@/lib/useGlide";
 import { VideoMark } from "@/components/VideoMark";
@@ -70,6 +71,19 @@ function InfoDot({ text }: { text: string }) {
   );
 }
 
+/** Moves to the model a choice belongs to, bringing the settings that carry over, and says so. */
+function switchModel(choice: { value: string; switchTo?: string }, field: Field) {
+  const state = useStudio.getState();
+  const from = state.valuesByModel[state.modelId] ?? {};
+  const carried: Values = { [field.key]: choice.value };
+  for (const key of ["duration", "aspect_ratio", "generate_audio", "prompt"]) if (from[key] !== undefined) carried[key] = from[key];
+  state.setModelValues(choice.switchTo!, carried);
+  state.selectModel(choice.switchTo!);
+  notify(`Model switched to ${getModel(choice.switchTo!)?.name ?? "the other model"}`);
+  // The list the choice was made in belongs to the model just left.
+  window.setTimeout(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })), 0);
+}
+
 export function OptionList({ field, value, onChange }: ControlProps) {
   return (
     <div className="flex flex-col gap-px">
@@ -79,7 +93,10 @@ export function OptionList({ field, value, onChange }: ControlProps) {
           <button
             key={choice.value}
             type="button"
-            onClick={() => onChange(choice.value)}
+            onClick={() => {
+              onChange(choice.value);
+              if (choice.switchTo) switchModel(choice, field);
+            }}
             className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
               active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "text-t2 hover:bg-t1/[0.07]"
             }`}

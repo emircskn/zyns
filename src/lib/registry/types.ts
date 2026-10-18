@@ -48,6 +48,8 @@ export interface Choice {
   badge?: string;
   /** A note behind a small (i) beside the choice, shown on hover. */
   info?: string;
+  /** Picking this choice moves to another model (a draft and its full-quality twin), keeping what was set. */
+  switchTo?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
