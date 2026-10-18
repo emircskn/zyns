@@ -89,6 +89,14 @@ export function ModelRow({
  * at the top, models grouped by what they make, and the one you are using
  * ticked where it sits.
  */
+/** Tools grouped by the app family their badge names (Face, Ads, Effects…); everything else stays one list. */
+function subgroups(models: ModelDef[], byBadge: boolean): Array<[string, ModelDef[]]> {
+  if (!byBadge) return [["", models]];
+  const by = new Map<string, ModelDef[]>();
+  for (const model of models) by.set(model.badge ?? "", [...(by.get(model.badge ?? "") ?? []), model]);
+  return [...by.entries()];
+}
+
 export function ModelPicker() {
   const open = useStudio((s) => s.pickerOpen);
   const togglePicker = useStudio((s) => s.togglePicker);
@@ -198,16 +206,19 @@ export function ModelPicker() {
                 <h3 className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-t3">
                   {GROUP_LABEL[group.id]}
                 </h3>
-                <div className="flex flex-col gap-0.5">
-                  {group.models.map((model) => (
-                    <ModelRow
-                      key={model.id}
-                      model={model}
-                      active={model.id === modelId}
-                      onPick={() => selectModel(model.id)}
-                    />
-                  ))}
-                </div>
+                {subgroups(group.models, group.id === "tool").map(([name, models]) => (
+                  <div key={name} className="flex flex-col gap-0.5">
+                    {name && <h4 className="px-3 pb-0.5 pt-2.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-t4">{name}</h4>}
+                    {models.map((model) => (
+                      <ModelRow
+                        key={model.id}
+                        model={model}
+                        active={model.id === modelId}
+                        onPick={() => selectModel(model.id)}
+                      />
+                    ))}
+                  </div>
+                ))}
               </section>
             ))
           )}

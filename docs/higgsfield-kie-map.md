@@ -76,3 +76,15 @@ Durum: **VAR** = zyns'te çalışıyor · **KISMEN** · **YAPILACAK** · **YOK**
 4. Canvas yapılsın mı, yoksa Recipes geliştirilsin mi?
 5. Video-to-video uygulamalar (Recast, Video Face Swap, ClipCut, Urban Cuts) ve Ad Reference/Ad multiplier yapılsın mı?
 6. Kie'de var mı bakılacak modeller (satır 5, 6b, 7c) Adım 2'den önce doğrulanır.
+
+## Adım 2 ilerleme (onaylandı: sıra uygun, tüm Effects, 3-6 evet)
+
+**Kie doğrulaması (Kie'nin kendi fiyat listesi + katalog):**
+- Kie'de YOK: FLUX 3 Image/Video, FLUX.2 Max, Ideogram 4.5, Recraft V4.1, Seedance 2.5 Extend (ayrı model yok). Bunlar Higgsfield'da kalır.
+- Seedance 2.5 **Draft** ayrı model değil, `draft` parametresi.
+- Kie'de var, henüz bağlanmamış: Flux Kontext Pro/Max, GPT Image 1.5, Seedream 4, Grok Imagine Extend/Upscale, Veo/Runway Extend, Topaz Image/Video Upscaler (Topaz ve Recraft bağlı), Ideogram V3 Edit/Remix/Reframe.
+
+**Yapıldı (`src/lib/registry/apps/`):** tek fabrika + katalog; her uygulama bir Tool (form, fiyat tahmini, geçmiş hazır).
+- 20 görsel uygulama (Face/Character Swap, Commercial Face, Headshot, Skin Enhancer, Angles, AI Stylist, Outfit Swap/Shot/Vending, Style Snap, Glitter Sticker, Shots, Zooms, What's Next, Breakdown, Japanese Show, Paint App, Signboard, Micro-Beasts) → Nano Banana Pro edit.
+- 87 Effects (Higgsfield listesinin tamamı) + 25 şablon + 19 reklam uygulaması + Behind the Scenes + Transitions (+ASMR Add-On) → Seedance 2.0 (Best) veya 2.0 Fast; 153 uygulama.
+- Seçici: Tools altında uygulama grubuna göre alt başlıklar.
