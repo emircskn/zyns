@@ -21,6 +21,11 @@ const TITLES: Partial<Record<Page, string>> = {
   remix: "Genjutsu",
   studio: "Cinema Studio",
   marketing: "Marketing Studio",
+  katana: "Katana",
+  influencer: "AI Influencer",
+  ads: "Ads Studio",
+  effects: "Effects",
+  apps: "Apps",
   assets: "Assets",
   favorites: "Favorites",
   elements: "Elements",
@@ -125,8 +130,18 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
   const make: Array<{ id: Page; label: string; icon: IconName }> = [
     ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label, icon: ICONS[c.id as Page] ?? "spark" })),
     { id: "remix", label: "Genjutsu", icon: "mask" },
+    { id: "katana", label: "Katana", icon: "wand" },
+    { id: "influencer", label: "AI Influencer", icon: "user" },
     { id: "studio", label: "Cinema Studio", icon: "film" },
     { id: "marketing", label: "Marketing Studio", icon: "box" },
+    { id: "ads", label: "Ads Studio", icon: "monitor" },
+    { id: "effects", label: "Effects", icon: "bolt" },
+    { id: "apps", label: "Apps", icon: "grid" },
+  ];
+  // Pages with an address of their own, outside the studio's pages.
+  const pages: Array<{ href: string; label: string; icon: IconName }> = [
+    { href: "/canvas", label: "Canvas", icon: "layers" },
+    { href: "/grade", label: "Color grading", icon: "palette" },
   ];
   const keep: Array<{ id: Page; label: string; icon: IconName }> = [
     { id: "assets", label: "Assets", icon: "folder" },
@@ -184,6 +199,9 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
           <Row icon="compass" label="Explore" on={page === "home"} onClick={go("home")} />
           {make.map((item) => (
             <Row key={item.id} icon={item.icon} label={item.label} on={page === item.id} onClick={go(item.id)} />
+          ))}
+          {pages.map((item) => (
+            <Row key={item.href} icon={item.icon} label={item.label} onClick={() => (window.location.href = item.href)} />
           ))}
           <div className="mx-3 my-2 h-px bg-line" />
           {keep.map((item) => (
