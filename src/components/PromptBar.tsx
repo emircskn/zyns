@@ -1125,7 +1125,7 @@ export function PromptField({
 }
 
 /** The enlarged look at a chip's picture, standing over the chip. */
-function ChipPeek({ url, name, rect }: { url: string; name: string; rect: DOMRect }) {
+export function ChipPeek({ url, name, rect }: { url: string; name: string; rect: DOMRect }) {
   const margin = 16;
   const half = 104;
   const center = Math.max(margin + half, Math.min(rect.left + rect.width / 2, window.innerWidth - margin - half));

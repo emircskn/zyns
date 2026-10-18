@@ -18,6 +18,8 @@ export interface LibraryElement {
   kind: ElementKind;
   /** Written after `@` in a prompt: "emir", "depo", "green-puffer". */
   name: string;
+  /** The display name ("Oli"); `name` is the id a prompt calls it by. */
+  title?: string;
   /** One to ten reference pictures; the first is the cover. */
   images: MediaRef[];
   /** A short description added to the prompt wherever the element is called. */
@@ -64,12 +66,16 @@ export function isSheet(element: LibraryElement): boolean {
   return !element.soul;
 }
 
-export type ElementStatus = "draft" | "ready" | "archived";
-export const ELEMENT_STATUSES: Array<{ id: ElementStatus; label: string }> = [
-  { id: "draft", label: "Draft" },
-  { id: "ready", label: "Ready" },
-  { id: "archived", label: "Archived" },
+export type ElementStatus = "draft" | "ready" | "archived" | "in-progress" | "review" | "approved" | "rejected";
+/** The review states an element can be marked with (Higgsfield's), each with the colour of its dot. */
+export const ELEMENT_STATUSES: Array<{ id: ElementStatus; label: string; dot: string }> = [
+  { id: "in-progress", label: "In progress", dot: "#2f9bff" },
+  { id: "review", label: "Needs review", dot: "#ff8a1f" },
+  { id: "approved", label: "Approved", dot: "#c6f432" },
+  { id: "rejected", label: "Rejected", dot: "#f0484e" },
 ];
+/** Old statuses, still shown by name where an element carries one. */
+export const LEGACY_STATUS_LABEL: Partial<Record<ElementStatus, string>> = { draft: "Draft", ready: "Ready", archived: "Archived" };
 
 /** Archived elements stay in the library but are not offered anywhere to pick. */
 export function inUse(element: LibraryElement): boolean {
@@ -92,6 +98,9 @@ export const ELEMENT_KINDS: Array<{ id: ElementKind; label: string; plural: stri
 ];
 
 export const MAX_ELEMENT_IMAGES = 10;
+
+/** The short word an element's id starts with: char-oli-v1. */
+export const KIND_PREFIX: Record<ElementKind, string> = { character: "char", location: "loc", product: "prop", style: "style" };
 
 /** A name as it can follow `@`: lower case, words joined by dashes. */
 export function elementName(raw: string): string {

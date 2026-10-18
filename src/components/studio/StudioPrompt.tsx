@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
+import { ChipPeek } from "@/components/PromptBar";
 import { imageName, insertMention, mentionAtCaret } from "@/lib/mentions";
 import type { Field } from "@/lib/registry";
 import { type LibraryElement, pickable } from "@/lib/elements";
@@ -51,13 +52,13 @@ function escapeRegExp(value: string) {
 }
 
 /** The element and move chips in the text, in order. */
-function chipsIn(text: string, names: string[], move: Field | undefined): Array<{ start: number; end: number; kind: "element" | "move" }> {
-  const chips: Array<{ start: number; end: number; kind: "element" | "move" }> = [];
+function chipsIn(text: string, names: string[], move: Field | undefined): Array<{ start: number; end: number; kind: "element" | "move"; name?: string }> {
+  const chips: Array<{ start: number; end: number; kind: "element" | "move"; name?: string }> = [];
   for (const name of names) {
     const re = new RegExp(`(^|[\\s(])@${escapeRegExp(name)}(?=$|[\\s.,!?;:)'"])`, "g");
     for (const match of text.matchAll(re)) {
       const start = (match.index ?? 0) + match[1].length;
-      chips.push({ start, end: start + name.length + 1, kind: "element" });
+      chips.push({ start, end: start + name.length + 1, kind: "element", name });
     }
   }
   for (const m of movesIn(text, move)) chips.push({ start: m.start, end: m.end, kind: "move" });
@@ -110,6 +111,20 @@ export function StudioPrompt({
   const names = [...refNames, ...elements.map((e) => e.name)];
   const chips = chipsIn(text, names, move);
   const inChip = caret !== null && chips.some((c) => caret > c.start && caret <= c.end);
+  // The chip under the pointer, for the enlarged look at its picture (as the prompt bar's).
+  const [peek, setPeek] = useState<{ name: string; rect: DOMRect } | null>(null);
+  const pictureOf = (name: string) => {
+    const i = refNames.indexOf(name);
+    return i >= 0 ? refs[i] : elements.find((e) => e.name === name)?.images[0]?.storageUrl;
+  };
+  const chipAt = (x: number, y: number) => {
+    for (const chip of mirror.current?.querySelectorAll<HTMLElement>("[data-chip]") ?? []) {
+      for (const rect of chip.getClientRects()) {
+        if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2) return { name: chip.dataset.chip!, rect };
+      }
+    }
+    return null;
+  };
   const at = caret === null || inChip ? null : mentionAtCaret(text, caret);
   const hash = caret === null || inChip || !move ? null : hashAtCaret(text, caret);
   const token = at ?? hash;
@@ -251,7 +266,7 @@ export function StudioPrompt({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} className="mention-chip">
+        <span key={chip.start} data-chip={chip.name} className="mention-chip">
           {text.slice(chip.start, chip.end)}
         </span>,
       );
@@ -291,11 +306,27 @@ export function StudioPrompt({
         onScroll={(event) => {
           if (mirror.current) mirror.current.scrollTop = event.currentTarget.scrollTop;
         }}
-        onBlur={() => window.setTimeout(() => setCaret(null), 120)}
+        onPointerMove={(event) => {
+          if (event.pointerType !== "mouse") return;
+          const hit = chipAt(event.clientX, event.clientY);
+          setPeek((now) => (hit?.name === now?.name ? now : hit));
+        }}
+        onPointerLeave={(event) => event.pointerType === "mouse" && setPeek(null)}
+        onPointerUp={(event) => {
+          // No hover on a phone: a tap on a chip shows its picture, the next tap elsewhere puts it away.
+          if (event.pointerType === "mouse") return;
+          const hit = chipAt(event.clientX, event.clientY);
+          setPeek((now) => (hit && hit.name !== now?.name ? hit : null));
+        }}
+        onBlur={() => {
+          window.setTimeout(() => setCaret(null), 120);
+          setPeek(null);
+        }}
         className={`no-bar relative block max-h-[240px] min-h-[48px] w-full resize-none bg-transparent text-t1 outline-none placeholder:text-t4 field-sizing-content ${type} ${
           chips.length > 0 ? "text-transparent caret-t1" : ""
         }`}
       />
+      {peek && pictureOf(peek.name) && createPortal(<ChipPeek url={pictureOf(peek.name)!} name={peek.name} rect={peek.rect} />, document.body)}
       {open &&
         spot &&
         createPortal(
