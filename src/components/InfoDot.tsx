@@ -19,9 +19,13 @@ export function InfoDot({ text }: { text: string }) {
         setAt({ x: Math.min(Math.max(box.left + box.width / 2, 115), window.innerWidth - 115), y: box.top - 8 });
       }}
       onMouseLeave={() => setAt(null)}
-      className="grid h-[18px] w-[18px] place-items-center rounded-full text-[11px] font-semibold italic leading-none text-t3 ring-1 ring-inset ring-current hover:text-t1"
+      className="inline-grid h-4 w-4 place-items-center text-t3 hover:text-t1"
     >
-      i
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.6" strokeWidth="1.2" />
+        <circle cx="8" cy="5" r="0.55" fill="currentColor" strokeWidth="0.9" />
+        <path d="M8 7.4v3.8" strokeWidth="1.3" strokeLinecap="round" />
+      </svg>
       {at && createPortal(
         <span
           className="pointer-events-none fixed z-[200] w-[210px] -translate-x-1/2 -translate-y-full rounded-card bg-[var(--popover)] px-3 py-2 text-left text-[12px] font-normal not-italic leading-snug text-t2 ring-1 ring-inset ring-edge"
