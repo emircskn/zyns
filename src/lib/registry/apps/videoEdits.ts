@@ -1,0 +1,103 @@
+import type { AppDef } from "./factory";
+
+const KEEP = "Keep everything else (motion, timing, camera and background) exactly as in the video.";
+
+/** Video-to-video apps: swap a person or object in a clip, move a motion onto a character, restyle, multiply an ad. */
+export const VIDEO_EDIT_APPS: AppDef[] = [
+  {
+    id: "recast",
+    name: "Recast",
+    group: "Video edit",
+    tagline: "Replace the person in a clip with your character.",
+    slots: ["video:your video", "character picture"],
+    engine: "wan-replace",
+    prompt: "",
+  },
+  {
+    id: "video-face-swap",
+    name: "Video Face Swap",
+    group: "Video edit",
+    tagline: "Put a different face on the person in a clip.",
+    slots: ["video:target video", "face to use"],
+    engine: "wan-edit",
+    prompt: `Replace only the face of the main person with the face in the reference picture, matched to the light and angle in each frame. ${KEEP}`,
+  },
+  {
+    id: "objects-swap",
+    name: "Objects Swap",
+    group: "Video edit",
+    tagline: "Swap an object or product in a clip for another.",
+    slots: ["video:reference video", "new object or product"],
+    engine: "wan-edit",
+    prompt: `Replace the main handheld object or product in the video with the one shown in the reference picture, following the same hand and camera motion. ${KEEP}`,
+  },
+  {
+    id: "motion-transfer",
+    name: "Motion Transfer",
+    group: "Video edit",
+    tagline: "Make your character move like the person in a video.",
+    slots: ["video:motion video", "character picture"],
+    engine: "kling-motion",
+    prompt: "The character copies the movement, timing and expression of the person in the video.",
+  },
+  {
+    id: "video-styles",
+    name: "Video Styles",
+    group: "Video edit",
+    tagline: "Redraw a clip in a different look and keep its motion.",
+    slots: ["video:your video"],
+    engine: "wan-edit",
+    options: [
+      {
+        key: "look",
+        label: "Look",
+        choices: [
+          ["a knitted yarn world, everything made of soft wool stitches", "Knitted yarn"],
+          ["rounded glossy toy CGI, soft plastic forms", "Toy CGI"],
+          ["handmade claymation with visible fingerprints", "Claymation"],
+          ["Japanese anime with clean cel shading", "Anime"],
+          ["moving watercolour painting with soft bleeding colours", "Watercolour"],
+          ["chunky 16-bit pixel art", "Pixel art"],
+          ["layered paper cutouts with a stop-motion feel", "Paper cutout"],
+          ["neon cyberpunk night, glowing signs and rain", "Cyberpunk"],
+          ["thick oil painting with visible brushstrokes", "Oil painting"],
+          ["black ink comic with halftone dots", "Comic ink"],
+          ["low-poly 3D, faceted flat-shaded shapes", "Low poly"],
+          ["plush felt and fabric toys", "Plush felt"],
+        ],
+      },
+    ],
+    prompt: `Redraw the whole video as {look}. Keep the movement, timing, framing and people exactly as in the original.`,
+  },
+  {
+    id: "sticker-match-cut",
+    name: "Sticker Match Cut",
+    group: "Video edit",
+    tagline: "Your clip turned into a sparkling sticker animation.",
+    slots: ["video:your video"],
+    engine: "wan-edit",
+    prompt: "Turn the subject of the video into a die-cut glittering sticker with a white border that peels, flips and matches-cut between poses, with sparkles. Keep the subject's movement.",
+  },
+  {
+    id: "ad-multiplier",
+    name: "Ad Multiplier",
+    group: "Ads",
+    tagline: "Make new versions of an ad with a different hook or call to action.",
+    slots: ["video:reference ad", "product or character picture"],
+    engine: "kling-reference",
+    options: [
+      { key: "hook", label: "Hook", choices: [["keep the original opening", "Keep"], ["open with a fresh, more attention-grabbing hook", "New hook"]] },
+      { key: "cta", label: "Call to action", choices: [["keep the original ending", "Keep"], ["end with a new clear call to action", "New CTA"]] },
+    ],
+    prompt: "Make another version of the reference ad with the same pace, energy and structure, using the product or character in the picture; {hook}; {cta}.",
+  },
+  {
+    id: "ad-reference",
+    name: "Ad Reference",
+    group: "Ads",
+    tagline: "Copy a viral ad's feel and make it sell your product.",
+    slots: ["video:viral ad", "your product", "?person"],
+    engine: "kling-reference",
+    prompt: "Recreate the reference ad for the product in the first picture: same hook, same structure and energy, same camera style, but selling this product. Use the person in the second picture if there is one.",
+  },
+];

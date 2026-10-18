@@ -64,6 +64,23 @@ export const VIDEO_APPS: AppDef[] = [
   ...make("Ads", ADS, "product picture"),
   ...make("Templates", TEMPLATES, "picture"),
   {
+    id: "clipcut",
+    name: "ClipCut",
+    group: "Video",
+    tagline: "A selfie turned into a quick-cut outfit reel.",
+    slots: ["selfie"],
+    prompt: "A fast outfit-change reel of the person from the picture: quick cuts between five different stylish looks in different places, each landing on the beat, the person recognisable throughout.",
+  },
+  {
+    id: "urban-cuts",
+    name: "Urban Cuts",
+    group: "Video",
+    tagline: "Your photo and an outfit cut together to the beat.",
+    slots: ["your photo", "outfit picture"],
+    mode: "refs",
+    prompt: "A beat-synced urban street-style edit: the person from the first picture wearing the outfit from the second picture, quick cuts between city locations, close-ups of the clothes and walking shots.",
+  },
+  {
     id: "asmr-add-on",
     name: "ASMR Add-On",
     group: "Ads",
