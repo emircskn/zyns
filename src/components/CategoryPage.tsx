@@ -7,9 +7,8 @@ import { usePhone } from "@/lib/usePhone";
 import { DensityControl, SelectToggle } from "@/components/DensityControl";
 import { Icon } from "@/components/Icon";
 import { Stagger } from "@/components/Stagger";
-import { VendorBadge } from "@/components/VendorMark";
 import { CATEGORIES, getModel, type Category } from "@/lib/registry";
-import { useModel, useStudio } from "@/store/studio";
+import { useStudio } from "@/store/studio";
 
 const NOUN: Record<Category, string> = {
   image: "images",
@@ -46,7 +45,6 @@ export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange
 }
 
 export function CategoryPage({ category, onKeyClick }: { category: Category; onKeyClick: () => void }) {
-  const model = useModel();
   const side = SIDE_PAGES.has(category);
   const chosenView = useStudio((s) => s.views[category]) ?? (side ? "list" : "grid");
   // A phone has no list: its wall is always tiles, so Select and the layouts belong there too.
@@ -81,30 +79,6 @@ export function CategoryPage({ category, onKeyClick }: { category: Category; onK
         <div className="flex items-center gap-2">
         {mine.length > 0 && view === "grid" && <DensityControl select={false} />}
         {mine.length > 0 && <ViewToggle view={chosenView} onChange={(next) => setView(category, next)} />}
-        {!side && (
-        <button
-          type="button"
-          onClick={() => togglePicker(true, category, true)}
-          // A phone picks its model from the bar at the bottom, where it is
-          // already named; up here it was the same word twice.
-          className="hidden items-center gap-2 rounded-full bg-t1/[0.07] py-1.5 pl-1.5 pr-3.5 text-[13px] text-t2 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1 md:flex"
-        >
-          {model && model.category === category ? (
-            <>
-              <VendorBadge model={model} size={22} />
-              <span className="max-w-[160px] truncate">{model.name}</span>
-            </>
-          ) : (
-            <>
-              <span className="grid h-[22px] w-[22px] place-items-center rounded-chip bg-t1/[0.1]">
-                <Icon name="spark" size={15} />
-              </span>
-              <span>Choose a model</span>
-            </>
-          )}
-          <Icon name="chevron" size={16} className="-rotate-90 opacity-70" />
-        </button>
-        )}
         </div>
       </div>
 
