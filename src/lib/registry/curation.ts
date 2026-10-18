@@ -597,7 +597,6 @@ export const FAMILIES: Family[] = [
     fields: {
       // 480p is the draft's resolution: picking it moves to the Draft model.
       resolution: {
-        kind: "select",
         choices: [
           { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality", switchTo: "seedance-2-5-draft" },
           { value: "720p", label: "720p" },
@@ -622,7 +621,6 @@ export const FAMILIES: Family[] = [
     fields: {
       // 480p is the draft; 720p and 1080p are the full render.
       resolution: {
-        kind: "select",
         default: "480p",
         choices: [
           { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality" },

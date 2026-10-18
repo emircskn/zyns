@@ -23,7 +23,7 @@ const ORDER: string[] = [
   "ideogram-v3", "ideogram-character",
   "z-image",
   /* KIE · video */
-  "seedance-2-5", "seedance-2", "seedance-2-fast", "seedance-2-mini", "seedance-1-5-pro",
+  "seedance-2-5", "seedance-2-5-draft", "seedance-2", "seedance-2-fast", "seedance-2-mini", "seedance-1-5-pro",
   "veo-3-1",
   "kling-3", "kling-3-omni", "kling-3-motion-control", "kling-v3-turbo", "kling-2-6", "kling-2-6-motion-control", "kling-2-5-turbo",
   "kling-avatar-pro", "kling-avatar",

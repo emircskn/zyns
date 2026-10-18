@@ -38,6 +38,7 @@ import { RemixStudio } from "@/components/remix/RemixStudio";
 import { CinemaStudio } from "@/components/studio/CinemaStudio";
 import { PhoneHeader } from "@/components/PhoneShell";
 import { MarketingStudio } from "@/components/marketing/MarketingStudio";
+import { setTaskLookup } from "@/lib/registry/pricing";
 import { isAppPage, isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
@@ -97,6 +98,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
     const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : isAppPage(page) ? ROUTE_OF[page] : "/";
     if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
   }, [page, hydrated, arrived]);
+  // A finalized draft is priced from the draft it is based on.
+  useEffect(() => setTaskLookup((taskId) => useStudio.getState().runs.find((r) => r.taskId === taskId)?.values), []);
   // Redraws the studio when Higgsfield's live catalogue changes its models.
   useHiggsfieldCatalog();
 

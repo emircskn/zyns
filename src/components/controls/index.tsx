@@ -126,7 +126,11 @@ export function Segmented({ field, value, onChange }: ControlProps) {
     <PillGroup
       fill
       value={String(value ?? "")}
-      onChange={onChange}
+      onChange={(id) => {
+        onChange(id);
+        const choice = field.choices?.find((c) => c.value === id);
+        if (choice?.switchTo) switchModel(choice, field);
+      }}
       items={(field.choices ?? []).map((choice) => ({
         id: choice.value,
         label: choice.label,

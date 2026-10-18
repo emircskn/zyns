@@ -112,6 +112,16 @@ const perKiloChar = (tokens: string[], text: (i: Input) => string): Rule => (i) 
   return r && chars > 0 ? (r.c * chars) / 1000 : undefined;
 };
 
+/**
+ * What an earlier task was asked for, by its KIE task id: set by the app,
+ * which holds the runs. An upgraded draft is billed like the draft it came
+ * from.
+ */
+let sourceOf: (taskId: string) => Input | undefined = () => undefined;
+export function setTaskLookup(lookup: (taskId: string) => Input | undefined) {
+  sourceOf = lookup;
+}
+
 const RULES: Record<string, Rule> = {
   /* Image */
   "nano-banana-2": (i) => charge(row("google nano banana 2", lc(i.resolution) ?? "1k")),
@@ -170,7 +180,12 @@ const RULES: Record<string, Rule> = {
   "z-image": () => charge(row("qwen z image", "text to image")),
 
   /* Video */
-  // KIE lists no price for a draft, so none is guessed.
+  // Finalizing a draft: the standard Seedance 2.5 rate per second, in the billing mode (with video / no video) of the draft it is based on.
+  "bytedance/seedance-2-5-draft": (i) => {
+    const draft = typeof i.draft_task_id === "string" ? sourceOf(i.draft_task_id) : undefined;
+    return draft ? seedance("bytedance seedance 2 5")({ ...draft, resolution: i.resolution ?? draft.resolution }) : undefined;
+  },
+  // KIE lists no price for a draft run itself, so none is guessed.
   "bytedance/seedance-2-5": (i) => (i.draft ? undefined : seedance("bytedance seedance 2 5")(i)),
   "bytedance/seedance-2": seedance("bytedance seedance 2"),
   "bytedance/seedance-2-fast": seedance("bytedance seedance 2 fast"),
