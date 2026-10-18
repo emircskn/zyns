@@ -593,12 +593,22 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "AUDIO",
     tagline: "Multimodal references, first/last-frame control and native audio.",
+    modes: seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"] })),
+  },
+  {
+    id: "seedance-2-5-draft",
+    name: "Seedance 2.5 Draft",
+    vendor: "ByteDance",
+    category: "video",
+    output: "video",
+    badge: "DRAFT",
+    tagline: "A quick, cheap preview of a Seedance 2.5 clip; finalize the ones you like.",
     modes: [
-      ...seedanceModes("bytedance/seedance-2-5"),
-      // A draft (made with the Draft switch on) rendered in full.
+      ...seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"], fixed: { draft: true } })),
+      // A draft rendered in full quality.
       m("finalize", "Finalize draft", "bytedance/seedance-2-5-draft", { hint: "Render a finished draft in full quality" }),
     ],
-    fields: { draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5"] } } },
+    fields: { draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5-draft"] } } },
   },
   {
     id: "seedance-2",

@@ -170,7 +170,8 @@ const RULES: Record<string, Rule> = {
   "z-image": () => charge(row("qwen z image", "text to image")),
 
   /* Video */
-  "bytedance/seedance-2-5": seedance("bytedance seedance 2 5"),
+  // KIE lists no price for a draft, so none is guessed.
+  "bytedance/seedance-2-5": (i) => (i.draft ? undefined : seedance("bytedance seedance 2 5")(i)),
   "bytedance/seedance-2": seedance("bytedance seedance 2"),
   "bytedance/seedance-2-fast": seedance("bytedance seedance 2 fast"),
   "bytedance/seedance-2-mini": seedance("bytedance seedance 2 mini"),

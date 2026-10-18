@@ -711,6 +711,9 @@ textarea {
 
 html {
   scroll-behavior: smooth;
+  /* The page keeps its scrollbar's width when a window locks the scroll: without it the page grew by
+     the scrollbar, every tile of the gallery was laid out again and slid, on opening and on closing. */
+  scrollbar-gutter: stable;
 }
 
 /* Theme switches cross-fade the whole page instead of snapping. */

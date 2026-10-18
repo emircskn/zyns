@@ -93,7 +93,8 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
         type="button"
         onClick={() => setPicking(true)}
         className={`relative flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
-          half ? "h-full min-h-[128px] gap-2 py-3.5" : "gap-2.5 py-5"
+          // One height for every empty upload box (one wide, two side by side), so switching tabs does not resize it.
+          "h-[128px] gap-2"
         }`}
       >
         {field.tag && (

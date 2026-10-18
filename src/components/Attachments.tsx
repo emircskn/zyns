@@ -189,11 +189,11 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
         <button
           type="button"
           onClick={attach.open}
-          className="flex w-full flex-col items-center justify-center gap-2.5 rounded-panel bg-t1/[0.05] px-3 py-5 text-center ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.1]"
+          className="flex h-[128px] w-full flex-col items-center justify-center gap-2 rounded-panel bg-t1/[0.05] px-3 text-center ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.1]"
         >
           <span className="flex items-center gap-1.5">
             {kinds.map((kind) => (
-              <span key={kind} className="grid h-10 w-10 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
+              <span key={kind} className="grid h-9 w-9 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
                 <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={18} />
               </span>
             ))}

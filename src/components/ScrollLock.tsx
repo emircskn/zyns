@@ -27,7 +27,7 @@ export function ScrollLock() {
         body.style.right = "0";
       } else if (!open && top !== null) {
         body.style.position = body.style.top = body.style.left = body.style.right = "";
-        window.scrollTo(0, top);
+        window.scrollTo({ top, behavior: "instant" });
         top = null;
       }
     };
@@ -41,7 +41,7 @@ export function ScrollLock() {
       cancelAnimationFrame(queued);
       if (top !== null) {
         body.style.position = body.style.top = body.style.left = body.style.right = "";
-        window.scrollTo(0, top);
+        window.scrollTo({ top, behavior: "instant" });
       }
     };
   }, []);
