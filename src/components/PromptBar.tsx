@@ -790,8 +790,10 @@ export function PromptField({
   // element names, then the library.
   const refs = model ? imageRefs(model, values) : [];
   const library = useStudio((s) => s.elements).filter(pickable);
+  // A library element's own pictures ride along as references, but the list names them by the element, not as Image N.
+  const elementPictures = new Set(library.flatMap((e) => e.images.map((r) => r.storageUrl)));
   const own: MentionOption[] = [
-    ...refs.map((url, i) => ({ name: imageName(i), thumb: url })),
+    ...refs.flatMap((url, i) => (elementPictures.has(url) ? [] : [{ name: imageName(i), thumb: url }])),
     ...names.filter((name) => !/^Image \d+$/.test(name)).map((name) => ({ name })),
   ];
   const options: MentionOption[] = [

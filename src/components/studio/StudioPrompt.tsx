@@ -108,6 +108,7 @@ export function StudioPrompt({
   const pendingCaret = useRef<number | null>(null);
 
   const refNames = refs.map((_, i) => imageName(i));
+  const elementPictures = new Set(elements.flatMap((e) => e.images.map((r) => r.storageUrl)));
   const names = [...refNames, ...elements.map((e) => e.name)];
   const chips = chipsIn(text, names, move);
   const inChip = caret !== null && chips.some((c) => caret > c.start && caret <= c.end);
@@ -134,6 +135,8 @@ export function StudioPrompt({
         // The attached pictures first, as Image 1…N (`@2` finds Image 2), then the library.
         ...refs
           .map((url, i): Option => ({ kind: "ref", key: `ref-${i}`, label: refNames[i], thumb: url }))
+          // An element's own pictures are offered by the element, not as Image N.
+          .filter((o) => !elementPictures.has(o.thumb ?? ""))
           .filter((o) => o.label.toLowerCase().startsWith(q) || o.label.toLowerCase().replace(/\s+/g, "").startsWith(q) || (/^\d+$/.test(q) && o.label.split(" ")[1].startsWith(q))),
         ...elements
           .filter((e) => e.name.toLowerCase().startsWith(q))
