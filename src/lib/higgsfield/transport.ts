@@ -9,7 +9,7 @@
  * answers cross-origin requests) with the same client code the routes use.
  */
 import * as hf from "./client";
-import type { Estimate, NormalisedTask, RestylePreset, SoulCharacter, SoulVersion, UploadTicket } from "./client";
+import type { Estimate, SoulStyle, NormalisedTask, RestylePreset, SoulCharacter, SoulVersion, UploadTicket } from "./client";
 
 declare global {
   interface Window {
@@ -135,6 +135,17 @@ export function getRestylePresets(apiKey: string): Promise<RestylePreset[]> {
     throw error;
   });
   return presets;
+}
+
+let styles: Promise<SoulStyle[]> | null = null;
+
+/** Soul 2.0's styles, asked for once a visit. */
+export function getSoulStyles(apiKey: string): Promise<SoulStyle[]> {
+  styles ??= (isDirect() ? hf.soulStyles(apiKey) : route<{ items: SoulStyle[] }>(apiKey, "/api/higgsfield/soul-styles").then((b) => b.items ?? [])).catch((error) => {
+    styles = null;
+    throw error;
+  });
+  return styles;
 }
 
 /** One page of Marketing Studio's presets; `cursor` is the one the page before gave. */

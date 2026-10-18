@@ -258,6 +258,8 @@ export interface StudioUi {
   character: string | null;
   imageCamera: string;
   imageLens: string;
+  /** Soul 2.0's style (a `style_id`); empty is Higgsfield's own default. */
+  imageStyle: string;
   /** The side menu folded down to its icons. */
   sideCollapsed?: boolean;
 }
@@ -272,6 +274,7 @@ export const EMPTY_STUDIO: StudioUi = {
   character: null,
   imageCamera: "",
   imageLens: "",
+  imageStyle: "",
 };
 
 interface StudioState {

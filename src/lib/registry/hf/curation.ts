@@ -141,13 +141,14 @@ export const FAMILIES: Family[] = [
     badge: "NEW",
     tagline: "Higgsfield's fashion and editorial photo model, one or four at a time.",
     modes: [
-      m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: ["style_id", "style_strength"] }),
+      m("generate", "Generate", "higgsfield-ai/soul/v2/standard", { hide: ["style_strength"] }),
       m("edit", "Edit", "higgsfield-ai/soul/v2/image-to-image", {
         hint: "Restyle a photo",
-        hide: ["style_id", "style_strength"],
+        hide: ["style_strength"],
       }),
     ],
-    fields: soulFields("v2"),
+    // The style is picked in the studio's own card; the generic form never lists it.
+    fields: { ...soulFields("v2"), style_id: { when: () => false } },
   },
   {
     id: "soul-cinema",

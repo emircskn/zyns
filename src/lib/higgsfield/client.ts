@@ -282,6 +282,32 @@ export async function restylePresets(apiKey: string): Promise<RestylePreset[]> {
   );
 }
 
+/** One of Soul 2.0's styles (the "Curated" cards): the `style_id` a run sends. */
+export interface SoulStyle {
+  id: string;
+  name: string;
+  description?: string;
+  preview?: string;
+}
+
+/** Soul 2.0's styles, as Higgsfield documents them (GET /v1/text2image/soul-styles/v2). */
+export async function soulStyles(apiKey: string): Promise<SoulStyle[]> {
+  const body = (await request(apiKey, "/v1/text2image/soul-styles/v2")) as unknown;
+  const list = (Array.isArray(body) ? body : ((body as { items?: unknown[] } | null)?.items ?? [])) as Array<Record<string, unknown>>;
+  return list.flatMap((item) =>
+    typeof item.id === "string" && typeof item.name === "string"
+      ? [
+          {
+            id: item.id,
+            name: item.name,
+            description: typeof item.description === "string" ? item.description : undefined,
+            preview: typeof item.preview_url === "string" ? item.preview_url : undefined,
+          },
+        ]
+      : [],
+  );
+}
+
 /** A Marketing Studio preset, cut to what the page shows. */
 export interface MarketingPresetItem {
   id: string;
