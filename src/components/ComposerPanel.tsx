@@ -581,6 +581,7 @@ export function GenerateButton({
   children?: ReactNode;
 }) {
   const apiKey = useStudio(activeKey);
+  const values = useValues();
   const { busy, blocker, hint } = composer;
   const disabled = !!apiKey && (busy || !!blocker);
   return (
@@ -600,7 +601,7 @@ export function GenerateButton({
         </>
       ) : (
         <>
-          <span className="font-bold">Generate</span>
+          <span className="font-bold">{composer.model?.generateLabel?.(values) ?? "Generate"}</span>
           <Icon name="spark" size={15} fill="currentColor" strokeWidth={1.2} />
           {hint && <span className="font-mono text-[13px] font-medium tabular-nums opacity-70">{hint}</span>}
         </>

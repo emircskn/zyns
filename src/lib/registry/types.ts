@@ -46,6 +46,8 @@ export interface Choice {
   label: string;
   hint?: string;
   badge?: string;
+  /** A note behind a small (i) beside the choice, shown on hover. */
+  info?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,6 +214,8 @@ export interface ModelDef {
   app?: AppPage;
   /** The select shown as a grid of cards (AI Influencer's character type); each choice's badge is its picture. */
   gridField?: string;
+  /** What the Generate button says for these values ("Generate" when left out). */
+  generateLabel?: (v: Values) => string;
   /** The model that really carries the request, for the app's page to name. */
   runsOn?: (v: Values) => string;
   /** The first picture is painted over to mark the area to change; the mask goes in as `mask`. */

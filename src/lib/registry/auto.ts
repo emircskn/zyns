@@ -99,6 +99,10 @@ export interface Family {
   validate?: ModelDef["validate"];
   /** Values the family works out from the others just before sending. */
   prepare?: (v: Values) => Values;
+  /** Extra request input the family works out from the values and the mode (a draft run). */
+  send?: (v: Values, mode: string) => Record<string, unknown>;
+  /** What the Generate button says for these values. */
+  generateLabel?: (v: Values) => string;
   /** Shown on the home showcase. */
   featured?: boolean;
   /** One-tap starting prompts for the showcase and the empty bar. */
@@ -755,6 +759,7 @@ export function familyToModel(family: Family): ModelDef {
     defaultMode: modes[0]?.id,
     fields,
     creditHint: family.creditHint,
+    generateLabel: family.generateLabel,
     featured: family.featured,
     prompts: family.prompts,
     validate(v) {
@@ -785,7 +790,7 @@ export function familyToModel(family: Family): ModelDef {
         if (Array.isArray(val) && val.length === 0) continue;
         input[key] = val;
       }
-      Object.assign(input, mode.fixed ?? {});
+      Object.assign(input, mode.fixed ?? {}, family.send?.(v, mode.id) ?? {});
       const payload = mode.spec.top ? compact(input) : { model: mode.model, input };
       return { endpoint: mode.spec.endpoint, poll: "jobs", payload };
     },

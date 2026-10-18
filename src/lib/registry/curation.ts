@@ -593,20 +593,36 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "AUDIO",
     tagline: "Multimodal references, first/last-frame control and native audio.",
+    modes: seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"] })),
+  },
+  {
+    id: "seedance-2-5-draft",
+    name: "Seedance 2.5 Draft",
+    vendor: "ByteDance",
+    category: "video",
+    output: "video",
+    badge: "DRAFT",
+    tagline: "Draft your idea cheaply at 480p, then render the keepers in full quality.",
     modes: [
-      ...seedanceModes("bytedance/seedance-2-5"),
-      // A draft (made with the Draft chip on) rendered in full.
+      ...seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"] })),
+      // A draft rendered in full quality.
       m("finalize", "Finalize draft", "bytedance/seedance-2-5-draft", { hint: "Render a finished draft in full quality" }),
     ],
     fields: {
-      // The Draft switch is a chip in the bar, not a line in Advanced.
-      draft: {
-        placement: "bar",
-        label: "Draft",
-        explain: "Makes a quick, cheap preview of your clip so you can check the idea first. Like it? Open the result and choose Finalize draft to render it in full quality.",
+      // 480p is the draft; 720p and 1080p are the full render.
+      resolution: {
+        kind: "select",
+        default: "480p",
+        choices: [
+          { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality" },
+          { value: "720p", label: "720p" },
+          { value: "1080p", label: "1080p" },
+        ],
       },
-      draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5"] } },
+      draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5-draft"] } },
     },
+    send: (v, mode) => (mode !== "finalize" && (v.resolution ?? "480p") === "480p" ? { draft: true } : {}),
+    generateLabel: (v) => ((v.resolution ?? "480p") === "480p" ? "Generate draft" : "Generate"),
   },
   {
     id: "seedance-2",
