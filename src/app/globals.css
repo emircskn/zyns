@@ -1591,3 +1591,9 @@ html {
     animation-duration: 1ms;
   }
 }
+
+/* A tile's own buttons take focus when the enlarged view closes over them; the browser's frame around the whole tile is not wanted. */
+[data-flip] button:focus,
+[data-flip] button:focus-visible {
+  outline: none;
+}
