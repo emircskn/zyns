@@ -207,12 +207,17 @@ export interface ModelDef {
   /** Higgsfield: its catalogue price, as people read it ("from $0.14/s"). */
   price?: string;
   /** A one-click app that lives on its own page (Apps, Effects), not in the model picker. */
-  app?: "apps" | "effects";
+  app?: AppPage;
+  /** The select shown as a grid of cards (AI Influencer's character type); each choice's badge is its picture. */
+  gridField?: string;
   /** The model that really carries the request, for the app's page to name. */
   runsOn?: (v: Values) => string;
   /** The first picture is painted over to mark the area to change; the mask goes in as `mask`. */
   draw?: boolean;
 }
+
+/** The menu pages that hold one-click apps. */
+export type AppPage = "apps" | "effects" | "influencer" | "katana" | "ads";
 
 export const MODE_KEY = "__mode";
 

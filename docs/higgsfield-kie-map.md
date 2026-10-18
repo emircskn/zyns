@@ -106,3 +106,9 @@ Durum: **VAR** = zyns'te çalışıyor · **KISMEN** · **YAPILACAK** · **YOK**
 - Her sayfada **hangi modelin çalıştığı** yazar ("Runs on Seedance 2.0 · KIE") ve fiyat görsel eklenmeden de görünür.
 - **Draw to Edit** (Apps > Professional): resmin üstüne fırçayla boya → maske (beyaz = değişecek yer) + resim Nano Banana Pro'ya gider. Relight ve Outpaint (Expand image) de Apps'e taşındı.
 - Kapak resimleri: `public/app-covers/<uygulama-id>.webp` (yoksa sade kutu). Id'ler: `app-<ad>`, efektler `app-fx-<ad>`.
+
+### AI Influencer, Katana, Ads Studio sayfaları
+- **AI Influencer** (`/ai-influencer`): solda Create Influencer | Motion sekmeleri; karakter tipi kartları (9), "Hair · 9" gibi açılır bölümler, Batch size, Generate; Motion'da Motion transfer | Objects swap; sağda Explore | History.
+- **Katana** (`/katana`): referans video + karakterler + Instructions → Kling 3 Omni referansı ile aynı kurgu. Claude/MCP gerekmez.
+- **Ads Studio** (`/ads-studio`): iki kart: Create Static Ads, Ad Multiplier.
+- Tüm uygulama panelleri: 4'ten uzun seçim listeleri açılır satır, Batch size 1-4, fiyat × adet.

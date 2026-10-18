@@ -4,14 +4,14 @@
  * in our own words. A catalogue row becomes a Tool, so it gets the studio's
  * form, price estimate and history without a page of its own.
  */
-import type { Choice, Field, ModelDef, Values } from "../types";
+import type { AppPage, Choice, Field, ModelDef, Values } from "../types";
 import { compact } from "../types";
 
 export interface AppOption {
   key: string;
   label: string;
   /** [text put into the instruction, label shown]. A bare string is both. */
-  choices: Array<string | [string, string]>;
+  choices: Array<string | [string, string] | [string, string, string]>;
 }
 
 export interface AppDef {
@@ -33,26 +33,33 @@ export interface AppDef {
   engine?: "wan-replace" | "wan-edit" | "kling-motion" | "kling-reference";
   /** Image apps: the first picture is painted over to say where the change goes. */
   draw?: boolean;
+  /** The menu page it lives on ("apps" when left out). */
+  page?: AppPage;
+  /** The select shown as a grid of cards; each of its choices' third entry is the card's picture. */
+  grid?: string;
+  /** What the free-text box is called ("Details" when left out). */
+  noteLabel?: string;
 }
 
 /** A slot spec: "?" first marks it optional, then "video:" or "audio:" says what it takes (a picture otherwise). */
-function slotOf(spec: string): { label: string; optional: boolean; accept: "image" | "video" | "audio" } {
+function slotOf(spec: string): { label: string; optional: boolean; accept: "image" | "video" | "audio"; many: boolean } {
   const optional = spec.startsWith("?");
   const rest = optional ? spec.slice(1) : spec;
-  const kind = /^(video|audio):/.exec(rest)?.[1] as "video" | "audio" | undefined;
-  return { label: kind ? rest.slice(kind.length + 1) : rest, optional, accept: kind ?? "image" };
+  const kind = /^(video|audio|many):/.exec(rest)?.[1] as "video" | "audio" | "many" | undefined;
+  return { label: kind ? rest.slice(kind.length + 1) : rest, optional, accept: kind === "video" || kind === "audio" ? kind : "image", many: kind === "many" };
 }
 
-const choice = (c: string | [string, string]): Choice => (Array.isArray(c) ? { value: c[0], label: c[1] } : { value: c, label: c });
+const choice = (c: string | [string, string] | [string, string, string]): Choice => (Array.isArray(c) ? { value: c[0], label: c[1], badge: c[2] } : { value: c, label: c });
 const cap = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const urlOf = (v: unknown): string | undefined => (Array.isArray(v) ? v[0] : (v as string | undefined)) || undefined;
+const urlsOf = (v: unknown): string[] => (Array.isArray(v) ? v : v ? [v as string] : []).filter(Boolean) as string[];
 
 function fieldsOf(def: AppDef, video: boolean): Field[] {
   const slots: Field[] = def.slots.map((spec, i) => {
-    const { label, optional, accept } = slotOf(spec);
+    const { label, optional, accept, many } = slotOf(spec);
     const base = { key: `slot${i}`, label: cap(label), placement: "input" as const, accept, required: !optional, ownSlot: true, tag: optional ? "Optional" : undefined };
     return accept === "image"
-      ? { ...base, kind: "images" as const, maxItems: 1, minItems: optional ? 0 : 1 }
+      ? { ...base, kind: "images" as const, maxItems: many ? 6 : 1, minItems: optional ? 0 : 1 }
       : { ...base, kind: "media" as const };
   });
   const options: Field[] = (def.options ?? []).map((o) => ({
@@ -65,7 +72,7 @@ function fieldsOf(def: AppDef, video: boolean): Field[] {
   }));
   const note: Field = {
     key: "prompt",
-    label: "Details",
+    label: def.noteLabel ?? "Details",
     kind: "textarea",
     placement: "prompt",
     placeholder: def.draw ? "What should the painted area become?" : "Optional: anything else to say about the result",
@@ -100,7 +107,7 @@ function validateOf(def: AppDef) {
 }
 
 /** The picture slots' links, in order. */
-const pictures = (def: AppDef, v: Values) => def.slots.flatMap((spec, i) => (slotOf(spec).accept === "image" ? [urlOf(v[`slot${i}`])] : [])).filter(Boolean) as string[];
+const pictures = (def: AppDef, v: Values) => def.slots.flatMap((spec, i) => (slotOf(spec).accept === "image" ? urlsOf(v[`slot${i}`]) : []));
 const video = (def: AppDef, v: Values) => def.slots.flatMap((spec, i) => (slotOf(spec).accept === "video" ? [urlOf(v[`slot${i}`])] : []))[0];
 
 const JOB = { endpoint: "/api/v1/jobs/createTask", poll: "jobs" as const };
@@ -116,7 +123,8 @@ export function imageApp(def: AppDef): ModelDef {
     tagline: def.tagline,
     tags: ["app", def.group.toLowerCase(), def.name.toLowerCase()],
     badge: def.group.toUpperCase(),
-    app: "apps",
+    app: def.page ?? "apps",
+    gridField: def.grid,
     draw: def.draw,
     runsOn: () => "Nano Banana Pro",
     fields: fieldsOf(def, false),
@@ -138,7 +146,7 @@ export function imageApp(def: AppDef): ModelDef {
 }
 
 /** A picture-to-video app, run on Seedance 2.0 (see `mode` for how the slots are sent). */
-export function videoApp(def: AppDef, app: "apps" | "effects" = "apps"): ModelDef {
+export function videoApp(def: AppDef, app: AppPage = "apps"): ModelDef {
   return {
     ...common,
     id: `app-${def.id}`,
@@ -195,7 +203,7 @@ export function videoEditApp(def: AppDef): ModelDef {
     tagline: def.tagline,
     tags: ["app", def.group.toLowerCase(), def.name.toLowerCase()],
     badge: def.group.toUpperCase(),
-    app: "apps",
+    app: def.page ?? "apps",
     runsOn: () => ({ "wan-replace": "Wan 2.2 Animate", "wan-edit": "Wan 2.7 VideoEdit", "kling-motion": "Kling 3.0 Motion Control", "kling-reference": "Kling 3.0 Omni" })[def.engine ?? "wan-edit"],
     fields: [...fields.slice(0, -1), ...extra, fields[fields.length - 1]],
     validate: validateOf(def),

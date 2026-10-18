@@ -191,7 +191,8 @@ export const IMAGE_APPS: AppDef[] = [
   },
   {
     id: "static-ad",
-    name: "Static Ad",
+    name: "Create Static Ads",
+    page: "ads",
     group: "Ads",
     tagline: "A finished social ad from a product picture, with headline and button.",
     slots: ["product picture", "?logo"],
@@ -203,12 +204,14 @@ export const IMAGE_APPS: AppDef[] = [
   },
   {
     id: "ai-influencer",
-    name: "AI Influencer",
+    name: "Create Influencer",
+    page: "influencer",
+    grid: "kind",
     group: "Character",
     tagline: "Design a virtual influencer and get a character sheet.",
     slots: ["?your photo"],
     options: [
-      { key: "kind", label: "Type", choices: [["a realistic person with ordinary features", "Average"], ["a person with bold, striking features", "Bold"], ["a person with extreme, exaggerated stylised features", "Extreme"], ["an anthropomorphic insect character", "Insect"], ["an anthropomorphic frog character", "Frog"], ["an anthropomorphic cat character", "Cat"], ["an anthropomorphic dog character", "Dog"], ["an anthropomorphic rodent character", "Rodent"], ["an anthropomorphic bird character", "Bird"]] },
+      { key: "kind", label: "Character type", choices: [["a realistic person with ordinary features", "Average", "🙂"], ["a person with bold, striking features", "Bold", "😎"], ["a person with extreme, exaggerated stylised features", "Extreme", "🤪"], ["an anthropomorphic insect character", "Insect", "🐞"], ["an anthropomorphic frog character", "Frog", "🐸"], ["an anthropomorphic cat character", "Cat", "🐱"], ["an anthropomorphic dog character", "Dog", "🐶"], ["an anthropomorphic rodent character", "Rodent", "🐭"], ["an anthropomorphic bird character", "Bird", "🐦"]] },
       { key: "gender", label: "Gender", choices: ["female", "male", "non-binary", "androgynous"] },
       { key: "age", label: "Age", choices: [["in their twenties", "20s"], ["in their thirties", "30s"], ["in their fifties", "50s"]] },
       { key: "build", label: "Build", choices: ["slim", "athletic", "curvy", "muscular", "average"] },

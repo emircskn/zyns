@@ -38,7 +38,7 @@ import { RemixStudio } from "@/components/remix/RemixStudio";
 import { CinemaStudio } from "@/components/studio/CinemaStudio";
 import { PhoneHeader } from "@/components/PhoneShell";
 import { MarketingStudio } from "@/components/marketing/MarketingStudio";
-import { isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
+import { isAppPage, isCategoryPage, isLibraryPage, openPickerHere, useStudio, type Page } from "@/store/studio";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
 
 
@@ -73,6 +73,9 @@ function PageSwap({ page, children }: { page: Page; children: (page: Page) => Re
   );
 }
 
+const ROUTE_OF = { apps: "/apps", effects: "/effects", influencer: "/ai-influencer", katana: "/katana", ads: "/ads-studio" } as const;
+const APP_ROUTES: string[] = Object.values(ROUTE_OF);
+
 export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   const [keyOpen, setKeyOpen] = useState(false);
   const createOpen = useStudio((s) => s.createOpen);
@@ -90,8 +93,8 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
   useEffect(() => {
     if (!hydrated || !arrived || !/^https?:$/.test(window.location.protocol)) return;
     const here = window.location.pathname.replace(/\/$/, "") || "/";
-    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio" && here !== "/marketing" && here !== "/apps" && here !== "/effects") return;
-    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : page === "apps" ? "/apps" : page === "effects" ? "/effects" : "/";
+    if (here !== "/" && here !== "/remix" && here !== "/genjutsu" && here !== "/studio" && here !== "/marketing" && !APP_ROUTES.includes(here)) return;
+    const want = page === "remix" ? "/genjutsu" : page === "studio" ? "/studio" : page === "marketing" ? "/marketing" : isAppPage(page) ? ROUTE_OF[page] : "/";
     if (here !== want) window.history.replaceState(window.history.state, "", `${want}${window.location.search}${window.location.hash}`);
   }, [page, hydrated, arrived]);
   // Redraws the studio when Higgsfield's live catalogue changes its models.
@@ -129,13 +132,13 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
         // A page that makes things, and the library pages, are a wall of
         // media edge to edge; each pads its own toolbar and empty state.
         className={`relative z-10 mx-auto flex w-full flex-1 flex-col ${
-          composing || browsing || page === "remix" || page === "studio" || page === "marketing" || page === "apps" || page === "effects" ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
+          composing || browsing || page === "remix" || page === "studio" || page === "marketing" || isAppPage(page) ? "" : "max-w-[1600px] px-4 md:px-6 md:pt-5"
         } ${
           composing
             ? `below-bar ${SIDE_PAGES.has(page) ? "md:pb-6!" : ""}`
             : browsing
               ? "below-card"
-              : page === "remix" || page === "studio" || page === "marketing" || page === "apps" || page === "effects"
+              : page === "remix" || page === "studio" || page === "marketing" || isAppPage(page)
                 ? "below-nav md:pb-6"
                 : "below-nav"
         }`}
@@ -156,7 +159,7 @@ export function Shell({ initialPage }: { initialPage?: Page } = {}) {
               <CinemaStudio onKeyClick={() => setKeyOpen(true)} />
             ) : shown === "marketing" ? (
               <MarketingStudio onKeyClick={() => setKeyOpen(true)} />
-            ) : shown === "apps" || shown === "effects" ? (
+            ) : isAppPage(shown) ? (
               <AppsPages kind={shown} onKeyClick={() => setKeyOpen(true)} />
             ) : (
               // Keyed by page: without it React reuses this element between

@@ -20,10 +20,14 @@ function pagesFor(provider: Provider): { id: Page; label: string }[][] {
       ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label })),
       // Genjutsu's own page: a clip remade with your characters, objects or a style.
       { id: "remix", label: "Genjutsu" },
+      // Katana and AI Influencer, each its own page as on Higgsfield.
+      { id: "katana", label: "Katana" },
+      { id: "influencer", label: "AI Influencer" },
       // Cinema Studio's own page: a shot directed with real camera, film and light settings.
       { id: "studio", label: "Cinema Studio" },
       // Marketing Studio's own page: product shots, ads and listings, and video made from them.
       { id: "marketing", label: "Marketing Studio" },
+      { id: "ads", label: "Ads Studio" },
       // The one-click apps and the effects, each on a page of its own as on Higgsfield.
       { id: "effects", label: "Effects" },
       { id: "apps", label: "Apps" },

@@ -81,6 +81,7 @@ export const VIDEO_EDIT_APPS: AppDef[] = [
   {
     id: "ad-multiplier",
     name: "Ad Multiplier",
+    page: "ads",
     group: "Ads",
     tagline: "Make new versions of an ad with a different hook or call to action.",
     slots: ["video:reference ad", "product or character picture"],
@@ -99,5 +100,16 @@ export const VIDEO_EDIT_APPS: AppDef[] = [
     slots: ["video:viral ad", "your product", "?person"],
     engine: "kling-reference",
     prompt: "Recreate the reference ad for the product in the first picture: same hook, same structure and energy, same camera style, but selling this product. Use the person in the second picture if there is one.",
+  },
+  {
+    id: "katana",
+    name: "Katana",
+    page: "katana",
+    group: "Video edit",
+    tagline: "Recreate an edit with your own characters.",
+    slots: ["video:reference video", "many:characters"],
+    engine: "kling-reference",
+    noteLabel: "Instructions",
+    prompt: "Recreate the reference video as closely as possible: the same cuts, timing, camera moves, transitions and energy, but with the characters from the pictures taking the place of the people in it.",
   },
 ];

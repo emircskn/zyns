@@ -122,7 +122,7 @@ export type RemoteUrls = Partial<Record<Provider, RemoteUrl>>;
 export type Theme = "dark" | "light";
 
 /** Which page is showing: one per category, plus the browsing pages. */
-export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio" | "marketing" | "apps" | "effects";
+export type Page = Category | "assets" | "favorites" | "elements" | "home" | "remix" | "studio" | "marketing" | "apps" | "effects" | "influencer" | "katana" | "ads";
 
 /** The pages that keep things rather than make them. */
 /**
@@ -159,8 +159,13 @@ export function ownPageOf(id: string | undefined): Page | undefined {
 }
 
 /** The pages of one kind of work, each with its own models and prompt bar. */
+/** The pages that hold one-click apps (Apps, Effects, AI Influencer, Katana, Ads Studio). */
+export function isAppPage(page: Page): page is "apps" | "effects" | "influencer" | "katana" | "ads" {
+  return page === "apps" || page === "effects" || page === "influencer" || page === "katana" || page === "ads";
+}
+
 export function isCategoryPage(page: Page): page is Category {
-  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio" && page !== "marketing" && page !== "apps" && page !== "effects";
+  return !isLibraryPage(page) && page !== "home" && page !== "remix" && page !== "studio" && page !== "marketing" && !isAppPage(page);
 }
 
 /** A file the studio uploaded to KIE, kept so it can be reused as reference. */
