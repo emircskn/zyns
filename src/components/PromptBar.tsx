@@ -804,12 +804,14 @@ export function PromptField({
   ];
   // Every `@Image N` and `@element` in the text, drawn as a chip whose picture shows on hover.
   const chips = [
-    ...(refs.length > 0 ? imageTokens(text).filter((t) => t.index < refs.length).map((t) => ({ start: t.start, end: t.end, id: `i${t.index}`, url: refs[t.index], name: imageName(t.index) })) : []),
+    ...imageTokens(text).map((t) => ({ start: t.start, end: t.end, id: `i${t.index}`, url: refs[t.index] ?? "", name: imageName(t.index), dead: t.index >= refs.length })),
     ...library.flatMap((element) => {
       const url = element.images[0]?.storageUrl;
       if (!url || !element.name) return [];
+      // Dead once none of its pictures is attached any more.
+      const dead = !element.images.some((r) => refs.includes(r.storageUrl));
       const found = text.matchAll(new RegExp(`(?<=^|\\s)@${element.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g"));
-      return [...found].map((m) => ({ start: m.index!, end: m.index! + m[0].length, id: `e${element.id}`, url, name: element.name }));
+      return [...found].map((m) => ({ start: m.index!, end: m.index! + m[0].length, id: `e${element.id}`, url, name: element.name, dead }));
     }),
   ]
     .sort((a, b) => a.start - b.start)
@@ -999,7 +1001,7 @@ export function PromptField({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} data-chip={chip.id} className="prompt-chip">
+        <span key={chip.start} data-chip={chip.id} data-dead={chip.dead || undefined} className="prompt-chip">
           {text.slice(chip.start, chip.end)}
         </span>,
       );
@@ -1074,6 +1076,7 @@ export function PromptField({
       {trailing}
       {peek &&
         peeked &&
+        !peeked.dead &&
         createPortal(
           <ChipPeek url={peeked.url} name={peeked.name} rect={peek.rect} />,
           document.body,

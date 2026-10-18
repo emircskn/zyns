@@ -1505,6 +1505,13 @@ html {
   box-decoration-break: clone;
 }
 
+/* A tag whose picture is no longer attached: struck through, so it is plain that it will not work. */
+.prompt-chip[data-dead],
+.mention-chip[data-dead] {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
 .prompt-chip {
   border-radius: 6px;
   background: color-mix(in oklab, var(--t1) 14%, transparent);

@@ -52,14 +52,19 @@ function escapeRegExp(value: string) {
 }
 
 /** The element and move chips in the text, in order. */
-function chipsIn(text: string, names: string[], move: Field | undefined): Array<{ start: number; end: number; kind: "element" | "move"; name?: string }> {
-  const chips: Array<{ start: number; end: number; kind: "element" | "move"; name?: string }> = [];
+function chipsIn(text: string, names: string[], move: Field | undefined, dead: (name: string) => boolean = () => false): Array<{ start: number; end: number; kind: "element" | "move"; name?: string; dead?: boolean }> {
+  const chips: Array<{ start: number; end: number; kind: "element" | "move"; name?: string; dead?: boolean }> = [];
   for (const name of names) {
     const re = new RegExp(`(^|[\\s(])@${escapeRegExp(name)}(?=$|[\\s.,!?;:)'"])`, "g");
     for (const match of text.matchAll(re)) {
       const start = (match.index ?? 0) + match[1].length;
-      chips.push({ start, end: start + name.length + 1, kind: "element", name });
+      chips.push({ start, end: start + name.length + 1, kind: "element", name, dead: dead(name) });
     }
+  }
+  // `@Image 4` with nothing attached as the fourth: still a tag, struck through.
+  for (const match of text.matchAll(/(^|[\s(])@(Image \d+)(?=$|[\s.,!?;:)'"])/g)) {
+    const start = (match.index ?? 0) + match[1].length;
+    if (!names.includes(match[2])) chips.push({ start, end: start + match[2].length + 1, kind: "element", name: match[2], dead: true });
   }
   for (const m of movesIn(text, move)) chips.push({ start: m.start, end: m.end, kind: "move" });
   return chips.sort((a, b) => a.start - b.start);
@@ -110,7 +115,12 @@ export function StudioPrompt({
   const refNames = refs.map((_, i) => imageName(i));
   const elementPictures = new Set(elements.flatMap((e) => e.images.map((r) => r.storageUrl)));
   const names = [...refNames, ...elements.map((e) => e.name)];
-  const chips = chipsIn(text, names, move);
+  // An element is dead once none of its pictures is attached any more.
+  const isDead = (name: string) => {
+    const element = elements.find((e) => e.name === name);
+    return !!element && !element.images.some((r) => refs.includes(r.storageUrl));
+  };
+  const chips = chipsIn(text, names, move, isDead);
   const inChip = caret !== null && chips.some((c) => caret > c.start && caret <= c.end);
   // The chip under the pointer, for the enlarged look at its picture (as the prompt bar's).
   const [peek, setPeek] = useState<{ name: string; rect: DOMRect } | null>(null);
@@ -269,7 +279,7 @@ export function StudioPrompt({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} data-chip={chip.name} className="mention-chip">
+        <span key={chip.start} data-chip={chip.name} data-dead={chip.dead || undefined} className="mention-chip">
           {text.slice(chip.start, chip.end)}
         </span>,
       );
@@ -329,7 +339,7 @@ export function StudioPrompt({
           chips.length > 0 ? "text-transparent caret-t1" : ""
         }`}
       />
-      {peek && pictureOf(peek.name) && createPortal(<ChipPeek url={pictureOf(peek.name)!} name={peek.name} rect={peek.rect} />, document.body)}
+      {peek && !isDead(peek.name) && pictureOf(peek.name) && createPortal(<ChipPeek url={pictureOf(peek.name)!} name={peek.name} rect={peek.rect} />, document.body)}
       {open &&
         spot &&
         createPortal(

@@ -8,6 +8,7 @@ import { Popover } from "@/components/Popover";
 import { Chip } from "@/components/PromptBar";
 import { ChipRow, GenerateButton } from "@/components/studio/StudioComposer";
 import { ProviderTag } from "@/components/ModelPicker";
+import { ThumbTools } from "@/components/ThumbTools";
 import { PROVIDER_NAME } from "@/lib/generate";
 import {
   checkSlots,
@@ -337,19 +338,15 @@ export function RecipeComposer({
                 <span key={url} className="relative h-16 w-16 overflow-hidden rounded-chip bg-t1/[0.05]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {slot.type === "image" && <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />}
-                  <button
-                    type="button"
-                    aria-label="Remove"
-                    onClick={() =>
+                  <ThumbTools
+                    url={url}
+                    onRemove={() =>
                       setSlots((all) => {
                         const list = (Array.isArray(all[slot.key]) ? all[slot.key] : [all[slot.key]]) as string[];
                         return { ...all, [slot.key]: list.filter((u) => u !== url) };
                       })
                     }
-                    className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white"
-                  >
-                    <Icon name="close" size={11} />
-                  </button>
+                  />
                 </span>
               ))}
               <button

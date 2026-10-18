@@ -7,7 +7,7 @@ import { CardArt, type CardArtKind } from "@/components/CardArt";
 import { AppIcon } from "@/components/AppIcon";
 import { VideoMark } from "@/components/VideoMark";
 import { Popover } from "@/components/Popover";
-import { BatchChip, FieldChip, hasOwnCount } from "@/components/PromptBar";
+import { BatchChip, FieldChip, Reveal, hasOwnCount } from "@/components/PromptBar";
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
 import { FrameGrab } from "@/components/studio/FrameGrab";
@@ -18,6 +18,7 @@ import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
+import { ThumbTools } from "@/components/ThumbTools";
 import { limitsFor } from "@/lib/attach";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
@@ -814,14 +815,7 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
               <Icon name="audio" size={15} />
             </span>
           )}
-          <button
-            type="button"
-            aria-label="Remove reference"
-            onClick={() => onSet(field.key, listOf(values[field.key]).filter((u) => u !== url))}
-            className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100 max-md:opacity-100"
-          >
-            <Icon name="close" size={11} />
-          </button>
+          <ThumbTools url={url} onRemove={() => onSet(field.key, listOf(values[field.key]).filter((u) => u !== url))} />
         </span>
       ))}
     </div>
@@ -1044,24 +1038,22 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           )}
           </ChipRow>
         </div>
-        {studio.imageRefs.length > 0 && (
-          <div className="no-bar flex gap-1.5 overflow-x-auto">
-            {studio.imageRefs.map((url) => (
-              <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-                <button
-                  type="button"
-                  aria-label="Remove picture"
-                  onClick={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url) }))}
-                  className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white opacity-0 group-hover:opacity-100 max-md:opacity-100"
-                >
-                  <Icon name="close" size={11} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Grown in as pictures come, as the prompt bar's does. */}
+        <div className="-mt-2.5 max-md:-mt-6">
+          <Reveal>
+            {studio.imageRefs.length > 0 && (
+              <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pt-2.5 max-md:pt-6">
+                {studio.imageRefs.map((url) => (
+                  <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
+                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url) }))} />
+                  </span>
+                ))}
+              </div>
+            )}
+          </Reveal>
+        </div>
         {(error || (sent && sent.warnings.length > 0)) && (
           <p role={error ? "alert" : "status"} className="text-[12.5px] leading-snug" style={error ? { color: "var(--danger)" } : undefined}>
             <span className={error ? "" : "text-t3"}>{error ?? sent?.warnings.join(" ")}</span>

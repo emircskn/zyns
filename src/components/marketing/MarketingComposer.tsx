@@ -1,8 +1,9 @@
 "use client";
 
+import { ThumbTools } from "@/components/ThumbTools";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState } from "react";
-import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
+import { Chip, FieldChip, BatchChip, Reveal } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
 import { PresetPicker } from "@/components/marketing/Presets";
 import { StylePicker } from "@/components/marketing/StylePicker";
@@ -402,25 +403,22 @@ export function MarketingComposer({
         }}
       >
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:self-stretch md:justify-between md:bg-transparent">
-          {/* The pictures added sit over the prompt, as in the other composers. */}
-          {!preset && ui.refs.length > 0 && (
-            <div className="no-bar -mb-1 flex gap-1.5 overflow-x-auto">
-              {ui.refs.map((url) => (
-                <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
-                  <button
-                    type="button"
-                    aria-label="Remove picture"
-                    onClick={() => patch({ refs: ui.refs.filter((u) => u !== url) })}
-                    className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white opacity-0 group-hover:opacity-100 max-md:opacity-100"
-                  >
-                    <Icon name="close" size={11} />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          {/* The pictures added sit over the prompt, as in the other composers, and grow in as they come. */}
+          <div className="-mb-2.5 max-md:-mb-6">
+            <Reveal>
+              {!preset && ui.refs.length > 0 && (
+                <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
+                  {ui.refs.map((url) => (
+                    <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                      <ThumbTools url={url} onRemove={() => patch({ refs: ui.refs.filter((u) => u !== url) })} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Reveal>
+          </div>
           {/* `@` calls an element or an attached picture; Ctrl/Cmd+Enter is the bar's own. */}
           <StudioPrompt
             text={ui.prompt}
@@ -597,14 +595,7 @@ export function MarketingComposer({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
                   <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1 font-mono text-[9.5px] text-white">{i + (ui.product ? 2 : 1)}</span>
-                  <button
-                    type="button"
-                    aria-label="Remove"
-                    onClick={() => patch({ refs: ui.refs.filter((u) => u !== url) })}
-                    className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white"
-                  >
-                    <Icon name="close" size={10} />
-                  </button>
+                  <ThumbTools url={url} onRemove={() => patch({ refs: ui.refs.filter((u) => u !== url) })} />
                 </span>
               ))}
             </div>

@@ -15,6 +15,7 @@ import { sourceItems, type SourceItem } from "@/lib/sources";
 
 export { sourceItems };
 import { useUploader } from "@/lib/useUploader";
+import { ThumbTools } from "@/components/ThumbTools";
 import { limitsFor } from "@/lib/attach";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { SOUL_MODELS, soulsFor } from "@/lib/elements";
@@ -309,18 +310,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
           <Icon name="audio" size={18} />
         </div>
       )}
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label="Remove"
-        className={
-          roomy
-            ? "absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white transition-transform duration-[120ms]"
-            : "hover-reveal absolute right-1 top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-canvas-deep/80 text-white opacity-0 transition-opacity duration-[120ms] group-hover/thumb:opacity-100"
-        }
-      >
-        <Icon name="close" size={roomy ? 15 : 11} />
-      </button>
+      <ThumbTools url={url} onRemove={onRemove} large={roomy} />
     </div>
   );
 }

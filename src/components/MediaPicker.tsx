@@ -53,6 +53,7 @@ function Thumb({
   multiple,
   onClick,
   onPreview,
+  onTrash,
 }: {
   asset: Asset;
   picked: boolean;
@@ -64,6 +65,8 @@ function Thumb({
   /** Uploads can be looked at full size from here. Removing one belongs to
    *  Assets, where it does not crowd the choosing. */
   onPreview?: () => void;
+  /** Sends it to the Trash, from where Assets can bring it back. */
+  onTrash?: () => void;
 }) {
   return (
     <div className="group relative aspect-square overflow-hidden rounded-card bg-t1/[0.06]">
@@ -106,9 +109,10 @@ function Thumb({
           <Icon name="check" size={13} strokeWidth={2.4} />
         </span>
       )}
-      {onPreview && (
-        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
-          <TileAction icon="expand" label="View full size" onClick={onPreview} />
+      {(onPreview || onTrash) && (
+        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+          {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
+          {onTrash && <TileAction icon="trash" label="Move to trash" onClick={onTrash} />}
         </div>
       )}
     </div>
@@ -196,6 +200,7 @@ export function MediaPicker({
   );
   const library = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && pickable(e));
   const openElementEditor = useStudio((s) => s.openElementEditor);
+  const setTrashed = useStudio((s) => s.setTrashed);
   const [chosenElements, setChosenElements] = useState<string[]>([]);
   // As Higgsfield lays its window out: uploads, elements, then what was made by kind, then the liked.
   const tabs: Array<{ id: Tab; label: string }> = characters ? [{ id: "elements", label: "Characters" }] : [
@@ -492,11 +497,11 @@ export function MediaPicker({
                   taken={taken.includes(asset.url)}
                   multiple={multiple}
                   onClick={() => choose(asset)}
-                  onPreview={
-                    tab === "uploads" && asset.kind === "image"
-                      ? () => setPreview(asset.url)
-                      : undefined
-                  }
+                  onPreview={asset.kind === "audio" ? undefined : () => setPreview(asset.url)}
+                  onTrash={() => {
+                    setTrashed([asset.url], true);
+                    setChosen((now) => now.filter((u) => u !== asset.url));
+                  }}
                 />
               ))}
             </div>
