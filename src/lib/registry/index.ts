@@ -241,7 +241,8 @@ export function barAndPanel(fields: Field[]): { bar: Field[]; panel: Field[] } {
   const chips = bar.filter((f) => f.kind !== "soulStyle");
   return {
     bar: [...chips.slice(0, BAR_CHIPS), ...bar.filter((f) => f.kind === "soulStyle")],
-    panel: [...chips.slice(BAR_CHIPS), ...fields.filter((f) => f.placement === "panel")],
+    // The Soul ID's strength has its slider in the style window, so Advanced does not repeat it.
+    panel: [...chips.slice(BAR_CHIPS), ...fields.filter((f) => f.placement === "panel" && !(f.key === "custom_reference_strength" && bar.length > chips.length))],
   };
 }
 

@@ -44,7 +44,7 @@ export function useSoulStyles(hfKey: string, enabled = true): SoulStyle[] {
 }
 
 /** Higgsfield's "Create your moodboard" window, as far as its API goes: the curated styles as cards with a search. */
-export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { open: boolean; styles: SoulStyle[]; selected: string; onPick: (id: string) => void; onClose: () => void }) {
+export function SoulStylePicker({ open, styles, selected, onPick, onClose, strength, onStrength }: { open: boolean; styles: SoulStyle[]; selected: string; onPick: (id: string) => void; onClose: () => void; strength: number; onStrength: (n: number) => void }) {
   const { mounted, exiting } = usePresence(open, 240);
   const [query, setQuery] = useState("");
   useEffect(() => {
@@ -112,6 +112,12 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
               </div>
             )}
           </div>
+          {/* Higgsfield keeps the Soul ID's strength beside the style; it only counts when a Soul ID is chosen. */}
+          <label className="flex shrink-0 items-center gap-3 border-t border-edge px-4 py-3 text-[13px] text-t2">
+            <span className="shrink-0 font-semibold text-t1">Soul ID strength</span>
+            <input type="range" min={0.05} max={1} step={0.05} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="min-w-0 flex-1 accent-[var(--accent)]" aria-label="Soul ID strength" />
+            <span className="w-9 shrink-0 text-right tabular-nums text-t3">{strength.toFixed(2)}</span>
+          </label>
         </div>
       </div>
     </div>,
@@ -120,7 +126,7 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
 }
 
 /** The style card beside Generate (the Style chip on a phone): the chosen style's picture, and the window to change it. */
-export function SoulStyleTile({ value, onChange, className = "" }: { value: string; onChange: (id: string) => void; className?: string }) {
+export function SoulStyleTile({ value, onChange, strength, onStrength, className = "" }: { value: string; onChange: (id: string) => void; strength?: number; onStrength: (n: number) => void; className?: string }) {
   const hfKey = useStudio((s) => s.hfKey);
   const styles = useSoulStyles(hfKey);
   const [open, setOpen] = useState(false);
@@ -143,7 +149,7 @@ export function SoulStyleTile({ value, onChange, className = "" }: { value: stri
         </span>
         <span className="relative block max-w-full truncate text-[12px] font-bold uppercase leading-tight text-white max-md:text-[12.5px] max-md:font-medium max-md:normal-case max-md:text-t2">{name}</span>
       </button>
-      <SoulStylePicker open={open} styles={styles} selected={value} onPick={onChange} onClose={() => setOpen(false)} />
+      <SoulStylePicker open={open} styles={styles} selected={value} onPick={onChange} onClose={() => setOpen(false)} strength={strength ?? 1} onStrength={onStrength} />
     </>
   );
 }

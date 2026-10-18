@@ -652,7 +652,7 @@ export function FieldChip({
     return <ToggleChip field={field} on={value === true} onFlip={() => setValue(field.key, value !== true)} />;
   }
 
-  if (field.kind === "soulStyle") return <SoulStyleTile value={String(value ?? "")} onChange={(id) => setValue(field.key, id)} />;
+  if (field.kind === "soulStyle") return <SoulStyleTile value={String(value ?? "")} onChange={(id) => setValue(field.key, id)} strength={values.custom_reference_strength as number | undefined} onStrength={(n) => setValue("custom_reference_strength", n)} />;
 
   const width = field.kind === "ratio" ? 296 : field.kind === "slider" ? 236 : 248;
   const tile = useContext(TileChips);
@@ -1736,7 +1736,7 @@ export function PromptBar({
           </div>
           {styleField && (
             <div className="flex items-center max-md:hidden">
-              <SoulStyleTile value={String(values[styleField.key] ?? "")} onChange={(id) => setValue(styleField.key, id)} />
+              <SoulStyleTile value={String(values[styleField.key] ?? "")} onChange={(id) => setValue(styleField.key, id)} strength={values.custom_reference_strength as number | undefined} onStrength={(n) => setValue("custom_reference_strength", n)} />
             </div>
           )}
           {send}

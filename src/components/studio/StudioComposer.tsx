@@ -953,8 +953,13 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
     }
       // A Soul ID goes as the model's own character parameter; none when not picked here.
     if (soulVersion) {
-      if (character?.soul) values.custom_reference_id = character.soul.id;
-      else delete values.custom_reference_id;
+      if (character?.soul) {
+        values.custom_reference_id = character.soul.id;
+        if (own.custom_reference_strength !== undefined) values.custom_reference_strength = own.custom_reference_strength;
+      } else {
+        delete values.custom_reference_id;
+        delete values.custom_reference_strength;
+      }
     }
     // A style does not combine with reference pictures.
     if (styled && own.style_id && images.length === 0) values.style_id = own.style_id;
@@ -1077,7 +1082,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </span>
         </button>
         {styled && studio.imageRefs.length === 0 ? (
-          <SoulStyleTile value={String(own.style_id ?? "")} onChange={(id) => setModelValues(model.id, { style_id: id })} className="md:w-[120px]" />
+          <SoulStyleTile value={String(own.style_id ?? "")} onChange={(id) => setModelValues(model.id, { style_id: id })} strength={own.custom_reference_strength as number | undefined} onStrength={(n) => setModelValues(model.id, { custom_reference_strength: n })} className="md:w-[120px]" />
         ) : (
         <button type="button" onClick={() => setCameraOpen(true)} className={`${tile} md:w-[120px]`} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>
           {cameraImage ? (
