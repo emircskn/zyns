@@ -33,6 +33,7 @@ import {
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
 import { AddChip, AttachRow, useAttach, type AttachExtras } from "@/components/Attachments";
+import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { attachMedia, isAttachField } from "@/lib/attach";
 import { type LibraryElement, pickable } from "@/lib/elements";
 import { mediaSrc } from "@/lib/storage/client";
@@ -650,6 +651,8 @@ export function FieldChip({
   if (field.kind === "toggle") {
     return <ToggleChip field={field} on={value === true} onFlip={() => setValue(field.key, value !== true)} />;
   }
+
+  if (field.kind === "soulStyle") return <SoulStyleTile value={String(value ?? "")} onChange={(id) => setValue(field.key, id)} />;
 
   const width = field.kind === "ratio" ? 296 : field.kind === "slider" ? 236 : 248;
   const tile = useContext(TileChips);
@@ -1593,6 +1596,8 @@ export function PromptBar({
   const attach = useAttach(attachFields, attachExtras(model, values, { mentionable, definedInPanel, names, firstPrompt, insertToken }));
   const prompts = useFoldedPrompts(promptFields, values, model?.id ?? "");
   const toggleSettings = useStudio((s) => s.toggleSettings);
+  const styleField = barFields.find((f) => f.kind === "soulStyle");
+  const setValue = useStudio((s) => s.setValue);
   const selecting = useStudio((s) => s.selecting);
   const selectMode = useStudio((s) => s.selectMode);
   const apiKey = useStudio(activeKey);
@@ -1705,7 +1710,7 @@ export function PromptBar({
             </button>
 
             {barFields.map((field) => (
-              <span key={field.key} className="shrink-0">
+              <span key={field.key} className={`shrink-0 ${field.kind === "soulStyle" ? "md:hidden" : ""}`}>
                 <FieldChip field={field} />
               </span>
             ))}
@@ -1729,6 +1734,11 @@ export function PromptBar({
 
           </div>
           </div>
+          {styleField && (
+            <div className="flex items-center max-md:hidden">
+              <SoulStyleTile value={String(values[styleField.key] ?? "")} onChange={(id) => setValue(styleField.key, id)} />
+            </div>
+          )}
           {send}
         </div>
 

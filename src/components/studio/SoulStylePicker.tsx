@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { getSoulStyles } from "@/lib/higgsfield/transport";
 import type { SoulStyle } from "@/lib/higgsfield/client";
 import { usePresence } from "@/lib/usePresence";
+import { useStudio } from "@/store/studio";
 
 /** Higgsfield's own default style; a run with no `style_id` uses it. */
 export const DEFAULT_SOUL_STYLE = "3db34ab5-3439-4317-9e03-08dc30852e69";
@@ -114,5 +115,34 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose }: { o
       </div>
     </div>,
     document.body,
+  );
+}
+
+/** The style card beside Generate (the Style chip on a phone): the chosen style's picture, and the window to change it. */
+export function SoulStyleTile({ value, onChange, className = "" }: { value: string; onChange: (id: string) => void; className?: string }) {
+  const hfKey = useStudio((s) => s.hfKey);
+  const styles = useSoulStyles(hfKey);
+  const [open, setOpen] = useState(false);
+  const style = styles.find((x) => x.id === (value || DEFAULT_SOUL_STYLE));
+  const name = style?.name ?? "General";
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Style: ${name}`}
+        className={`relative flex h-[80px] w-[120px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:h-9 max-md:w-auto max-md:flex-row max-md:items-center max-md:justify-start max-md:rounded-full max-md:px-3 ${className}`}
+      >
+        <span className="absolute inset-0 max-md:hidden">
+          <SoulStyleCover style={style} />
+        </span>
+        <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 to-transparent max-md:hidden" />
+        <span className="absolute right-2 top-2 flex items-center gap-1 rounded-chip bg-black/45 px-1.5 py-0.5 text-[10px] font-semibold text-white max-md:hidden">
+          <Icon name="pencil" size={10} /> Change
+        </span>
+        <span className="relative block max-w-full truncate text-[12px] font-bold uppercase leading-tight text-white max-md:text-[12.5px] max-md:font-medium max-md:normal-case max-md:text-t2">{name}</span>
+      </button>
+      <SoulStylePicker open={open} styles={styles} selected={value} onPick={onChange} onClose={() => setOpen(false)} />
+    </>
   );
 }

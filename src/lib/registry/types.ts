@@ -30,7 +30,9 @@ export type FieldKind =
   | "json"
   | "source"
   /** A Soul ID character from the library, sent by its id (`soul` says for which Soul model). */
-  | "soul";
+  | "soul"
+  /** Soul 2.0's style: a card beside Generate that opens the style window. */
+  | "soulStyle";
 
 /**
  * Where a control lives in the studio chrome:

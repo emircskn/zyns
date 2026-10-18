@@ -18,7 +18,7 @@ import { SettingsSheet } from "@/components/studio/SettingsSheet";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
-import { DEFAULT_SOUL_STYLE, SoulStyleCover, SoulStylePicker, useSoulStyles } from "@/components/studio/SoulStylePicker";
+import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { imageRefs } from "@/lib/mentions";
@@ -912,12 +912,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
       ? picked
       : undefined;
   const openTrainer = useStudio((s) => s.openSoulTrainer);
-  // Soul 2.0 takes a style by id; its tile stands where the camera's does for every other model.
+  // Soul 2.0 takes a style by id; its card stands where the camera's does for every other model.
   const styled = soulVersion === "v2";
-  const soulStyles = useSoulStyles(hfKey, styled);
-  const styleId = studio.imageStyle || DEFAULT_SOUL_STYLE;
-  const style = soulStyles.find((x) => x.id === styleId);
-  const [stylesOpen, setStylesOpen] = useState(false);
   const [refsOpen, setRefsOpen] = useState<null | "uploads" | "elements">(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [choosing, setChoosing] = useState(false);
@@ -960,18 +956,17 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
       if (character?.soul) values.custom_reference_id = character.soul.id;
       else delete values.custom_reference_id;
     }
-    if (styled && studio.imageStyle) values.style_id = studio.imageStyle;
-    else delete values.style_id;
+    if (styled && own.style_id) values.style_id = own.style_id;
     // The pictures as the model gets them, in order, for `@Image N`.
     return { values, warnings: placed.warnings, unusable: !!character && !character.soul && taken === 0, refs: imageRefs(model, values) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [model, own, studio.imagePrompt, studio.imageRefs, studio.imageCamera, studio.imageLens, studio.imageStyle, character]);
+  }, [model, own, studio.imagePrompt, studio.imageRefs, studio.imageCamera, studio.imageLens, character]);
 
   const provider = providerOf(model);
   const key = keyFor({ apiKey, hfKey }, provider);
   const blocker = !model ? "No image model is available." : !studio.imagePrompt.trim() ? "Describe the picture to continue." : sent?.unusable ? sent.warnings[0] : sent ? validateValues(model, sent.values) : null;
   const price = times(usePrice(model, sent?.values ?? {}, blocker), count);
-  const chips = model ? activeFields(model, own).filter((f) => f.placement === "bar") : [];
+  const chips = model ? activeFields(model, own).filter((f) => f.placement === "bar" && f.kind !== "soulStyle") : [];
 
   async function generate() {
     if (!model || !sent) return;
@@ -1081,16 +1076,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
           </span>
         </button>
         {styled ? (
-          <button type="button" onClick={() => setStylesOpen(true)} className={`${tile} md:w-[120px]`} aria-label={`Style: ${style?.name ?? "General"}`}>
-            <span className="absolute inset-0">
-              <SoulStyleCover style={style} />
-            </span>
-            <span className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 to-transparent" />
-            <span className="absolute right-2 top-2 flex items-center gap-1 rounded-chip bg-black/45 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-              <Icon name="pencil" size={10} /> Change
-            </span>
-            <span className="relative block max-w-full truncate text-[12px] font-bold uppercase leading-tight text-white">{style?.name ?? "General"}</span>
-          </button>
+          <SoulStyleTile value={String(own.style_id ?? "")} onChange={(id) => setModelValues(model.id, { style_id: id })} className="md:w-[120px]" />
         ) : (
         <button type="button" onClick={() => setCameraOpen(true)} className={`${tile} md:w-[120px]`} aria-label={`Camera: ${bodyLabel ?? "Auto"} / ${lensLabel ?? "Auto"}`}>
           {cameraImage ? (
@@ -1135,7 +1121,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         />
       </div>
 
-      {styled && <SoulStylePicker open={stylesOpen} styles={soulStyles} selected={studio.imageStyle} onPick={(id) => patchStudio({ imageStyle: id })} onClose={() => setStylesOpen(false)} />}
       <StudioDialog
         open={cameraOpen}
         title="Set up camera"

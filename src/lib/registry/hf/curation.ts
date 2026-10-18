@@ -147,8 +147,7 @@ export const FAMILIES: Family[] = [
         hide: ["style_strength"],
       }),
     ],
-    // The style is picked in the studio's own card; the generic form never lists it.
-    fields: { ...soulFields("v2"), style_id: { when: () => false } },
+    fields: { ...soulFields("v2"), style_id: { kind: "soulStyle", label: "Style", placement: "bar" } },
   },
   {
     id: "soul-cinema",
