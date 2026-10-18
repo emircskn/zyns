@@ -593,7 +593,12 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "AUDIO",
     tagline: "Multimodal references, first/last-frame control and native audio.",
-    modes: seedanceModes("bytedance/seedance-2-5"),
+    modes: [
+      ...seedanceModes("bytedance/seedance-2-5"),
+      // A draft (made with the Draft switch on) rendered in full.
+      m("finalize", "Finalize draft", "bytedance/seedance-2-5-draft", { hint: "Render a finished draft in full quality" }),
+    ],
+    fields: { draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5"] } } },
   },
   {
     id: "seedance-2",

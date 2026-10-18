@@ -88,3 +88,13 @@ Durum: **VAR** = zyns'te çalışıyor · **KISMEN** · **YAPILACAK** · **YOK**
 - 20 görsel uygulama (Face/Character Swap, Commercial Face, Headshot, Skin Enhancer, Angles, AI Stylist, Outfit Swap/Shot/Vending, Style Snap, Glitter Sticker, Shots, Zooms, What's Next, Breakdown, Japanese Show, Paint App, Signboard, Micro-Beasts) → Nano Banana Pro edit.
 - 87 Effects (Higgsfield listesinin tamamı) + 25 şablon + 19 reklam uygulaması + Behind the Scenes + Transitions (+ASMR Add-On) → Seedance 2.0 (Best) veya 2.0 Fast; 153 uygulama.
 - Seçici: Tools altında uygulama grubuna göre alt başlıklar.
+
+### Son durum (Adım 2 tamamlandı)
+- **Video'dan videoya (8):** Recast, Video Face Swap, Objects Swap, Motion Transfer, Video Styles (12 görünüm), Sticker Match Cut, Ad Multiplier, Ad Reference → Wan 2.2 Animate / Wan 2.7 VideoEdit / Kling 3 Motion Control / Kling 3 Omni Reference. Video süresi bilinmediği için fiyat tahmini boş.
+- **Marketing Studio:** Hook (9) ve Setting (14) seçicileri (kendi metinlerimiz) + 32 yeni video stili (UGC 20, TikTok 7, Motion 5).
+- **Yeni Kie modelleri:** GPT Image 1.5, Seedream 4.0, Imagen 4 (Standard/Fast/Ultra), Video Lip Sync, Seedance 2.5 "Finalize draft" (sonuç üzerinde eylem).
+- **AI Influencer** (9 tip, 9 özellik), **Static Ad** (3 oran, 5 görünüm), **ClipCut**, **Urban Cuts**.
+- **Dub & translate:** metni yaz → ses → dudak senkronu (Kie'de konuşma tanıma yok, metni kullanıcı yazar).
+- **Canvas** (`/canvas`): Text, Image/Video/Audio upload, Image ve Video düğümleri; bağla, çalıştır. Tarif motorunun üstünde.
+- **Color grading** (`/grade`): tarayıcıda, kredi harcamaz.
+- Bilerek yapılmadı: Auto model kuralı, Brand kit, 40'lık avatar kütüphanesi (SaaS aşamasına), TTS ses süzgeci (Kie'nin sabit ses listesi var), Video Background Remover / Reframe / SDR→HDR / FPS Boost / Depth Map (Kie'de yok), Virality Predictor.
