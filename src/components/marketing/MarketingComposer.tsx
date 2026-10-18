@@ -1,5 +1,6 @@
 "use client";
 
+import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState } from "react";
 import { Chip, FieldChip, BatchChip } from "@/components/PromptBar";
 import { Icon, type IconName } from "@/components/Icon";
@@ -401,12 +402,33 @@ export function MarketingComposer({
         }}
       >
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:self-stretch md:justify-between md:bg-transparent">
-          <textarea
-            value={ui.prompt}
-            onChange={(event) => patch({ prompt: event.target.value })}
-            rows={2}
+          {/* The pictures added sit over the prompt, as in the other composers. */}
+          {!preset && ui.refs.length > 0 && (
+            <div className="no-bar -mb-1 flex gap-1.5 overflow-x-auto">
+              {ui.refs.map((url) => (
+                <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    aria-label="Remove picture"
+                    onClick={() => patch({ refs: ui.refs.filter((u) => u !== url) })}
+                    className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white opacity-0 group-hover:opacity-100 max-md:opacity-100"
+                  >
+                    <Icon name="close" size={11} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          {/* `@` calls an element or an attached picture; Ctrl/Cmd+Enter is the bar's own. */}
+          <StudioPrompt
+            text={ui.prompt}
+            onText={(prompt) => patch({ prompt })}
             placeholder={preset ? "Optional: what to change from the preset" : "Describe what you want to create…"}
-            className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+            onSubmit={() => {}}
+            refs={[ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u)}
+            onElement={(element) => patch((m) => ({ refs: [...m.refs, ...element.images.map((r) => r.storageUrl).filter((u) => !m.refs.includes(u))].slice(0, maxRefs) }))}
           />
           <div className="flex items-center gap-1.5">
             <ChipRow>
@@ -417,7 +439,7 @@ export function MarketingComposer({
                 aria-label="Add pictures"
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
               >
-                {ui.refs.length ? <span className="font-mono text-[12px]">{ui.refs.length}</span> : <Icon name="plus" size={16} />}
+                <Icon name="plus" size={16} />
               </button>
               <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
               </>)}
