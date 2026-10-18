@@ -1226,6 +1226,9 @@ export function MediaPreview({
   }, [url]);
 
   useEscape(onClose);
+  const saver = useSave();
+  const resetSave = saver.reset;
+  useEffect(() => resetSave(), [url, resetSave]);
 
   if (!mounted || !shown || typeof document === "undefined") return null;
 
@@ -1242,6 +1245,15 @@ export function MediaPreview({
           <Stage url={shown} />
         </div>
       </div>
+      <button
+        type="button"
+        onClick={() => saver.state !== "busy" && void saver.save([shown])}
+        className="absolute right-[72px] top-5 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
+        aria-label={saver.label}
+        title={saver.label}
+      >
+        <SaveGlyph state={saver.state} size={18} />
+      </button>
       <button
         type="button"
         onClick={onClose}
