@@ -800,7 +800,18 @@ export function PromptField({
       .filter((element) => !own.some((o) => o.name === element.name))
       .map((element) => ({ name: element.name, thumb: element.images[0]?.storageUrl, element })),
   ];
-  const chips = refs.length > 0 ? imageTokens(text).filter((t) => t.index < refs.length) : [];
+  // Every `@Image N` and `@element` in the text, drawn as a chip whose picture shows on hover.
+  const chips = [
+    ...(refs.length > 0 ? imageTokens(text).filter((t) => t.index < refs.length).map((t) => ({ start: t.start, end: t.end, id: `i${t.index}`, url: refs[t.index], name: imageName(t.index) })) : []),
+    ...library.flatMap((element) => {
+      const url = element.images[0]?.storageUrl;
+      if (!url || !element.name) return [];
+      const found = text.matchAll(new RegExp(`(?<=^|\\s)@${element.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g"));
+      return [...found].map((m) => ({ start: m.index!, end: m.index! + m[0].length, id: `e${element.id}`, url, name: element.name }));
+    }),
+  ]
+    .sort((a, b) => a.start - b.start)
+    .filter((c, i, all) => i === 0 || c.start >= all[i - 1].end);
   const chipped = chips.length > 0;
   // A caret set down inside a chip is not writing a new one.
   const inChip = caret !== null && chips.some((chip) => caret > chip.start && caret <= chip.end);
@@ -864,7 +875,7 @@ export function PromptField({
   });
 
   // The chip under the pointer (or the finger's last tap) and where it is.
-  const [peek, setPeek] = useState<{ index: number; rect: DOMRect } | null>(null);
+  const [peek, setPeek] = useState<{ id: string; rect: DOMRect } | null>(null);
   useEffect(() => {
     if (!peek) return;
     const close = () => setPeek(null);
@@ -875,7 +886,7 @@ export function PromptField({
       window.removeEventListener("resize", close);
     };
   }, [peek]);
-  const peekUrl = peek ? refs[peek.index] : undefined;
+  const peeked = peek ? chips.find((c) => c.id === peek.id) : undefined;
 
   function chipAt(x: number, y: number) {
     const node = mirror.current;
@@ -883,7 +894,7 @@ export function PromptField({
     for (const chip of node.querySelectorAll<HTMLElement>("[data-chip]")) {
       for (const rect of chip.getClientRects()) {
         if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2) {
-          return { index: Number(chip.dataset.chip), rect };
+          return { id: chip.dataset.chip!, rect };
         }
       }
     }
@@ -986,7 +997,7 @@ export function PromptField({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} data-chip={chip.index} className="prompt-chip">
+        <span key={chip.start} data-chip={chip.id} className="prompt-chip">
           {text.slice(chip.start, chip.end)}
         </span>,
       );
@@ -1033,7 +1044,7 @@ export function PromptField({
           onPointerMove={(event) => {
             if (event.pointerType !== "mouse" || !chipped) return;
             const hit = chipAt(event.clientX, event.clientY);
-            setPeek((now) => (hit?.index === now?.index ? now : hit));
+            setPeek((now) => (hit?.id === now?.id ? now : hit));
           }}
           onPointerLeave={(event) => {
             if (event.pointerType === "mouse") setPeek(null);
@@ -1043,7 +1054,7 @@ export function PromptField({
             // next tap anywhere else puts it away.
             if (event.pointerType === "mouse") return;
             const hit = chipped ? chipAt(event.clientX, event.clientY) : null;
-            setPeek((now) => (hit && hit.index !== now?.index ? hit : null));
+            setPeek((now) => (hit && hit.id !== now?.id ? hit : null));
           }}
           onBlur={() => {
             window.setTimeout(() => setCaret(null), 120);
@@ -1060,9 +1071,9 @@ export function PromptField({
       </div>
       {trailing}
       {peek &&
-        peekUrl &&
+        peeked &&
         createPortal(
-          <ChipPeek url={peekUrl} name={imageName(peek.index)} rect={peek.rect} />,
+          <ChipPeek url={peeked.url} name={peeked.name} rect={peek.rect} />,
           document.body,
         )}
       {open &&

@@ -56,7 +56,7 @@ export function MoveToProject({
     onDone();
   };
 
-  const item = "flex w-full items-center gap-2.5 rounded-chip px-2.5 py-2 text-left transition-colors duration-[120ms]";
+  const item = "mb-0.5 flex w-full items-center gap-2.5 rounded-chip px-2.5 py-2 text-left transition-colors duration-[120ms]";
   return (
     <>
       <button
