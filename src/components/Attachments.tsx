@@ -244,3 +244,30 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
     </>
   );
 }
+
+/**
+ * The row of pictures over a prompt, the same in every composer: each with a
+ * cross and a full-screen mark, and held down it moves to a new place.
+ * `group` keeps the pictures of one slot among themselves.
+ */
+export function ThumbRow({
+  items,
+  onRemove,
+  onMove,
+}: {
+  items: Array<{ url: string; group?: string }>;
+  onRemove: (index: number) => void;
+  onMove: (from: number, to: number) => void;
+}) {
+  const reorder = useReorder(items.length, onMove, (i) => items[i].group ?? "");
+  const keys = keysFor(items.map((item) => item.url));
+  return (
+    <div className="anim-swap no-bar flex gap-2 overflow-x-auto pb-2.5 max-md:pb-6">
+      {items.map((item, i) => (
+        <div key={keys[i]} {...reorder.bind(i)} className={`w-16 shrink-0 ${reorder.bind(i).className}`}>
+          <MediaThumb url={item.url} onRemove={() => onRemove(i)} />
+        </div>
+      ))}
+    </div>
+  );
+}

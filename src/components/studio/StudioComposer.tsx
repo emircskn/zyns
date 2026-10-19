@@ -20,7 +20,9 @@ import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { ThumbTools } from "@/components/ThumbTools";
 import { limitsFor } from "@/lib/attach";
+import { ThumbRow } from "@/components/Attachments";
 import { followPictures } from "@/lib/mentions";
+import { moveItem } from "@/lib/useReorder";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -800,40 +802,31 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   );
 }
 
-/** What is among the references, small, over the prompt, each with a way out. */
+/** What is among the references, over the prompt, each with a way out and a hold to move it. */
 function ReferenceStrip({ refs, values, onSet, onPicturesChanged }: { refs: Field[]; values: Values; onSet: (key: string, value: unknown) => void; onPicturesChanged: (before: string[], after: string[]) => void }) {
   const items = refs.flatMap((f) => listOf(values[f.key]).map((url) => ({ url, field: f })));
   if (items.length === 0) return null;
+  // Only a picture field's list is what `@Image N` points at.
+  const changed = (field: Field, before: string[], after: string[]) => {
+    onSet(field.key, after);
+    if ((field.accept ?? "image") === "image") onPicturesChanged(before, after);
+  };
   return (
-    <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
-      {items.map(({ url, field }) => (
-        <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-edge">
-          {mediaKind(url) === "image" ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-          ) : mediaKind(url) === "video" ? (
-            <>
-              <video src={videoFrame(url)} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-              <VideoMark tiny className="bottom-1 left-1" />
-            </>
-          ) : (
-            <span className="grid h-full w-full place-items-center text-t3">
-              <Icon name="audio" size={15} />
-            </span>
-          )}
-          <ThumbTools
-            url={url}
-            onRemove={() => {
-              const before = listOf(values[field.key]);
-              const after = before.filter((u) => u !== url);
-              onSet(field.key, after);
-              // The prompt's `@Image N` points at the picture field's list.
-              if (mediaKind(url) === "image") onPicturesChanged(before, after);
-            }}
-          />
-        </span>
-      ))}
-    </div>
+    <ThumbRow
+      items={items.map(({ url, field }) => ({ url, group: field.key }))}
+      onRemove={(i) => {
+        const { field, url } = items[i];
+        const before = listOf(values[field.key]);
+        changed(field, before, before.filter((u) => u !== url));
+      }}
+      onMove={(from, to) => {
+        const { field } = items[from];
+        const before = listOf(values[field.key]);
+        const fromIn = before.indexOf(items[from].url);
+        const toIn = before.indexOf(items[to].url);
+        if (fromIn >= 0 && toIn >= 0) changed(field, before, moveItem(before, fromIn, toIn));
+      }}
+    />
   );
 }
 
@@ -891,6 +884,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const cinema = cinemaModel();
   const studio = useStudioUi();
   const patchStudio = useStudio((s) => s.patchStudio);
+  // Taking a picture out or moving one carries the prompt's `@Image N` tags with it.
+  const changeImageRefs = (next: string[]) => patchStudio((s) => ({ imageRefs: next, imagePrompt: followPictures(s.imagePrompt, s.imageRefs, next) }));
   const valuesByModel = useStudio((s) => s.valuesByModel);
   const setModelValues = useStudio((s) => s.setModelValues);
   const elements = useStudio((s) => s.elements);
@@ -954,7 +949,9 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
       character && !character.soul && taken > 0
         ? `${named ? "" : ` @${character.name}`}. @${character.name} is the ${KIND_WORD[character.kind] ?? "subject"} in ${Array.from({ length: taken }, (_, i) => `@Image ${i + 1}`).join(", ")}; keep ${KIND_KEEP[character.kind] ?? "their look"} the same.`
         : "";
-    const text = [studio.imagePrompt.trim() + call, compiled].filter(Boolean).join(" ");
+    // The character's sheet goes first, so a picture the person attached is Image (taken + n) to the model.
+    const typed = taken > 0 ? studio.imagePrompt.replace(/@Image (\d+)/g, (_, n: string) => `@Image ${Number(n) + taken}`) : studio.imagePrompt;
+    const text = [typed.trim() + call, compiled].filter(Boolean).join(" ");
     const placed = mapParams(model, mode, { prompt: text, images });
     // A model that takes no pictures cannot use the character at all: said
     // plainly, rather than a note that its pictures were left out.
@@ -1020,15 +1017,11 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         <div className="-mb-2.5 max-md:-mb-6">
           <Reveal>
             {studio.imageRefs.length > 0 && (
-              <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
-                {studio.imageRefs.map((url) => (
-                  <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url), imagePrompt: followPictures(s.imagePrompt, s.imageRefs, s.imageRefs.filter((u) => u !== url)) }))} />
-                  </span>
-                ))}
-              </div>
+              <ThumbRow
+                items={studio.imageRefs.map((url) => ({ url }))}
+                onRemove={(i) => changeImageRefs(studio.imageRefs.filter((_, j) => j !== i))}
+                onMove={(from, to) => changeImageRefs(moveItem(studio.imageRefs, from, to))}
+              />
             )}
           </Reveal>
         </div>
@@ -1039,7 +1032,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               placeholder="Describe the picture. Use @ for characters and places"
               onText={(text) => patchStudio({ imagePrompt: text })}
               onSubmit={() => void generate()}
-              refs={sent?.refs ?? studio.imageRefs}
+              refs={studio.imageRefs}
             />
           </div>
         </div>

@@ -1,7 +1,8 @@
 "use client";
 
+import { ThumbRow } from "@/components/Attachments";
 import { followPictures } from "@/lib/mentions";
-import { ThumbTools } from "@/components/ThumbTools";
+import { moveItem } from "@/lib/useReorder";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState } from "react";
 import { Chip, FieldChip, BatchChip, Reveal } from "@/components/PromptBar";
@@ -239,6 +240,12 @@ export function MarketingComposer({
 }) {
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
+  // Taking a picture out or moving one carries the prompt's `@Image N` tags with it.
+  const changeRefs = (next: string[]) =>
+    patch((m) => ({
+      refs: next,
+      prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...next].filter((u): u is string => !!u)),
+    }));
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
   const models = useMemo(() => marketingModels(), []);
@@ -408,15 +415,11 @@ export function MarketingComposer({
           <div className="-mb-2.5 max-md:-mb-6">
             <Reveal>
               {!preset && ui.refs.length > 0 && (
-                <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
-                  {ui.refs.map((url) => (
-                    <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
-                      <ThumbTools url={url} onRemove={() => patch((m) => ({ refs: m.refs.filter((u) => u !== url), prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...m.refs.filter((u) => u !== url)].filter((u): u is string => !!u)) }))} />
-                    </span>
-                  ))}
-                </div>
+                <ThumbRow
+                  items={ui.refs.map((url) => ({ url }))}
+                  onRemove={(i) => changeRefs(ui.refs.filter((_, j) => j !== i))}
+                  onMove={(from, to) => changeRefs(moveItem(ui.refs, from, to))}
+                />
               )}
             </Reveal>
           </div>
@@ -590,16 +593,11 @@ export function MarketingComposer({
             )}
           </div>
           {!preset && ui.refs.length > 0 && (
-            <div className="no-bar flex gap-1.5 overflow-x-auto">
-              {ui.refs.map((url, i) => (
-                <span key={url} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-card bg-t1/[0.05]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
-                  <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1 font-mono text-[9.5px] text-white">{i + (ui.product ? 2 : 1)}</span>
-                  <ThumbTools url={url} onRemove={() => patch((m) => ({ refs: m.refs.filter((u) => u !== url), prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...m.refs.filter((u) => u !== url)].filter((u): u is string => !!u)) }))} />
-                </span>
-              ))}
-            </div>
+            <ThumbRow
+              items={ui.refs.map((url) => ({ url }))}
+              onRemove={(i) => changeRefs(ui.refs.filter((_, j) => j !== i))}
+              onMove={(from, to) => changeRefs(moveItem(ui.refs, from, to))}
+            />
           )}
         </>
       ) : (

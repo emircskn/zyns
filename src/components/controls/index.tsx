@@ -310,7 +310,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
           <Icon name="audio" size={18} />
         </div>
       )}
-      <ThumbTools url={url} onRemove={onRemove} large={roomy} />
+      <ThumbTools url={url} onRemove={onRemove} />
     </div>
   );
 }
