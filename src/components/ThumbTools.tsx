@@ -22,9 +22,9 @@ export function ThumbTools({ url, onRemove, large }: { url: string; onRemove: ()
             event.stopPropagation();
             setLooking(true);
           }}
-          className={`absolute left-1/2 top-1/2 z-10 grid -translate-x-1/2 -translate-y-1/2 place-items-center text-white/85 opacity-0 transition-opacity duration-[120ms] hover:text-white [:hover>&]:opacity-100 max-md:opacity-100 ${large ? "h-9 w-9" : "h-6 w-6"}`}
+          className={`absolute left-1/2 top-1/2 z-10 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-lg bg-black/60 text-white/90 backdrop-blur-sm opacity-0 transition-[opacity,background-color] duration-[120ms] hover:bg-black/75 hover:text-white [:hover>&]:opacity-100 max-md:opacity-100 ${large ? "h-9 w-9" : "h-6 w-6"}`}
         >
-          <svg viewBox="0 0 16 16" width={large ? 18 : 12} height={large ? 18 : 12} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,.7))" }}>
+          <svg viewBox="0 0 16 16" width={large ? 18 : 12} height={large ? 18 : 12} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
           </svg>
         </button>
@@ -36,9 +36,9 @@ export function ThumbTools({ url, onRemove, large }: { url: string; onRemove: ()
           event.stopPropagation();
           onRemove();
         }}
-        className={`absolute z-10 grid place-items-center text-white opacity-0 transition-opacity duration-[120ms] [:hover>&]:opacity-100 max-md:opacity-100 ${large ? "right-1 top-1 h-8 w-8" : "right-0 top-0 h-6 w-6"}`}
+        className={`absolute z-10 grid place-items-center rounded-full bg-black/60 text-white backdrop-blur-sm opacity-0 transition-[opacity,background-color] duration-[120ms] hover:bg-black/80 [:hover>&]:opacity-100 max-md:opacity-100 ${large ? "right-1.5 top-1.5 h-7 w-7" : "right-1 top-1 h-[18px] w-[18px]"}`}
       >
-        <svg viewBox="0 0 16 16" width={large ? 16 : 11} height={large ? 16 : 11} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,.8))" }}>
+        <svg viewBox="0 0 16 16" width={large ? 14 : 9} height={large ? 14 : 9} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
           <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
         </svg>
       </button>
