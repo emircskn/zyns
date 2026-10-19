@@ -387,7 +387,7 @@ export function Tile({
       )}
 
       {/* Which service made it, small in the corner; the select mark takes its place on hover. */}
-      {url && <ServiceBadge provider={run.provider ?? "kie"} small={square} hidden={picking} />}
+      {url && <ServiceBadge provider={run.provider ?? "kie"} hidden={picking} />}
       {url && (
         <button
           type="button"

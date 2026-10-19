@@ -120,7 +120,7 @@ export function ElementsPage() {
 
       {filter === "character" && (
         <div className="mb-3 flex flex-wrap items-center gap-2 px-4">
-          <div role="tablist" aria-label="Kind of character" className="flex rounded-card bg-t1/[0.05] p-1">
+          <div role="tablist" aria-label="Kind of character" className="flex">
             {([
               ["sheets", "Sheets"],
               ["soul", "Soul ID"],

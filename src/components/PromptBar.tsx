@@ -194,7 +194,7 @@ export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) 
   return (
     <div key={model.id} className={`anim-swap flex items-center justify-start gap-1.5 ${flush ? "" : "mb-2"}`}>
       <PillGroup
-        className={`!bg-elevated ${fill && shown.length <= 3 ? "w-full" : ""}`}
+        className={`${fill && shown.length <= 3 ? "w-full" : ""}`}
         fill={fill && shown.length <= 3}
         value={current}
         onChange={setMode}

@@ -197,7 +197,7 @@ function AssetTile({
       )}
 
       {/* Which service made it; uploads came from no service. */}
-      {run && asset.source === "run" && <ServiceBadge provider={run.provider ?? "kie"} small={square} hidden={picking} />}
+      {run && asset.source === "run" && <ServiceBadge provider={run.provider ?? "kie"} hidden={picking} />}
 
       <button
         type="button"

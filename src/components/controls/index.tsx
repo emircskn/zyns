@@ -120,7 +120,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
   const current = String(value ?? "");
   const { box, settled } = useGlide(root, current, [field.choices?.length]);
   return (
-    <div ref={root} className="relative grid grid-cols-4 gap-0.5 rounded-card bg-t1/[0.05] p-1">
+    <div ref={root} className="relative grid grid-cols-4 gap-0.5">
       {box && (
         <span
           aria-hidden

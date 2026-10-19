@@ -104,7 +104,7 @@ function Thumb({
           picked ? "ring-2 ring-t1" : "ring-1 ring-edge group-hover:ring-line-strong"
         }`}
       />
-      {asset.source === "run" && asset.provider && !picked && !multiple && <ServiceBadge provider={asset.provider} small />}
+      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} className={`left-1.5 top-1.5 ${multiple && !taken ? "[@media(hover:none)]:opacity-0" : ""}`} />}
       {(picked || (multiple && !taken)) && (
         <SelectMark
           on={picked}
@@ -306,7 +306,7 @@ export function MediaPicker({
               ? "Add media"
               : `Add ${kinds[0] === "image" ? "an image" : kinds[0] === "video" ? "a clip" : "audio"}`}
           </h2>
-          <div role="tablist" className="no-bar mr-auto flex min-w-0 gap-0.5 overflow-x-auto rounded-card bg-t1/[0.05] p-1">
+          <div role="tablist" className="no-bar mr-auto flex min-w-0 gap-0.5 overflow-x-auto">
             {tabs.map((item) => (
               <button
                 key={item.id}

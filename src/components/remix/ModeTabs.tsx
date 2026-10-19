@@ -22,7 +22,7 @@ export function ModeTabs() {
   return (
     <>
       <PillGroup
-        className="!bg-elevated w-full md:hidden"
+        className="w-full md:hidden"
         fill
         value={mode}
         onChange={pick}

@@ -37,7 +37,7 @@ export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange
     </button>
   );
   return (
-    <div className="hidden items-center gap-0.5 rounded-card bg-t1/[0.05] p-1 md:flex">
+    <div className="hidden items-center gap-0.5 md:flex">
       {item("list", "List")}
       {item("grid", "Grid")}
     </div>

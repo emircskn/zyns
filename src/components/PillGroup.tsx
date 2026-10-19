@@ -189,11 +189,11 @@ export function PillGroup<T extends string>({
     // Segments wrap rather than run off the end of whatever holds them: three
     // words like Transparent / Opaque / Auto do not fit a chip's popover on
     // one line, and a row that overflows put a scrollbar through the control.
-    ? `relative flex flex-wrap gap-0.5 ${flat ? "" : "rounded-card bg-t1/[0.05] p-1"} ${className}`
+    ? `relative flex flex-wrap gap-0.5 ${className}`
     : `pill-fade no-bar relative flex min-w-0 max-w-full overflow-x-auto ${
         // The scroller does the clipping, so it needs the track's own radius:
         // a square clip lets a pill's corner sit outside the capsule's end.
-        flat ? "gap-1" : "gap-0.5 rounded-card p-1"
+        "gap-1"
       }`;
 
   const strip = (
@@ -213,7 +213,7 @@ export function PillGroup<T extends string>({
         <span
           aria-hidden
           data-glide
-          className={`pointer-events-none absolute left-0 top-0 rounded-chip ${flat ? "bg-t1/[0.08]" : "bg-t1/[0.12]"}`}
+          className={`pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.12]`}
           style={{
             width: box.w,
             height: box.h,
@@ -262,7 +262,7 @@ export function PillGroup<T extends string>({
 
   const tracked = (
     <div
-      className={`relative min-w-0 max-w-full ${flat ? "" : "rounded-card bg-t1/[0.05]"} ${className}`}
+      className={`relative min-w-0 max-w-full ${className}`}
     >
       {strip}
     </div>

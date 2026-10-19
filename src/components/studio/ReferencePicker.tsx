@@ -75,7 +75,7 @@ function MediaTile({
         className={`pointer-events-none absolute inset-0 rounded-card ring-inset ${picked ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
       />
       {/* The check takes the corner once picked, so the service mark steps aside. */}
-      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
+      {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} className="left-1.5 top-1.5" />}
       <SelectMark on={picked} className={`pointer-events-none absolute left-1.5 top-1.5 ${picked ? "" : "opacity-0 group-hover:opacity-100"}`} />
       <div className="hover-reveal absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100">
         <button

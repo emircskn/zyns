@@ -41,17 +41,19 @@ export function ServiceMark({ provider, size = 12 }: { provider: Provider; size?
  * Which service made a piece, small in a tile's top-left corner: the
  * service's mark on a dark disc. The select mark takes its place on hover.
  */
-export function ServiceBadge({ provider, small, hidden }: { provider: Provider; small?: boolean; hidden?: boolean }) {
+export function ServiceBadge({ provider, hidden, className = "left-2 top-2" }: { provider: Provider; hidden?: boolean; className?: string }) {
   return (
     <span
       role="img"
       aria-label={`Made with ${provider === "higgsfield" ? "Higgsfield" : "KIE"}`}
       title={provider === "higgsfield" ? "Higgsfield" : "KIE"}
-      className={`pointer-events-none absolute left-2 top-2 z-[5] grid place-items-center rounded-full bg-black/60 text-white transition-opacity duration-[150ms] ${
-        small ? "h-5 w-5" : "h-6 w-6"
-      } ${hidden ? "opacity-0" : "group-hover:opacity-0"}`}
+      data-round
+      // The select mark's size and place, so picking swaps one circle for the other.
+      className={`pointer-events-none absolute z-[5] grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white transition-opacity duration-[150ms] ${className} ${
+        hidden ? "opacity-0" : "group-hover:opacity-0"
+      }`}
     >
-      <ServiceMark provider={provider} size={small ? 11 : 13} />
+      <ServiceMark provider={provider} size={11} />
     </span>
   );
 }
