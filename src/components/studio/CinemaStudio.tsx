@@ -71,7 +71,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
       {/* A phone has no side menu or header nav: the page names itself and its parts are chips. */}
       <PhoneSubnav>
         <div ref={chips} className="no-bar relative flex gap-1.5 overflow-x-auto px-4">
-          <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
+          <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1/[0.12]" />
           {PHONE_NAV.map((item) => (
             <button
               key={item.id}
@@ -80,7 +80,7 @@ export function CinemaStudio({ onKeyClick }: { onKeyClick: () => void }) {
               onClick={() => patchStudio({ view: item.id })}
               aria-current={view === item.id || (item.id === "projects" && view === "project") || undefined}
               className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-1.5 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${
-                view === item.id || (item.id === "projects" && view === "project") ? "text-canvas" : "bg-t1/[0.07] text-t2"
+                view === item.id || (item.id === "projects" && view === "project") ? "text-t1" : "bg-t1/[0.05] text-t2"
               }`}
             >
               <PlaceIcon place={item.id} size={20} />

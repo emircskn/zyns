@@ -123,7 +123,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-card bg-t1"
+          className="pointer-events-none absolute left-0 top-0 rounded-card bg-t1/[0.12]"
           style={{
             width: box.w,
             height: box.h,
@@ -145,7 +145,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
             onClick={() => onChange(choice.value)}
             style={{ animationDelay: `${40 + index * 14}ms` }}
             className={`anim-swap relative z-10 flex flex-col items-center gap-1.5 rounded-card px-1 py-2 transition-colors duration-[200ms] ${
-              active ? "text-canvas" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
+              active ? "text-t1" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
             }`}
           >
             <span className="flex h-6 w-6 items-center justify-center">
@@ -155,7 +155,7 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
                   style={{
                     width: Math.max(w * scale, 5),
                     height: Math.max(h * scale, 5),
-                    borderColor: active ? "var(--canvas)" : "var(--line-strong)",
+                    borderColor: active ? "var(--t1)" : "var(--line-strong)",
                     transform: active ? "scale(1.12)" : "scale(1)",
                     transitionTimingFunction: "var(--ease-spring)",
                   }}

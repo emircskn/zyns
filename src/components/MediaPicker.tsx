@@ -316,7 +316,7 @@ export function MediaPicker({
                 aria-selected={tab === item.id}
                 onClick={() => setTab(item.id)}
                 className={`h-8 shrink-0 whitespace-nowrap rounded-full px-3.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
-                  tab === item.id ? "bg-white text-accent-ink" : "text-t1/50 hover:text-t1"
+                  tab === item.id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:bg-t1/[0.06] hover:text-t1"
                 }`}
               >
                 {item.label}

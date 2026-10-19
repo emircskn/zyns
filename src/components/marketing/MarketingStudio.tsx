@@ -273,7 +273,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
       {/* A phone has no side menu: the pages are a row of chips with the side menu's icons, as Cinema Studio's. */}
       <PhoneSubnav>
       <div className="no-bar relative flex gap-1.5 overflow-x-auto px-4">
-        <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1" />
+        <GlideMark value={view === "project" ? "projects" : view} className="rounded-full bg-t1/[0.12]" />
         {[...NAV, ...TOOL_NAV, { id: "projects" as MarketingView, label: "Projects", place: "projects" }, { id: "trash" as MarketingView, label: "Trash", place: "trash" }].map((item) => {
           const on = view === item.id || (item.id === "projects" && view === "project");
           return (
@@ -283,7 +283,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
               type="button"
               onClick={() => patch({ view: item.id })}
               aria-current={on || undefined}
-              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-1.5 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${on ? "text-canvas" : "bg-t1/[0.07] text-t2"}`}
+              className={`relative flex h-8 shrink-0 items-center gap-1.5 rounded-full pl-1.5 pr-3.5 text-[13px] transition-colors duration-[var(--d-slow)] ease-[var(--ease)] ${on ? "text-t1" : "bg-t1/[0.05] text-t2"}`}
             >
               <PlaceIcon place={item.place} size={20} />
               {item.label}

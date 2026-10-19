@@ -219,7 +219,7 @@ export function PhoneExplore() {
             onClick={() => setFilter(chip.id)}
             aria-pressed={filter === chip.id}
             className={`h-8 shrink-0 rounded-chip px-3 text-[13px] font-medium transition-colors duration-[100ms] ${
-              filter === chip.id ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2"
+              filter === chip.id ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t2"
             }`}
           >
             {chip.label}

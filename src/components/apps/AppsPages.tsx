@@ -333,7 +333,7 @@ function AppsGallery({ onKeyClick }: { onKeyClick: () => void }) {
             key={name}
             type="button"
             onClick={() => setSection(name)}
-            className={`h-9 rounded-full px-3.5 text-[13px] ${section === name ? "bg-t1 text-canvas" : "bg-t1/[0.06] text-t2 hover:bg-t1/[0.12]"}`}
+            className={`h-9 rounded-full px-3.5 text-[13px] ${section === name ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.1]"}`}
           >
             {name}
           </button>
