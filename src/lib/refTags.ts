@@ -1,5 +1,5 @@
 import type { LibraryElement } from "@/lib/elements";
-import { imageName, imageTokens } from "@/lib/mentions";
+import { followPictures, imageName, imageTokens } from "@/lib/mentions";
 
 /**
  * The `@` tags in a prompt that stand for a picture: `@Image 2`, or an
@@ -45,4 +45,22 @@ export function refTagsIn(text: string, refs: string[], library: LibraryElement[
     }
   }
   return tags.sort((a, b) => a.start - b.start).filter((t, i, all) => i === 0 || t.start >= all[i - 1].end);
+}
+
+/**
+ * followPictures, and an element's `@name` goes too when taking a picture
+ * out leaves none of its pictures attached.
+ */
+export function followRefs(text: string, before: string[], after: string[], library: LibraryElement[]): string {
+  const next = followPictures(text, before, after);
+  const was = new Map(refTagsIn(text, before, library).map((t) => [t.id, t.dead]));
+  const gone = refTagsIn(next, after, library)
+    .filter((t) => t.id.startsWith("e") && t.dead && was.get(t.id) === false)
+    .sort((a, b) => b.start - a.start);
+  let out = next;
+  for (const t of gone) {
+    const end = out[t.end] === " " ? t.end + 1 : t.end;
+    out = out.slice(0, t.start) + out.slice(end);
+  }
+  return gone.length ? out.trimEnd() : out;
 }

@@ -2,7 +2,7 @@
 
 import { ThumbTools } from "@/components/ThumbTools";
 import { ThumbRow } from "@/components/Attachments";
-import { followPictures } from "@/lib/mentions";
+import { followRefs } from "@/lib/refTags";
 import { limitOf } from "@/lib/mediaUi";
 import { moveItem } from "@/lib/useReorder";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
@@ -235,11 +235,12 @@ export function MarketingComposer({
 }) {
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
+  const elements = useStudio((s) => s.elements);
   // Taking a picture out or moving one carries the prompt's `@Image N` tags with it.
   const changeRefs = (next: string[]) =>
     patch((m) => ({
       refs: next,
-      prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...next].filter((u): u is string => !!u)),
+      prompt: followRefs(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...next].filter((u): u is string => !!u), elements),
     }));
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);

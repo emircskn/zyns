@@ -8,7 +8,8 @@ import { EMPTY_REMIX, type MotionClip, type RemixRunInfo, type RemixState } from
 import { EMPTY_MARKETING, type MarketingRunInfo, type MarketingUi } from "@/lib/marketing/types";
 import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
-import { followPictures, imageFields, imageRefs } from "@/lib/mentions";
+import { imageFields, imageRefs } from "@/lib/mentions";
+import { followRefs } from "@/lib/refTags";
 import type { Made, Track } from "@/lib/results";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
@@ -809,7 +810,7 @@ export const useStudio = create<StudioState>()(
           // Taking a picture out, or moving one, moves the prompt's `@Image N` with it.
           const prompt = model && promptKey(model, next);
           if (model && prompt && typeof next[prompt] === "string" && imageFields(model, next).some((f) => f.key === key)) {
-            next[prompt] = followPictures(next[prompt] as string, imageRefs(model, current), imageRefs(model, next));
+            next[prompt] = followRefs(next[prompt] as string, imageRefs(model, current), imageRefs(model, next), state.elements);
           }
           if (model) next = settleMode(model, next);
           return {

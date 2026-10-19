@@ -21,7 +21,7 @@ import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { ThumbTools } from "@/components/ThumbTools";
 import { limitsFor } from "@/lib/attach";
 import { ThumbRow } from "@/components/Attachments";
-import { followPictures } from "@/lib/mentions";
+import { followRefs } from "@/lib/refTags";
 import { moveItem } from "@/lib/useReorder";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
@@ -449,6 +449,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const cinema = cinemaModel();
   const studio = useStudioUi();
   const patchStudio = useStudio((s) => s.patchStudio);
+  const elements = useStudio((s) => s.elements);
   const stored = useStudio((s) => s.valuesByModel[CINEMA]);
   const valuesByModel = useStudio((s) => s.valuesByModel);
   const setModelValues = useStudio((s) => s.setModelValues);
@@ -636,7 +637,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           {/* The references sit over the prompt and grow in as they come. */}
           <div className="-mb-2.5 max-md:-mb-6">
             <Reveal>
-              <ReferenceStrip refs={refs} values={values} onSet={set} onPicturesChanged={(before, after) => setPrompt(followPictures(prompt, before, after))} />
+              <ReferenceStrip refs={refs} values={values} onSet={set} onPicturesChanged={(before, after) => setPrompt(followRefs(prompt, before, after, elements))} />
             </Reveal>
           </div>
           <div className="flex items-start gap-2">
@@ -885,7 +886,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   const studio = useStudioUi();
   const patchStudio = useStudio((s) => s.patchStudio);
   // Taking a picture out or moving one carries the prompt's `@Image N` tags with it.
-  const changeImageRefs = (next: string[]) => patchStudio((s) => ({ imageRefs: next, imagePrompt: followPictures(s.imagePrompt, s.imageRefs, next) }));
+  const changeImageRefs = (next: string[]) => patchStudio((s) => ({ imageRefs: next, imagePrompt: followRefs(s.imagePrompt, s.imageRefs, next, elements) }));
   const valuesByModel = useStudio((s) => s.valuesByModel);
   const setModelValues = useStudio((s) => s.setModelValues);
   const elements = useStudio((s) => s.elements);
