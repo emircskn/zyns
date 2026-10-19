@@ -100,7 +100,6 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
   const items = attachedIn(fields, values);
   const reorder = useAttachedOrder(items);
   if (items.length === 0) return null;
-  const named = fields.length > 1;
 
   return (
     <div className="anim-swap no-bar -mx-1 mb-2 flex items-start gap-2 overflow-x-auto px-1 pb-1 pt-0.5">
@@ -127,7 +126,6 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
               )
             }
           />
-          {named && <p className="mt-1 truncate text-center text-[10.5px] leading-tight text-t4">{field.label}</p>}
         </div>
       ))}
     </div>
@@ -226,9 +224,6 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
                   )
                 }
               />
-              {fields.length > 1 && (
-                <p className="mt-1 truncate text-center text-[11.5px] leading-tight text-t4">{field.label}</p>
-              )}
             </div>
           ))}
         </div>
