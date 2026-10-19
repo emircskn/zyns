@@ -208,7 +208,7 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
           </span>
         </button>
       ) : (
-        <div className={`no-bar flex ${MEDIA_UI.rowGap} overflow-x-auto rounded-panel border border-line bg-elevated p-3`}>
+        <div className={`no-bar flex ${MEDIA_UI.rowGap} overflow-x-auto rounded-panel border border-line bg-elevated p-3 max-md:p-[11px]`}>
           {/* First, so another can be added without scrolling to the end. */}
           {attach.canAdd && (
             <button type="button" onClick={attach.open} aria-label="Add media" className={MEDIA_UI.addTile}>

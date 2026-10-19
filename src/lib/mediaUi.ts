@@ -13,18 +13,18 @@ import type { MediaKind } from "@/lib/attach";
  */
 export const MEDIA_UI = {
   /** An attached picture's box, and the box that holds it in a row. */
-  thumb: "h-16 w-16 rounded-chip max-md:h-[88px] max-md:w-[88px] max-md:rounded-card",
-  thumbWrap: "w-16 max-md:w-[88px]",
+  thumb: "h-16 w-16 rounded-chip max-md:h-[104px] max-md:w-[104px] max-md:rounded-card",
+  thumbWrap: "w-16 max-md:w-[104px]",
   rowGap: "gap-2",
   /** The "+" that sits at the head of a row. */
   addTile:
-    "grid h-16 w-16 max-md:h-[88px] max-md:w-[88px] shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1",
+    "grid h-16 w-16 max-md:h-[104px] max-md:w-[104px] shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1",
   /** The two marks on a picture: shown on hover, always on touch. */
   toolsShow:
     "opacity-0 transition-[opacity,background-color] duration-[120ms] [:hover>&]:opacity-100 max-md:opacity-100 [@media(hover:none)]:opacity-100",
   expandTool:
     "absolute left-1/2 top-1/2 z-10 grid h-[22px] w-[22px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-lg bg-black/60 text-white/90 backdrop-blur-sm hover:bg-black/75 hover:text-white",
-  closeTool: "absolute right-1 top-1 z-10 grid h-4 w-4 place-items-center rounded-full bg-black/60 text-white backdrop-blur-sm hover:bg-black/80",
+  closeTool: "absolute right-1 top-1 z-10 grid h-4 w-4 max-md:h-7 max-md:w-7 max-md:[&_svg]:h-3 max-md:[&_svg]:w-3 place-items-center rounded-full bg-black/60 text-white backdrop-blur-sm hover:bg-black/80",
   expandGlyph: 12,
   closeGlyph: 8,
 } as const;
