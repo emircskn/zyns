@@ -34,7 +34,7 @@ export function ThumbTools({ url, onRemove, tapOpens = true }: { url: string; on
             event.stopPropagation();
             setLooking(true);
           }}
-          className={`${MEDIA_UI.expandTool} ${MEDIA_UI.toolsShow}`}
+          className={`${MEDIA_UI.expandTool} ${MEDIA_UI.toolsShow} ${tapOpens ? "max-md:hidden" : ""}`}
         >
           <svg viewBox="0 0 16 16" width={MEDIA_UI.expandGlyph} height={MEDIA_UI.expandGlyph} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
