@@ -44,7 +44,7 @@ export function ProviderSwitch({
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.1]"
+          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.12]"
           style={{
             width: box.w,
             height: box.h,

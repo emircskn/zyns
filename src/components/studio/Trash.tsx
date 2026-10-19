@@ -171,7 +171,7 @@ export function TrashView({
 
       {tabs && tabs.length > 1 && (
         <div className="no-bar relative mx-4 mb-3 flex gap-1 overflow-x-auto md:mx-1">
-          <GlideMark value={tab} className="rounded-full bg-t1/[0.1]" />
+          <GlideMark value={tab} className="rounded-full bg-t1/[0.12]" />
           {[{ id: "all" as const, label: "All" }, ...tabs].map((t) => {
             const count = t.id === "all" ? items.length : items.filter((i) => i.kind === t.id).length;
             return (

@@ -213,7 +213,7 @@ export function PillGroup<T extends string>({
         <span
           aria-hidden
           data-glide
-          className={`pointer-events-none absolute left-0 top-0 rounded-chip ${flat ? "bg-t1/[0.08]" : "bg-t1/[0.1]"}`}
+          className={`pointer-events-none absolute left-0 top-0 rounded-chip ${flat ? "bg-t1/[0.08]" : "bg-t1/[0.12]"}`}
           style={{
             width: box.w,
             height: box.h,

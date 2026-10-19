@@ -180,7 +180,7 @@ export function StudioSidebar({
 
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={studio.view} className="rounded-card bg-t1/[0.1]" deps={[folded]} />
+      <GlideMark value={studio.view} className="rounded-card bg-t1/[0.12]" deps={[folded]} />
       <div className={`flex gap-1.5 pb-1 ${folded ? "justify-center" : "items-start"}`}>
         {!folded && (
           <div className="min-w-0 flex-1">
@@ -277,7 +277,7 @@ export function ProjectSidebar() {
   const go = (folderId: string) => patchStudio({ folderId });
   return (
     <div ref={menu} className="relative flex h-full flex-col gap-1 p-2">
-      <GlideMark value={at || "all"} className="rounded-card bg-t1/[0.1]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, sort, folded]} />
+      <GlideMark value={at || "all"} className="rounded-card bg-t1/[0.12]" deps={[(project.folders ?? []).map((f) => `${f.id}:${f.parentId ?? ""}`).join(), looking, q, sort, folded]} />
       {folded && <FoldButton />}
       <div className="flex items-center gap-1">
       <NavRow
