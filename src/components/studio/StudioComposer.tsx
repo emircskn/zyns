@@ -1070,7 +1070,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         )}
       </div>
       <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
-        <button type="button" onClick={() => setChoosing(true)} className={`${tile} md:w-[80px]`} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
+        <div className="relative max-md:w-full">
+        <button type="button" onClick={() => setChoosing(true)} className={`${tile} w-full md:w-[80px]`} aria-label={character ? `Character: @${character.name}` : "Add a character"}>
           {character?.images[0] ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1086,6 +1087,8 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {character ? `@${character.name}` : "Character"}
           </span>
         </button>
+        {character?.images[0] && <ThumbTools url={character.images[0].storageUrl} onRemove={() => patchStudio({ character: null })} tapOpens={false} />}
+        </div>
         {styled && studio.imageRefs.length === 0 ? (
           <SoulStyleTile value={String(own.style_id ?? "")} onChange={(id) => setModelValues(model.id, { style_id: id })} strength={own.custom_reference_strength as number | undefined} onStrength={(n) => setModelValues(model.id, { custom_reference_strength: n })} className="md:w-[120px]" />
         ) : (
