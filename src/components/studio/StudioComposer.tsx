@@ -1016,6 +1016,22 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   return (
     <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:bg-transparent">
+        {/* The references sit over the prompt and grow in as they come. */}
+        <div className="-mb-2.5 max-md:-mb-6">
+          <Reveal>
+            {studio.imageRefs.length > 0 && (
+              <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
+                {studio.imageRefs.map((url) => (
+                  <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
+                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url), imagePrompt: followPictures(s.imagePrompt, s.imageRefs, s.imageRefs.filter((u) => u !== url)) }))} />
+                  </span>
+                ))}
+              </div>
+            )}
+          </Reveal>
+        </div>
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <StudioPrompt
@@ -1029,7 +1045,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         </div>
         <div className="flex items-center gap-1.5">
           <ChipRow>
-          <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} text={studio.imageRefs.length ? String(studio.imageRefs.length) : undefined} />
+          <ToolChip icon="plus" label="Add pictures" onClick={() => setRefsOpen("uploads")} />
           <span className="mx-0.5 h-5 w-px shrink-0 bg-line" />
           <ModelChip models={models} model={model} onPick={(id) => patchStudio({ imageModelId: id })} lead={SOUL_LEAD} />
           {model &&
@@ -1052,22 +1068,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             />
           )}
           </ChipRow>
-        </div>
-        {/* Grown in as pictures come, as the prompt bar's does. */}
-        <div className="-mt-2.5 max-md:-mt-6">
-          <Reveal>
-            {studio.imageRefs.length > 0 && (
-              <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pt-2.5 max-md:pt-6">
-                {studio.imageRefs.map((url) => (
-                  <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url), imagePrompt: followPictures(s.imagePrompt, s.imageRefs, s.imageRefs.filter((u) => u !== url)) }))} />
-                  </span>
-                ))}
-              </div>
-            )}
-          </Reveal>
         </div>
         {(error || (sent && sent.warnings.length > 0)) && (
           <p role={error ? "alert" : "status"} className="text-[12.5px] leading-snug" style={error ? { color: "var(--danger)" } : undefined}>
