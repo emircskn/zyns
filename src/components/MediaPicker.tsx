@@ -383,7 +383,7 @@ export function MediaPicker({
                       onClose();
                     }}
                     className={`h-8 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
-                      modelElements.used.has(name) ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+                      modelElements.used.has(name) ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
                     }`}
                   >
                     @{name}
@@ -427,7 +427,7 @@ export function MediaPicker({
                   onClick={() => openElementEditor(elementKind === "all" ? {} : { kind: elementKind })}
                   className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40">
                     <Icon name="plus" size={17} />
                   </span>
                   <span className="px-2 text-center text-[12px] font-semibold">{characters ? "Create character" : "Create element"}</span>
@@ -493,7 +493,7 @@ export function MediaPicker({
                   onClick={() => input.current?.click()}
                   className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1] disabled:opacity-50"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40 ring-1 ring-inset ring-t1/15">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40">
                     <Icon name="upload" size={17} />
                   </span>
                   <span className="px-2 text-center text-[12px] font-semibold">Upload media</span>

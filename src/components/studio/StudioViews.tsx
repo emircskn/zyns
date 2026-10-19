@@ -862,7 +862,7 @@ export function ProjectView() {
             key={id || "all"}
             type="button"
             onClick={() => patchStudio({ folderId: id })}
-            className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12.5px] ${folder === id ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2"}`}
+            className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[12.5px] ${folder === id ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2"}`}
           >
             {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />}
             {label}
@@ -1004,7 +1004,7 @@ export function ProjectView() {
               <button
                 type="button"
                 onClick={() => openEditor({})}
-                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 hover:text-t1"
+                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] text-t3 hover:text-t1"
               >
                 <Icon name="plus" size={18} />
                 <span className="text-[12px]">New element</span>

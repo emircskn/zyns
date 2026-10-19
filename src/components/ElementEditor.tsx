@@ -195,7 +195,7 @@ function EditorSheet({
                   dragging ? "border-t1/50 bg-t1/[0.1]" : "border-t1/20 bg-t1/[0.04] hover:bg-t1/[0.07]"
                 }`}
               >
-                <span className="grid h-14 w-14 place-items-center rounded-full bg-t1/[0.1] ring-1 ring-inset ring-t1/15">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-t1/[0.1]">
                   {uploader.busy ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Icon name="upload" size={22} />}
                 </span>
                 Drop pictures here to add to element
@@ -238,7 +238,7 @@ function EditorSheet({
                       type="button"
                       onClick={() => setPicking(true)}
                       aria-label="Add pictures"
-                      className="grid h-[64px] w-[64px] shrink-0 place-items-center rounded-chip bg-t1/[0.06] text-t3 ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:text-t1"
+                      className="grid h-[64px] w-[64px] shrink-0 place-items-center rounded-chip bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:text-t1"
                     >
                       {uploader.busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Icon name="plus" size={20} />}
                     </button>

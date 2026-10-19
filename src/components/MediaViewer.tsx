@@ -839,7 +839,7 @@ export function MediaViewer({
               <button
                 type="button"
                 onClick={onBack}
-                className="absolute left-5 top-5 z-20 hidden h-9 items-center gap-1 rounded-full bg-t1/[0.09] pl-2.5 pr-3.5 text-[13px] text-t1 ring-1 ring-inset ring-edge backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:flex"
+                className="absolute left-5 top-5 z-20 hidden h-9 items-center gap-1 rounded-full bg-t1/[0.09] pl-2.5 pr-3.5 text-[13px] text-t1 backdrop-blur-md transition-colors duration-[120ms] hover:bg-t1/[0.16] md:flex"
               >
                 <Icon name="chevron" size={16} style={{ transform: "rotate(90deg)" }} />
                 Back
@@ -852,7 +852,7 @@ export function MediaViewer({
                 onClick={() => step(-1)}
                 aria-label="Previous"
                 title="Previous (←)"
-                className="absolute left-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-edge transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
+                className="absolute left-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(90deg)" }} />
               </button>
@@ -863,7 +863,7 @@ export function MediaViewer({
                 onClick={() => step(1)}
                 aria-label="Next"
                 title="Next (→)"
-                className="absolute right-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 ring-1 ring-inset ring-edge transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
+                className="absolute right-4 top-1/2 z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-canvas-deep/60 text-t1 transition-[background-color,transform] duration-[120ms] md:h-11 md:w-11 md:bg-t1/[0.08] md:backdrop-blur-md md:hover:bg-t1/[0.16]"
               >
                 <Icon name="chevron" size={20} style={{ transform: "rotate(-90deg)" }} />
               </button>

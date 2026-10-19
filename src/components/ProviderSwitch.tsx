@@ -39,12 +39,12 @@ export function ProviderSwitch({
       ref={root}
       role="radiogroup"
       aria-label="Service"
-      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-0.5 ring-1 ring-inset ring-edge ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-[var(--surface-2)] shadow-[0_1px_2px_rgb(0_0_0/0.25)]"
+          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.1]"
           style={{
             width: box.w,
             height: box.h,

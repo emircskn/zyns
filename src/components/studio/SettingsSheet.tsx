@@ -31,7 +31,7 @@ export function SettingsSheet({ rows }: { rows: SettingRow[] }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Settings"
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] md:hidden"
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-t1/[0.05] text-t1 hover:bg-t1/[0.1] md:hidden"
       >
         <Icon name="sliders" size={16} />
       </button>

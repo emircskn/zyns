@@ -266,7 +266,7 @@ export function ModelChip({
       trigger={(open) => (
         <span
           className={`flex h-8 max-w-[220px] items-center gap-1.5 rounded-full pl-1 pr-2.5 text-[12.5px] font-semibold transition-colors duration-[120ms] md:h-[34px] ${
-            open ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
+            open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1 hover:bg-t1/[0.12]"
           }`}
         >
           {model && <VendorBadge model={model} size={24} />}
@@ -867,7 +867,7 @@ function SoulGrid({ version, onPick, onNew }: { version: "v1" | "v2" | "cinema";
         );
       })}
       <button type="button" onClick={onNew} className="flex flex-col items-center gap-1">
-        <span className="grid aspect-square w-full place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1">
+        <span className="grid aspect-square w-full place-items-center rounded-card bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:text-t1">
           <Icon name="plus" size={20} />
         </span>
         <span className="w-full truncate text-center text-[11px] text-t3">Train new</span>
@@ -1008,7 +1008,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
   }
 
   // Higgsfield's two tiles beside the prompt: 80px high, the character's square, the camera's a little wider.
-  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
+  const tile = "relative flex h-[80px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:w-full";
   const cameraImage = previewOf("camera_model", studio.imageCamera)?.image;
 
   return (
@@ -1078,7 +1078,7 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
               <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
             </>
           ) : (
-            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1 ring-1 ring-inset ring-t1/20">
+            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1">
               <Icon name="plus" size={13} />
             </span>
           )}

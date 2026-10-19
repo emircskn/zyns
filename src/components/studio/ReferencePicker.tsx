@@ -302,7 +302,7 @@ export function ReferencePicker({
                         }}
                         title={modelElements.used.has(name) ? `@${name} is in the prompt` : `Insert @${name}`}
                         className={`h-8 rounded-full px-3 font-mono text-[12.5px] transition-colors duration-[120ms] ${
-                          modelElements.used.has(name) ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+                          modelElements.used.has(name) ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
                         }`}
                       >
                         @{name}
@@ -347,7 +347,7 @@ export function ReferencePicker({
                 <button
                   type="button"
                   onClick={() => openEditor({ kind: elementKind === "all" ? undefined : elementKind })}
-                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                     <Icon name="plus" size={18} />
@@ -423,7 +423,7 @@ export function ReferencePicker({
                   <button
                     type="button"
                     onClick={() => uploader.input.current?.click()}
-                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
+                    className="flex aspect-square flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
                   >
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                       {uploader.busy ? (

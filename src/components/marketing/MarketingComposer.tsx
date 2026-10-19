@@ -373,7 +373,7 @@ export function MarketingComposer({
 
   if (bar && tool === "create") {
     const tile =
-      "relative flex h-[80px] w-[80px] max-md:w-full shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1]";
+      "relative flex h-[80px] w-[80px] max-md:w-full shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1]";
     const slot = (label: string, url: string | null, onPick: () => void, onClear: () => void) => (
       <div className="relative max-md:w-full">
         <button type="button" onClick={onPick} className={tile} aria-label={url ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}>
@@ -384,7 +384,7 @@ export function MarketingComposer({
               <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
             </>
           ) : (
-            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1 ring-1 ring-inset ring-t1/20">
+            <span className="absolute left-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/35 text-t1">
               <Icon name="plus" size={13} />
             </span>
           )}
@@ -434,7 +434,7 @@ export function MarketingComposer({
                 type="button"
                 onClick={() => setPicking("refs")}
                 aria-label="Add pictures"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 hover:bg-t1/[0.1]"
               >
                 <Icon name="plus" size={16} />
               </button>
@@ -494,7 +494,7 @@ export function MarketingComposer({
               onClick={() => patch({ modelId: m.id })}
               aria-pressed={m.id === ui.modelId}
               className={`h-8 rounded-full px-3.5 text-[12.5px] transition-colors duration-[120ms] ${
-                m.id === ui.modelId ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
+                m.id === ui.modelId ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.06] text-t2 hover:text-t1"
               }`}
             >
               {m.name.replace(/^Marketing Studio\s*/, "") || m.name}
@@ -578,7 +578,7 @@ export function MarketingComposer({
                 <button
                   type="button"
                   onClick={() => setPicking("refs")}
-                  className="flex h-[104px] w-full flex-col items-center justify-center gap-1 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-center hover:bg-t1/[0.05]"
+                  className="flex h-[104px] w-full flex-col items-center justify-center gap-1 rounded-card bg-t1/[0.06] text-center hover:bg-t1/[0.05]"
                 >
                   <Icon name="photos" size={17} className="text-t3" />
                   <span className="text-[12.5px] text-t2">More pictures</span>

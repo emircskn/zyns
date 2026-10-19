@@ -147,7 +147,7 @@ function FeatureStrip() {
             onClick={() => step(side === "prev" ? -1 : 1)}
             aria-label={side === "prev" ? "Previous" : "Next"}
             tabIndex={hidden ? -1 : 0}
-            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-chip bg-canvas/85 text-t1 ring-1 ring-inset ring-edge backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
+            className={`absolute top-[calc((100%-48px)/2)] grid h-10 w-10 -translate-y-1/2 place-items-center rounded-chip bg-canvas/85 text-t1 backdrop-blur-md transition-opacity duration-[180ms] hover:bg-surface-2 ${
               side === "prev" ? "left-3" : "right-3"
             } ${hidden ? "pointer-events-none opacity-0" : "opacity-0 group-hover/strip:opacity-100 focus-visible:opacity-100"}`}
           >

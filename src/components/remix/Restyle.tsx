@@ -290,7 +290,7 @@ export function StyleGrid({ onPicked }: { onPicked?: () => void }) {
         <button
           type="button"
           onClick={() => openElementEditor({ kind: "style" })}
-          className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1"
+          className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:text-t1"
         >
           <Icon name="plus" size={18} />
           <span className="text-[12px]">New style</span>

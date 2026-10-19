@@ -97,7 +97,7 @@ export function CreditsPill({ onKeyClick, compact }: { onKeyClick: () => void; c
   const [checking, setChecking] = useState(false);
 
   const pill =
-    "flex h-9 items-center gap-1.5 rounded-chip bg-t1/[0.05] px-3 text-[13px] text-t2 ring-1 ring-inset ring-edge transition-colors duration-[100ms] hover:bg-t1/[0.1] hover:text-t1";
+    "flex h-9 items-center gap-1.5 rounded-chip bg-t1/[0.05] px-3 text-[13px] text-t2 transition-colors duration-[100ms] hover:bg-t1/[0.1] hover:text-t1";
 
   if (!hydrated) return null;
 

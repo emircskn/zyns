@@ -70,7 +70,7 @@ export function OptionList({ field, value, onChange }: ControlProps) {
               if (choice.switchTo) switchModel(choice, field);
             }}
             className={`flex w-full items-center justify-between gap-3 rounded-full px-3.5 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-              active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "text-t2 hover:bg-t1/[0.07]"
+              active ? "bg-t1/[0.12] text-t1" : "text-t2 hover:bg-t1/[0.07]"
             }`}
           >
             <span className="flex min-w-0 flex-col">
@@ -554,7 +554,7 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center gap-1.5 rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge py-2 text-[12.5px] text-t3 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
+      className="flex items-center justify-center gap-1.5 rounded-chip bg-t1/[0.06] py-2 text-[12.5px] text-t3 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1"
     >
       <Icon name="plus" size={16} /> {label}
     </button>

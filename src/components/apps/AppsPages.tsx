@@ -71,7 +71,7 @@ function Choices({ field, value, onChange, grid }: { field: Field; value: unknow
             type="button"
             onClick={() => onChange(c.value)}
             aria-pressed={c === current}
-            className={`flex flex-col items-center gap-1 rounded-card py-3 text-[12.5px] ${c === current ? "bg-t1/[0.1] text-t1 ring-2 ring-accent" : "bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.09]"}`}
+            className={`flex flex-col items-center gap-1 rounded-card py-3 text-[12.5px] ${c === current ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.1]"}`}
           >
             <span className="text-[26px] leading-none">{c.badge}</span>
             {c.label}

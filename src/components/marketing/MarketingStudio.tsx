@@ -37,7 +37,7 @@ function Products({ onUse }: { onUse: (url: string) => void }) {
       <button
         type="button"
         onClick={() => open({ kind: "product" })}
-        className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
+        className="flex aspect-[4/5] flex-col items-center justify-center gap-2 rounded-card bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.05] hover:text-t1"
       >
         <Icon name="plus" size={20} />
         <span className="text-[13px]">New product</span>

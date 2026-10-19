@@ -125,7 +125,7 @@ export function AssetsPage() {
               aria-selected={on}
               onClick={() => setFilter(f.id)}
               className={`flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13.5px] font-medium transition-colors duration-[150ms] ${
-                on ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "text-t3"
+                on ? "bg-t1/[0.12] text-t1" : "text-t3"
               }`}
             >
               <Icon name={f.icon} size={15} />

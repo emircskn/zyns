@@ -134,7 +134,7 @@ export function RecreateTemplate({
         <button
           type="button"
           onClick={onPick}
-          className="relative flex h-[110px] w-full sm:h-[140px] flex-col items-center justify-center gap-2 overflow-hidden rounded-card bg-t1/[0.04] text-[13px] font-semibold text-t1 ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.08]"
+          className="relative flex h-[110px] w-full sm:h-[140px] flex-col items-center justify-center gap-2 overflow-hidden rounded-card bg-t1/[0.04] text-[13px] font-semibold text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.08]"
         >
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element

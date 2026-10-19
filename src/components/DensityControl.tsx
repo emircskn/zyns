@@ -36,7 +36,7 @@ export function SelectToggle() {
       onClick={() => setSelectMode(!selectMode)}
       aria-pressed={selectMode}
       className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
-        selectMode ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t1"
+        selectMode ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1"
       }`}
     >
       {selectMode ? "Cancel" : "Select"}
@@ -52,7 +52,7 @@ export function PhoneGridToggle() {
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   return (
-    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-chip bg-t1/[0.05] p-1 ring-1 ring-inset ring-edge">
+    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-chip bg-t1/[0.05] p-1">
       {([
         [false, "square", "One at a time"],
         [true, "grid", "Grid"],

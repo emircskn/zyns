@@ -210,7 +210,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
                 type="button"
                 onClick={() => input.current?.click()}
                 aria-label="Add photos"
-                className="grid aspect-square place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t3 transition-colors duration-[120ms] hover:text-t1"
+                className="grid aspect-square place-items-center rounded-chip bg-t1/[0.06] text-t3 transition-colors duration-[120ms] hover:text-t1"
               >
                 {uploading > 0 ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -267,7 +267,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
                 onClick={() => setVersion(m.version)}
                 aria-pressed={version === m.version}
                 className={`rounded-chip px-2 py-2 text-[13px] transition-colors duration-[120ms] ${
-                  version === m.version ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 hover:text-t1"
+                  version === m.version ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t2 hover:text-t1"
                 }`}
               >
                 {m.label}

@@ -138,7 +138,7 @@ export function SoulStyleTile({ value, onChange, strength, onStrength, className
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Style: ${name}`}
-        className={`relative flex h-[80px] w-[120px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left ring-1 ring-inset ring-edge transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:h-9 max-md:w-auto max-md:flex-row max-md:items-center max-md:justify-start max-md:rounded-full max-md:px-3 ${className}`}
+        className={`relative flex h-[80px] w-[120px] shrink-0 flex-col justify-end overflow-hidden rounded-panel bg-t1/[0.06] p-2 text-left transition-colors duration-[120ms] hover:bg-t1/[0.1] max-md:h-9 max-md:w-auto max-md:flex-row max-md:items-center max-md:justify-start max-md:rounded-full max-md:px-3 ${className}`}
       >
         <span className="absolute inset-0 max-md:hidden">
           <SoulStyleCover style={style} />

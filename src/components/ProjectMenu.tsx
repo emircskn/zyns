@@ -31,7 +31,7 @@ export function ProjectList({
   const [confirming, setConfirming] = useState(false);
   const row = (on: boolean) =>
     `flex w-full items-center gap-2.5 rounded-full px-3 py-2 text-left text-[13.5px] transition-colors duration-[120ms] ${
-      on ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
+      on ? "bg-t1/[0.12] text-t1" : "text-t2 hover:bg-t1/[0.07] hover:text-t1"
     }`;
 
   return (
@@ -44,7 +44,7 @@ export function ProjectList({
         editing === project.id ? (
           <form
             key={project.id}
-            className="flex items-center gap-2 rounded-full bg-t1/[0.1] py-1 pl-3 pr-2 ring-1 ring-inset ring-line-strong"
+            className="flex items-center gap-2 rounded-full bg-t1/[0.1] py-1 pl-3 pr-2"
             onSubmit={(event) => {
               event.preventDefault();
               renameProject(project.id, draft);
@@ -153,7 +153,7 @@ export function ProjectFilter({
           <span
             aria-label={project ? `Project: ${project.name}` : "Projects"}
             className={`grid h-9 w-9 place-items-center rounded-full transition-colors duration-[120ms] ${
-              project ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1"
+              project ? "bg-t1/[0.12] text-t1" : open ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1"
             }`}
           >
             <Icon name="folder" size={16} />

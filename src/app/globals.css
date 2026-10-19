@@ -1524,27 +1524,20 @@ html {
  * Shapes
  *
  * Nothing in the studio is pill-shaped: buttons, chips and segmented
- * controls are rounded rectangles, as a working tool has them; only the
- * round marks without text are circles. Pressing a
+ * controls are rounded rectangles, as a working tool has them, and none
+ * of them has a frame: the fill alone tells a chosen one from the rest
+ * (bg-t1/[0.05] at rest, [0.1] on hover, [0.12] chosen; a segmented
+ * control's track [0.05] with its mark [0.1]). Pressing a
  * button never shrinks it.
  * ------------------------------------------------------------------ */
-/* Text pills (anything with side padding: chips, tags, wide buttons) are
-   rounded rectangles instead. A round mark with no text in it (a close
-   cross, a select circle, an icon button, a dot, a track) is a true
-   circle at any size, so it never changes shape between screens. */
-.rounded-full:is([class*="px-"], [class*="pl-"], [class*="pr-"], [class*="py-"]):not([role="radio"]):not([data-round]):not([role="switch"] > *) {
+/* Anything drawn as a pill is a rounded rectangle instead: buttons, chips,
+   tracks and the marks inside them. Small things (dots, spinners, a
+   switch's knob) come out round anyway, since the corner is half their
+   size; colour swatches, a switch's own track and anything marked
+   data-round (a picture's close cross, select circle, status) keep a true
+   circle at every size. */
+.rounded-full:not([role="radio"]):not([data-round]):not([role="switch"] > *) {
   border-radius: var(--radius-btn);
-}
-/* Buttons have no frame. A button is told from its neighbours by its fill
-   (lighter when chosen), never by an outline, so the same control looks the
-   same wherever it sits. Pictures keep their selection ring, and so do
-   fields (they are not buttons). */
-:is(button, [role="button"], [role="tab"], [role="option"], [role="menuitem"]):not(:has(img, video, canvas)):is([class*="ring-edge"], [class*="ring-line"], [class*="ring-t1/"], [class*="ring-transparent"]):not([class*="ring-2"]) {
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-inset-ring-shadow: 0 0 #0000;
-}
-:is(button, [role="button"], [role="tab"], [role="option"], [role="menuitem"]):not(:has(img, video, canvas)):is([class*="border-line"], [class*="border-edge"]):not([class*="border-dashed"]) {
-  border-color: transparent;
 }
 /* A main action that cannot run yet keeps its orange at half strength, as
    Higgsfield's Generate does, and drops its shadow. */

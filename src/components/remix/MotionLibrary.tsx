@@ -100,7 +100,7 @@ export function MotionLibrary({ onUsed }: { onUsed?: () => void }) {
             onClick={() => setTag(tag === t ? null : t)}
             aria-pressed={tag === t}
             className={`rounded-full px-2.5 py-1 text-[12px] transition-colors duration-[120ms] ${
-              tag === t ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.06] text-t2 hover:text-t1"
+              tag === t ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.06] text-t2 hover:text-t1"
             }`}
           >
             {t}

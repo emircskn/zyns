@@ -194,7 +194,7 @@ export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) 
   return (
     <div key={model.id} className={`anim-swap flex items-center justify-start gap-1.5 ${flush ? "" : "mb-2"}`}>
       <PillGroup
-        className={`!bg-elevated ring-1 ring-inset ring-edge ${fill && shown.length <= 3 ? "w-full" : ""}`}
+        className={`!bg-elevated ${fill && shown.length <= 3 ? "w-full" : ""}`}
         fill={fill && shown.length <= 3}
         value={current}
         onChange={setMode}
@@ -206,7 +206,7 @@ export function ModeStrip({ flush, fill }: { flush?: boolean; fill?: boolean }) 
           width={240}
           trigger={(open) => (
             <span
-              className={`flex h-[38px] items-center gap-1 rounded-full bg-elevated px-3.5 text-[13px] ring-1 ring-inset ring-edge transition-colors duration-[120ms] ${
+              className={`flex h-[38px] items-center gap-1 rounded-full bg-elevated px-3.5 text-[13px] transition-colors duration-[120ms] ${
                 open ? "text-t1" : "text-t3 hover:text-t1"
               }`}
             >
@@ -437,7 +437,7 @@ export function Chip({
     return (
       <span
         className={`flex h-11 w-full min-w-0 select-none items-center gap-2 rounded-card px-3 text-[14px] transition-colors duration-[120ms] ${
-          active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
+          active ? "bg-t1/[0.1] text-t1" : "bg-t1/[0.05] text-t1 hover:bg-t1/[0.1]"
         }`}
       >
         <span className={`shrink-0 ${active ? "" : "text-t2"}`}>{icon}</span>
@@ -452,7 +452,7 @@ export function Chip({
           ? "h-10 gap-2 px-3.5 text-[14px]"
           : "h-8 gap-1.5 px-2.5 text-[12.5px] font-semibold md:gap-[7px] md:px-3 md:text-[12.5px]"
       } ${
-        active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
+        active ? "bg-t1/[0.1] text-t1" : "bg-t1/[0.05] text-t2 hover:bg-t1/[0.1] hover:text-t1"
       }`}
     >
       {icon}
@@ -526,7 +526,7 @@ function ToggleChip({ field, on, onFlip }: { field: Field; on: boolean; onFlip: 
       aria-label={field.label}
       onClick={onFlip}
       title={iconOnly ? `${field.label}: ${on ? "on" : "off"}${field.help ? ` · ${field.help}` : ""}` : field.help}
-      className={`flex select-none items-center whitespace-nowrap rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-edge transition-colors duration-[100ms] hover:bg-t1/[0.1] ${
+      className={`flex select-none items-center whitespace-nowrap rounded-chip bg-t1/[0.05] transition-colors duration-[100ms] hover:bg-t1/[0.1] ${
         on ? "text-t1" : "text-t3 hover:text-t1"
       } ${
         large
@@ -599,10 +599,10 @@ export function BatchChip({ value, onChange }: { value?: number; onChange?: (cou
       title="How many to make"
       className={`flex select-none items-center gap-1 text-t2 ${
         tile
-          ? "h-11 w-full justify-between rounded-card bg-t1/[0.05] px-1.5 text-[14px] text-t1 ring-1 ring-inset ring-edge"
+          ? "h-11 w-full justify-between rounded-card bg-t1/[0.05] px-1.5 text-[14px] text-t1"
           : large
-            ? "h-10 rounded-chip bg-t1/[0.05] px-1.5 text-[14px] ring-1 ring-inset ring-edge"
-            : "h-8 rounded-chip bg-t1/[0.05] pl-1 pr-1 text-[12.5px] ring-1 ring-inset ring-edge md:text-[13px]"
+            ? "h-10 rounded-chip bg-t1/[0.05] px-1.5 text-[14px]"
+            : "h-8 rounded-chip bg-t1/[0.05] pl-1 pr-1 text-[12.5px] md:text-[13px]"
       }`}
     >
       <button
@@ -1172,7 +1172,7 @@ export function MentionStrip({
             onClick={() => onInsert(name)}
             title={active ? `@${name} is in the prompt` : `Insert @${name}`}
             className={`h-[26px] rounded-full px-2.5 font-mono text-[12px] transition-colors duration-[120ms] ${
-              active ? "bg-t1/[0.1] text-t1 ring-1 ring-inset ring-line-strong" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
+              active ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t2 hover:bg-t1/[0.12] hover:text-t1"
             }`}
           >
             @{name}
@@ -1519,7 +1519,7 @@ export function PromptCard({ placement }: { placement: "docked" | "center" }) {
               {text || "Describe what you want to make…"}
             </p>
             {/* The model's mark and name as one piece on one quiet fill. */}
-            <span className="mt-3.5 inline-flex h-[30px] max-w-full items-center gap-2 rounded-chip bg-t1/[0.05] px-2.5 text-[13px] text-t3 ring-1 ring-inset ring-edge">
+            <span className="mt-3.5 inline-flex h-[30px] max-w-full items-center gap-2 rounded-chip bg-t1/[0.05] px-2.5 text-[13px] text-t3">
               {model ? (
                 <>
                   <VendorBadge model={model} size={15} bare />
@@ -1731,7 +1731,7 @@ export function PromptBar({
                 type="button"
                 onClick={() => toggleSettings(true)}
                 title="Advanced settings"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t2 hover:bg-t1/[0.1] hover:text-t1"
               >
                 <Icon name="sliders" size={17} />
               </button>

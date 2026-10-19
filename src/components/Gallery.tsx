@@ -561,7 +561,7 @@ function RunDetails({ run }: { run: Run }) {
       {chips.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {chips.map((chip) => (
-            <span key={chip} className="rounded-full border border-line px-2.5 py-1 text-[12px] text-t2">
+            <span key={chip} className="rounded-full bg-t1/[0.06] px-2.5 py-1 text-[12px] text-t2">
               {chip}
             </span>
           ))}

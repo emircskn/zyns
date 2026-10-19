@@ -142,7 +142,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       <button
         type="button"
         onClick={onClick}
-        className="flex h-8 shrink-0 items-center gap-1.5 rounded-chip pl-2.5 pr-3 text-[13px] bg-t1/[0.05] text-t2 ring-1 ring-inset ring-edge hover:bg-t1/[0.1] hover:text-t1"
+        className="flex h-8 shrink-0 items-center gap-1.5 rounded-chip pl-2.5 pr-3 text-[13px] bg-t1/[0.05] text-t2 hover:bg-t1/[0.1] hover:text-t1"
       >
         <Icon name="plus" size={16} />
         Add {needed.label.toLowerCase()}
@@ -155,7 +155,7 @@ export function AddChip({ onClick, needed }: { onClick: () => void; needed?: Fie
       onClick={onClick}
       aria-label="Add media"
       title="Add images, clips or audio"
-      className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 ring-1 ring-inset ring-edge hover:bg-t1/[0.1]"
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-card bg-t1/[0.05] text-t1 hover:bg-t1/[0.1]"
     >
       <Icon name="plus" size={17} />
     </button>
@@ -190,11 +190,11 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
         <button
           type="button"
           onClick={attach.open}
-          className="flex h-[128px] w-full flex-col items-center justify-center gap-2 rounded-panel bg-t1/[0.05] px-3 text-center ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.1]"
+          className="flex h-[128px] w-full flex-col items-center justify-center gap-2 rounded-panel bg-t1/[0.05] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.1]"
         >
           <span className="flex items-center gap-1.5">
             {kinds.map((kind) => (
-              <span key={kind} className="grid h-9 w-9 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
+              <span key={kind} className="grid h-9 w-9 place-items-center rounded-full bg-black/40 text-t1">
                 <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={18} />
               </span>
             ))}
