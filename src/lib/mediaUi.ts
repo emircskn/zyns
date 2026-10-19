@@ -13,12 +13,12 @@ import type { MediaKind } from "@/lib/attach";
  */
 export const MEDIA_UI = {
   /** An attached picture's box, and the box that holds it in a row. */
-  thumb: "h-16 w-16 rounded-chip max-md:h-[104px] max-md:w-[104px] max-md:rounded-card",
-  thumbWrap: "w-16 max-md:w-[104px]",
+  thumb: "h-16 w-16 rounded-chip max-md:h-[84px] max-md:w-[84px] max-md:rounded-card",
+  thumbWrap: "w-16 max-md:w-[84px]",
   rowGap: "gap-2",
   /** The "+" that sits at the head of a row. */
   addTile:
-    "grid h-16 w-16 max-md:h-[104px] max-md:w-[104px] shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1",
+    "grid h-16 w-16 max-md:h-[84px] max-md:w-[84px] shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1",
   /** The two marks on a picture: shown on hover, always on touch. */
   toolsShow:
     "opacity-0 transition-[opacity,background-color] duration-[120ms] [:hover>&]:opacity-100 max-md:opacity-100 [@media(hover:none)]:opacity-100",
