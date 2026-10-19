@@ -49,8 +49,9 @@ export function ModeTabs() {
         })}
         {box && (
           <span
+            key={mode}
             aria-hidden
-            className="pointer-events-none absolute left-0 h-[2px] rounded-full bg-t1"
+            className="anim-pick pointer-events-none absolute left-0 h-[2px] rounded-full bg-t1"
             style={{
               top: box.y + box.h - 2,
               width: box.w,

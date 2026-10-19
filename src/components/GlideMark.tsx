@@ -24,10 +24,11 @@ export function GlideMark({ value, className, deps = [] }: { value: string; clas
   const { box, settled } = useGlide(root, value, deps);
   return (
     <span
+      key={value}
       ref={self}
       aria-hidden
       data-glide
-      className={`pointer-events-none absolute left-0 top-0 ${box ? "" : "hidden"} ${className}`}
+      className={`anim-pick pointer-events-none absolute left-0 top-0 ${box ? "" : "hidden"} ${className}`}
       style={
         box
           ? {

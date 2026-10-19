@@ -43,8 +43,9 @@ export function ProviderSwitch({
     >
       {box && (
         <span
+          key={provider}
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.12]"
+          className="anim-pick pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.12]"
           style={{
             width: box.w,
             height: box.h,

@@ -78,14 +78,8 @@ export function useGlide(root: RefObject<HTMLElement | null>, value: string, dep
 }
 
 /**
- * No spring here on purpose: an overshoot past the first or last pill lands
- * outside the strip, which clips it.
+ * The highlight does not travel between items any more: sliding across a
+ * row lagged on slower screens. It lands on the new choice at once and
+ * fades in there (`.anim-pick`, re-run by keying the mark on the value).
  */
-/**
- * The highlight slides to the chosen item, critically damped (Apple's
- * default: no overshoot, about a third of a second). A CSS transition
- * starts from where the highlight is on screen, so a second press mid-way
- * redirects it rather than waiting for it to land.
- */
-export const GLIDE_TRANSITION =
-  "transform var(--d-slow) var(--ease), width var(--d-slow) var(--ease), height var(--d-slow) var(--ease)";
+export const GLIDE_TRANSITION = "none";
