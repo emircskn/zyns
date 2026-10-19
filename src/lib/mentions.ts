@@ -107,30 +107,25 @@ export function imageTokens(text: string): { start: number; end: number; index: 
 /**
  * Keep the tokens on their pictures when some are taken out or the order
  * changes: a token goes to its picture's new number, and a token for a
- * removed picture goes with it. Only a plain removal or reorder is
- * followed; a strip emptied by a send, or replaced wholesale, leaves the
- * prompt as written.
+ * removed picture goes with it. A picture added in front (a product slot
+ * filled) moves the rest up. A strip emptied by a send, or replaced
+ * wholesale, leaves the prompt as written.
  */
 export function followPictures(text: string, before: string[], after: string[]): string {
-  if (after.length === 0 || after.length > before.length) return text;
+  if (after.length === 0) return text;
+  // Each picture that stays goes to its new place (one match per copy); the rest are gone.
+  const used = new Set<number>();
   const moved = new Map<number, number>();
-  if (after.length === before.length) {
-    // The same pictures in another order.
-    const used = new Set<number>();
-    for (let i = 0; i < before.length; i++) {
-      const j = after.findIndex((url, k) => !used.has(k) && url === before[i]);
-      if (j < 0) return text;
+  before.forEach((url, i) => {
+    const j = after.findIndex((u, k) => !used.has(k) && u === url);
+    if (j >= 0) {
       used.add(j);
       moved.set(i, j);
     }
-    if ([...moved].every(([i, j]) => i === j)) return text;
-  } else {
-    let j = 0;
-    for (let i = 0; i < before.length && j < after.length; i++) {
-      if (before[i] === after[j]) moved.set(i, j++);
-    }
-    if (j !== after.length) return text;
-  }
+  });
+  // Nothing kept: a new set altogether, not an edit of the old one.
+  if (moved.size === 0 && before.length > 0) return text;
+  if ([...moved].every(([i, j]) => i === j) && moved.size === before.length) return text;
   let out = "";
   let last = 0;
   for (const token of imageTokens(text)) {

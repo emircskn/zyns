@@ -11,7 +11,7 @@ import { BatchChip, FieldChip, Reveal, hasOwnCount } from "@/components/PromptBa
 import { VendorBadge } from "@/components/VendorMark";
 import { CameraDialog, FilmDialog, GridDialog, StudioDialog } from "@/components/studio/Dialogs";
 import { FrameGrab } from "@/components/studio/FrameGrab";
-import type { Kind } from "@/components/studio/ReferencePicker";
+import type { MediaKind as Kind } from "@/lib/attach";
 import { MediaPicker } from "@/components/MediaPicker";
 import { PreviewMedia } from "@/components/studio/Settings";
 import { SettingsSheet } from "@/components/studio/SettingsSheet";

@@ -236,12 +236,15 @@ export function MarketingComposer({
   const ui = useMarketing();
   const patch = useStudio((s) => s.patchMarketing);
   const elements = useStudio((s) => s.elements);
-  // Taking a picture out or moving one carries the prompt's `@Image N` tags with it.
-  const changeRefs = (next: string[]) =>
-    patch((m) => ({
-      refs: next,
-      prompt: followRefs(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...next].filter((u): u is string => !!u), elements),
-    }));
+  // Every change to the pictures (product, character, references) carries the
+  // prompt's `@Image N` tags with it: they are numbered across all three.
+  const numbered = (m: Pick<MarketingUi, "product" | "avatar" | "refs">) => [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u);
+  const setPictures = (change: (m: MarketingUi) => Partial<Pick<MarketingUi, "product" | "avatar" | "refs">>) =>
+    patch((m) => {
+      const next = { ...m, ...change(m) };
+      return { product: next.product, avatar: next.avatar, refs: next.refs, prompt: followRefs(m.prompt, numbered(m), numbered(next), elements) };
+    });
+  const changeRefs = (next: string[]) => setPictures(() => ({ refs: next }));
   const apiKey = useStudio((s) => s.apiKey);
   const hfKey = useStudio((s) => s.hfKey);
   const models = useMemo(() => marketingModels(), []);
@@ -356,15 +359,15 @@ export function MarketingComposer({
         taken={pickedUrls}
         onPick={(urls) => {
           if (urls.length === 0 || !picking) return;
-          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...urls].slice(0, maxRefs) }));
-          else patch({ [picking]: urls[0] } as Partial<MarketingUi>);
+          if (picking === "refs") setPictures((m) => ({ refs: [...m.refs, ...urls].slice(0, maxRefs) }));
+          else setPictures(() => ({ [picking]: urls[0] }));
         }}
         onElements={(elements) => {
           // An element's cover stands for it: a product shot of the product, a person for the model.
           const covers = elements.map((e) => e.images[0]?.storageUrl).filter((u): u is string => !!u);
           if (covers.length === 0 || !picking) return;
-          if (picking === "refs") patch((m) => ({ refs: [...m.refs, ...covers].slice(0, maxRefs) }));
-          else patch({ [picking]: covers[0] } as Partial<MarketingUi>);
+          if (picking === "refs") setPictures((m) => ({ refs: [...m.refs, ...covers].slice(0, maxRefs) }));
+          else setPictures(() => ({ [picking]: covers[0] }));
         }}
       />
     </>
@@ -424,7 +427,7 @@ export function MarketingComposer({
             placeholder={preset ? "Optional: what to change from the preset" : "Describe what you want to create…"}
             onSubmit={() => {}}
             refs={[ui.product, ui.avatar, ...ui.refs].filter((u): u is string => !!u)}
-            onElement={(element) => patch((m) => ({ refs: [...m.refs, ...element.images.map((r) => r.storageUrl).filter((u) => !m.refs.includes(u))].slice(0, maxRefs) }))}
+            onElement={(element) => setPictures((m) => ({ refs: [...m.refs, ...element.images.map((r) => r.storageUrl).filter((u) => !m.refs.includes(u))].slice(0, maxRefs) }))}
           />
           <div className="flex items-center gap-1.5">
             <ChipRow>
@@ -457,8 +460,8 @@ export function MarketingComposer({
           {error && <p className="text-[12.5px] text-[#ff8f8f]">{error}</p>}
         </div>
         <div className="flex gap-1.5 max-md:grid max-md:grid-cols-2">
-          {(!preset || takesPerson(preset)) && slot("Character", ui.avatar, () => setPicking("avatar"), () => patch({ avatar: null }))}
-          {slot("Product", ui.product, () => setPicking("product"), () => patch({ product: null }))}
+          {(!preset || takesPerson(preset)) && slot("Character", ui.avatar, () => setPicking("avatar"), () => setPictures(() => ({ avatar: null })))}
+          {slot("Product", ui.product, () => setPicking("product"), () => setPictures(() => ({ product: null })))}
         </div>
         <div className="flex max-md:hidden">
           <GenerateButton onClick={() => void generate()} busy={busy} disabled={!!key && (busy || !!blocker)} blocker={blocker} price={price} count={count} needsKey={key ? null : PROVIDER_NAME[provider]} />
@@ -558,7 +561,7 @@ export function MarketingComposer({
               hint={preset ? "Required" : "To edit from"}
               url={ui.product}
               onPick={() => setPicking("product")}
-              onClear={() => patch({ product: null })}
+              onClear={() => setPictures(() => ({ product: null }))}
             />
             {preset && !takesPerson(preset) ? (
               <div className="min-w-0 flex-1" />
@@ -570,7 +573,7 @@ export function MarketingComposer({
                 hint="Optional · without one, the product alone"
                 url={ui.avatar}
                 onPick={() => setPicking("avatar")}
-                onClear={() => patch({ avatar: null })}
+                onClear={() => setPictures(() => ({ avatar: null }))}
               />
             ) : (
               <div className="flex min-w-0 flex-1 flex-col">
@@ -606,7 +609,7 @@ export function MarketingComposer({
               onPick={() => setPicking("adReference")}
               onClear={() => patch({ adReference: null })}
             />
-            <Slot label="Product" icon="box" index={2} required url={ui.product} onPick={() => setPicking("product")} onClear={() => patch({ product: null })} />
+            <Slot label="Product" icon="box" index={2} required url={ui.product} onPick={() => setPicking("product")} onClear={() => setPictures(() => ({ product: null }))} />
           </div>
           <p className="rounded-card bg-t1/[0.05] px-3 py-2.5 text-[12px] leading-relaxed text-t3">
             The layout, light and composition of the ad are rebuilt around your product, with the text areas left empty to add your own words after.
