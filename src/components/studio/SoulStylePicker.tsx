@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
@@ -85,7 +86,7 @@ export function SoulStylePicker({ open, styles, selected, onPick, onClose, stren
             {/* Higgsfield keeps the Soul ID's strength beside the style; it only counts when a Soul ID is chosen. */}
             <label className="flex min-w-0 items-center gap-2.5 text-[13px] text-t2">
               <span className="shrink-0 font-semibold text-t1">Soul ID strength</span>
-              <input type="range" min={0.01} max={1} step={0.01} value={strength} onChange={(e) => onStrength(Number(e.target.value))} className="w-[140px] min-w-0 accent-[var(--accent)] sm:w-[200px]" aria-label="Soul ID strength" />
+              <Range value={strength} min={0.01} max={1} step={0.01} onChange={onStrength} label="Soul ID strength" className="w-[140px] sm:w-[200px]" />
               <span className="w-9 shrink-0 text-right tabular-nums text-t3">{strength.toFixed(2)}</span>
             </label>
             <label className="flex h-9 w-full items-center gap-2 rounded-card sm:w-[220px] bg-t1/[0.06] px-3 ring-1 ring-inset ring-edge">

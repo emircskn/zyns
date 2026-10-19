@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
@@ -97,16 +98,7 @@ export function FrameGrab({ open, onClose, onFrame }: { open: boolean; onClose: 
                 className="max-h-[50vh] w-full object-contain"
               />
             </div>
-            <input
-              type="range"
-              aria-label="Frame"
-              min={0}
-              max={length || 0}
-              step={0.04}
-              value={at}
-              onChange={(event) => seek(Number(event.target.value))}
-              className="w-full accent-[var(--t1)]"
-            />
+            <Range min={0} max={length || 0} step={0.04} value={at} onChange={seek} label="Frame" className="w-full" />
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1.5">
                 <button

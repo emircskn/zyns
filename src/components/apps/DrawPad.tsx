@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { Icon } from "@/components/Icon";
 import { mediaSrc } from "@/lib/storage/client";
@@ -125,7 +126,7 @@ export function DrawPad({ src, api, onCount }: { src: string; api: MutableRefObj
       </div>
       <div className="flex items-center gap-3 text-[12.5px] text-t3">
         <Icon name="brush" size={15} />
-        <input type="range" min={6} max={Math.max(60, Math.round(Math.max(size.current.w, size.current.h) / 4))} value={brush} onChange={(e) => setBrush(Number(e.target.value))} style={{ width: 160 }} aria-label="Brush size" />
+        <Range min={6} max={Math.max(60, Math.round(Math.max(size.current.w, size.current.h) / 4))} value={brush} onChange={setBrush} label="Brush size" className="w-40" />
         <button
           type="button"
           onClick={() => {

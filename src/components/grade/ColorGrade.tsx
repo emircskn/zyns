@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { useEffect, useRef, useState } from "react";
 import { ThemeSync } from "@/components/ThemeSync";
 
@@ -153,7 +154,7 @@ export function ColorGrade() {
               {label}
               <span className="font-mono text-t4">{look[key] as number}</span>
             </span>
-            <input type="range" min={min} max={max} value={look[key] as number} onChange={(e) => setLook({ ...look, [key]: Number(e.target.value) })} />
+            <Range min={min} max={max} value={look[key] as number} label={label} onChange={(n) => setLook({ ...look, [key]: n })} />
           </label>
         ))}
         <div className="flex gap-2">

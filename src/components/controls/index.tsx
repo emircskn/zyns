@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { SelectMark } from "@/components/SelectionBar";
 import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -180,31 +181,13 @@ export function SliderControl({ field, value, onChange }: ControlProps) {
   const step = field.step ?? 1;
   const current = value === undefined || value === "" ? undefined : Number(value);
   const display = current ?? min;
-  const share = current === undefined ? 0 : ((display - min) / (max - min || 1)) * 100;
   return (
     <div>
-      {/* A bar that fills to the value, its name and number inside it: dragged or tapped anywhere along it. */}
-      <div className="group/slider relative h-10 overflow-hidden rounded-chip bg-t1/[0.06] transition-colors duration-[120ms] hover:bg-t1/[0.08]">
-        <div className="pointer-events-none absolute inset-y-0 left-0 bg-t1/[0.12]" style={{ width: `${share}%` }}>
-          {current !== undefined && (
-            <span className="absolute right-1.5 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-t1/80 transition-[height] duration-[120ms] group-hover/slider:h-5" />
-          )}
-        </div>
-        <div className="pointer-events-none relative flex h-full items-center justify-between px-3">
-          <span className="text-[13px] text-t2">{field.label}</span>
-          <span className="font-mono text-[13px] tabular-nums text-t1">{current === undefined ? "Auto" : display}</span>
-        </div>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={display}
-          aria-label={field.label}
-          onChange={(event) => onChange(Number(event.target.value))}
-          className="slider-bar absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
-        />
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="text-[12.5px] text-t3">{field.label}</span>
+        <span className="rounded-[6px] bg-t1/[0.07] px-1.5 py-0.5 font-mono text-[12px] tabular-nums text-t1">{current === undefined ? "Auto" : display}</span>
       </div>
+      <Range value={display} min={min} max={max} step={step} empty={current === undefined} label={field.label} onChange={onChange} />
       <div className="mt-1.5 flex items-center justify-between font-mono text-[10.5px] tabular-nums text-t4">
         <span>{min}</span>
         {current !== undefined && field.default === undefined ? (
@@ -538,15 +521,7 @@ export function ShotsControl({ field, value, onChange }: ControlProps) {
           />
           <div className="mt-2 flex items-center gap-2.5">
             <span className="text-[11.5px] text-t4">Duration</span>
-            <input
-              type="range"
-              min={1}
-              max={12}
-              step={1}
-              value={shot.duration}
-              onChange={(event) => update(index, { duration: Number(event.target.value) })}
-              className="flex-1"
-            />
+            <Range value={shot.duration} min={1} max={12} label="Shot duration" onChange={(n) => update(index, { duration: n })} className="flex-1" />
             <span className="w-7 text-right font-mono text-[11.5px] tabular-nums text-t1">
               {shot.duration}s
             </span>

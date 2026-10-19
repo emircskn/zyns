@@ -1,5 +1,6 @@
 "use client";
 
+import { Range } from "@/components/Range";
 import { Icon } from "@/components/Icon";
 import { useStudio } from "@/store/studio";
 
@@ -84,20 +85,15 @@ export function DensitySlider() {
   return (
     <label className="hidden items-center gap-2.5 rounded-card bg-t1/[0.05] py-1.5 pl-3 pr-3.5 md:flex">
       <Icon name="grid" size={14} className="shrink-0 text-t4" />
-      <input
-        type="range"
+      {/* Read backwards: the most across at the left, the fewest (and so the biggest tiles) at the right, as the icons either side say. */}
+      <Range
         min={STEPS[0]}
         max={STEPS[STEPS.length - 1]}
-        step={1}
-        // Read backwards: the most across at the left, the fewest (and so
-        // the biggest tiles) at the right.
         value={STEPS[0] + STEPS[STEPS.length - 1] - density}
-        aria-label="Tile size"
+        label="Tile size"
         title={`${density} across`}
-        // More tiles to the left, bigger ones to the right, which is the
-        // way the two icons either side of it read.
-        onChange={(event) => setDensity(STEPS[0] + STEPS[STEPS.length - 1] - Number(event.target.value))}
-        className="density-range h-1 w-[96px] cursor-ew-resize appearance-none rounded-full bg-t1/[0.18]"
+        onChange={(n) => setDensity(STEPS[0] + STEPS[STEPS.length - 1] - n)}
+        className="w-[96px]"
       />
       <Icon name="expand" size={14} className="shrink-0 text-t4" />
     </label>
