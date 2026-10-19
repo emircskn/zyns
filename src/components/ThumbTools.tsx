@@ -44,6 +44,7 @@ export function ThumbTools({ url, onRemove, tapOpens = true }: { url: string; on
       <button
         type="button"
         aria-label="Remove"
+        data-round
         onClick={(event) => {
           event.stopPropagation();
           onRemove();
