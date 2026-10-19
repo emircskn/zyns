@@ -75,7 +75,7 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   if (!media || urls.length > 0) {
     return (
       // Filled, a media slot is the references box over the prompt: the same height as when empty, thumbs only.
-      <div className={`rounded-panel border border-line bg-elevated p-3 ${media ? "flex items-center max-md:h-[128px] max-md:p-[11px]" : ""}`}>
+      <div className={`rounded-panel border border-line bg-elevated p-3 ${media ? `flex items-center max-md:h-[128px] max-md:p-[11px] ${many ? "" : "justify-center"}` : ""}`}>
         <InputLabel field={field} />
         <Control
           field={field}
