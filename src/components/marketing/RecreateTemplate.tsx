@@ -150,7 +150,7 @@ export function RecreateTemplate({
           <span className="absolute right-2 top-2 rounded-chip bg-black/40 px-1.5 py-0.5 text-[10.5px] font-medium text-t3">{note}</span>
         </button>
         {url && (
-          <ThumbTools url={url} onRemove={onClear} />
+          <ThumbTools url={url} onRemove={onClear} tapOpens={false} />
         )}
       </div>
     </div>

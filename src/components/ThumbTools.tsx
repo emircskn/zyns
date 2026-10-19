@@ -10,10 +10,21 @@ import { mediaKind } from "@/lib/upload";
  * full size in the middle, and a cross to take it out at the top right. It sits directly in the thumb, which is the
  * relative box it hovers over (always shown where there is no hover).
  */
-export function ThumbTools({ url, onRemove }: { url: string; onRemove: () => void }) {
+export function ThumbTools({ url, onRemove, tapOpens = true }: { url: string; onRemove: () => void; /** A press anywhere on the picture opens it full screen (not on a tile whose press already does something). */ tapOpens?: boolean }) {
   const [looking, setLooking] = useState(false);
   return (
     <>
+      {/* A span, not a button, so a held press on it can still start moving the picture. */}
+      {tapOpens && mediaKind(url) !== "audio" && (
+        <span
+          aria-hidden
+          className="absolute inset-0 z-[5] cursor-zoom-in"
+          onClick={(event) => {
+            event.stopPropagation();
+            setLooking(true);
+          }}
+        />
+      )}
       {/* In the middle: full size. Top right: take it out of the prompt. Plain glyphs, on hover (always on a phone). */}
       {mediaKind(url) !== "audio" && (
         <button

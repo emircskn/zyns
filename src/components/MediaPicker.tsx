@@ -42,7 +42,7 @@ function TileAction({
         event.stopPropagation();
         onClick();
       }}
-      className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/75"
+      className="grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white transition-all duration-[120ms] hover:scale-110 hover:bg-black/75 max-md:h-6 max-md:w-6 max-md:[&_svg]:h-3 max-md:[&_svg]:w-3"
     >
       <Icon name={icon} size={15} />
     </button>

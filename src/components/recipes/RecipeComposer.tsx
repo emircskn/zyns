@@ -293,7 +293,7 @@ export function RecipeComposer({
                   </span>
                 </button>
                 {list.length > 0 && (
-                  <ThumbTools url={list[0]} onRemove={() => setSlots((all) => ({ ...all, [slot.key]: slot.type === "image" ? [] : undefined }))} />
+                  <ThumbTools url={list[0]} tapOpens={false} onRemove={() => setSlots((all) => ({ ...all, [slot.key]: slot.type === "image" ? [] : undefined }))} />
                 )}
               </div>
             );

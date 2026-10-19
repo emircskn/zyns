@@ -230,7 +230,7 @@ function EditorSheet({
                           Make cover
                         </button>
                       )}
-                      <ThumbTools url={url} onRemove={() => setImages((all) => all.filter((u) => u !== url))} />
+                      <ThumbTools url={url} tapOpens={false} onRemove={() => setImages((all) => all.filter((u) => u !== url))} />
                     </div>
                   ))}
                   {images.length < MAX_ELEMENT_IMAGES && (

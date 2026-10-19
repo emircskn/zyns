@@ -205,7 +205,7 @@ function Slot({
           <span className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-card bg-gradient-to-t from-black/60 to-transparent px-2 pb-1.5 pt-5 text-[11.5px] text-white">
             {label}
           </span>
-          <ThumbTools url={url} onRemove={onClear} />
+          <ThumbTools url={url} onRemove={onClear} tapOpens={false} />
         </>
       )}
     </div>
@@ -390,7 +390,7 @@ export function MarketingComposer({
           <span className="relative truncate text-[10px] font-bold uppercase text-t1">{label}</span>
         </button>
         {url && (
-          <ThumbTools url={url} onRemove={onClear} />
+          <ThumbTools url={url} onRemove={onClear} tapOpens={false} />
         )}
       </div>
     );
