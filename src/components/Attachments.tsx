@@ -110,13 +110,13 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
           type="button"
           onClick={onAdd}
           aria-label="Add media"
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1"
+          className="grid h-16 w-16 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1"
         >
           <Icon name="plus" size={17} />
         </button>
       )}
       {items.map(({ field, url, index, key }, at) => (
-        <div key={key} {...reorder.bind(at)} className={`w-14 shrink-0 ${reorder.bind(at).className}`}>
+        <div key={key} {...reorder.bind(at)} className={`w-16 shrink-0 ${reorder.bind(at).className}`}>
           <MediaThumb
             url={url}
             onRemove={() =>

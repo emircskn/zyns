@@ -1,5 +1,6 @@
 "use client";
 
+import { followPictures } from "@/lib/mentions";
 import { ThumbTools } from "@/components/ThumbTools";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState } from "react";
@@ -409,10 +410,10 @@ export function MarketingComposer({
               {!preset && ui.refs.length > 0 && (
                 <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
                   {ui.refs.map((url) => (
-                    <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                    <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
-                      <ThumbTools url={url} onRemove={() => patch({ refs: ui.refs.filter((u) => u !== url) })} />
+                      <ThumbTools url={url} onRemove={() => patch((m) => ({ refs: m.refs.filter((u) => u !== url), prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...m.refs.filter((u) => u !== url)].filter((u): u is string => !!u)) }))} />
                     </span>
                   ))}
                 </div>
@@ -595,7 +596,7 @@ export function MarketingComposer({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={mediaSrc(url)} alt="" className="h-full w-full object-cover" />
                   <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1 font-mono text-[9.5px] text-white">{i + (ui.product ? 2 : 1)}</span>
-                  <ThumbTools url={url} onRemove={() => patch({ refs: ui.refs.filter((u) => u !== url) })} />
+                  <ThumbTools url={url} onRemove={() => patch((m) => ({ refs: m.refs.filter((u) => u !== url), prompt: followPictures(m.prompt, [m.product, m.avatar, ...m.refs].filter((u): u is string => !!u), [m.product, m.avatar, ...m.refs.filter((u) => u !== url)].filter((u): u is string => !!u)) }))} />
                 </span>
               ))}
             </div>

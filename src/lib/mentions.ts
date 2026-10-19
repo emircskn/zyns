@@ -107,7 +107,8 @@ export function imageTokens(text: string): { start: number; end: number; index: 
 /**
  * Keep the tokens on their pictures when some are taken out or the order
  * changes: a token goes to its picture's new number, and a token for a
- * removed picture goes with it. Only a plain removal or reorder is
+ * removed picture stays, moved past the pictures left, where it is drawn
+ * struck through (see the prompt's dead tags). Only a plain removal or reorder is
  * followed; a strip emptied by a send, or replaced wholesale, leaves the
  * prompt as written.
  */
@@ -133,14 +134,13 @@ export function followPictures(text: string, before: string[], after: string[]):
   }
   let out = "";
   let last = 0;
+  let gone = 0;
   for (const token of imageTokens(text)) {
     if (token.index >= before.length) continue;
     out += text.slice(last, token.start);
     last = token.end;
     const index = moved.get(token.index);
-    if (index !== undefined) out += `@${imageName(index)}`;
-    else if (text[last] === " ") last++;
-    else if (out.endsWith(" ")) out = out.slice(0, -1);
+    out += `@${imageName(index ?? after.length + gone++)}`;
   }
   return out + text.slice(last);
 }

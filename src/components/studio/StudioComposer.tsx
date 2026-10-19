@@ -20,6 +20,7 @@ import { Wheel } from "@/components/studio/Wheel";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { ThumbTools } from "@/components/ThumbTools";
 import { limitsFor } from "@/lib/attach";
+import { followPictures } from "@/lib/mentions";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { inUse, soulVersionOf, soulsFor, type LibraryElement } from "@/lib/elements";
 import { mapParams } from "@/lib/recipes/paramMap";
@@ -633,7 +634,7 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
           {/* The references sit over the prompt and grow in as they come. */}
           <div className="-mb-2.5 max-md:-mb-6">
             <Reveal>
-              <ReferenceStrip refs={refs} values={values} onSet={set} />
+              <ReferenceStrip refs={refs} values={values} onSet={set} onPicturesChanged={(before, after) => setPrompt(followPictures(prompt, before, after))} />
             </Reveal>
           </div>
           <div className="flex items-start gap-2">
@@ -800,13 +801,13 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
 }
 
 /** What is among the references, small, over the prompt, each with a way out. */
-function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values; onSet: (key: string, value: unknown) => void }) {
+function ReferenceStrip({ refs, values, onSet, onPicturesChanged }: { refs: Field[]; values: Values; onSet: (key: string, value: unknown) => void; onPicturesChanged: (before: string[], after: string[]) => void }) {
   const items = refs.flatMap((f) => listOf(values[f.key]).map((url) => ({ url, field: f })));
   if (items.length === 0) return null;
   return (
     <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
       {items.map(({ url, field }) => (
-        <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-edge">
+        <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-edge">
           {mediaKind(url) === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
@@ -820,7 +821,16 @@ function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values
               <Icon name="audio" size={15} />
             </span>
           )}
-          <ThumbTools url={url} onRemove={() => onSet(field.key, listOf(values[field.key]).filter((u) => u !== url))} />
+          <ThumbTools
+            url={url}
+            onRemove={() => {
+              const before = listOf(values[field.key]);
+              const after = before.filter((u) => u !== url);
+              onSet(field.key, after);
+              // The prompt's `@Image N` points at the picture field's list.
+              if (mediaKind(url) === "image") onPicturesChanged(before, after);
+            }}
+          />
         </span>
       ))}
     </div>
@@ -1049,10 +1059,10 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
             {studio.imageRefs.length > 0 && (
               <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pt-2.5 max-md:pt-6">
                 {studio.imageRefs.map((url) => (
-                  <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
+                  <span key={url} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-card ring-1 ring-inset ring-edge">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url) }))} />
+                    <ThumbTools url={url} onRemove={() => patchStudio((s) => ({ imageRefs: s.imageRefs.filter((u) => u !== url), imagePrompt: followPictures(s.imagePrompt, s.imageRefs, s.imageRefs.filter((u) => u !== url)) }))} />
                   </span>
                 ))}
               </div>

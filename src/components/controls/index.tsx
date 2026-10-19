@@ -296,7 +296,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
   return (
     <div
       className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-edge ${
-        roomy ? "h-[88px] w-[88px] rounded-card" : "h-14 w-14 rounded-chip"
+        roomy ? "h-[88px] w-[88px] rounded-card" : "h-16 w-16 rounded-chip"
       }`}
     >
       {kind === "image" && (
