@@ -1524,15 +1524,15 @@ html {
  * Shapes
  *
  * Nothing in the studio is pill-shaped: buttons, chips and segmented
- * controls are rounded rectangles, as a working tool has them. Pressing a
+ * controls are rounded rectangles, as a working tool has them; only the
+ * round marks without text are circles. Pressing a
  * button never shrinks it.
  * ------------------------------------------------------------------ */
-/* Anything drawn as a pill is a rounded rectangle instead: buttons, chips,
-   tracks and the marks inside them. Small things (dots, spinners, a
-   switch's knob) come out round anyway, since the corner is half their
-   size; colour swatches, a switch's own track and anything marked
-   data-round keep a true circle. */
-.rounded-full:not([role="radio"]):not([data-round]):not([role="switch"] > *) {
+/* Text pills (anything with side padding: chips, tags, wide buttons) are
+   rounded rectangles instead. A round mark with no text in it (a close
+   cross, a select circle, an icon button, a dot, a track) is a true
+   circle at any size, so it never changes shape between screens. */
+.rounded-full:is([class*="px-"], [class*="pl-"], [class*="pr-"], [class*="py-"]):not([role="radio"]):not([data-round]):not([role="switch"] > *) {
   border-radius: var(--radius-btn);
 }
 /* A main action that cannot run yet keeps its orange at half strength, as
