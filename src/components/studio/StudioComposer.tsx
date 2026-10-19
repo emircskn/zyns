@@ -1164,7 +1164,6 @@ function ImageComposer({ onKeyClick }: { onKeyClick: () => void }) {
         characters
         accept="image"
         onElements={(chosen) => chosen[0] && patchStudio({ character: chosen[0].id })}
-        onClear={character ? () => patchStudio({ character: null }) : undefined}
         onPick={() => {}}
         onClose={() => setChoosing(false)}
       />

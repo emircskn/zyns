@@ -350,7 +350,6 @@ export function MarketingComposer({
         onClose={() => setPicking(null)}
         accept="image"
         characters={picking === "avatar"}
-        onClear={picking === "avatar" && ui.avatar ? () => patch({ avatar: null }) : undefined}
         multiple={picking === "refs"}
         max={picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1}
         limits={picking === "refs" ? { image: limitOf(model?.name ?? "This model", "image", maxRefs, ui.refs.length) } : undefined}

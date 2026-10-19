@@ -139,7 +139,6 @@ export function MediaPicker({
   max,
   limits,
   characters = false,
-  onClear,
 }: {
   open: boolean;
   /** One kind, or several for the bar's "+", which files each where it goes. */
@@ -161,8 +160,6 @@ export function MediaPicker({
   limits?: Partial<Record<Kind, { room: number; note: string }>>;
   /** Only the Characters part (one pick, no uploads or generations): a character tile closes it. */
   characters?: boolean;
-  /** With `characters`: a way to let go of the character already chosen. */
-  onClear?: () => void;
 }) {
   const { mounted, exiting } = usePresence(open, 240);
   // What it was opened for, kept while it closes: a caller that resets its
@@ -407,18 +404,6 @@ export function MediaPicker({
           {tab === "elements" ? (
             !onElements ? null : (
               <>
-              {characters && onClear && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClear();
-                    onClose();
-                  }}
-                  className="mb-3 h-8 rounded-chip bg-t1/[0.07] px-3 text-[12.5px] text-t2 hover:text-t1"
-                >
-                  No character
-                </button>
-              )}
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {/* As Uploads starts with uploading, Elements starts with making one; it opens over this window and lands here. */}
                 <button
