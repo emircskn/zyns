@@ -55,7 +55,7 @@ import { PaintBrush } from "@phosphor-icons/react/dist/ssr/PaintBrush";
 import { PaintBrushBroad } from "@phosphor-icons/react/dist/ssr/PaintBrushBroad";
 import { Palette } from "@phosphor-icons/react/dist/ssr/Palette";
 import { Pause } from "@phosphor-icons/react/dist/ssr/Pause";
-import { PenNib } from "@phosphor-icons/react/dist/ssr/PenNib";
+import { Sword } from "@phosphor-icons/react/dist/ssr/Sword";
 import { PencilSimple } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { Play } from "@phosphor-icons/react/dist/ssr/Play";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
@@ -169,7 +169,8 @@ export type IconName =
   | "box"
   | "ratio-auto"
   | "eye"
-  | "info";
+  | "info"
+  | "sword";
 
 /**
  * Every glyph in the studio, from one set (Phosphor) so they share a hand:
@@ -251,7 +252,8 @@ const GLYPHS: Record<IconName, PhosphorIcon> = {
   film: FilmStrip,
   wand: MagicWand,
   mask: PaintBrushBroad,
-  enhance: PenNib,
+  enhance: MagicWand,
+  sword: Sword,
   music: MusicNotes,
   tag: Tag,
   move: ArrowsOutCardinal,

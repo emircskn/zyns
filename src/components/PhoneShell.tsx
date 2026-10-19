@@ -130,7 +130,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
   const make: Array<{ id: Page; label: string; icon: IconName }> = [
     ...categoriesFor(provider).map((c) => ({ id: c.id as Page, label: c.label, icon: ICONS[c.id as Page] ?? "spark" })),
     { id: "remix", label: "Genjutsu", icon: "mask" },
-    { id: "katana", label: "Katana", icon: "wand" },
+    { id: "katana", label: "Katana", icon: "sword" },
     { id: "influencer", label: "AI Influencer", icon: "user" },
     { id: "studio", label: "Cinema Studio", icon: "film" },
     { id: "marketing", label: "Marketing Studio", icon: "box" },
