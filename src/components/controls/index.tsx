@@ -324,48 +324,6 @@ function AddTile({ busy, onClick }: { busy: boolean; onClick: () => void; roomy?
   );
 }
 
-function UrlField({
-  value,
-  placeholder,
-  onCommit,
-}: {
-  value?: string;
-  placeholder: string;
-  onCommit: (value: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        title="Paste a public URL instead"
-        className={`grid h-5 w-5 place-items-center rounded-full transition-colors duration-[120ms] ${
-          open ? "bg-t1/15 text-t1" : "text-t4 hover:text-t1"
-        }`}
-      >
-        <Icon name="link" size={14} />
-      </button>
-      {open && (
-        <input
-          type="text"
-          autoFocus
-          defaultValue={value ?? ""}
-          placeholder={placeholder}
-          onBlur={(event) => onCommit(event.target.value.trim())}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              onCommit(event.currentTarget.value.trim());
-              event.currentTarget.blur();
-            }
-          }}
-          className="anim-fade absolute inset-x-0 top-6 z-10 rounded-chip bg-elevated px-2.5 py-1.5 text-[12px] text-t1 shadow-[var(--shadow-pop)] outline-none ring-1 ring-inset ring-edge placeholder:text-t4"
-        />
-      )}
-    </>
-  );
-}
-
 function SlotHeader({
   label,
   count,
@@ -399,7 +357,6 @@ export function MediaControl({ field, value, onChange, compact, roomy }: Control
   return (
     <div className="min-w-0">
       <SlotHeader label={field.label} help={field.help}>
-        <UrlField value={url} placeholder="https://…" onCommit={(next) => onChange(next || undefined)} />
       </SlotHeader>
       <div className="flex items-center gap-2">
         {url ? (
@@ -438,13 +395,6 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
         count={`${urls.length}${field.maxItems ? `/${field.maxItems}` : ""}`}
         help={field.help}
       >
-        <UrlField
-          placeholder="https://… then Enter"
-          onCommit={(next) => {
-            if (!next || full) return;
-            onChange([...urls, next]);
-          }}
-        />
       </SlotHeader>
       {/* A model with several reference slots gives each one a narrow column,
           so its thumbs wrap after three. A model with a single slot has the
@@ -746,15 +696,6 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
   return (
     <div className="min-w-0">
       <SlotHeader label={field.label} count={many ? `${picked.length}/${max}` : undefined} help={field.help}>
-        <UrlField
-          placeholder="Paste an ID, then Enter"
-          onCommit={(next) => {
-            if (!next) return;
-            if (many) {
-              if (!picked.includes(next) && picked.length < max) onChange([...picked, next]);
-            } else onChange(next);
-          }}
-        />
       </SlotHeader>
       {items.length === 0 && strays.length === 0 ? (
         <p className="max-w-[260px] text-[11.5px] leading-snug text-t4">{SOURCE_EMPTY[spec.of]}</p>
