@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import { flushSync } from "react-dom";
 import { AttachPanel } from "@/components/Attachments";
 import { limitsFor } from "@/lib/attach";
-import { Control, InputLabel, SlotNameInCorner } from "@/components/controls";
+import { Control, InputLabel } from "@/components/controls";
 import { CoverArt } from "@/components/CoverArt";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
@@ -75,19 +75,17 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
   if (!media || urls.length > 0) {
     return (
       // Filled, a media slot is the references box over the prompt: the same height as when empty, thumbs only.
-      <div className={`relative rounded-panel border border-line bg-elevated p-3 ${media ? "flex items-center max-md:h-[128px] max-md:p-[11px]" : ""}`}>
+      <div className={`rounded-panel border border-line bg-elevated p-3 ${media ? "flex items-center max-md:h-[128px] max-md:p-[11px]" : ""}`}>
         <InputLabel field={field} />
-        <SlotNameInCorner.Provider value={media}>
-          <Control
-            field={field}
-            value={value}
-            values={values}
-            compact
-            lane
-            roomy={!media}
-            onChange={(next) => setValue(field.key, next)}
-          />
-        </SlotNameInCorner.Provider>
+        <Control
+          field={field}
+          value={value}
+          values={values}
+          compact
+          lane
+          roomy={!media}
+          onChange={(next) => setValue(field.key, next)}
+        />
       </div>
     );
   }

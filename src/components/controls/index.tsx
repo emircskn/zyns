@@ -1,7 +1,7 @@
 "use client";
 
 import { SelectMark } from "@/components/SelectionBar";
-import { useContext, createContext, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { activeFields, getModel, type Field, type ItemField, type Values } from "@/lib/registry";
 import { notify } from "@/lib/notify";
@@ -294,7 +294,7 @@ function Spinner({ size = 12 }: { size?: number }) {
   );
 }
 
-export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: () => void; roomy?: boolean }) {
+export function MediaThumb({ url, onRemove, caption }: { url: string; onRemove: () => void; roomy?: boolean; caption?: string | null }) {
   const kind = mediaKind(url);
   return (
     <div
@@ -312,6 +312,12 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
         <div className="flex h-full w-full items-center justify-center text-t3">
           <Icon name="audio" size={18} />
         </div>
+      )}
+      {caption && (
+        // The slot's name on the picture itself ("Start frame"), so the box keeps its height.
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] truncate bg-gradient-to-t from-black/75 to-transparent px-1.5 pb-1 pt-4 text-center text-[10.5px] font-medium text-white">
+          {caption}
+        </span>
       )}
       <ThumbTools url={url} onRemove={onRemove} />
     </div>
@@ -403,42 +409,18 @@ function SlotHeader({
 const PLAIN_SLOT = /^(?:(?:reference|input|source)\s+)?(?:pictures?|images?|photos?|media|videos?|clips?|audios?|files?|references?)$/i;
 const slotName = (field: Field) => (PLAIN_SLOT.test(field.label.trim()) ? null : field.label);
 
-/** Set by a box that holds one slot: the name goes in its top corner, where the empty box shows "Optional". */
-export const SlotNameInCorner = createContext(false);
-
-function SlotName({ field, count }: { field: Field; count?: string }) {
-  const corner = useContext(SlotNameInCorner);
-  const name = slotName(field);
-  if (!name) return null;
-  if (corner) {
-    return (
-      <span className="absolute right-2.5 top-2.5 rounded-[5px] bg-t1/[0.07] px-1.5 py-px text-[10.5px] leading-[16px] text-t4" title={field.help}>
-        {name}
-        {count && <span className="ml-1 font-mono tabular-nums">{count}</span>}
-      </span>
-    );
-  }
-  return (
-    <span className="flex min-w-0 shrink-0 flex-col justify-center gap-0.5 self-center" title={field.help}>
-      <span className="truncate text-[12.5px] text-t2">{name}</span>
-      {count && <span className="font-mono text-[10.5px] tabular-nums text-t4">{count}</span>}
-    </span>
-  );
-}
-
 export function MediaControl({ field, value, onChange, roomy }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const url = (value as string) ?? "";
 
   return (
     <div className="min-w-0">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {url ? (
-          <MediaThumb url={url} roomy={roomy} onRemove={() => onChange(undefined)} />
+          <MediaThumb url={url} roomy={roomy} caption={slotName(field)} onRemove={() => onChange(undefined)} />
         ) : (
           <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />
         )}
-        <SlotName field={field} />
       </div>
       <MediaPicker
         open={picking}
@@ -476,11 +458,10 @@ export function ImagesControl({ field, value, onChange, lane, roomy }: ControlPr
           const { className, ...hold } = reorder.bind(index);
           return (
             <div key={keys[index]} {...hold} className={`shrink-0 ${className}`}>
-              <MediaThumb url={url} roomy={roomy} onRemove={() => onChange(urls.filter((_, i) => i !== index))} />
+              <MediaThumb url={url} roomy={roomy} caption={slotName(field)} onRemove={() => onChange(urls.filter((_, i) => i !== index))} />
             </div>
           );
         })}
-        <SlotName field={field} count={field.maxItems ? `${urls.length}/${field.maxItems}` : undefined} />
       </div>
       <MediaPicker
         open={picking}
