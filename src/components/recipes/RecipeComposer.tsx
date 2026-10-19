@@ -1,5 +1,6 @@
 "use client";
 
+import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState, type ReactNode } from "react";
 import { Control } from "@/components/controls";
 import { Icon } from "@/components/Icon";
@@ -70,6 +71,19 @@ export function RecipeComposer({
   lead?: ReactNode;
 }) {
   const [slots, setSlots] = useState<Record<string, unknown>>({});
+  // `@name` in a text slot: the element's pictures go into the image slot made for its kind (else the first with room).
+  function addElement(element: LibraryElement) {
+    const images = recipe.slots.filter((x): x is Extract<Slot, { type: "image" }> => x.type === "image");
+    const urls = element.images.map((i) => i.storageUrl);
+    setSlots((all) => {
+      const listOf = (key: string) => (Array.isArray(all[key]) ? all[key] : all[key] ? [all[key]] : []) as string[];
+      const target = images.find((x) => x.elementKind === element.kind) ?? images.find((x) => listOf(x.key).length < (x.max ?? 10));
+      if (!target) return all;
+      const now = listOf(target.key);
+      const room = (target.max ?? 10) - now.length;
+      return room > 0 ? { ...all, [target.key]: [...now, ...urls.filter((u) => !now.includes(u)).slice(0, room)] } : all;
+    });
+  }
   const [choices, setChoices] = useState<Record<string, string>>(
     Object.fromEntries(recipe.choices.map((c) => [c.key, c.default])),
   );
@@ -178,12 +192,13 @@ export function RecipeComposer({
       <div className="flex flex-col gap-1.5 rounded-panel border border-line bg-elevated p-1.5 md:min-h-[130px] md:flex-row md:items-center md:gap-2 md:bg-[var(--chip-well)] md:pr-3 md:shadow-[inset_0_0_0_6px_var(--elevated)]">
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 md:self-stretch md:justify-between md:bg-transparent">
           {main && (
-            <textarea
-              value={(slots[main.key] as string) ?? ""}
-              onChange={(event) => setSlots((all) => ({ ...all, [main.key]: event.target.value }))}
+            <StudioPrompt
+              text={(slots[main.key] as string) ?? ""}
+              onText={(text) => setSlots((all) => ({ ...all, [main.key]: text }))}
               placeholder={main.placeholder ?? `Describe the ${main.label.toLowerCase()}…`}
               rows={2}
-              className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
+              onSubmit={() => {}}
+              onElement={addElement}
             />
           )}
           <div className="flex items-center gap-1.5">
@@ -202,14 +217,16 @@ export function RecipeComposer({
                     {() => (
                       <>
                       <Presets slot={slot} onPick={(text) => setSlots((all) => ({ ...all, [slot.key]: text }))} />
-                      <textarea
-                        autoFocus
-                        value={text}
-                        onChange={(event) => setSlots((all) => ({ ...all, [slot.key]: event.target.value }))}
-                        placeholder={slot.placeholder}
-                        rows={3}
-                        className={`${field} resize-none`}
-                      />
+                      <div className={field}>
+                        <StudioPrompt
+                          text={text}
+                          onText={(next) => setSlots((all) => ({ ...all, [slot.key]: next }))}
+                          placeholder={slot.placeholder ?? ""}
+                          rows={3}
+                          onSubmit={() => {}}
+                          onElement={addElement}
+                        />
+                      </div>
                       </>
                     )}
                   </Popover>
@@ -323,13 +340,16 @@ export function RecipeComposer({
           {slot.type === "text" ? (
             <>
             <Presets slot={slot} onPick={(text) => setSlots((all) => ({ ...all, [slot.key]: text }))} />
-            <textarea
-              value={(slots[slot.key] as string) ?? ""}
-              onChange={(event) => setSlots((all) => ({ ...all, [slot.key]: event.target.value }))}
-              placeholder={slot.placeholder}
-              rows={2}
-              className={`${field} resize-none`}
-            />
+            <div className={field}>
+              <StudioPrompt
+                text={(slots[slot.key] as string) ?? ""}
+                onText={(next) => setSlots((all) => ({ ...all, [slot.key]: next }))}
+                placeholder={slot.placeholder ?? ""}
+                rows={2}
+                onSubmit={() => {}}
+                onElement={addElement}
+              />
+            </div>
             </>
           ) : (
             <div className="flex flex-wrap gap-2">

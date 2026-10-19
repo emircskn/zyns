@@ -10,6 +10,8 @@ import { BLURB, bannerOf } from "@/lib/remix/banner";
 import { VendorBadge } from "@/components/VendorMark";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
+import { StudioPrompt } from "@/components/studio/StudioPrompt";
+import { followRefs } from "@/lib/refTags";
 import { ModeTabs } from "@/components/remix/ModeTabs";
 import { Trimmer } from "@/components/remix/Trimmer";
 import { MotionLibrary } from "@/components/remix/MotionLibrary";
@@ -454,7 +456,8 @@ export function RemixComposer({
   const settings = model ? settingFields(model, own) : [];
   const promptText = remix.prompts[remix.mode] ?? "";
   const promptOn = promptIsOn(remix);
-  const promptBox = useRef<HTMLTextAreaElement>(null);
+  const promptBox = useRef<HTMLTextAreaElement | null>(null);
+  const elements = useStudio((s) => s.elements);
 
   const tiles = model ? settings : [];
   // As on Video: the tiles share the row; the project chip takes a cell only when it shows.
@@ -502,7 +505,13 @@ export function RemixComposer({
             refs={remix.refs.slice(0, room)}
             room={room}
             required={!!refsField.required}
-            onChange={(refs) => patchRemix({ refs })}
+            // Taking one out or moving one carries the prompt's `@Image N` with it.
+            onChange={(refs) =>
+              patchRemix((r) => ({
+                refs,
+                prompts: Object.fromEntries(Object.entries(r.prompts).map(([mode, text]) => [mode, followRefs(text ?? "", r.refs, refs, elements)])),
+              }))
+            }
             onAdd={() => setPicking("refs")}
           />
         )}
@@ -516,21 +525,34 @@ export function RemixComposer({
             if (next) window.setTimeout(() => promptBox.current?.focus(), 260);
           }}
         >
-          <textarea
-            ref={promptBox}
-            value={promptText}
-            rows={4}
-            tabIndex={promptOn ? 0 : -1}
-            placeholder={
-              remix.mode === "swap"
-                ? "Optional: what to swap, and for what"
-                : remix.mode === "restyle"
-                  ? "Optional: anything the style should keep or change"
-                  : "Optional: describe the new scene"
-            }
-            onChange={(event) => patchRemix((r) => ({ prompts: { ...r.prompts, [r.mode]: event.target.value } }))}
-            className="min-h-[104px] w-full resize-none bg-transparent text-[16px] leading-relaxed text-t1 outline-none placeholder:text-t4 md:text-[14px]"
-          />
+          {/* The prompt box every composer has: `@Image N` is a reference picture, `@name` an element. */}
+          <div className="min-h-[104px]">
+            <StudioPrompt
+              text={promptText}
+              rows={4}
+              inputRef={(node) => {
+                promptBox.current = node;
+              }}
+              placeholder={
+                remix.mode === "swap"
+                  ? "Optional: what to swap, and for what"
+                  : remix.mode === "restyle"
+                    ? "Optional: anything the style should keep or change"
+                    : "Optional: describe the new scene"
+              }
+              onText={(text) => patchRemix((r) => ({ prompts: { ...r.prompts, [r.mode]: text } }))}
+              onSubmit={generate}
+              refs={refsField ? remix.refs.slice(0, room) : []}
+              onElement={
+                refsField
+                  ? (element) =>
+                      patchRemix((r) => ({
+                        refs: [...r.refs, ...element.images.map((i) => i.storageUrl).filter((u) => !r.refs.includes(u))].slice(0, room || undefined),
+                      }))
+                  : undefined
+              }
+            />
+          </div>
         </PromptBox>
         {modelRow ??
           (model && (

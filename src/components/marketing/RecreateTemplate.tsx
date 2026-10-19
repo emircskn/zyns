@@ -18,6 +18,8 @@ import {
 } from "@/components/marketing/MarketingComposer";
 import { FieldChip } from "@/components/PromptBar";
 import { MediaPicker } from "@/components/MediaPicker";
+import { StudioPrompt } from "@/components/studio/StudioPrompt";
+import { followRefs } from "@/lib/refTags";
 import { GenerateButton, ModelChip, usePrice } from "@/components/studio/StudioComposer";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { styleById, styleCover } from "@/lib/marketing/styles";
@@ -98,6 +100,14 @@ export function RecreateTemplate({
   const model = models.find((m) => m.id === modelId) ?? models[0];
   const marketing = isMarketingModel(model?.id);
   const person = hf ? takesPerson(hf) : true;
+  const elements = useStudio((s) => s.elements);
+  // The product is Image 1 and the character Image 2, as in the prompt box: a change to either carries the prompt's tags.
+  const pictures = (p: string | null, a: string | null) => [p, person ? a : null].filter((u): u is string => !!u);
+  const setPictures = (nextProduct: string | null, nextAvatar: string | null) => {
+    setPrompt((text) => followRefs(text, pictures(product, avatar), pictures(nextProduct, nextAvatar), elements));
+    setProduct(nextProduct);
+    setAvatar(nextAvatar);
+  };
   const own: Values = model && !marketing ? (ownByModel[model.id] ?? defaultValues(model)) : {};
   const sendUi: MarketingUi = { ...ui, ...shotSettings, product, avatar: person ? avatar : null, prompt, refs: [], style: style?.id ?? null, preset: hf, count: 1 };
   const built = model ? (marketing ? marketingValues(model, sendUi, "create") : otherValues(model, sendUi, own)) : null;
@@ -182,19 +192,29 @@ export function RecreateTemplate({
             <p className="mt-1 truncate text-[13px] text-t3">{name}</p>
           </div>
           <div className="flex gap-3">
-            {slot("Replace product", product, "Required", () => setPicking("product"), () => setProduct(null))}
-            {person && slot("Add character", avatar, "Optional", () => setPicking("avatar"), () => setAvatar(null))}
+            {slot("Replace product", product, "Required", () => setPicking("product"), () => setPictures(null, avatar))}
+            {person && slot("Add character", avatar, "Optional", () => setPicking("avatar"), () => setPictures(product, null))}
           </div>
           {person && <p className="-mt-3 text-[12px] text-t4">Add a character only if the template has a person in it.</p>}
           <div className="flex flex-col gap-2">
             <p className="text-[13px] text-t2">Describe your edit</p>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              placeholder="What do you want to change?"
-              className="w-full resize-none rounded-card bg-t1/[0.04] p-3 text-[14px] text-t1 outline-none ring-1 ring-inset ring-edge placeholder:text-t4 focus:ring-line-strong"
-            />
+            <div className="rounded-card bg-t1/[0.04] p-3 ring-1 ring-inset ring-edge focus-within:ring-line-strong">
+              <StudioPrompt
+                text={prompt}
+                onText={setPrompt}
+                rows={3}
+                placeholder="What do you want to change?"
+                onSubmit={() => {}}
+                refs={pictures(product, avatar)}
+                // An element comes in as the character if it is a person and the template has one, else as the product.
+                onElement={(element) => {
+                  const url = element.images[0]?.storageUrl;
+                  if (!url) return;
+                  if (element.kind === "character" && person) setPictures(product, url);
+                  else setPictures(url, avatar);
+                }}
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-[13px] text-t2">Model and settings</p>
@@ -238,11 +258,11 @@ export function RecreateTemplate({
         characters={picking === "avatar"}
         taken={[product, avatar].filter((u): u is string => !!u)}
         onPick={(urls) => {
-          if (urls[0]) (picking === "product" ? setProduct : setAvatar)(urls[0]);
+          if (urls[0]) setPictures(picking === "product" ? urls[0] : product, picking === "avatar" ? urls[0] : avatar);
         }}
         onElements={(elements) => {
           const url = elements[0]?.images[0]?.storageUrl;
-          if (url) (picking === "product" ? setProduct : setAvatar)(url);
+          if (url) setPictures(picking === "product" ? url : product, picking === "avatar" ? url : avatar);
         }}
       />
     </div>,
