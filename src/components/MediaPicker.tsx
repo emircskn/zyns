@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
@@ -100,17 +101,15 @@ function Thumb({
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${
-          picked ? "ring-2 ring-t1/80" : "ring-1 ring-edge group-hover:ring-line-strong"
+          picked ? "ring-2 ring-t1" : "ring-1 ring-edge group-hover:ring-line-strong"
         }`}
       />
       {asset.source === "run" && asset.provider && !picked && !multiple && <ServiceBadge provider={asset.provider} small />}
-      {multiple && !picked && !taken && (
-        <span data-round className="hover-reveal pointer-events-none absolute left-1.5 top-1.5 z-20 h-5 w-5 rounded-full border border-white/70 bg-black/30 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100" />
-      )}
-      {picked && (
-        <span data-round className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
-          <Icon name="check" size={13} strokeWidth={2.4} />
-        </span>
+      {(picked || (multiple && !taken)) && (
+        <SelectMark
+          on={picked}
+          className={`pointer-events-none absolute left-1.5 top-1.5 z-20 ${picked ? "" : "hover-reveal opacity-0 group-hover:opacity-100"}`}
+        />
       )}
       {(onPreview || onTrash) && (
         <div className="hover-reveal max-md:hidden absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
@@ -307,7 +306,7 @@ export function MediaPicker({
               ? "Add media"
               : `Add ${kinds[0] === "image" ? "an image" : kinds[0] === "video" ? "a clip" : "audio"}`}
           </h2>
-          <div role="tablist" className="no-bar flex min-w-0 flex-1 gap-1 overflow-x-auto">
+          <div role="tablist" className="no-bar mr-auto flex min-w-0 gap-0.5 overflow-x-auto rounded-card bg-t1/[0.05] p-1">
             {tabs.map((item) => (
               <button
                 key={item.id}
@@ -315,8 +314,8 @@ export function MediaPicker({
                 role="tab"
                 aria-selected={tab === item.id}
                 onClick={() => setTab(item.id)}
-                className={`h-8 shrink-0 whitespace-nowrap rounded-full px-3.5 text-[12.5px] font-medium transition-colors duration-[120ms] ${
-                  tab === item.id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:bg-t1/[0.06] hover:text-t1"
+                className={`h-7 shrink-0 whitespace-nowrap rounded-chip px-3 text-[12.5px] font-medium transition-colors duration-[120ms] ${
+                  tab === item.id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"
                 }`}
               >
                 {item.label}
@@ -427,7 +426,7 @@ export function MediaPicker({
                   onClick={() => openElementEditor(elementKind === "all" ? {} : { kind: elementKind })}
                   className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1]"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                     <Icon name="plus" size={17} />
                   </span>
                   <span className="px-2 text-center text-[12px] font-semibold">{characters ? "Create character" : "Create element"}</span>
@@ -455,15 +454,13 @@ export function MediaPicker({
                             <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
                           )}
                         </button>
-                        <span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${on ? "ring-2 ring-t1/80" : "ring-1 ring-edge group-hover:ring-line-strong"}`} />
-                        {!characters &&
-                          (on ? (
-                            <span data-round className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
-                              <Icon name="check" size={13} strokeWidth={2.4} />
-                            </span>
-                          ) : (
-                            <span data-round className="hover-reveal pointer-events-none absolute left-1.5 top-1.5 z-20 h-5 w-5 rounded-full border border-white/70 bg-black/30 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100" />
-                          ))}
+                        <span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${on ? "ring-2 ring-t1" : "ring-1 ring-edge group-hover:ring-line-strong"}`} />
+                        {!characters && (
+                          <SelectMark
+                            on={on}
+                            className={`pointer-events-none absolute left-1.5 top-1.5 z-20 ${on ? "" : "hover-reveal opacity-0 group-hover:opacity-100"}`}
+                          />
+                        )}
                         <div className="hover-reveal max-md:hidden absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
                           {element.images[0] && <TileAction icon="expand" label="View full size" onClick={() => setPreview(element.images[0].storageUrl)} />}
                           <TileAction icon="trash" label="Delete element" onClick={() => setDeletingElement(element)} />
@@ -493,7 +490,7 @@ export function MediaPicker({
                   onClick={() => input.current?.click()}
                   className="flex aspect-square flex-col items-center justify-center gap-2.5 rounded-card bg-t1/[0.06] text-t1 transition-colors duration-[150ms] hover:bg-t1/[0.1] disabled:opacity-50"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-black/40">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-t1/[0.08]">
                     <Icon name="upload" size={17} />
                   </span>
                   <span className="px-2 text-center text-[12px] font-semibold">Upload media</span>

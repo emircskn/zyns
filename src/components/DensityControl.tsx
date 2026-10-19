@@ -36,7 +36,7 @@ export function SelectToggle() {
       onClick={() => setSelectMode(!selectMode)}
       aria-pressed={selectMode}
       className={`h-9 rounded-full px-3.5 text-[13.5px] font-medium transition-colors duration-[120ms] ${
-        selectMode ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.07] text-t1"
+        selectMode ? "bg-t1/[0.12] text-t1" : "bg-t1/[0.05] text-t1 hover:bg-t1/[0.1]"
       }`}
     >
       {selectMode ? "Cancel" : "Select"}
@@ -52,7 +52,7 @@ export function PhoneGridToggle() {
   const phoneGrid = useStudio((s) => s.phoneGrid);
   const setPhoneGrid = useStudio((s) => s.setPhoneGrid);
   return (
-    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-chip bg-t1/[0.05] p-1">
+    <div role="radiogroup" aria-label="Layout" className="flex h-9 items-center gap-0.5 rounded-card bg-t1/[0.05] p-1">
       {([
         [false, "square", "One at a time"],
         [true, "grid", "Grid"],
@@ -65,7 +65,7 @@ export function PhoneGridToggle() {
           aria-label={label}
           onClick={() => setPhoneGrid(grid)}
           className={`grid h-7 w-8 place-items-center rounded-chip transition-colors duration-[120ms] ${
-            phoneGrid === grid ? "bg-t1/[0.14] text-t1" : "text-t3"
+            phoneGrid === grid ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"
           }`}
         >
           <Icon name={icon} size={15} />
@@ -82,7 +82,7 @@ export function DensitySlider() {
   // A slider rather than a stepper: the tiles resize under the thumb as it
   // moves, so the size is chosen by looking rather than by counting.
   return (
-    <label className="hidden items-center gap-2.5 rounded-full bg-t1/[0.07] py-1.5 pl-3 pr-3.5 md:flex">
+    <label className="hidden items-center gap-2.5 rounded-card bg-t1/[0.05] py-1.5 pl-3 pr-3.5 md:flex">
       <Icon name="grid" size={14} className="shrink-0 text-t4" />
       <input
         type="range"

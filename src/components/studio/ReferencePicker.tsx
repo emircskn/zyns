@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useEffect, useRef, useMemo, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
@@ -75,13 +76,7 @@ function MediaTile({
       />
       {/* The check takes the corner once picked, so the service mark steps aside. */}
       {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
-      <span
-        data-round className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
-          picked ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
-        }`}
-      >
-        <Icon name="check" size={12} strokeWidth={2.6} />
-      </span>
+      <SelectMark on={picked} className={`pointer-events-none absolute left-1.5 top-1.5 ${picked ? "" : "opacity-0 group-hover:opacity-100"}`} />
       <div className="hover-reveal absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100">
         <button
           type="button"
@@ -374,14 +369,7 @@ export function ReferencePicker({
                           aria-hidden
                           className={`pointer-events-none absolute inset-0 rounded-card ring-inset ${on ? "ring-2 ring-t1" : "ring-1 ring-line group-hover:ring-line-strong"}`}
                         />
-                        <span
-                          aria-hidden
-                          data-round className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
-                            on ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
-                          }`}
-                        >
-                          <Icon name="check" size={12} strokeWidth={2.6} />
-                        </span>
+                        <SelectMark on={on} className={`pointer-events-none absolute left-1.5 top-1.5 ${on ? "" : "opacity-0 group-hover:opacity-100"}`} />
                       </span>
                       <span className="truncate text-[12px] text-t2">@{element.name}</span>
                     </button>

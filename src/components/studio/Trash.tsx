@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChoiceDialog } from "@/components/ChoiceDialog";
@@ -69,14 +70,7 @@ function Card({
         aria-hidden
         className={`pointer-events-none absolute inset-0 rounded-card ring-inset transition-shadow duration-[120ms] ${picked ? "ring-2 ring-t1" : "ring-1 ring-line"}`}
       />
-      <span
-        aria-hidden
-        className={`pointer-events-none absolute left-2 top-2 grid h-5 w-5 place-items-center rounded-chip border transition-opacity duration-[120ms] ${
-          picked ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
-        } ${reveal}`}
-      >
-        <Icon name="check" size={12} strokeWidth={2.6} />
-      </span>
+      <SelectMark on={picked} className={`pointer-events-none absolute left-2 top-2 ${reveal}`} />
       <div className={`absolute right-2 top-2 flex flex-col gap-1.5 transition-opacity duration-[120ms] ${reveal}`}>
         <button type="button" onClick={onRestore} aria-label={`Restore ${item.name}`} title="Restore" className={`${round} hover:bg-black/80`}>
           <Icon name="undo" size={14} />

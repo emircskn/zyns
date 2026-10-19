@@ -39,7 +39,7 @@ export function ProviderSwitch({
       ref={root}
       role="radiogroup"
       aria-label="Service"
-      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-1 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {box && (
         <span
@@ -71,7 +71,7 @@ export function ProviderSwitch({
             title={has[option.id] ? `Use ${option.label}` : `Use ${option.label} (no key yet)`}
             className={`relative flex items-center justify-center gap-1.5 rounded-chip font-medium transition-colors duration-[100ms] ${
               size === "lg" ? "h-9 px-3" : size === "xs" ? "h-8 px-3.5" : "h-7 px-3"
-            } ${on ? "text-t1" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-[var(--surface-2)]" : ""}`}
+            } ${on ? "text-t1" : "text-t3 hover:text-t1"} ${box ? "" : on ? "bg-t1/[0.12]" : ""}`}
           >
             {/* Each service by its own mark; the key setup also spells it out. */}
             <ServiceMark provider={option.id} size={size === "lg" ? 15 : 14} />

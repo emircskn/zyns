@@ -28,8 +28,8 @@ export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange
       type="button"
       onClick={() => onChange(id)}
       aria-pressed={view === id}
-      className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors duration-[120ms] ${
-        view === id ? "bg-t1/[0.1] text-t1" : "text-t3 hover:text-t1"
+      className={`flex h-7 items-center gap-1.5 rounded-chip px-3 text-[13px] transition-colors duration-[120ms] ${
+        view === id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"
       }`}
     >
       <Icon name={id} size={15} />
@@ -37,7 +37,7 @@ export function ViewToggle({ view, onChange }: { view: "list" | "grid"; onChange
     </button>
   );
   return (
-    <div className="hidden items-center gap-0.5 rounded-full bg-t1/[0.05] p-0.5 md:flex">
+    <div className="hidden items-center gap-0.5 rounded-card bg-t1/[0.05] p-1 md:flex">
       {item("list", "List")}
       {item("grid", "Grid")}
     </div>

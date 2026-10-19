@@ -194,7 +194,7 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
         >
           <span className="flex items-center gap-1.5">
             {kinds.map((kind) => (
-              <span key={kind} className="grid h-9 w-9 place-items-center rounded-full bg-black/40 text-t1">
+              <span key={kind} className="grid h-9 w-9 place-items-center rounded-full bg-t1/[0.08] text-t1">
                 <Icon name={kind === "image" ? "image" : kind === "video" ? "video" : "audio"} size={18} />
               </span>
             ))}

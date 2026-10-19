@@ -443,11 +443,11 @@ function Workspace({ page, onKeyClick }: { page: AppPage; onKeyClick: () => void
   const group = config.tabs[tab];
   const model = KIE_MODELS.find((m) => m.id === group.ids[Math.min(sub, group.ids.length - 1)]);
   if (!model) return null;
-  const pill = (on: boolean) => `h-8 flex-1 rounded-full px-3 text-[12.5px] ${on ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`;
+  const pill = (on: boolean) => `h-7 flex-1 rounded-chip px-3 text-[12.5px] ${on ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`;
   const top = (
     <div className="flex flex-col gap-2">
       {config.tabs.length > 1 && (
-        <div className="flex rounded-full bg-t1/[0.05] p-0.5">
+        <div className="flex rounded-card bg-t1/[0.05] p-1">
           {config.tabs.map((t, i) => (
             <button key={t.label} type="button" onClick={() => (setTab(i), setSub(0))} className={pill(i === tab)}>
               {t.label}
@@ -456,7 +456,7 @@ function Workspace({ page, onKeyClick }: { page: AppPage; onKeyClick: () => void
         </div>
       )}
       {group.ids.length > 1 && (
-        <div className="flex rounded-full bg-t1/[0.05] p-0.5">
+        <div className="flex rounded-card bg-t1/[0.05] p-1">
           {group.ids.map((id, i) => (
             <button key={id} type="button" onClick={() => setSub(i)} className={pill(i === sub)}>
               {KIE_MODELS.find((m) => m.id === id)?.name}

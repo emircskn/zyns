@@ -120,7 +120,7 @@ export function ElementsPage() {
 
       {filter === "character" && (
         <div className="mb-3 flex flex-wrap items-center gap-2 px-4">
-          <div role="tablist" aria-label="Kind of character" className="flex rounded-full bg-t1/[0.05] p-0.5">
+          <div role="tablist" aria-label="Kind of character" className="flex rounded-card bg-t1/[0.05] p-1">
             {([
               ["sheets", "Sheets"],
               ["soul", "Soul ID"],
@@ -131,7 +131,7 @@ export function ElementsPage() {
                 role="tab"
                 aria-selected={side === id}
                 onClick={() => setSide(id)}
-                className={`rounded-full px-3.5 py-1 text-[12.5px] transition-colors duration-[120ms] ${side === id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`}
+                className={`h-7 rounded-chip px-3 text-[12.5px] transition-colors duration-[120ms] ${side === id ? "bg-t1/[0.12] text-t1" : "text-t3 hover:text-t1"}`}
               >
                 {label}
               </button>

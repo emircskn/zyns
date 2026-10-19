@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { pickable } from "@/lib/elements";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
@@ -213,9 +214,7 @@ function Tile({
           <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">{badge}</span>
         )}
         {active && (
-          <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-accent text-accent-ink">
-            <Icon name="check" size={14} strokeWidth={2.4} />
-          </span>
+          <SelectMark on className="absolute right-1.5 top-1.5" />
         )}
       </span>
       <span className="truncate text-[12.5px] text-t2">{name}</span>

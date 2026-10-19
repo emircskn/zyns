@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { isDirect } from "@/lib/higgsfield/transport";
@@ -141,14 +142,7 @@ export function ProductLink({ onSaved }: { onSaved?: (element: LibraryElement) =
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={image} alt="" loading="lazy" className={`h-full w-full object-cover transition-opacity duration-[120ms] ${on ? "" : "opacity-45"}`} />
-                      <span
-                        aria-hidden
-                        data-round className={`absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full border transition-colors duration-[120ms] ${
-                          on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
-                        }`}
-                      >
-                        <Icon name="check" size={11} strokeWidth={2.6} />
-                      </span>
+                      <SelectMark on={on} className="absolute right-1 top-1" />
                       {picked[0] === image && <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 text-[10px] text-white">Cover</span>}
                     </button>
                   );

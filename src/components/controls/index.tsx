@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { activeFields, getModel, type Field, type ItemField, type Values } from "@/lib/registry";
@@ -119,11 +120,11 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
   const current = String(value ?? "");
   const { box, settled } = useGlide(root, current, [field.choices?.length]);
   return (
-    <div ref={root} className="relative grid grid-cols-4 gap-1">
+    <div ref={root} className="relative grid grid-cols-4 gap-0.5 rounded-card bg-t1/[0.05] p-1">
       {box && (
         <span
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 rounded-card bg-t1/[0.12]"
+          className="pointer-events-none absolute left-0 top-0 rounded-chip bg-t1/[0.12]"
           style={{
             width: box.w,
             height: box.h,
@@ -144,8 +145,8 @@ export function RatioPicker({ field, value, onChange }: ControlProps) {
             data-pill={choice.value}
             onClick={() => onChange(choice.value)}
             style={{ animationDelay: `${40 + index * 14}ms` }}
-            className={`anim-swap relative z-10 flex flex-col items-center gap-1.5 rounded-card px-1 py-2 transition-colors duration-[200ms] ${
-              active ? "text-t1" : "text-t3 hover:bg-t1/[0.07] hover:text-t1"
+            className={`anim-swap relative z-10 flex flex-col items-center gap-1.5 rounded-chip px-1 py-2 transition-colors duration-[200ms] ${
+              active ? "text-t1" : "text-t3 hover:text-t1"
             }`}
           >
             <span className="flex h-6 w-6 items-center justify-center">
@@ -801,9 +802,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                   {item.title}
                 </span>
                 {on && (
-                  <span data-round className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
-                    <Icon name="check" size={12} strokeWidth={2.4} />
-                  </span>
+                  <SelectMark on className="absolute right-1.5 top-1.5" />
                 )}
               </button>
             );

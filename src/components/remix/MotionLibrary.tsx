@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectMark } from "@/components/SelectionBar";
 import { useMemo, useState } from "react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { Icon } from "@/components/Icon";
@@ -40,9 +41,7 @@ function ClipTile({ clip, active, onUse, onRemove }: { clip: MotionClip; active:
           </span>
         )}
         {active && (
-          <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-accent text-accent-ink">
-            <Icon name="check" size={14} strokeWidth={2.4} />
-          </span>
+          <SelectMark on className="absolute right-1.5 top-1.5" />
         )}
       </button>
       <div className="flex items-center gap-1">

@@ -211,7 +211,7 @@ function AssetTile({
             : "hover-reveal tap-reveal pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
         }`}
       >
-        <SelectMark on={picked} small={square} />
+        <SelectMark on={picked} />
       </button>
 
       {!picking && (
