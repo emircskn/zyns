@@ -4,11 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { createPortal } from "react-dom";
 import { VideoMark } from "@/components/VideoMark";
+import { ConfirmPopup } from "@/components/ConfirmPopup";
+import { ElementStatusMenu } from "@/components/ElementStatusMenu";
 import { ErrorPopup } from "@/components/ErrorPopup";
 import { Icon } from "@/components/Icon";
 import { ServiceBadge } from "@/components/ServiceBadge";
 import { MediaPreview } from "@/components/MediaViewer";
 import { useAssets, type Asset } from "@/lib/assets";
+import { keptNote, usedElsewhere } from "@/lib/usage";
 import { ELEMENT_KINDS, pickable, type ElementKind, type LibraryElement } from "@/lib/elements";
 import { usePresence } from "@/lib/usePresence";
 import { useUploader } from "@/lib/useUploader";
@@ -112,7 +115,7 @@ function Thumb({
       {(onPreview || onTrash) && (
         <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
           {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
-          {onTrash && <TileAction icon="trash" label="Move to trash" onClick={onTrash} />}
+          {onTrash && <TileAction icon="trash" label="Delete" onClick={onTrash} />}
         </div>
       )}
     </div>
@@ -179,6 +182,8 @@ export function MediaPicker({
   const [chosen, setChosen] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const [limitNote, setLimitNote] = useState<string | null>(null);
+  const [deletingElement, setDeletingElement] = useState<LibraryElement | null>(null);
+  const removeElement = useStudio((s) => s.removeElement);
   const sheet = useRef<HTMLDivElement>(null);
   // Pulled down on a phone, it closes.
   const swipe = useSwipeDismiss(sheet, onClose);
@@ -200,7 +205,10 @@ export function MediaPicker({
   );
   const library = useStudio((s) => s.elements).filter((e) => e.kind !== "style" && pickable(e));
   const openElementEditor = useStudio((s) => s.openElementEditor);
-  const setTrashed = useStudio((s) => s.setTrashed);
+  const removeRun = useStudio((s) => s.removeRun);
+  const removeUpload = useStudio((s) => s.removeUpload);
+  const runs = useStudio((s) => s.runs);
+  const [deletingAsset, setDeletingAsset] = useState<Asset | null>(null);
   const [chosenElements, setChosenElements] = useState<string[]>([]);
   // As Higgsfield lays its window out: uploads, elements, then what was made by kind, then the liked.
   const tabs: Array<{ id: Tab; label: string }> = characters ? [{ id: "elements", label: "Characters" }] : [
@@ -427,30 +435,43 @@ export function MediaPicker({
                 {library.filter((e) => (characters ? e.kind === "character" : elementKind === "all" || e.kind === elementKind)).map((element) => {
                   const on = chosenElements.includes(element.id);
                   return (
-                    <button
-                      key={element.id}
-                      type="button"
-                      onClick={() => {
-                        if (characters) {
-                          onElements?.([element]);
-                          onClose();
-                          return;
-                        }
-                        setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]));
-                      }}
-                      className="relative flex flex-col gap-1 text-left"
-                    >
-                      <span className={`relative block aspect-square overflow-hidden rounded-card bg-t1/[0.06] ${on ? "ring-2 ring-t1" : "ring-1 ring-inset ring-edge"}`}>
-                        {element.images[0] && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
-                        )}
-                        <span className={`${characters ? "hidden " : ""}absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border ${on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"}`}>
-                          <Icon name="check" size={12} strokeWidth={2.6} />
-                        </span>
+                    <div key={element.id} className="group relative flex flex-col gap-1 text-left">
+                      <span className="relative block aspect-square overflow-hidden rounded-card bg-t1/[0.06]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (characters) {
+                              onElements?.([element]);
+                              onClose();
+                              return;
+                            }
+                            setChosenElements((all) => (on ? all.filter((id) => id !== element.id) : [...all, element.id]));
+                          }}
+                          className="block h-full w-full"
+                          aria-label={`@${element.name}`}
+                        >
+                          {element.images[0] && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={thumbSrc(element.images[0].storageUrl, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                          )}
+                        </button>
+                        <span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-10 rounded-card ring-inset transition-shadow duration-[150ms] ${on ? "ring-2 ring-t1/80" : "ring-1 ring-edge group-hover:ring-line-strong"}`} />
+                        {!characters &&
+                          (on ? (
+                            <span className="pointer-events-none absolute left-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
+                              <Icon name="check" size={13} strokeWidth={2.4} />
+                            </span>
+                          ) : (
+                            <span className="hover-reveal pointer-events-none absolute left-1.5 top-1.5 z-20 h-5 w-5 rounded-full border border-white/70 bg-black/30 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100" />
+                          ))}
+                        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+                          {element.images[0] && <TileAction icon="expand" label="View full size" onClick={() => setPreview(element.images[0].storageUrl)} />}
+                          <TileAction icon="trash" label="Delete element" onClick={() => setDeletingElement(element)} />
+                        </div>
+                        <ElementStatusMenu element={element} className="absolute bottom-1.5 left-1.5 z-20" />
                       </span>
                       <span className="truncate text-[12px] text-t2">@{element.name}</span>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -498,10 +519,7 @@ export function MediaPicker({
                   multiple={multiple}
                   onClick={() => choose(asset)}
                   onPreview={asset.kind === "audio" ? undefined : () => setPreview(asset.url)}
-                  onTrash={() => {
-                    setTrashed([asset.url], true);
-                    setChosen((now) => now.filter((u) => u !== asset.url));
-                  }}
+                  onTrash={() => setDeletingAsset(asset)}
                 />
               ))}
             </div>
@@ -552,6 +570,46 @@ export function MediaPicker({
       </div>
       <MediaPreview url={preview} onClose={() => setPreview(null)} z={130} />
       <ErrorPopup message={limitNote} title="Limit reached" onClose={() => setLimitNote(null)} />
+      {/* As in Assets: asked in a small window, saying what else uses the file; confirmed, it goes from Assets too. */}
+      <ConfirmPopup
+        open={!!deletingAsset}
+        title="Delete this?"
+        message={
+          (deletingAsset &&
+            keptNote(
+              usedElsewhere([deletingAsset.url], {
+                runs: deletingAsset.source === "run" ? runs.filter((r) => r.urls.includes(deletingAsset.url)).map((r) => r.id) : [],
+                uploads: deletingAsset.source === "upload" ? [deletingAsset.id] : [],
+              }),
+            )) ||
+          "It is removed from your studio for good."
+        }
+        confirmLabel="Delete"
+        onConfirm={() => {
+          const asset = deletingAsset;
+          setDeletingAsset(null);
+          if (!asset) return;
+          setChosen((now) => now.filter((u) => u !== asset.url));
+          if (asset.source === "upload") removeUpload(asset.id);
+          else {
+            const owner = runs.find((r) => r.urls.includes(asset.url));
+            if (owner) removeRun(owner.id);
+          }
+        }}
+        onClose={() => setDeletingAsset(null)}
+      />
+      <ConfirmPopup
+        open={!!deletingElement}
+        title={deletingElement ? `Delete @${deletingElement.name}?` : ""}
+        message="Prompts that call it will no longer find it. Its pictures stay in your studio."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deletingElement) removeElement(deletingElement.id);
+          setChosenElements((all) => all.filter((id) => id !== deletingElement?.id));
+          setDeletingElement(null);
+        }}
+        onClose={() => setDeletingElement(null)}
+      />
     </div>,
     document.body,
   );

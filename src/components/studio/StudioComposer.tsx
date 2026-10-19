@@ -630,6 +630,12 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
       {/* On a desktop Generate sits inside the prompt's well, as Higgsfield's does. */}
       <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:rounded-card md:bg-t1/[0.05] md:pr-2">
         <div className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-card bg-t1/[0.05] p-3 max-md:gap-6 md:bg-transparent">
+          {/* The references sit over the prompt and grow in as they come. */}
+          <div className="-mb-2.5 max-md:-mb-6">
+            <Reveal>
+              <ReferenceStrip refs={refs} values={values} onSet={set} />
+            </Reveal>
+          </div>
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <StudioPrompt
@@ -779,7 +785,6 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
         }}
         onClose={() => setRefsOpen(null)}
       />
-      <ReferenceStrip refs={refs} values={values} onSet={set} />
       <FrameGrab
         open={grabbing}
         onClose={() => setGrabbing(false)}
@@ -794,12 +799,12 @@ function VideoComposer({ onKeyClick }: { onKeyClick: () => void }) {
   );
 }
 
-/** What is among the references, small, under the composer, each with a way out. */
+/** What is among the references, small, over the prompt, each with a way out. */
 function ReferenceStrip({ refs, values, onSet }: { refs: Field[]; values: Values; onSet: (key: string, value: unknown) => void }) {
   const items = refs.flatMap((f) => listOf(values[f.key]).map((url) => ({ url, field: f })));
   if (items.length === 0) return null;
   return (
-    <div className="no-bar flex gap-1.5 overflow-x-auto px-1.5 pb-1">
+    <div className="anim-swap no-bar flex gap-1.5 overflow-x-auto pb-2.5 max-md:pb-6">
       {items.map(({ url, field }) => (
         <span key={url} className="group relative h-11 w-11 shrink-0 overflow-hidden rounded-card bg-surface ring-1 ring-inset ring-edge">
           {mediaKind(url) === "image" ? (

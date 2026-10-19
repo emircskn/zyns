@@ -1234,7 +1234,7 @@ export function MediaPreview({
 
   return createPortal(
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/95 p-4 backdrop-blur-xl md:p-10 ${
+      className={`fixed inset-0 flex items-center justify-center bg-canvas-deep/95 px-4 pb-4 pt-[72px] backdrop-blur-xl md:px-20 md:pb-12 md:pt-[88px] ${
         exiting ? "anim-fade-out" : "anim-fade"
       }`}
       style={{ zIndex: z }}
@@ -1248,7 +1248,7 @@ export function MediaPreview({
       <button
         type="button"
         onClick={() => saver.state !== "busy" && void saver.save([shown])}
-        className="absolute right-[72px] top-5 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
+        className="absolute right-[72px] top-5 z-20 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
         aria-label={saver.label}
         title={saver.label}
       >
@@ -1257,7 +1257,7 @@ export function MediaPreview({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
+        className="absolute right-5 top-5 z-20 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors duration-[120ms] hover:bg-white/20"
         aria-label="Close"
       >
         <Icon name="close" size={17} />

@@ -1512,10 +1512,12 @@ html {
   opacity: 0.6;
 }
 
+/* The same blue as the other prompt boxes' tags. */
 .prompt-chip {
-  border-radius: 6px;
-  background: color-mix(in oklab, var(--t1) 14%, transparent);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--t1) 14%, transparent);
+  border-radius: 4px;
+  color: var(--mention);
+  background: color-mix(in oklab, var(--mention) 14%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--mention) 14%, transparent);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
