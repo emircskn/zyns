@@ -549,7 +549,7 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
   if ((kind === "slider" || kind === "segmented") && /^duration(_seconds)?$/.test(key)) {
     extra.chip = (v) => (v === undefined || v === "" ? "Duration" : `${v}s`);
   }
-  if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images)$/.test(key)) extra.chip = (v) => `${v}×`;
+  if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images)$/.test(key)) extra.chip = (v) => (v === undefined || v === "" ? "Images" : `${v}×`);
 
   const group = placement === "panel" ? GROUPS.find(([re]) => re.test(key))?.[1] ?? "Options" : undefined;
 

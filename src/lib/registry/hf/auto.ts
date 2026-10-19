@@ -467,7 +467,7 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>, ui?: U
   if ((kind === "slider" || kind === "segmented") && /^duration(_seconds)?$/.test(key)) {
     extra.chip = (v) => (v === undefined || v === "" ? "Duration" : `${v}s`);
   }
-  if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images|batch_size)$/.test(key)) extra.chip = (v) => `${v}×`;
+  if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images|batch_size)$/.test(key)) extra.chip = (v) => (v === undefined || v === "" ? "Images" : `${v}×`);
 
   // Higgsfield's form tucks some fields into its advanced section; they go to
   // the drawer here too, unless the studio keeps that control in the bar.

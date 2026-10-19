@@ -655,6 +655,10 @@ input[type="range"] {
   background: transparent;
   cursor: pointer;
 }
+/* The settings' slider: the whole filled bar is the control, the native one sits invisible over it. */
+input[type="range"].slider-bar {
+  height: 100%;
+}
 input[type="range"]::-webkit-slider-runnable-track {
   height: 2px;
   border-radius: 9999px;
