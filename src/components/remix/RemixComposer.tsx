@@ -1,5 +1,6 @@
 "use client";
 
+import { limitOf, MEDIA_UI } from "@/lib/mediaUi";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Control, InputLabel, MediaThumb } from "@/components/controls";
 import { Row } from "@/components/remix/Row";
@@ -320,17 +321,15 @@ function RefsBox({
             type="button"
             onClick={onAdd}
             aria-label="Add pictures"
-            className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06]"
+            className={MEDIA_UI.addTile}
           >
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1">
-              <Icon name="plus" size={20} />
-            </span>
+            <Icon name="plus" size={17} />
           </button>
         )}
         {refs.map((url, index) => {
           const { className, ...hold } = reorder.bind(index);
           return (
-            <div key={keys[index]} {...hold} className={`w-[88px] shrink-0 ${className}`}>
+            <div key={keys[index]} {...hold} className={`${MEDIA_UI.thumbWrap} shrink-0 ${className}`}>
               <MediaThumb url={url} roomy onRemove={() => onChange(refs.filter((_, i) => i !== index))} />
             </div>
           );
@@ -611,6 +610,7 @@ export function RemixComposer({
             : undefined
         }
         max={picking === "refs" ? room : undefined}
+        limits={picking === "refs" ? { image: limitOf(model?.name ?? "This model", "image", room, remix.refs.length) } : undefined}
         onClose={() => setPicking(null)}
       />
       <Sheet open={library} title="Motion library" sub="Clips kept for their motion" onClose={() => setLibrary(false)}>

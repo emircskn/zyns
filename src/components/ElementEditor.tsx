@@ -5,6 +5,8 @@ import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
+import { ThumbTools } from "@/components/ThumbTools";
+import { limitOf } from "@/lib/mediaUi";
 import { InfoDot } from "@/components/InfoDot";
 import { Popover } from "@/components/Popover";
 import {
@@ -228,17 +230,7 @@ function EditorSheet({
                           Make cover
                         </button>
                       )}
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setImages((all) => all.filter((u) => u !== url));
-                        }}
-                        aria-label="Remove picture"
-                        className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white"
-                      >
-                        <Icon name="close" size={11} />
-                      </button>
+                      <ThumbTools url={url} onRemove={() => setImages((all) => all.filter((u) => u !== url))} />
                     </div>
                   ))}
                   {images.length < MAX_ELEMENT_IMAGES && (
@@ -388,7 +380,7 @@ function EditorSheet({
         </footer>
       </div>
 
-      <MediaPicker open={picking} above accept="image" multiple taken={images} onPick={addImages} onClose={() => setPicking(false)} />
+      <MediaPicker open={picking} above accept="image" multiple limits={{ image: limitOf("An element", "image", MAX_ELEMENT_IMAGES, images.length) }} taken={images} onPick={addImages} onClose={() => setPicking(false)} />
     </div>
   );
 }

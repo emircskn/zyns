@@ -1,3 +1,4 @@
+import { limitOf } from "@/lib/mediaUi";
 import { activeFields, defaultValues, getModel, type Field, type Values } from "@/lib/registry";
 import { useStudio } from "@/store/studio";
 
@@ -37,9 +38,8 @@ export function limitsFor(fields: Field[], values: Values, name: string): Partia
     const mine = fields.filter((f) => kindOf(f) === kind);
     const cap = mine.reduce((n, f) => n + (f.kind === "images" ? (f.maxItems ?? Infinity) : 1), 0);
     if (mine.length === 0 || !Number.isFinite(cap)) continue;
-    const room = mine.reduce((n, f) => n + Math.max(roomIn(f, values[f.key]), 0), 0);
-    const noun = kind === "audio" ? "audio file" : kind;
-    out[kind] = { room, note: `${name} takes up to ${cap} ${noun}${cap === 1 ? "" : "s"}.${room < cap ? ` ${cap - room} already added.` : ""}` };
+    const have = mine.reduce((n, f) => n + urlsIn(f, values[f.key]).length, 0);
+    out[kind] = limitOf(name, kind, cap, have);
   }
   return out;
 }

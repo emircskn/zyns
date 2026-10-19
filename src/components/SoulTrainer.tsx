@@ -1,5 +1,6 @@
 "use client";
 
+import { ThumbTools } from "@/components/ThumbTools";
 import { useEffect, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
@@ -222,14 +223,7 @@ function TrainerSheet({ start, exiting, onClose }: { start?: SoulVersion; exitin
               <div key={url} className="relative aspect-square overflow-hidden rounded-chip bg-t1/[0.05] ring-1 ring-inset ring-edge">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={thumbSrc(url, 256)} alt="" className="h-full w-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setPhotos((all) => all.filter((u) => u !== url))}
-                  aria-label="Remove photo"
-                  className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
-                >
-                  <Icon name="close" size={12} />
-                </button>
+                <ThumbTools url={url} onRemove={() => setPhotos((all) => all.filter((u) => u !== url))} />
               </div>
             ))}
           </div>

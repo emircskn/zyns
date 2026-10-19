@@ -1493,10 +1493,12 @@ html {
   .save-done path { animation: none; stroke-dashoffset: 0; }
 }
 
-/* An `@Image N` in the prompt. It sits in a copy of the text laid out behind
-   the textarea, so it must not move a single letter: the pad is a shadow,
+/* An `@Image N` in the prompt sits in a copy of the text laid out behind the
+   textarea, so its tag must not move a single letter: the pad is a shadow,
    not padding, and the weight is the text's own. */
-.mention-chip {
+/* Every prompt's picture tag (@Image 2, @element): one blue, and struck through
+   once the picture it stands for is no longer attached. */
+.ref-tag {
   border-radius: 4px;
   color: var(--mention);
   background: color-mix(in oklab, var(--mention) 14%, transparent);
@@ -1505,21 +1507,9 @@ html {
   box-decoration-break: clone;
 }
 
-/* A tag whose picture is no longer attached: struck through, so it is plain that it will not work. */
-.prompt-chip[data-dead],
-.mention-chip[data-dead] {
+.ref-tag[data-dead] {
   text-decoration: line-through;
   opacity: 0.6;
-}
-
-/* The same blue as the other prompt boxes' tags. */
-.prompt-chip {
-  border-radius: 4px;
-  color: var(--mention);
-  background: color-mix(in oklab, var(--mention) 14%, transparent);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--mention) 14%, transparent);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
 }
 
 /* Cinema Studio's home title: the ink fading downward, in the studio's own colours. */

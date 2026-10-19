@@ -1,7 +1,9 @@
 "use client";
 
+import { ThumbTools } from "@/components/ThumbTools";
 import { ThumbRow } from "@/components/Attachments";
 import { followPictures } from "@/lib/mentions";
+import { limitOf } from "@/lib/mediaUi";
 import { moveItem } from "@/lib/useReorder";
 import { StudioPrompt } from "@/components/studio/StudioPrompt";
 import { useMemo, useState } from "react";
@@ -203,14 +205,7 @@ function Slot({
           <span className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-card bg-gradient-to-t from-black/60 to-transparent px-2 pb-1.5 pt-5 text-[11.5px] text-white">
             {label}
           </span>
-          <button
-            type="button"
-            onClick={onClear}
-            aria-label={`Remove ${label.toLowerCase()}`}
-            className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"
-          >
-            <Icon name="close" size={12} />
-          </button>
+          <ThumbTools url={url} onRemove={onClear} />
         </>
       )}
     </div>
@@ -357,6 +352,7 @@ export function MarketingComposer({
         onClear={picking === "avatar" && ui.avatar ? () => patch({ avatar: null }) : undefined}
         multiple={picking === "refs"}
         max={picking === "refs" ? Math.max(0, maxRefs - ui.refs.length) : 1}
+        limits={picking === "refs" ? { image: limitOf(model?.name ?? "This model", "image", maxRefs, ui.refs.length) } : undefined}
         taken={pickedUrls}
         onPick={(urls) => {
           if (urls.length === 0 || !picking) return;
@@ -394,9 +390,7 @@ export function MarketingComposer({
           <span className="relative truncate text-[10px] font-bold uppercase text-t1">{label}</span>
         </button>
         {url && (
-          <button type="button" onClick={onClear} aria-label={`Remove ${label.toLowerCase()}`} className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/65 text-white">
-            <Icon name="close" size={10} />
-          </button>
+          <ThumbTools url={url} onRemove={onClear} />
         )}
       </div>
     );

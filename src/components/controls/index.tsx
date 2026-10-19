@@ -16,6 +16,7 @@ import { sourceItems, type SourceItem } from "@/lib/sources";
 export { sourceItems };
 import { useUploader } from "@/lib/useUploader";
 import { ThumbTools } from "@/components/ThumbTools";
+import { MEDIA_UI } from "@/lib/mediaUi";
 import { limitsFor } from "@/lib/attach";
 import { useModel, useStudio, type Run } from "@/store/studio";
 import { SOUL_MODELS, soulsFor } from "@/lib/elements";
@@ -296,7 +297,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
   return (
     <div
       className={`group/thumb anim-pop relative shrink-0 overflow-hidden bg-surface ring-1 ring-inset ring-edge ${
-        roomy ? "h-[88px] w-[88px] rounded-card" : "h-16 w-16 rounded-chip"
+        MEDIA_UI.thumb
       }`}
     >
       {kind === "image" && (
@@ -304,7 +305,7 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
         <img src={thumbSrc(url, 256)} alt="" draggable={false} className="h-full w-full object-cover" />
       )}
       {kind === "video" && <video src={videoFrame(url)} className="h-full w-full object-cover" muted playsInline preload="metadata" />}
-      {kind === "video" && <VideoMark tiny={!roomy} className="bottom-1 left-1" />}
+      {kind === "video" && <VideoMark tiny className="bottom-1 left-1" />}
       {kind === "audio" && (
         <div className="flex h-full w-full items-center justify-center text-t3">
           <Icon name="audio" size={18} />
@@ -315,30 +316,10 @@ export function MediaThumb({ url, onRemove, roomy }: { url: string; onRemove: ()
   );
 }
 
-function AddTile({ busy, onClick, roomy }: { busy: boolean; onClick: () => void; roomy?: boolean }) {
-  if (roomy) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={busy}
-        aria-label="Add"
-        className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-card bg-t1/[0.06] ring-1 ring-inset ring-edge transition-colors duration-[150ms] active:bg-t1/[0.06] disabled:opacity-50"
-      >
-        <span className="grid h-11 w-11 place-items-center rounded-full bg-t1/[0.1] text-t1 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]">
-          {busy ? <Spinner size={16} /> : <Icon name="plus" size={20} />}
-        </span>
-      </button>
-    );
-  }
+function AddTile({ busy, onClick }: { busy: boolean; onClick: () => void; roomy?: boolean }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={busy}
-      className="grid h-14 w-14 shrink-0 place-items-center rounded-chip bg-t1/[0.06] ring-1 ring-inset ring-edge text-t4 transition-all duration-[120ms] hover:bg-t1/[0.1] hover:text-t1 disabled:opacity-50"
-    >
-      {busy ? <Spinner /> : <Icon name="plus" size={16} />}
+    <button type="button" onClick={onClick} disabled={busy} aria-label="Add" className={`${MEDIA_UI.addTile} disabled:opacity-50`}>
+      {busy ? <Spinner /> : <Icon name="plus" size={17} />}
     </button>
   );
 }
@@ -470,13 +451,7 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
           whole bar: there they stay on one line and scroll. */}
       <div
         className={
-          roomy
-            ? lane
-              ? "no-bar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-0.5 pt-0.5"
-              : "flex flex-wrap gap-2.5"
-            : lane
-              ? "no-bar flex gap-1.5 overflow-x-auto pb-0.5"
-              : "flex flex-wrap gap-1.5 [&>*]:w-14"
+          lane ? `no-bar -mx-1 flex ${MEDIA_UI.rowGap} overflow-x-auto px-1 pb-0.5 pt-0.5` : `flex flex-wrap ${MEDIA_UI.rowGap}`
         }
       >
         {/* First, so another can be added without scrolling to the end. */}
@@ -767,7 +742,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
     }
   }
 
-  const size = roomy ? "h-[88px] w-[88px] rounded-card" : "h-14 w-14 rounded-chip";
+  const size = MEDIA_UI.thumb;
   return (
     <div className="min-w-0">
       <SlotHeader label={field.label} count={many ? `${picked.length}/${max}` : undefined} help={field.help}>

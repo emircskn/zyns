@@ -1,5 +1,6 @@
 "use client";
 
+import { ThumbTools } from "@/components/ThumbTools";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
@@ -149,9 +150,7 @@ export function RecreateTemplate({
           <span className="absolute right-2 top-2 rounded-chip bg-black/40 px-1.5 py-0.5 text-[10.5px] font-medium text-t3">{note}</span>
         </button>
         {url && (
-          <button type="button" onClick={onClear} aria-label={`Remove ${label.toLowerCase()}`} className="absolute bottom-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80">
-            <Icon name="close" size={13} />
-          </button>
+          <ThumbTools url={url} onRemove={onClear} />
         )}
       </div>
     </div>

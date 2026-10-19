@@ -9,6 +9,7 @@ import { Chip } from "@/components/PromptBar";
 import { ChipRow, GenerateButton } from "@/components/studio/StudioComposer";
 import { ProviderTag } from "@/components/ModelPicker";
 import { ThumbTools } from "@/components/ThumbTools";
+import { limitOf } from "@/lib/mediaUi";
 import { PROVIDER_NAME } from "@/lib/generate";
 import {
   checkSlots,
@@ -125,6 +126,11 @@ export function RecipeComposer({
         open={!!mediaFor}
         accept={(recipe.slots.find((s) => s.key === mediaFor)?.type as "image" | "video" | "audio") ?? "image"}
         multiple={recipe.slots.find((s) => s.key === mediaFor)?.type === "image"}
+        limits={(() => {
+          const slot = recipe.slots.find((s) => s.key === mediaFor);
+          if (!mediaFor || slot?.type !== "image") return undefined;
+          return { image: limitOf(recipe.name ?? "This recipe", "image", slot.max ?? 10, ((slots[mediaFor] as string[] | undefined) ?? []).length) };
+        })()}
         onPick={(urls) => {
           if (!mediaFor) return;
           const slot = recipe.slots.find((s) => s.key === mediaFor);
@@ -279,7 +285,7 @@ export function RecipeComposer({
                     </span>
                   )}
                   {list.length > 1 && (
-                    <span className="absolute right-1.5 top-1.5 rounded-full bg-black/65 px-1.5 font-mono text-[10px] text-white">{list.length}</span>
+                    <span className="absolute bottom-1.5 right-1.5 rounded-full bg-black/65 px-1.5 font-mono text-[10px] text-white">{list.length}</span>
                   )}
                   <span className="relative truncate text-[10px] font-bold uppercase text-t1">
                     {slot.type === "audio" ? "Voice" : slot.label}
@@ -287,14 +293,7 @@ export function RecipeComposer({
                   </span>
                 </button>
                 {list.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setSlots((all) => ({ ...all, [slot.key]: slot.type === "image" ? [] : undefined }))}
-                    aria-label={`Remove ${slot.label.toLowerCase()}`}
-                    className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-black/80 text-white ring-1 ring-t1/20"
-                  >
-                    <Icon name="close" size={10} />
-                  </button>
+                  <ThumbTools url={list[0]} onRemove={() => setSlots((all) => ({ ...all, [slot.key]: slot.type === "image" ? [] : undefined }))} />
                 )}
               </div>
             );

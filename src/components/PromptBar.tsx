@@ -32,6 +32,7 @@ import {
   usedMentions,
 } from "@/lib/mentions";
 import { VendorBadge } from "@/components/VendorMark";
+import { elementPictures, refTagsIn } from "@/lib/refTags";
 import { AddChip, AttachRow, useAttach, type AttachExtras } from "@/components/Attachments";
 import { SoulStyleTile } from "@/components/studio/SoulStylePicker";
 import { attachMedia, isAttachField } from "@/lib/attach";
@@ -791,9 +792,9 @@ export function PromptField({
   const refs = model ? imageRefs(model, values) : [];
   const library = useStudio((s) => s.elements).filter(pickable);
   // A library element's own pictures ride along as references, but the list names them by the element, not as Image N.
-  const elementPictures = new Set(library.flatMap((e) => e.images.map((r) => r.storageUrl)));
+  const hasElementPictures = elementPictures(library);
   const own: MentionOption[] = [
-    ...refs.flatMap((url, i) => (elementPictures.has(url) ? [] : [{ name: imageName(i), thumb: url }])),
+    ...refs.flatMap((url, i) => (hasElementPictures.has(url) ? [] : [{ name: imageName(i), thumb: url }])),
     ...names.filter((name) => !/^Image \d+$/.test(name)).map((name) => ({ name })),
   ];
   const options: MentionOption[] = [
@@ -802,20 +803,8 @@ export function PromptField({
       .filter((element) => !own.some((o) => o.name === element.name))
       .map((element) => ({ name: element.name, thumb: element.images[0]?.storageUrl, element })),
   ];
-  // Every `@Image N` and `@element` in the text, drawn as a chip whose picture shows on hover.
-  const chips = [
-    ...imageTokens(text).map((t) => ({ start: t.start, end: t.end, id: `i${t.index}`, url: refs[t.index] ?? "", name: imageName(t.index), dead: t.index >= refs.length })),
-    ...library.flatMap((element) => {
-      const url = element.images[0]?.storageUrl;
-      if (!url || !element.name) return [];
-      // Dead once none of its pictures is attached any more.
-      const dead = !element.images.some((r) => refs.includes(r.storageUrl));
-      const found = text.matchAll(new RegExp(`(?<=^|\\s)@${element.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g"));
-      return [...found].map((m) => ({ start: m.index!, end: m.index! + m[0].length, id: `e${element.id}`, url, name: element.name, dead }));
-    }),
-  ]
-    .sort((a, b) => a.start - b.start)
-    .filter((c, i, all) => i === 0 || c.start >= all[i - 1].end);
+  // Every `@Image N` and `@element` in the text, drawn as a tag whose picture shows on hover (see lib/refTags).
+  const chips = refTagsIn(text, refs, library);
   const chipped = chips.length > 0;
   // A caret set down inside a chip is not writing a new one.
   const inChip = caret !== null && chips.some((chip) => caret > chip.start && caret <= chip.end);
@@ -1001,7 +990,7 @@ export function PromptField({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} data-chip={chip.id} data-dead={chip.dead || undefined} className="prompt-chip">
+        <span key={chip.start} data-chip={chip.id} data-dead={chip.dead || undefined} className="ref-tag">
           {text.slice(chip.start, chip.end)}
         </span>,
       );

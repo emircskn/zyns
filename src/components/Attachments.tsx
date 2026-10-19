@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MediaThumb } from "@/components/controls";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
+import { MEDIA_UI } from "@/lib/mediaUi";
 import { attachMedia, kindOf, limitsFor, roomIn, urlsIn, type MediaKind } from "@/lib/attach";
 import type { Field } from "@/lib/registry";
 import { useModel, useStudio, useValues } from "@/store/studio";
@@ -110,13 +111,13 @@ export function AttachRow({ fields, onAdd, canAdd }: { fields: Field[]; onAdd: (
           type="button"
           onClick={onAdd}
           aria-label="Add media"
-          className="grid h-16 w-16 shrink-0 place-items-center rounded-chip bg-t1/[0.05] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.09] hover:text-t1"
+          className={MEDIA_UI.addTile}
         >
           <Icon name="plus" size={17} />
         </button>
       )}
       {items.map(({ field, url, index, key }, at) => (
-        <div key={key} {...reorder.bind(at)} className={`w-16 shrink-0 ${reorder.bind(at).className}`}>
+        <div key={key} {...reorder.bind(at)} className={`${MEDIA_UI.thumbWrap} shrink-0 ${reorder.bind(at).className}`}>
           <MediaThumb
             url={url}
             onRemove={() =>
@@ -207,25 +208,17 @@ export function AttachPanel({ fields, extras }: { fields: Field[]; extras?: Atta
           </span>
         </button>
       ) : (
-        <div className="no-bar flex gap-2.5 overflow-x-auto rounded-panel border border-line bg-elevated p-3">
+        <div className={`no-bar flex ${MEDIA_UI.rowGap} overflow-x-auto rounded-panel border border-line bg-elevated p-3`}>
           {/* First, so another can be added without scrolling to the end. */}
           {attach.canAdd && (
-            <button
-              type="button"
-              onClick={attach.open}
-              aria-label="Add media"
-              className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-card bg-t1/[0.06] transition-colors duration-[150ms] active:bg-t1/[0.1]"
-            >
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-black/40 text-t1 ring-1 ring-inset ring-t1/15">
-                <Icon name="plus" size={20} />
-              </span>
+            <button type="button" onClick={attach.open} aria-label="Add media" className={MEDIA_UI.addTile}>
+              <Icon name="plus" size={17} />
             </button>
           )}
           {items.map(({ field, url, index, key }, at) => (
-            <div key={key} {...reorder.bind(at)} className={`w-[88px] shrink-0 ${reorder.bind(at).className}`}>
+            <div key={key} {...reorder.bind(at)} className={`${MEDIA_UI.thumbWrap} shrink-0 ${reorder.bind(at).className}`}>
               <MediaThumb
                 url={url}
-                roomy
                 onRemove={() =>
                   setValue(
                     field.key,
@@ -262,9 +255,9 @@ export function ThumbRow({
   const reorder = useReorder(items.length, onMove, (i) => items[i].group ?? "");
   const keys = keysFor(items.map((item) => item.url));
   return (
-    <div className="anim-swap no-bar flex gap-2 overflow-x-auto pb-2.5 max-md:pb-6">
+    <div className={`anim-swap no-bar flex ${MEDIA_UI.rowGap} overflow-x-auto pb-2.5 max-md:pb-6`}>
       {items.map((item, i) => (
-        <div key={keys[i]} {...reorder.bind(i)} className={`w-16 shrink-0 ${reorder.bind(i).className}`}>
+        <div key={keys[i]} {...reorder.bind(i)} className={`${MEDIA_UI.thumbWrap} shrink-0 ${reorder.bind(i).className}`}>
           <MediaThumb url={item.url} onRemove={() => onRemove(i)} />
         </div>
       ))}

@@ -4,6 +4,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEv
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/Icon";
 import { ChipPeek } from "@/components/PromptBar";
+import { elementPictures, refTagsIn, type RefTag } from "@/lib/refTags";
 import { imageName, insertMention, mentionAtCaret } from "@/lib/mentions";
 import type { Field } from "@/lib/registry";
 import { type LibraryElement, pickable } from "@/lib/elements";
@@ -47,25 +48,9 @@ function hashAtCaret(text: string, caret: number): { start: number; query: strin
   return { start: caret - match[2].length - 1, query: match[2] };
 }
 
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** The element and move chips in the text, in order. */
-function chipsIn(text: string, names: string[], move: Field | undefined, dead: (name: string) => boolean = () => false): Array<{ start: number; end: number; kind: "element" | "move"; name?: string; dead?: boolean }> {
-  const chips: Array<{ start: number; end: number; kind: "element" | "move"; name?: string; dead?: boolean }> = [];
-  for (const name of names) {
-    const re = new RegExp(`(^|[\\s(])@${escapeRegExp(name)}(?=$|[\\s.,!?;:)'"])`, "g");
-    for (const match of text.matchAll(re)) {
-      const start = (match.index ?? 0) + match[1].length;
-      chips.push({ start, end: start + name.length + 1, kind: "element", name, dead: dead(name) });
-    }
-  }
-  // `@Image 4` with nothing attached as the fourth: still a tag, struck through.
-  for (const match of text.matchAll(/(^|[\s(])@(Image \d+)(?=$|[\s.,!?;:)'"])/g)) {
-    const start = (match.index ?? 0) + match[1].length;
-    if (!names.includes(match[2])) chips.push({ start, end: start + match[2].length + 1, kind: "element", name: match[2], dead: true });
-  }
+/** The picture tags (see lib/refTags) and camera-move chips in the text, in order. */
+function chipsIn(text: string, refs: string[], library: LibraryElement[], move: Field | undefined): Array<{ start: number; end: number; kind: "element" | "move"; tag?: RefTag }> {
+  const chips: Array<{ start: number; end: number; kind: "element" | "move"; tag?: RefTag }> = refTagsIn(text, refs, library).map((tag) => ({ start: tag.start, end: tag.end, kind: "element" as const, tag }));
   for (const m of movesIn(text, move)) chips.push({ start: m.start, end: m.end, kind: "move" });
   return chips.sort((a, b) => a.start - b.start);
 }
@@ -113,25 +98,16 @@ export function StudioPrompt({
   const pendingCaret = useRef<number | null>(null);
 
   const refNames = refs.map((_, i) => imageName(i));
-  const elementPictures = new Set(elements.flatMap((e) => e.images.map((r) => r.storageUrl)));
-  const names = [...refNames, ...elements.map((e) => e.name)];
-  // An element is dead once none of its pictures is attached any more.
-  const isDead = (name: string) => {
-    const element = elements.find((e) => e.name === name);
-    return !!element && !element.images.some((r) => refs.includes(r.storageUrl));
-  };
-  const chips = chipsIn(text, names, move, isDead);
+  const hasElementPictures = elementPictures(elements);
+  const chips = chipsIn(text, refs, elements, move);
   const inChip = caret !== null && chips.some((c) => caret > c.start && caret <= c.end);
   // The chip under the pointer, for the enlarged look at its picture (as the prompt bar's).
-  const [peek, setPeek] = useState<{ name: string; rect: DOMRect } | null>(null);
-  const pictureOf = (name: string) => {
-    const i = refNames.indexOf(name);
-    return i >= 0 ? refs[i] : elements.find((e) => e.name === name)?.images[0]?.storageUrl;
-  };
+  const [peek, setPeek] = useState<{ id: string; rect: DOMRect } | null>(null);
+  const peeked = peek ? chips.find((c) => c.tag?.id === peek.id)?.tag : undefined;
   const chipAt = (x: number, y: number) => {
     for (const chip of mirror.current?.querySelectorAll<HTMLElement>("[data-chip]") ?? []) {
       for (const rect of chip.getClientRects()) {
-        if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2) return { name: chip.dataset.chip!, rect };
+        if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top - 2 && y <= rect.bottom + 2) return { id: chip.dataset.chip!, rect };
       }
     }
     return null;
@@ -146,7 +122,7 @@ export function StudioPrompt({
         ...refs
           .map((url, i): Option => ({ kind: "ref", key: `ref-${i}`, label: refNames[i], thumb: url }))
           // An element's own pictures are offered by the element, not as Image N.
-          .filter((o) => !elementPictures.has(o.thumb ?? ""))
+          .filter((o) => !hasElementPictures.has(o.thumb ?? ""))
           .filter((o) => o.label.toLowerCase().startsWith(q) || o.label.toLowerCase().replace(/\s+/g, "").startsWith(q) || (/^\d+$/.test(q) && o.label.split(" ")[1].startsWith(q))),
         ...elements
           .filter((e) => e.name.toLowerCase().startsWith(q))
@@ -279,7 +255,7 @@ export function StudioPrompt({
     for (const chip of chips) {
       copy.push(text.slice(last, chip.start));
       copy.push(
-        <span key={chip.start} data-chip={chip.name} data-dead={chip.dead || undefined} className="mention-chip">
+        <span key={chip.start} data-chip={chip.tag?.id} data-dead={chip.tag?.dead || undefined} className="ref-tag">
           {text.slice(chip.start, chip.end)}
         </span>,
       );
@@ -322,14 +298,14 @@ export function StudioPrompt({
         onPointerMove={(event) => {
           if (event.pointerType !== "mouse") return;
           const hit = chipAt(event.clientX, event.clientY);
-          setPeek((now) => (hit?.name === now?.name ? now : hit));
+          setPeek((now) => (hit?.id === now?.id ? now : hit));
         }}
         onPointerLeave={(event) => event.pointerType === "mouse" && setPeek(null)}
         onPointerUp={(event) => {
           // No hover on a phone: a tap on a chip shows its picture, the next tap elsewhere puts it away.
           if (event.pointerType === "mouse") return;
           const hit = chipAt(event.clientX, event.clientY);
-          setPeek((now) => (hit && hit.name !== now?.name ? hit : null));
+          setPeek((now) => (hit && hit.id !== now?.id ? hit : null));
         }}
         onBlur={() => {
           window.setTimeout(() => setCaret(null), 120);
@@ -339,7 +315,7 @@ export function StudioPrompt({
           chips.length > 0 ? "text-transparent caret-t1" : ""
         }`}
       />
-      {peek && !isDead(peek.name) && pictureOf(peek.name) && createPortal(<ChipPeek url={pictureOf(peek.name)!} name={peek.name} rect={peek.rect} />, document.body)}
+      {peek && peeked && !peeked.dead && createPortal(<ChipPeek url={peeked.url} name={peeked.name} rect={peek.rect} />, document.body)}
       {open &&
         spot &&
         createPortal(
