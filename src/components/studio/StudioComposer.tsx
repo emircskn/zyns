@@ -329,7 +329,7 @@ export function ModeSwitch({ mode, onMode }: { mode: "video" | "image"; onMode: 
     </button>
   );
   return (
-    <div className="relative flex shrink-0 gap-1 md:flex-col">
+    <div className="relative flex shrink-0 gap-1 rounded-card bg-t1/[0.05] p-1 md:flex-col">
       <GlideMark value={mode} className="rounded-chip bg-t1/[0.12]" />
       {item("image", "image", "Image")}
       {item("video", "video", "Video")}

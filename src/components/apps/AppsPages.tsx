@@ -447,7 +447,7 @@ function Workspace({ page, onKeyClick }: { page: AppPage; onKeyClick: () => void
   const top = (
     <div className="flex flex-col gap-2">
       {config.tabs.length > 1 && (
-        <div className="flex">
+        <div className="flex rounded-card bg-t1/[0.05] p-1">
           {config.tabs.map((t, i) => (
             <button key={t.label} type="button" onClick={() => (setTab(i), setSub(0))} className={pill(i === tab)}>
               {t.label}
@@ -456,7 +456,7 @@ function Workspace({ page, onKeyClick }: { page: AppPage; onKeyClick: () => void
         </div>
       )}
       {group.ids.length > 1 && (
-        <div className="flex">
+        <div className="flex rounded-card bg-t1/[0.05] p-1">
           {group.ids.map((id, i) => (
             <button key={id} type="button" onClick={() => setSub(i)} className={pill(i === sub)}>
               {KIE_MODELS.find((m) => m.id === id)?.name}

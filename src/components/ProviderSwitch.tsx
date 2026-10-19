@@ -39,7 +39,7 @@ export function ProviderSwitch({
       ref={root}
       role="radiogroup"
       aria-label="Service"
-      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
+      className={`relative ${size === "xs" ? "flex" : "grid grid-cols-2"} gap-0.5 rounded-card bg-t1/[0.05] p-1 ${size === "lg" ? "text-[13px]" : "text-[12px]"}`}
     >
       {box && (
         <span
