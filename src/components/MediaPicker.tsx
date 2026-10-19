@@ -113,7 +113,7 @@ function Thumb({
         </span>
       )}
       {(onPreview || onTrash) && (
-        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+        <div className="hover-reveal max-md:hidden absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
           {onPreview && <TileAction icon="expand" label="View full size" onClick={onPreview} />}
           {onTrash && <TileAction icon="trash" label="Delete" onClick={onTrash} />}
         </div>
@@ -464,7 +464,7 @@ export function MediaPicker({
                           ) : (
                             <span data-round className="hover-reveal pointer-events-none absolute left-1.5 top-1.5 z-20 h-5 w-5 rounded-full border border-white/70 bg-black/30 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100" />
                           ))}
-                        <div className="hover-reveal absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
+                        <div className="hover-reveal max-md:hidden absolute right-1.5 top-1.5 z-20 flex flex-col gap-1.5 opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100">
                           {element.images[0] && <TileAction icon="expand" label="View full size" onClick={() => setPreview(element.images[0].storageUrl)} />}
                           <TileAction icon="trash" label="Delete element" onClick={() => setDeletingElement(element)} />
                         </div>
