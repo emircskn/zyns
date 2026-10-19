@@ -76,7 +76,7 @@ function MediaTile({
       {/* The check takes the corner once picked, so the service mark steps aside. */}
       {asset.source === "run" && asset.provider && !picked && <ServiceBadge provider={asset.provider} small />}
       <span
-        className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
+        data-round className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
           picked ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
         }`}
       >
@@ -376,7 +376,7 @@ export function ReferencePicker({
                         />
                         <span
                           aria-hidden
-                          className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
+                          data-round className={`pointer-events-none absolute left-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full border transition-opacity duration-[120ms] ${
                             on ? "border-accent bg-accent text-accent-ink opacity-100" : "border-white/70 bg-black/30 text-transparent opacity-0 group-hover:opacity-100"
                           }`}
                         >

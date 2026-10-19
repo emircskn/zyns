@@ -764,7 +764,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                 type="button"
                 aria-label="Remove"
                 onClick={() => onChange(many ? picked.filter((p) => p !== id) : undefined)}
-                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
+                data-round className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
               >
                 <Icon name="close" size={13} />
               </button>
@@ -801,7 +801,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
                   {item.title}
                 </span>
                 {on && (
-                  <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
+                  <span data-round className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-ink">
                     <Icon name="check" size={12} strokeWidth={2.4} />
                   </span>
                 )}

@@ -206,7 +206,7 @@ export function SelectMark({ on, small }: { on: boolean; small?: boolean }) {
   // The size of the service badge it stands in for, so the corner keeps one size.
   return (
     <span
-      className={`grid place-items-center rounded-full border-[1.5px] transition-all duration-[120ms] ${small ? "h-5 w-5" : "h-6 w-6"} ${
+      data-round className={`grid place-items-center rounded-full border-[1.5px] transition-all duration-[120ms] ${small ? "h-5 w-5" : "h-6 w-6"} ${
         on ? "border-transparent bg-accent text-accent-ink" : "border-white/70 bg-black/35 text-transparent"
       }`}
     >

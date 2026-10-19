@@ -21,7 +21,7 @@ export function ElementStatusMenu({ element, className = "absolute bottom-2 left
         width={230}
         title="Status"
         trigger={() => (
-          <span role="img" aria-label={`Status: ${now?.label ?? "none"}`} className="grid h-7 w-7 place-items-center max-md:h-6 max-md:w-6 rounded-full bg-black/55 ring-1 ring-inset ring-white/25 transition-colors duration-[120ms] hover:bg-black/80">
+          <span role="img" aria-label={`Status: ${now?.label ?? "none"}`} data-round className="grid h-7 w-7 place-items-center max-md:h-6 max-md:w-6 rounded-full bg-black/55 ring-1 ring-inset ring-white/25 transition-colors duration-[120ms] hover:bg-black/80">
             {now ? <span className="h-3 w-3 rounded-full" style={{ background: now.dot }} /> : <span className="h-3 w-3 rounded-full border border-dashed border-white/70" />}
           </span>
         )}

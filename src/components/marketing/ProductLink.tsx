@@ -143,7 +143,7 @@ export function ProductLink({ onSaved }: { onSaved?: (element: LibraryElement) =
                       <img src={image} alt="" loading="lazy" className={`h-full w-full object-cover transition-opacity duration-[120ms] ${on ? "" : "opacity-45"}`} />
                       <span
                         aria-hidden
-                        className={`absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full border transition-colors duration-[120ms] ${
+                        data-round className={`absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full border transition-colors duration-[120ms] ${
                           on ? "border-accent bg-accent text-accent-ink" : "border-white/70 bg-black/30 text-transparent"
                         }`}
                       >
