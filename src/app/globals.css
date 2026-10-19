@@ -1535,6 +1535,17 @@ html {
 .rounded-full:is([class*="px-"], [class*="pl-"], [class*="pr-"], [class*="py-"]):not([role="radio"]):not([data-round]):not([role="switch"] > *) {
   border-radius: var(--radius-btn);
 }
+/* Buttons have no frame. A button is told from its neighbours by its fill
+   (lighter when chosen), never by an outline, so the same control looks the
+   same wherever it sits. Pictures keep their selection ring, and so do
+   fields (they are not buttons). */
+:is(button, [role="button"], [role="tab"], [role="option"], [role="menuitem"]):not(:has(img, video, canvas)):is([class*="ring-edge"], [class*="ring-line"], [class*="ring-t1/"], [class*="ring-transparent"]):not([class*="ring-2"]) {
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-inset-ring-shadow: 0 0 #0000;
+}
+:is(button, [role="button"], [role="tab"], [role="option"], [role="menuitem"]):not(:has(img, video, canvas)):is([class*="border-line"], [class*="border-edge"]):not([class*="border-dashed"]) {
+  border-color: transparent;
+}
 /* A main action that cannot run yet keeps its orange at half strength, as
    Higgsfield's Generate does, and drops its shadow. */
 .cta:disabled,

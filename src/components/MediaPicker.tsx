@@ -396,7 +396,7 @@ export function MediaPicker({
                       onClose();
                       modelElements.onDefine!();
                     }}
-                    className="flex h-8 items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+                    className="flex h-8 items-center gap-1.5 rounded-full bg-t1/[0.07] px-3 text-[12.5px] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
                   >
                     <Icon name="plus" size={13} />
                     {modelElements.names.length === 0 ? `Define a ${modelElements.label} element` : "Define another"}

@@ -100,7 +100,7 @@ export function ChoiceDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-line-strong px-4 py-2 text-[13.5px] font-medium text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.06]"
+            className="rounded-full bg-t1/[0.07] px-4 py-2 text-[13.5px] font-medium text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.06]"
           >
             Cancel
           </button>

@@ -1183,7 +1183,7 @@ export function MentionStrip({
       <button
         type="button"
         onClick={onDefine}
-        className="flex h-[26px] items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:border-t1/40 hover:text-t1"
+        className="flex h-[26px] items-center gap-1 rounded-full bg-t1/[0.07] px-2.5 text-[12px] text-t3 transition-colors duration-[120ms] hover:bg-t1/[0.12] hover:text-t1"
       >
         <Icon name="plus" size={14} />
         {names.length === 0 ? "Add an element to reference it with @" : "Element"}
