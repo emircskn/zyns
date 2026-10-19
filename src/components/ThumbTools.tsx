@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/Icon";
 import { useState } from "react";
 import { MediaPreview } from "@/components/MediaViewer";
 import { MEDIA_UI } from "@/lib/mediaUi";
@@ -36,9 +37,7 @@ export function ThumbTools({ url, onRemove, tapOpens = true }: { url: string; on
           }}
           className={`${MEDIA_UI.expandTool} ${MEDIA_UI.toolsShow} max-md:hidden`}
         >
-          <svg viewBox="0 0 16 16" width={MEDIA_UI.expandGlyph} height={MEDIA_UI.expandGlyph} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
-          </svg>
+          <Icon name="expand" size={MEDIA_UI.expandGlyph + 2} strokeWidth={2} />
         </button>
       )}
       <button
@@ -51,9 +50,7 @@ export function ThumbTools({ url, onRemove, tapOpens = true }: { url: string; on
         }}
         className={`${MEDIA_UI.closeTool} ${MEDIA_UI.toolsShow}`}
       >
-        <svg viewBox="0 0 16 16" width={MEDIA_UI.closeGlyph} height={MEDIA_UI.closeGlyph} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-          <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
-        </svg>
+        <Icon name="close" size={MEDIA_UI.closeGlyph + 2} strokeWidth={2.4} />
       </button>
       <MediaPreview url={looking ? url : null} onClose={() => setLooking(false)} />
     </>

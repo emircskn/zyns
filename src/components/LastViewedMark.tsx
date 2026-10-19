@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { useStudio } from "@/store/studio";
 
@@ -21,10 +22,7 @@ export function LastViewedMark({ url, small }: { url: string; small?: boolean })
       className={`pointer-events-none absolute inset-0 z-[5] grid place-items-center rounded-[inherit] bg-black/45 transition-opacity duration-[500ms] ease-out ${shown ? "opacity-100" : "opacity-0"}`}
     >
       <span className={`flex items-center gap-1.5 font-semibold text-white ${small ? "text-[11px]" : "text-[13px]"}`}>
-        <svg width={small ? 14 : 16} height={small ? 14 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
+        <Icon name="eye" size={small ? 14 : 16} strokeWidth={2} />
         Last viewed
       </span>
     </span>
