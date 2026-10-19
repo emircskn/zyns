@@ -1,7 +1,7 @@
 "use client";
 
 import { SelectMark } from "@/components/SelectionBar";
-import { useRef, useState, type ReactNode } from "react";
+import { useContext, createContext, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { activeFields, getModel, type Field, type ItemField, type Values } from "@/lib/registry";
 import { notify } from "@/lib/notify";
@@ -394,23 +394,51 @@ function SlotHeader({
   );
 }
 
-export function MediaControl({ field, value, onChange, compact, roomy }: ControlProps) {
+/**
+ * A slot named only for what it holds ("Picture", "Reference images") says
+ * nothing the thumbs don't: it goes. A slot whose name tells it apart
+ * ("Start frame", "Mask") keeps it, beside the thumbs rather than over them,
+ * so the box is the same height either way.
+ */
+const PLAIN_SLOT = /^(?:(?:reference|input|source)\s+)?(?:pictures?|images?|photos?|media|videos?|clips?|audios?|files?|references?)$/i;
+const slotName = (field: Field) => (PLAIN_SLOT.test(field.label.trim()) ? null : field.label);
+
+/** Set by a box that holds one slot: the name goes in its top corner, where the empty box shows "Optional". */
+export const SlotNameInCorner = createContext(false);
+
+function SlotName({ field, count }: { field: Field; count?: string }) {
+  const corner = useContext(SlotNameInCorner);
+  const name = slotName(field);
+  if (!name) return null;
+  if (corner) {
+    return (
+      <span className="absolute right-2.5 top-2.5 rounded-[5px] bg-t1/[0.07] px-1.5 py-px text-[10.5px] leading-[16px] text-t4" title={field.help}>
+        {name}
+        {count && <span className="ml-1 font-mono tabular-nums">{count}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="flex min-w-0 shrink-0 flex-col justify-center gap-0.5 self-center" title={field.help}>
+      <span className="truncate text-[12.5px] text-t2">{name}</span>
+      {count && <span className="font-mono text-[10.5px] tabular-nums text-t4">{count}</span>}
+    </span>
+  );
+}
+
+export function MediaControl({ field, value, onChange, roomy }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const url = (value as string) ?? "";
 
   return (
     <div className="min-w-0">
-      <SlotHeader label={field.label} help={field.help}>
-      </SlotHeader>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {url ? (
           <MediaThumb url={url} roomy={roomy} onRemove={() => onChange(undefined)} />
         ) : (
           <AddTile busy={false} roomy={roomy} onClick={() => setPicking(true)} />
         )}
-        {!compact && field.help && (
-          <p className="min-w-0 flex-1 text-[11.5px] leading-snug text-t4">{field.help}</p>
-        )}
+        <SlotName field={field} />
       </div>
       <MediaPicker
         open={picking}
@@ -423,7 +451,7 @@ export function MediaControl({ field, value, onChange, compact, roomy }: Control
   );
 }
 
-export function ImagesControl({ field, value, onChange, compact, lane, roomy }: ControlProps) {
+export function ImagesControl({ field, value, onChange, lane, roomy }: ControlProps) {
   const [picking, setPicking] = useState(false);
   const urls = Array.isArray(value) ? (value as string[]) : [];
   const full = field.maxItems !== undefined && urls.length >= field.maxItems;
@@ -434,12 +462,6 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
 
   return (
     <div className="min-w-0">
-      <SlotHeader
-        label={field.label}
-        count={`${urls.length}${field.maxItems ? `/${field.maxItems}` : ""}`}
-        help={field.help}
-      >
-      </SlotHeader>
       {/* A model with several reference slots gives each one a narrow column,
           so its thumbs wrap after three. A model with a single slot has the
           whole bar: there they stay on one line and scroll. */}
@@ -458,8 +480,8 @@ export function ImagesControl({ field, value, onChange, compact, lane, roomy }: 
             </div>
           );
         })}
+        <SlotName field={field} count={field.maxItems ? `${urls.length}/${field.maxItems}` : undefined} />
       </div>
-      {!compact && field.help && <p className="mt-1.5 text-[11.5px] leading-snug text-t4">{field.help}</p>}
       <MediaPicker
         open={picking}
         accept={field.accept ?? "image"}

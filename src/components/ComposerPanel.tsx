@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import { flushSync } from "react-dom";
 import { AttachPanel } from "@/components/Attachments";
 import { limitsFor } from "@/lib/attach";
-import { Control, InputLabel } from "@/components/controls";
+import { Control, InputLabel, SlotNameInCorner } from "@/components/controls";
 import { CoverArt } from "@/components/CoverArt";
 import { Icon } from "@/components/Icon";
 import { MediaPicker } from "@/components/MediaPicker";
@@ -74,17 +74,20 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
 
   if (!media || urls.length > 0) {
     return (
-      <div className="rounded-panel border border-line bg-elevated p-3">
+      // Filled, a media slot is the references box over the prompt: the same height as when empty, thumbs only.
+      <div className={`relative rounded-panel border border-line bg-elevated p-3 ${media ? "flex items-center max-md:h-[128px] max-md:p-[11px]" : ""}`}>
         <InputLabel field={field} />
-        <Control
-          field={field}
-          value={value}
-          values={values}
-          compact
-          lane
-          roomy
-          onChange={(next) => setValue(field.key, next)}
-        />
+        <SlotNameInCorner.Provider value={media}>
+          <Control
+            field={field}
+            value={value}
+            values={values}
+            compact
+            lane
+            roomy={!media}
+            onChange={(next) => setValue(field.key, next)}
+          />
+        </SlotNameInCorner.Provider>
       </div>
     );
   }
@@ -94,7 +97,7 @@ export function UploadSlot({ field, half }: { field: Field; half?: boolean }) {
       <button
         type="button"
         onClick={() => setPicking(true)}
-        className={`relative flex w-full flex-col items-center justify-center rounded-panel border-[1.5px] border-dashed border-line-strong bg-t1/[0.02] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.05] ${
+        className={`relative flex w-full flex-col items-center justify-center rounded-panel bg-t1/[0.05] px-3 text-center transition-colors duration-[150ms] active:bg-t1/[0.1] ${
           // One height for every empty upload box (one wide, two side by side), so switching tabs does not resize it.
           "h-[128px] gap-2"
         }`}
