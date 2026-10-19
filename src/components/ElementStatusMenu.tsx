@@ -12,7 +12,11 @@ export function ElementStatusMenu({ element, className = "absolute bottom-2 left
   const saveElement = useStudio((s) => s.saveElement);
   const now = ELEMENT_STATUSES.find((x) => x.id === element.status);
   return (
-    <span className={className} onClick={(event) => event.stopPropagation()}>
+    <span
+      // Over the picture only while the pointer is on the card (always on touch), and while its list is open.
+      className={`${className} hover-reveal opacity-0 transition-opacity duration-[150ms] group-hover:opacity-100 [&:has([aria-expanded=true])]:opacity-100`}
+      onClick={(event) => event.stopPropagation()}
+    >
       <Popover
         width={230}
         title="Status"
