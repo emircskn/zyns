@@ -70,6 +70,16 @@ const WAN_THREE_FIELDS: Family["fields"] = {
   file_url: { kind: "text", accept: undefined, label: "Document link", placeholder: "https://…/brief.pdf" },
   link_url: { kind: "text", placement: "input", label: "Web page", placeholder: "https://…" },
 };
+/** Wan 3.0's modes: the usual trio, with the document and the web page as tabs of their own. */
+const wanThreeModes = (base: string): ModeSpec[] => {
+  const ref = `${base}/reference-to-video`;
+  const link = ["file_url", "link_url"];
+  const pictures = ["image_urls", "video_urls", "audio_urls"];
+  return trio(base, { ref: { hide: link } }).concat([
+    m("document", "Document", ref, { hint: "A video from a document's link", hide: [...pictures, "link_url"], require: ["file_url"] }),
+    m("link", "Web page", ref, { hint: "A video from a public web page", hide: [...pictures, "file_url"], require: ["link_url"] }),
+  ]);
+};
 function wanThreeSource(v: Values): string | null {
   return v.file_url && v.link_url ? "Use a document or a web page, not both." : null;
 }
@@ -483,7 +493,7 @@ export const FAMILIES: Family[] = [
     output: "video",
     badge: "30s",
     tagline: "Alibaba's top Wan: 30-second 1080p clips with sound and multimodal references.",
-    modes: trio("alibaba/wan-3.0-prime"),
+    modes: wanThreeModes("alibaba/wan-3.0-prime"),
     fields: WAN_THREE_FIELDS,
     validate: wanThreeSource,
   },
@@ -494,7 +504,7 @@ export const FAMILIES: Family[] = [
     category: "video",
     output: "video",
     tagline: "Wan 3.0: 1080p clips up to 30 seconds with native audio.",
-    modes: trio("alibaba/wan-3.0"),
+    modes: wanThreeModes("alibaba/wan-3.0"),
     fields: WAN_THREE_FIELDS,
     validate: wanThreeSource,
   },
