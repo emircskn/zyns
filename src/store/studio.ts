@@ -11,7 +11,7 @@ import { DEMO_PREFIX, demoRuns, demoUploads } from "@/lib/demo";
 import { withoutInputs } from "@/lib/runInputs";
 import { imageFields, imageRefs } from "@/lib/mentions";
 import { followRefs } from "@/lib/refTags";
-import type { Made, Track } from "@/lib/results";
+import type { Made, Segment, Track } from "@/lib/results";
 import { englishError, hasChinese } from "@/lib/kie/errors";
 import {
   TIER_KEY,
@@ -73,6 +73,8 @@ export interface Run {
   credits?: number;
   /** A song's tracks, for the Suno tools that work on one of them. */
   tracks?: Track[];
+  /** A segment map's parts, for a segment edit to pick from. */
+  segments?: Segment[];
   /** A character or voice this run made, for later runs to use. */
   made?: Made;
   /** Higgsfield: where to follow the request up and cancel it, as Higgsfield gave them. */

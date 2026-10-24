@@ -1,4 +1,4 @@
-import type { Field } from "@/lib/registry";
+import type { Field, Values } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
 import type { Run } from "@/store/studio";
 
@@ -17,7 +17,7 @@ export interface SourceItem {
 }
 
 /** What a source field can pick from, newest first. */
-export function sourceItems(field: Field, runs: Run[], modelId: string): SourceItem[] {
+export function sourceItems(field: Field, runs: Run[], modelId: string, values?: Values): SourceItem[] {
   const spec = field.source ?? { of: "task" as const };
   const models = spec.models ?? [modelId];
   const done = runs.filter((r) => r.state === "success");
@@ -25,7 +25,7 @@ export function sourceItems(field: Field, runs: Run[], modelId: string): SourceI
   switch (spec.of) {
     case "task":
       return done
-        .filter((r) => r.taskId && !r.made && models.includes(r.modelId))
+        .filter((r) => r.taskId && !r.made && models.includes(r.modelId) && !spec.notFrom?.includes(r.mode ?? ""))
         .map((r) => ({ id: r.taskId!, title: title(r), thumb: r.urls.find((u) => mediaKind(u) !== "audio"), icon: "audio", run: r }));
     case "track":
       return done
@@ -39,6 +39,17 @@ export function sourceItems(field: Field, runs: Run[], modelId: string): SourceI
             run: r,
           })),
         );
+    case "segment": {
+      // The parts of the segment map picked in the same request's task field.
+      const map = done.find((r) => r.taskId && r.taskId === values?.task_id);
+      return (map?.segments ?? []).map((s) => ({
+        id: String(s.index),
+        title: s.name || `Part ${s.index + 1}`,
+        thumb: s.url,
+        icon: "image" as const,
+        run: map!,
+      }));
+    }
     case "character":
     case "voice":
       return done

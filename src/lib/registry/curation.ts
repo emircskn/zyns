@@ -118,6 +118,27 @@ const SUNO_TRACK: Partial<Field> = {
   source: { of: "track", models: ["suno-music"] },
 };
 
+/**
+ * Wan 2.7 Image: thinking needs a plain single prompt, a palette no sequential
+ * set, and only a sequential set goes past 4 images.
+ */
+const wanHasInputs = (v: Values) => Array.isArray(v.input_urls) && v.input_urls.length > 0;
+const wanImageProblem = (v: Values) =>
+  !v.enable_sequential && Number(v.n) > 4 ? "Turn on Sequential set for more than 4 images." : null;
+const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
+  fields: {
+    n: { max: 12, help: "Up to 4, or 12 as a sequential set." },
+    thinking_mode: { when: (v) => !v.enable_sequential && !wanHasInputs(v) },
+    color_palette: { when: (v) => !v.enable_sequential },
+  },
+  prepare: (v) => ({
+    ...v,
+    thinking_mode: v.enable_sequential || wanHasInputs(v) ? undefined : v.thinking_mode,
+    color_palette: v.enable_sequential ? undefined : v.color_palette,
+  }),
+  validate: wanImageProblem,
+};
+
 /** Seedance 2.x share one schema; the three input styles are exclusive. */
 const seedanceModes = (model: string, refs = true): ModeSpec[] => [
   m("text-to-video", "Text to video", model, {
@@ -271,6 +292,8 @@ export const FAMILIES: Family[] = [
         hint: "Split an image into editable layers",
       }),
     ],
+    // Labelled by the size each tier makes, as the docs describe them.
+    fields: { quality: { choices: [{ value: "basic", label: "1K", hint: "Basic" }, { value: "high", label: "2K", hint: "High" }] } },
   },
   {
     id: "seedream-5-flash",
@@ -299,6 +322,8 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "seedream/5-lite-text-to-image"),
       m("edit", "Edit", "seedream/5-lite-image-to-image", { hint: "Up to 14 references" }),
     ],
+    // Labelled by the size each tier makes, as the docs describe them.
+    fields: { quality: { choices: [{ value: "basic", label: "2K", hint: "Basic" }, { value: "high", label: "3K", hint: "High" }, { value: "ultra", label: "4K", hint: "Ultra" }] } },
   },
   {
     id: "seedream-4-5",
@@ -311,6 +336,8 @@ export const FAMILIES: Family[] = [
       m("generate", "Generate", "seedream/4.5-text-to-image"),
       m("edit", "Edit", "seedream/4.5-edit"),
     ],
+    // Labelled by the size each tier makes, as the docs describe them.
+    fields: { quality: { choices: [{ value: "basic", label: "2K", hint: "Basic" }, { value: "high", label: "4K", hint: "High" }] } },
   },
   {
     id: "gpt-image-2",
@@ -374,6 +401,8 @@ export const FAMILIES: Family[] = [
       m("fast", "Fast", "google/imagen4-fast"),
       m("ultra", "Ultra", "google/imagen4-ultra"),
     ],
+    // Fast documents its seed as a number, the others as text: one number field for all three.
+    fields: { seed: { kind: "number", min: 0 } },
   },
   {
     id: "gpt-image-2-5-flare",
@@ -446,18 +475,32 @@ export const FAMILIES: Family[] = [
     modes: [
       m("generate", "Generate", "grok-imagine-image-2-0/text-to-image"),
       m("edit", "Edit", "grok-imagine-image-2-0/image-edit", { hint: "1–5 references" }),
+      // One "Segment map": a tab for an uploaded picture, and on a Grok
+      // result the same thing by its task (offered there, see withActions).
+      m("segment-map-image", "Segment map", "grok-imagine-image-2-0/segment-map", {
+        variant: "image_url",
+        hint: "Splits a picture into editable parts",
+      }),
       m("segment-map-task", "Segment map", "grok-imagine-image-2-0/segment-map", {
         variant: "task_id",
-        hint: "From a previous Grok task",
-      }),
-      m("segment-map-image", "Segment map (image)", "grok-imagine-image-2-0/segment-map", {
-        variant: "image_url",
-        hint: "From an uploaded image",
+        hint: "Splits a Grok image into editable parts",
       }),
       m("segment-edit", "Segment edit", "grok-imagine-image-2-0/segment-edit", {
-        hint: "Edit selected segments of a mapped image",
+        hint: "Edit a Grok image, or chosen parts of its segment map",
+        tab: true,
       }),
     ],
+    fields: {
+      // A segment map is of a picture, not of another map.
+      "task_id@segment-map-task": { source: { of: "task", notFrom: ["segment-map-task", "segment-map-image"] } },
+      mask_indexs: {
+        kind: "source",
+        source: { of: "segment", max: 200 },
+        placement: "input",
+        label: "Parts",
+        help: "None picked edits the whole image.",
+      },
+    },
   },
   {
     id: "ideogram-v3",
@@ -530,6 +573,7 @@ export const FAMILIES: Family[] = [
     output: "image",
     tagline: "Sequential image sets, colour palettes and box-guided edits.",
     modes: [m("generate", "Generate", "wan/2-7-image")],
+    ...WAN_IMAGE,
   },
   {
     id: "wan-2-7-image-pro",
@@ -539,6 +583,10 @@ export const FAMILIES: Family[] = [
     output: "image",
     tagline: "The Pro tier of Wan 2.7 Image.",
     modes: [m("generate", "Generate", "wan/2-7-image-pro")],
+    ...WAN_IMAGE,
+    validate: (v) =>
+      wanImageProblem(v) ??
+      (v.resolution === "4K" && (v.enable_sequential || wanHasInputs(v)) ? "4K is for text to image with Sequential set off." : null),
   },
   {
     id: "z-image",

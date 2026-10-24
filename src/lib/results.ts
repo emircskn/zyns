@@ -10,6 +10,26 @@ export interface Track {
   audio?: string;
 }
 
+/** One part of a segment map: what Grok calls it and its mask, by the index a segment edit asks for. */
+export interface Segment {
+  index: number;
+  name?: string;
+  url?: string;
+}
+
+/** A segment map's parts, from its `resultObject.segments`. */
+export function segmentsFrom(data: unknown): Segment[] | undefined {
+  const result = parseMaybeJson((data as Record<string, unknown> | undefined)?.resultJson) as
+    | { resultObject?: { segments?: unknown } }
+    | undefined;
+  const list = result?.resultObject?.segments;
+  if (!Array.isArray(list)) return undefined;
+  const out = list
+    .filter((s): s is Record<string, unknown> => !!s && typeof s === "object" && Number.isInteger(s.index))
+    .map((s) => ({ index: s.index as number, name: str(s.name), url: str(s.maskUrl) }));
+  return out.length > 0 ? out : undefined;
+}
+
 export interface Made {
   kind: "character" | "voice";
   id: string;

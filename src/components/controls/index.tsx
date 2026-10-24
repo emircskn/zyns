@@ -678,6 +678,7 @@ const SOURCE_EMPTY: Record<NonNullable<Field["source"]>["of"], string> = {
   track: "Songs you make with Suno Music show up here to pick from.",
   character: "Characters you make in Create character show up here.",
   voice: "Voices you make in Create voice show up here.",
+  segment: "Pick a segment map above to choose its parts.",
 };
 
 /**
@@ -701,7 +702,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
     : typeof value === "string" && value
       ? [value]
       : [];
-  const items = sourceItems(field, runs, modelId).slice(0, 24);
+  const items = sourceItems(field, runs, modelId, values).slice(0, spec.of === "segment" ? undefined : 24);
   const strays = picked.filter((id) => !items.some((item) => item.id === id));
 
   function toggle(item: SourceItem) {
@@ -712,6 +713,10 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
       return;
     }
     onChange(on ? undefined : item.id);
+    // Parts picked from one segment map mean nothing for another.
+    if (spec.of === "task" && model) {
+      for (const f of activeFields(model, values)) if (f.source?.of === "segment") setValue(f.key, undefined);
+    }
     // A track belongs to a task, and the tools that take one also ask for
     // the other: picking the track settles both.
     if (spec.of === "track" && model && activeFields(model, values).some((f) => f.key === "task_id")) {

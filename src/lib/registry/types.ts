@@ -108,9 +108,11 @@ export interface Field {
  * or a character or voice made for reuse.
  */
 export interface SourceSpec {
-  of: "task" | "track" | "character" | "voice";
+  of: "task" | "track" | "character" | "voice" | "segment";
   /** Models whose runs qualify; the field's own model when left out. */
   models?: string[];
+  /** Modes whose runs do not qualify (a segment map is not mapped again). */
+  notFrom?: string[];
   /** How many may be picked; one when left out. */
   max?: number;
 }
@@ -143,6 +145,8 @@ export interface Mode {
    * result rather than as a tab, and names the field that points at it.
    */
   action?: string;
+  /** An action that also stays a tab (Grok's Segment edit). */
+  tab?: boolean;
 }
 
 /**

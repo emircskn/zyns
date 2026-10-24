@@ -6,7 +6,7 @@
  * is written to disk or kept between requests.
  */
 
-import { collectTracks, madeFrom, type Made, type Track } from "@/lib/results";
+import { collectTracks, madeFrom, segmentsFrom, type Made, type Segment, type Track } from "@/lib/results";
 import { englishError } from "./errors";
 
 export const KIE_BASE = "https://api.kie.ai";
@@ -25,6 +25,8 @@ export interface NormalisedTask {
   credits?: number;
   /** A song's tracks, each with the ID later Suno tools ask for. */
   tracks?: Track[];
+  /** A segment map's parts. */
+  segments?: Segment[];
   raw: unknown;
 }
 
@@ -187,7 +189,7 @@ export function normaliseTask(envelope: KieEnvelope): NormalisedTask {
   // jobs/* uses a `state` string.
   const state = data.state as string | undefined;
   if (state) {
-    if (state === "success") return { state: "success", urls, credits, tracks, raw: envelope };
+    if (state === "success") return { state: "success", urls, credits, tracks, segments: segmentsFrom(data), raw: envelope };
     if (state === "fail") return { state: "failed", urls, error: error || `Failed (${failCode ?? "unknown"})`, raw: envelope };
     return { state: state === "waiting" || state === "queuing" ? "pending" : "running", urls, progress: state, raw: envelope };
   }

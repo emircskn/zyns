@@ -80,6 +80,8 @@ export interface ModeSpec {
   require?: string[];
   /** Values the mode pins; hidden from the UI and injected at build time. */
   fixed?: Record<string, unknown>;
+  /** Stays a tab as well as being offered on results (see withActions). */
+  tab?: boolean;
 }
 
 export interface Family {
@@ -293,6 +295,8 @@ const BAR_KEYS = new Set([
 const BAR_TOGGLES = new Set([
   "generate_audio", "generate_audio_switch", "audio", "sound", "instrumental", "custom_mode",
   "multi_shots", "customize_multi_shots", "enable_pro", "sound_loop", "loop", "camera_fixed", "fixed_lens",
+  // Prompt helpers sit beside the prompt as an icon chip, not in the drawer.
+  "expand_prompt", "enhance_prompt", "prompt_extend", "prompt_optimizer", "enable_prompt_expansion", "prompt_upsampling",
 ]);
 const GROUPS: Array<[RegExp, string]> = [
   [/seed/, "Reproducibility"],
@@ -476,6 +480,8 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
     // A required flag with no documented default still has to be sent; off is
     // the only honest starting point.
     if (prop.required && prop.default === undefined) extra.default = false;
+    // A default the docs only state in prose ("Default value: true") is still the one the API applies.
+    else if (prop.default === undefined && /default(?: value)?:?\s*`?true/i.test(prop.desc)) extra.default = true;
   } else if (enumValues.length > 0) {
     const numeric = enumValues.every((v) => typeof v === "number" || /^\d+$/.test(String(v)));
     const contiguous =
@@ -549,6 +555,8 @@ function fieldFor(key: string, prop: SpecProp, override?: Partial<Field>): Field
   if ((kind === "slider" || kind === "segmented") && /^duration(_seconds)?$/.test(key)) {
     extra.chip = (v) => (v === undefined || v === "" ? "Duration" : `${v}s`);
   }
+  // A count is whole images, whatever type the docs give it.
+  if (kind === "slider" && /^(n|num_images|max_images)$/.test(key)) extra.step = 1;
   if ((kind === "slider" || kind === "segmented") && /^(n|num_images|max_images)$/.test(key)) extra.chip = (v) => (v === undefined || v === "" ? "Images" : `${v}×`);
 
   const group = placement === "panel" ? GROUPS.find(([re]) => re.test(key))?.[1] ?? "Options" : undefined;
@@ -628,6 +636,8 @@ function coerce(value: unknown, prop: SpecProp | undefined, kind: FieldKind): un
   }
   if (prop.type === "boolean") return value === true || value === "true";
   if (prop.type === "string" && typeof value === "number") return String(value);
+  // Picked by tile, kept as text: an integer list is sent as numbers.
+  if (prop.items?.type === "integer" && Array.isArray(value)) return value.map(Number).filter(Number.isInteger);
   return value;
 }
 
@@ -689,7 +699,9 @@ export function familyToModel(family: Family): ModelDef {
 
   const fields: Field[] = [];
   for (const { key, prop, modes: inModes, required, fromInput } of variants.values()) {
-    const field = fieldFor(key, prop, family.fields?.[key]);
+    // "key@mode" overrides the key only where that mode uses it.
+    const only = [...inModes].map((id) => family.fields?.[`${key}@${id}`]).find(Boolean);
+    const field = fieldFor(key, prop, only ? { ...family.fields?.[key], ...only } : family.fields?.[key]);
     // A mode that edits or animates a picture, whose API has no "auto"
     // ratio: offer one anyway. It is resolved when sending, to whichever
     // listed ratio sits closest to the first reference's shape.
@@ -755,7 +767,7 @@ export function familyToModel(family: Family): ModelDef {
     tags,
     badge: family.badge,
     docs: modes[0]?.spec.doc,
-    modes: modes.map(({ id, label, hint }) => ({ id, label, hint })),
+    modes: modes.map(({ id, label, hint, tab }) => ({ id, label, hint, ...(tab ? { tab } : {}) })),
     defaultMode: modes[0]?.id,
     fields,
     creditHint: family.creditHint,

@@ -349,6 +349,13 @@ export function Tile({
             {run.made.name ? ` · ${run.made.name}` : ""}
           </span>
         )}
+        {/* The rest of a run hides behind its first picture in a square: say how many there are. */}
+        {url && run.urls.length > 1 && (square || run.segments) && (
+          <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] text-white">
+            <Icon name="layers" size={11} />
+            {run.segments ? `${run.segments.length} parts` : run.urls.length}
+          </span>
+        )}
         {loading && (
           <GenerationLoader
             url={url}

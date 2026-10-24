@@ -92,7 +92,10 @@ function useModeTabs() {
   // A mode folded into another tab (Edit into Generate) is not a choice, and
   // one that works on an earlier result is offered on that result; it shows
   // here only while it is the one in use, so the bar says what it will do.
-  const tabs = model?.modes?.filter((mode) => !mode.hidden && (!mode.action || mode.id === current)) ?? [];
+  const shown = model?.modes?.filter((mode) => !mode.hidden && (!mode.action || mode.tab || mode.id === current)) ?? [];
+  // That one stands in for a tab of the same name (Grok's Segment map from a
+  // result, in place of the one from an upload) rather than doubling it.
+  const tabs = shown.filter((mode) => mode.id === current || !shown.some((o) => o.id === current && o.action && !o.tab && o.label === mode.label));
   // The folded tab makes from text or from a picture, so it is named for
   // neither: "Text to video" beside "Reference" said the picture slot under
   // it was not for pictures.
@@ -370,7 +373,7 @@ function RatioGlyph({ value }: { value: unknown }) {
  * palette, the rendering speed a bolt, the quality and resolution a gem.
  */
 /** Switches whose icon says it all: the chip drops its long name and keeps the icon and the switch. */
-const ICON_ONLY = /enhance|prompt_extend|prompt_optimi[sz]er|magic_prompt|expand_prompt/;
+const ICON_ONLY = /enhance|prompt_extend|prompt_optimi[sz]er|magic_prompt|expand_prompt|prompt_expansion|prompt_upsampling/;
 
 const CHIP_ICON: Array<[RegExp, IconName]> = [
   [ICON_ONLY, "enhance"],
@@ -1245,7 +1248,7 @@ export function useComposer() {
     if (f.kind !== "source" || f.required || !model) return true;
     const value = values[f.key];
     const picked = Array.isArray(value) ? value.length > 0 : !!value;
-    return picked || sourceItems(f, runs, model.id).length > 0;
+    return picked || sourceItems(f, runs, model.id, values).length > 0;
   });
   // Files go through the one "+" and sit as thumbs over the prompt; the
   // rest of the inputs (lines, pickers, trimmed clips) keep their slots.

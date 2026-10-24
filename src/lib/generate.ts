@@ -183,6 +183,7 @@ export async function pollRun(run: Run): Promise<void> {
       // What the run was sent (references, first frames) is never its output.
       urls: task.urls && task.urls.length > 0 ? withoutInputs(task.urls, { ...run.values, __sent: run.sent }) : run.urls,
       ...("tracks" in task && task.tracks ? { tracks: task.tracks as Run["tracks"] } : {}),
+      ...("segments" in task && task.segments ? { segments: task.segments as Run["segments"] } : {}),
       error: higgsfield ? task.error : englishError(task.error),
       credits: ("credits" in task ? (task.credits as number | undefined) : undefined) ?? run.credits,
     });
