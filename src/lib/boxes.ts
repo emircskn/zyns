@@ -2,6 +2,7 @@
 
 import { activeFields, type ModelDef, type Values } from "@/lib/registry";
 import { readMediaMeta } from "@/lib/mediaMeta";
+import { mediaSrc } from "@/lib/storage/client";
 
 /** One drawn box as fractions of its picture: [x1, y1, x2, y2], each 0–1. */
 export type Box = [number, number, number, number];
@@ -34,7 +35,8 @@ export async function boxesToPixels(model: ModelDef, values: Values): Promise<Va
       refs.map(async (url) => {
         const boxes = map[url] ?? [];
         if (boxes.length === 0) return [];
-        const { width, height } = await readMediaMeta(url, "image");
+        // The kept copy first: the service's own link can have expired while the picture still shows.
+        const { width, height } = await readMediaMeta(mediaSrc(url), "image").catch(() => readMediaMeta(url, "image"));
         if (!width || !height) throw new Error("A reference could not be measured for its boxes.");
         return boxes.map(([x1, y1, x2, y2]) => [Math.round(x1 * width), Math.round(y1 * height), Math.round(x2 * width), Math.round(y2 * height)]);
       }),

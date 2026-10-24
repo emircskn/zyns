@@ -98,10 +98,10 @@ export function SettingsPanel() {
           {groups.map(([group, fields], groupIndex) => (
             <section
               key={`${model.id}-${group}-${open}`}
-              className="anim-swap mb-7 last:mb-0"
+              className="anim-swap mb-6 border-t border-line pt-5 first:border-t-0 first:pt-0 last:mb-0"
               style={{ animationDelay: `${120 + groupIndex * 50}ms` }}
             >
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-t3">
+              <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-t2">
                 {group}
               </h3>
               <div className="flex flex-col gap-5">
