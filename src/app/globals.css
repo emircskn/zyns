@@ -1002,20 +1002,10 @@ html {
   transition: color var(--like-fill) var(--like-ease);
 }
 
-.t-like-heart path {
-  fill: transparent;
-  stroke: currentColor;
-  transition:
-    fill var(--like-fill) var(--like-ease),
-    stroke var(--like-fill) var(--like-ease);
-}
-
+/* Filled by swapping to Phosphor's filled weight (LikeHeart), not by CSS fill:
+   its outline glyph is a ring-shaped path, so filling it fills only the ring. */
 .t-like[data-liked="true"] .t-like-heart {
   color: var(--like-color);
-}
-
-.t-like[data-liked="true"] .t-like-heart path {
-  fill: currentColor;
 }
 
 /* The pop lives on an HTML wrapper, never the <svg>: transforming an inline

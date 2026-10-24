@@ -89,7 +89,7 @@ export function LikeHeart({
           label under it the button's middle is below the glyph, which put the
           spray under the heart instead of around it. */}
       <span className="t-like-icon inline-flex">
-        <Icon name="heart" size={size} className="t-like-heart" />
+        <Icon name="heart" size={size} fill={liked ? "currentColor" : undefined} className="t-like-heart" />
         <span ref={particles} aria-hidden className="t-like-particles">
           {Array.from({ length: DOTS }, (_, index) => (
             <i key={index} />
