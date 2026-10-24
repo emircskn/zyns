@@ -32,7 +32,9 @@ export type FieldKind =
   /** A Soul ID character from the library, sent by its id (`soul` says for which Soul model). */
   | "soul"
   /** Soul 2.0's style: a card beside Generate that opens the style window. */
-  | "soulStyle";
+  | "soulStyle"
+  /** Boxes drawn on each reference (Wan's bbox_list), kept per reference URL as 0–1 fractions. */
+  | "boxes";
 
 /**
  * Where a control lives in the studio chrome:

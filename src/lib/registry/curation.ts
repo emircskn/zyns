@@ -130,9 +130,12 @@ const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
     n: { max: 12, help: "Up to 4, or 12 as a sequential set." },
     thinking_mode: { when: (v) => !v.enable_sequential && !wanHasInputs(v) },
     color_palette: { when: (v) => !v.enable_sequential },
+    bbox_list: { kind: "boxes", when: wanHasInputs, help: "Drag on a reference to mark what to change, up to two boxes each." },
   },
   prepare: (v) => ({
     ...v,
+    // Turned into pixel boxes before sending (see boxesToPixels); never sent as drawn.
+    bbox_list: Array.isArray(v.bbox_list) ? v.bbox_list : undefined,
     thinking_mode: v.enable_sequential || wanHasInputs(v) ? undefined : v.thinking_mode,
     color_palette: v.enable_sequential ? undefined : v.color_palette,
   }),

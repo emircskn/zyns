@@ -2,6 +2,7 @@
 
 import { aspectFromValues } from "@/lib/aspect";
 import { resolveAutoRatio } from "@/lib/autoRatio";
+import { boxesToPixels } from "@/lib/boxes";
 import { withImageMentions } from "@/lib/mentions";
 import { createTask, getCredits, getTask } from "@/lib/kie/transport";
 import * as hf from "@/lib/higgsfield/transport";
@@ -59,7 +60,7 @@ export async function submitModelRun(
   // (their pictures among it) is handed to the service first.
   let ready: Awaited<ReturnType<typeof readyMedia>>;
   try {
-    ready = await readyMedia(withLibraryElements(model, sent, state.elements), provider);
+    ready = await readyMedia(withLibraryElements(model, await boxesToPixels(model, sent), state.elements), provider);
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "A picture could not be prepared." };
   }

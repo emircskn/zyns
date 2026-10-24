@@ -25,6 +25,7 @@ import { SOUL_MODELS, soulsFor } from "@/lib/elements";
 import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } from "@/lib/clips";
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
+import { boxRefs, type Box, type BoxMap } from "@/lib/boxes";
 
 interface ControlProps {
   field: Field;
@@ -1068,6 +1069,111 @@ function SoulControl({ field, value, onChange }: ControlProps) {
   );
 }
 
+/**
+ * Boxes on each reference: drag on a picture to mark the part to change,
+ * up to two per picture. Kept by URL as fractions; `boxesToPixels` turns
+ * them into the API's pixel lists when sending.
+ */
+function BoxesControl({ value, values, onChange }: ControlProps) {
+  const model = useModel();
+  const refs = model ? boxRefs(model, values) : [];
+  const map = (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as BoxMap;
+  const max = 2;
+  if (refs.length === 0) return <p className="text-[11.5px] leading-snug text-t4">Add a reference to draw boxes on it.</p>;
+  const set = (url: string, boxes: Box[]) => {
+    const next = { ...map, [url]: boxes };
+    if (boxes.length === 0) delete next[url];
+    // Drop boxes of pictures no longer attached.
+    for (const key of Object.keys(next)) if (!refs.includes(key)) delete next[key];
+    onChange(Object.keys(next).length ? next : undefined);
+  };
+  return (
+    <div className="flex flex-col gap-3">
+      {refs.map((url, index) => (
+        <BoxPad key={url} url={url} label={`Image ${index + 1}`} boxes={map[url] ?? []} max={max} onChange={(boxes) => set(url, boxes)} />
+      ))}
+    </div>
+  );
+}
+
+function BoxPad({ url, label, boxes, max, onChange }: { url: string; label: string; boxes: Box[]; max: number; onChange: (boxes: Box[]) => void }) {
+  const frame = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState<Box | null>(null);
+  const start = useRef<[number, number] | null>(null);
+  const full = boxes.length >= max;
+  const at = (event: React.PointerEvent): [number, number] => {
+    const rect = frame.current!.getBoundingClientRect();
+    const clamp = (n: number) => Math.round(Math.min(1, Math.max(0, n)) * 1e4) / 1e4;
+    return [clamp((event.clientX - rect.left) / rect.width), clamp((event.clientY - rect.top) / rect.height)];
+  };
+  const span = (a: [number, number], b: [number, number]): Box => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])];
+  const pct = (n: number) => `${n * 100}%`;
+  const shown = draft ? [...boxes, draft] : boxes;
+
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between text-[12px]">
+        <span className="text-t2">
+          {label} <span className="font-mono text-[11px] text-t4">{boxes.length}/{max}</span>
+        </span>
+        {boxes.length > 0 && (
+          <button type="button" onClick={() => onChange([])} className="text-t3 transition-colors hover:text-t1">
+            Clear
+          </button>
+        )}
+      </div>
+      <div className="flex justify-center rounded-chip bg-t1/[0.055] p-1.5">
+        <div
+          ref={frame}
+          className={`relative select-none ${full ? "" : "cursor-crosshair touch-none"}`}
+          onPointerDown={(event) => {
+            if (full || event.button !== 0) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            start.current = at(event);
+            setDraft(span(start.current, start.current));
+          }}
+          onPointerMove={(event) => start.current && setDraft(span(start.current, at(event)))}
+          onPointerUp={(event) => {
+            if (!start.current) return;
+            const box = span(start.current, at(event));
+            start.current = null;
+            setDraft(null);
+            // A tap, not a drag: nothing to mark.
+            if (box[2] - box[0] > 0.02 && box[3] - box[1] > 0.02) onChange([...boxes, box]);
+          }}
+          onPointerCancel={() => {
+            start.current = null;
+            setDraft(null);
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={thumbSrc(url, 768)} alt="" draggable={false} className="block max-h-[260px] max-w-full rounded-[6px]" />
+          {shown.map((box, i) => (
+            <div
+              key={i}
+              className="pointer-events-none absolute rounded-[4px] border-2 border-accent bg-accent/15"
+              style={{ left: pct(box[0]), top: pct(box[1]), width: pct(box[2] - box[0]), height: pct(box[3] - box[1]) }}
+            >
+              <span className="absolute left-0 top-0 rounded-br-[4px] bg-accent px-1 text-[10px] font-bold leading-[14px] text-accent-ink">{i + 1}</span>
+              {i < boxes.length && (
+                <button
+                  type="button"
+                  aria-label={`Remove box ${i + 1}`}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => onChange(boxes.filter((_, j) => j !== i))}
+                  className="pointer-events-auto absolute -right-2.5 -top-2.5 grid h-5 w-5 place-items-center rounded-full bg-black/80 text-white ring-1 ring-white/20"
+                >
+                  <Icon name="close" size={11} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 export function Control(props: ControlProps) {
@@ -1106,6 +1212,8 @@ export function Control(props: ControlProps) {
       return <SourceControl {...props} />;
     case "soul":
       return <SoulControl {...props} />;
+    case "boxes":
+      return <BoxesControl {...props} />;
     default:
       return <TextControl {...props} />;
   }
