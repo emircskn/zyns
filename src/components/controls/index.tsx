@@ -1079,7 +1079,7 @@ function BoxesControl({ value, values, onChange }: ControlProps) {
   const refs = model ? boxRefs(model, values) : [];
   const map = (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as BoxMap;
   const max = 2;
-  if (refs.length === 0) return <p className="text-[11.5px] leading-snug text-t4">Add a reference to draw boxes on it.</p>;
+  if (refs.length === 0) return <p className="text-[11.5px] leading-snug text-t4">Add a reference image first, then draw boxes on it here.</p>;
   const set = (url: string, boxes: Box[]) => {
     const next = { ...map, [url]: boxes };
     if (boxes.length === 0) delete next[url];

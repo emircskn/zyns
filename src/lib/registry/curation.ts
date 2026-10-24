@@ -130,7 +130,8 @@ const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
     n: { max: 12, help: "Up to 4, or 12 as a sequential set." },
     thinking_mode: { when: (v) => !v.enable_sequential && !wanHasInputs(v) },
     color_palette: { when: (v) => !v.enable_sequential },
-    bbox_list: { kind: "boxes", when: wanHasInputs, help: "Drag on a reference to mark what to change, up to two boxes each." },
+    // Always listed, so the tool is findable before a reference is attached.
+    bbox_list: { kind: "boxes", help: "Drag on a reference to mark what to change, up to two boxes each." },
   },
   prepare: (v) => ({
     ...v,
