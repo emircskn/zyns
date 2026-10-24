@@ -1,3 +1,4 @@
+import { HIGGSFIELD } from "@/lib/features";
 import { familyToModel, allSpecs } from "./auto";
 import { FAMILIES } from "./curation";
 import { familyToModel as hfFamilyToModel, loadCatalogSpecs, uncuratedFamilies } from "./hf/auto";
@@ -147,6 +148,9 @@ export const HF_MODELS: ModelDef[] = buildHiggsfield();
 /** Both catalogues; a model is found by id whichever provider is chosen. */
 export const ALL_MODELS: ModelDef[] = [...KIE_MODELS, ...HF_MODELS];
 
+/** The models offered to pick from: both catalogues, or KIE's alone while Higgsfield is off. */
+export const OFFERED_MODELS: ModelDef[] = HIGGSFIELD ? ALL_MODELS : KIE_MODELS;
+
 let catalogSignature = JSON.stringify((snapshot as unknown as HfCatalog).specs);
 let catalogInUse = snapshot as unknown as HfCatalog;
 
@@ -178,7 +182,7 @@ export function applyHiggsfieldCatalog(next: HfCatalog): boolean {
 
 /** The chosen provider's models. */
 export function modelsFor(provider: Provider): ModelDef[] {
-  return provider === "higgsfield" ? HF_MODELS : KIE_MODELS.filter((m) => !m.app);
+  return provider === "higgsfield" && HIGGSFIELD ? HF_MODELS : KIE_MODELS.filter((m) => !m.app);
 }
 
 /** KIE's, for code that has no provider in hand. */

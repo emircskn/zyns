@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaceIcon } from "@/components/AppIcon";
 import { PhoneSubnav } from "@/components/PhoneShell";
@@ -92,7 +93,7 @@ const TOOL_NAV: Array<{ id: MarketingView; label: string; place: string }> = [
 export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
   const ui = useMarketing();
   // Explore templates: ours or Higgsfield's, starting on whichever one is in use.
-  const [source, setSource] = useState<"zyns" | "higgsfield">(() => (ui.preset ? "higgsfield" : "zyns"));
+  const [source, setSource] = useState<"zyns" | "higgsfield">(() => (ui.preset && HIGGSFIELD ? "higgsfield" : "zyns"));
   // A template picked under Explore templates opens Higgsfield's Recreate window.
   const [picked, setPicked] = useState<PickedTemplate | null>(null);
   const [initial, setInitial] = useState<TemplateStart | null>(null);
@@ -199,7 +200,7 @@ export function MarketingStudio({ onKeyClick }: { onKeyClick: () => void }) {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="studio-title text-[22px] font-bold uppercase tracking-[-0.02em] text-t1">Explore templates</h2>
             {/* Ours (a cover sent as the look) apart from Higgsfield's own presets. */}
-            <PillGroup value={source} onChange={setSource} items={[{ id: "zyns", label: "ZYNS" }, { id: "higgsfield", label: "Higgsfield" }]} />
+            {HIGGSFIELD && <PillGroup value={source} onChange={setSource} items={[{ id: "zyns", label: "ZYNS" }, { id: "higgsfield", label: "Higgsfield" }]} />}
           </div>
           {source === "zyns" ? (
             <OwnTemplateGrid selected={null} onPick={(id) => id && setPicked({ kind: "zyns", styleId: id })} />

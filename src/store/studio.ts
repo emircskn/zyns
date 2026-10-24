@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { LibraryElement } from "@/lib/elements";
@@ -688,7 +689,7 @@ export const useStudio = create<StudioState>()(
        */
       setProvider: (provider) => {
         const state = get();
-        if (state.provider === provider) return;
+        if (state.provider === provider || (!HIGGSFIELD && provider === "higgsfield")) return;
         const page = state.page;
         const onCategory = isCategoryPage(page);
         const offered = modelsFor(provider).some((m) => m.category === (onCategory ? page : state.category));
@@ -713,6 +714,8 @@ export const useStudio = create<StudioState>()(
       setPhoneGrid: (phoneGrid) => set({ phoneGrid }),
       setPage: (page) =>
         set((state) => {
+          // Genjutsu and Cinema Studio run on Higgsfield: Home while it is off.
+          if (!HIGGSFIELD && (page === "remix" || page === "studio")) return { page: "home" as Page, selectMode: false };
           if (!isCategoryPage(page)) return { page, selectMode: false };
           // A page remembers the model it was last used with. It does not
           // invent one: until you choose, the bar says Choose model.
@@ -740,7 +743,7 @@ export const useStudio = create<StudioState>()(
 
       selectModel: (id) => {
         const model = getModel(id);
-        if (!model) return;
+        if (!model || (!HIGGSFIELD && providerOf(model) === "higgsfield")) return;
         // Genjutsu has a page of its own: chosen anywhere (the Video page's
         // catalogue, the phone's Create sheet), it opens that page instead of
         // becoming the Video page's model.
@@ -1245,6 +1248,9 @@ if (typeof window !== "undefined") {
       const kept = withoutInputs(run.urls, run.values);
       if (kept.length > 0 && kept.length < run.urls.length) state.patchRun(run.id, { urls: kept });
     }
+    // Higgsfield switched off: back to KIE, and off its own pages.
+    if (!HIGGSFIELD && state.provider === "higgsfield") useStudio.setState({ provider: "kie", modelId: state.modelByCategory[state.category] ?? "" });
+    if (!HIGGSFIELD && (state.page === "remix" || state.page === "studio")) state.setPage(state.page);
     const page = state.page;
     if (!isCategoryPage(page)) return;
     const model = getModel(state.modelId);

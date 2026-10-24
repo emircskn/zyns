@@ -1,5 +1,6 @@
 "use client";
 
+import { pageOffered } from "@/lib/features";
 import { useScrolled } from "@/components/PhoneShell";
 import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
@@ -46,7 +47,7 @@ function PageNav() {
   const setPage = useStudio((s) => s.setPage);
   const provider = useStudio((s) => s.provider);
   const root = useRef<HTMLElement>(null);
-  const groups = pagesFor(provider);
+  const groups = pagesFor(provider).map((group) => group.filter((item) => pageOffered(item.id)));
 
   return (
     // A narrow window scrolls the line sideways rather than running it under the account.

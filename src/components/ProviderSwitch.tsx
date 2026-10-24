@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useRef } from "react";
 import { ServiceMark } from "@/components/ServiceBadge";
 import type { Provider } from "@/lib/registry";
@@ -25,6 +26,11 @@ export function ProviderSwitch({
   /** After a switch: the phone composer uses it to land on a model at once. */
   onSwitched?: (provider: Provider) => void;
 }) {
+  if (!HIGGSFIELD) return null;
+  return <Switch size={size} onSwitched={onSwitched} />;
+}
+
+function Switch({ size, onSwitched }: { size: "xs" | "sm" | "lg"; onSwitched?: (provider: Provider) => void }) {
   const provider = useStudio((s) => s.provider);
   const setProvider = useStudio((s) => s.setProvider);
   const apiKey = useStudio((s) => s.apiKey);

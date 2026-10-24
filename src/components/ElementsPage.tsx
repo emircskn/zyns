@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useState } from "react";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
 import { Icon } from "@/components/Icon";
@@ -118,7 +119,7 @@ export function ElementsPage() {
         </div>
       )}
 
-      {filter === "character" && (
+      {filter === "character" && HIGGSFIELD && (
         <div className="mb-3 flex flex-wrap items-center gap-2 px-4">
           <div role="tablist" aria-label="Kind of character" className="flex rounded-card bg-t1/[0.05] p-1">
             {([
@@ -170,13 +171,13 @@ export function ElementsPage() {
               >
                 New element
               </button>
-              <button
+              {HIGGSFIELD && <button
                 type="button"
                 onClick={() => openTrainer({})}
                 className="ml-2 rounded-full bg-t1/[0.07] px-4 py-2 text-[12.5px] font-medium text-t1 transition-colors duration-[120ms] hover:bg-t1/[0.12]"
               >
                 Soul ID character
-              </button>
+              </button>}
             </span>
           </Stagger>
         </div>

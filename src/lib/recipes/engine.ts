@@ -8,7 +8,7 @@
  * up where it was: RecipeDriver calls `advance` whenever runs change.
  */
 import { submitModelRun } from "@/lib/generate";
-import { getModel, hasCapability, modesFor, ALL_MODELS, type Capability, type ModelDef } from "@/lib/registry";
+import { getModel, hasCapability, modesFor, OFFERED_MODELS, type Capability, type ModelDef } from "@/lib/registry";
 import { estimateCredits, formatCredits } from "@/lib/registry/pricing";
 import { keepCopy } from "@/lib/storage/client";
 import { getRecipe } from "@/recipes";
@@ -23,7 +23,7 @@ export function modelsForStep(step: Step): ModelDef[] {
     const fixed = getModel(step.fixedModel);
     return fixed ? [fixed] : [];
   }
-  return ALL_MODELS.filter((m) => hasCapability(m, step.capability));
+  return OFFERED_MODELS.filter((m) => hasCapability(m, step.capability));
 }
 
 /** The keys a step's choice is remembered under, the recipe's own first. */

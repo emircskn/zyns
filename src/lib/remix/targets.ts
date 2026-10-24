@@ -7,7 +7,7 @@
  */
 import { mapParams } from "@/lib/recipes/paramMap";
 import {
-  ALL_MODELS,
+  OFFERED_MODELS,
   activeFields,
   getModel,
   modesFor,
@@ -35,7 +35,7 @@ export function restyleTargets(): Array<RemixTarget & { model: ModelDef; label: 
         { ...MOTION, model: genjutsu, label: "Genjutsu Motion transfer" },
       ]
     : [];
-  const editors = ALL_MODELS.filter((m) => m.id !== GENJUTSU && modesFor(m, "video-edit").length > 0).map((model) => ({
+  const editors = OFFERED_MODELS.filter((m) => m.id !== GENJUTSU && modesFor(m, "video-edit").length > 0).map((model) => ({
     modelId: model.id,
     mode: modesFor(model, "video-edit")[0],
     model,

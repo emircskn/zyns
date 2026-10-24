@@ -7,6 +7,7 @@
  * lives in the prompt as a `#move` chip; it is taken out of the text and
  * sent as `camera_movement` (Cinema Studio takes one per shot).
  */
+import { HIGGSFIELD } from "@/lib/features";
 import { mapParams } from "@/lib/recipes/paramMap";
 import { activeFields, getModel, modelsFor, modesFor, type Field, type ModelDef, type Provider, type Values } from "@/lib/registry";
 import { ownPageOf } from "@/store/studio";
@@ -30,7 +31,7 @@ export function studioVideoModels(provider: Provider): ModelDef[] {
     const values = mapParams(m, mode, {}).values;
     return !!promptField(m, values);
   });
-  return cinema ? [cinema, ...others] : others;
+  return cinema && HIGGSFIELD ? [cinema, ...others] : others;
 }
 
 /** The chosen service's image models that make a picture from a prompt. */

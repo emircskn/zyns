@@ -1,5 +1,6 @@
 "use client";
 
+import { pageOffered } from "@/lib/features";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon, type IconName } from "@/components/Icon";
@@ -197,7 +198,7 @@ function SidePanel({ open, onClose, onKeyClick }: { open: boolean; onClose: () =
             Create
           </button>
           <Row icon="compass" label="Explore" on={page === "home"} onClick={go("home")} />
-          {make.map((item) => (
+          {make.filter((item) => pageOffered(item.id)).map((item) => (
             <Row key={item.id} icon={item.icon} label={item.label} on={page === item.id} onClick={go(item.id)} />
           ))}
           {pages.map((item) => (

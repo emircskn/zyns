@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useEffect } from "react";
 import { create } from "zustand";
 import { isDirect } from "@/lib/higgsfield/transport";
@@ -18,7 +19,7 @@ let asked = false;
  */
 export function useHiggsfieldCatalog(): number {
   useEffect(() => {
-    if (asked || isDirect()) return;
+    if (!HIGGSFIELD || asked || isDirect()) return;
     asked = true;
     fetch("/api/hf-catalog")
       .then((res) => (res.ok ? res.json() : null))

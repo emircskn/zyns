@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSwipeDismiss } from "@/lib/useSwipeDismiss";
 import { Icon } from "@/components/Icon";
@@ -18,6 +19,7 @@ const GROUP_LABEL: Record<Category, string> = {
 
 /** Whose model it is, where KIE's and Higgsfield's are listed together. */
 export function ProviderTag({ model, onMedia }: { model: ModelDef; onMedia?: boolean }) {
+  if (!HIGGSFIELD) return null;
   return (
     <span
       className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-medium ${

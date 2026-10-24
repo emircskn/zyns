@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { ProviderSwitch } from "@/components/ProviderSwitch";
@@ -149,10 +150,14 @@ export function ApiKeyDialog({ open, onClose }: { open: boolean; onClose: () => 
           <span className="mb-5 grid h-10 w-10 place-items-center rounded-chip bg-t1/[0.07] text-t1">
             <Icon name="key" size={18} />
           </span>
-          <h2 className="mb-3 text-[17px] text-t1">Make with</h2>
-          <div className="mb-5">
-            <ProviderSwitch size="lg" />
-          </div>
+          {HIGGSFIELD && (
+            <>
+              <h2 className="mb-3 text-[17px] text-t1">Make with</h2>
+              <div className="mb-5">
+                <ProviderSwitch size="lg" />
+              </div>
+            </>
+          )}
 
           <h3 className="mb-2 text-[14px] text-t1">Your {higgsfield ? "Higgsfield" : "KIE"} API key</h3>
           {higgsfield ? (

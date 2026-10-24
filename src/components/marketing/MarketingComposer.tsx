@@ -21,7 +21,7 @@ import { mapParams } from "@/lib/recipes/paramMap";
 import { PROVIDER_NAME, submitModelRun } from "@/lib/generate";
 import { typeLabel } from "@/lib/marketing/presets";
 import type { MarketingRunInfo, MarketingUi } from "@/lib/marketing/types";
-import { activeFields, ALL_MODELS, defaultValues, getModel, modesFor, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
+import { activeFields, OFFERED_MODELS, defaultValues, getModel, modesFor, providerOf, validateValues, type ModelDef, type Values } from "@/lib/registry";
 import { mediaSrc } from "@/lib/storage/client";
 import { EMPTY_MARKETING } from "@/lib/marketing/types";
 import { keyFor, useStudio } from "@/store/studio";
@@ -46,7 +46,7 @@ const withStyle = (ui: MarketingUi) => {
 
 /** Marketing Studio's own image models, the variants offered here. */
 export function marketingModels(): ModelDef[] {
-  return ALL_MODELS.filter((m) => /^hf-marketing-studio/.test(m.id));
+  return OFFERED_MODELS.filter((m) => /^hf-marketing-studio/.test(m.id));
 }
 
 /** One of Marketing Studio's own models (presets and Ad Reference need one). */

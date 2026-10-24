@@ -1,3 +1,4 @@
+import { HIGGSFIELD } from "@/lib/features";
 import { BRAND_ICONS } from "@/lib/brandIcons";
 import type { Provider } from "@/lib/registry";
 
@@ -42,6 +43,8 @@ export function ServiceMark({ provider, size = 12 }: { provider: Provider; size?
  * service's mark on a dark disc. The select mark takes its place on hover.
  */
 export function ServiceBadge({ provider, hidden, className = "left-2 top-2" }: { provider: Provider; hidden?: boolean; className?: string }) {
+  // One service in use: nothing to tell apart.
+  if (!HIGGSFIELD) return null;
   return (
     <span
       role="img"

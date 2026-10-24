@@ -1,5 +1,6 @@
 "use client";
 
+import { pageOffered } from "@/lib/features";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { ModelMedia } from "@/components/ModelMedia";
@@ -155,8 +156,8 @@ export function useExplore() {
     const genjutsu = getModel(GENJUTSU);
     const cinema = getModel(CINEMA);
     const marketing = getModel("hf-marketing-studio-flare");
-    if (genjutsu) list.push({ key: "genjutsu", model: genjutsu, title: "Genjutsu", line: "Motion transfer, swap and restyle on a clip you bring", kind: "studios", badge: "Studio", open: () => setPage("remix") });
-    if (cinema) list.push({ key: "cinema", model: cinema, title: "Cinema Studio", line: "Direct a shot: camera, film, light and colour", kind: "studios", badge: "Studio", open: () => setPage("studio") });
+    if (genjutsu && pageOffered("remix")) list.push({ key: "genjutsu", model: genjutsu, title: "Genjutsu", line: "Motion transfer, swap and restyle on a clip you bring", kind: "studios", badge: "Studio", open: () => setPage("remix") });
+    if (cinema && pageOffered("studio")) list.push({ key: "cinema", model: cinema, title: "Cinema Studio", line: "Direct a shot: camera, film, light and colour", kind: "studios", badge: "Studio", open: () => setPage("studio") });
     if (marketing) list.push({ key: "marketing", model: marketing, title: "Marketing Studio", line: "Product shots, ads and listings, and video made from them", kind: "studios", badge: "Studio", open: () => setPage("marketing") });
     for (const c of categories) {
       for (const model of (byCategory.get(c.id) ?? []).slice(0, 2)) {
@@ -197,7 +198,7 @@ export function PhoneExplore() {
     ...categories
       .filter((c) => c.id === "image" || c.id === "video")
       .map((c) => ({ key: c.id, label: c.label, model: first(c.id), onPick: () => setPage(c.id as Page) })),
-    { key: "genjutsu", label: "Genjutsu", model: getModel(GENJUTSU), onPick: () => setPage("remix") },
+    ...(pageOffered("remix") ? [{ key: "genjutsu", label: "Genjutsu", model: getModel(GENJUTSU), onPick: () => setPage("remix") }] : []),
     { key: "marketing", label: "Marketing", model: getModel("hf-marketing-studio-flare"), onPick: () => setPage("marketing") },
   ].slice(0, 4);
 

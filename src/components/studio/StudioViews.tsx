@@ -1,5 +1,6 @@
 "use client";
 
+import { HIGGSFIELD } from "@/lib/features";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { GlideMark } from "@/components/GlideMark";
 import { ConfirmPopup } from "@/components/ConfirmPopup";
@@ -434,7 +435,7 @@ function FilterMenu({ filter, onChange, models }: { filter: GenFilter; onChange:
           "Type",
           (["all", "image", "video"] as const).map((t) => <Choice key={t} on={filter.type === t} label={t === "all" ? "All types" : t === "image" ? "Images" : "Videos"} onClick={() => set({ type: t })} />),
         )}
-        {group(
+        {HIGGSFIELD && group(
           "Service",
           (
             [
