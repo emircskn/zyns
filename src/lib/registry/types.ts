@@ -34,7 +34,9 @@ export type FieldKind =
   /** Soul 2.0's style: a card beside Generate that opens the style window. */
   | "soulStyle"
   /** Boxes drawn on each reference (Wan's bbox_list), kept per reference URL as 0–1 fractions. */
-  | "boxes";
+  | "boxes"
+  /** Wan's colour palette: swatches with shares, sent as { hex, ratio: "xx.xx%" }. */
+  | "palette";
 
 /**
  * Where a control lives in the studio chrome:

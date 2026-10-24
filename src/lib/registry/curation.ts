@@ -6,6 +6,7 @@
  */
 import type { Family, ModeSpec } from "./auto";
 import type { Field, Values } from "./types";
+import { balanced, type Swatch } from "@/lib/palette";
 
 const m = (id: string, label: string, model: string, extra: Partial<ModeSpec> = {}): ModeSpec => ({
   id,
@@ -123,13 +124,20 @@ const SUNO_TRACK: Partial<Field> = {
  * set, and only a sequential set goes past 4 images.
  */
 const wanHasInputs = (v: Values) => Array.isArray(v.input_urls) && v.input_urls.length > 0;
+const wanPalette = (v: Values) => (!v.enable_sequential && Array.isArray(v.color_palette) && v.color_palette.length > 0 ? (v.color_palette as Swatch[]) : undefined);
 const wanImageProblem = (v: Values) =>
-  !v.enable_sequential && Number(v.n) > 4 ? "Turn on Sequential set for more than 4 images." : null;
+  !v.enable_sequential && Number(v.n) > 4
+    ? "Turn on Sequential set for more than 4 images."
+    : (wanPalette(v)?.length ?? 3) < 3
+      ? "A colour palette needs at least 3 colours."
+      : wanPalette(v)?.some((s) => !/^#[0-9a-f]{6}$/i.test(s.hex))
+        ? "Each palette colour needs a 6-digit hex, like #C2D1E6."
+        : null;
 const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
   fields: {
     n: { max: 12, help: "Up to 4, or 12 as a sequential set." },
     thinking_mode: { when: (v) => !v.enable_sequential && !wanHasInputs(v) },
-    color_palette: { when: (v) => !v.enable_sequential },
+    color_palette: { kind: "palette", when: (v) => !v.enable_sequential, minItems: 3, maxItems: 10, help: "3 to 10 colours, 8 works best. Shares are scaled to 100% when sent." },
     // Always listed, so the tool is findable before a reference is attached.
     bbox_list: { kind: "boxes", help: "Drag on a reference to mark what to change, up to two boxes each." },
   },
@@ -138,7 +146,7 @@ const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
     // Turned into pixel boxes before sending (see boxesToPixels); never sent as drawn.
     bbox_list: Array.isArray(v.bbox_list) ? v.bbox_list : undefined,
     thinking_mode: v.enable_sequential || wanHasInputs(v) ? undefined : v.thinking_mode,
-    color_palette: v.enable_sequential ? undefined : v.color_palette,
+    color_palette: wanPalette(v) && balanced(wanPalette(v)!),
   }),
   validate: wanImageProblem,
 };

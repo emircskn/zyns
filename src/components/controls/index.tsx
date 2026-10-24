@@ -26,6 +26,7 @@ import { CLIP_MAX_SECONDS, clipProblem, openingClip, videoDuration, type Clip } 
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
 import { keysFor, moveItem, useReorder } from "@/lib/useReorder";
 import { boxRefs, type Box, type BoxMap } from "@/lib/boxes";
+import { evened, percent, type Swatch } from "@/lib/palette";
 
 interface ControlProps {
   field: Field;
@@ -1174,6 +1175,97 @@ function BoxPad({ url, label, boxes, max, onChange }: { url: string; label: stri
   );
 }
 
+const STARTER_PALETTE = ["#1F2A44", "#C2D1E6", "#E8B04A"];
+// New colours cycle through these before the picker takes over.
+const MORE_COLOURS = ["#D9644A", "#4F7A5A", "#F2EDE4", "#7A5C9E", "#2E2E2E", "#8FB8C9", "#B5838D"];
+
+/**
+ * Wan's colour palette, as Kie's playground has it: 3 to 10 colours, each
+ * with its share of the picture. The shares are scaled to 100% on send.
+ */
+function PaletteControl({ field, value, onChange }: ControlProps) {
+  const swatches = (Array.isArray(value) ? value : []) as Swatch[];
+  const max = field.maxItems ?? 10;
+  const total = swatches.reduce((sum, s) => sum + percent(s.ratio), 0);
+  const set = (next: Swatch[]) => onChange(next.length ? next : undefined);
+  const update = (index: number, patch: Partial<Swatch>) => set(swatches.map((s, i) => (i === index ? { ...s, ...patch } : s)));
+
+  if (swatches.length === 0) {
+    return <AddRow label="Start a palette" onClick={() => set(evened(STARTER_PALETTE.map((hex) => ({ hex, ratio: "" }))))} />;
+  }
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex h-6 overflow-hidden rounded-chip ring-1 ring-inset ring-edge">
+        {swatches.map((s, i) => (
+          <div key={i} style={{ background: s.hex, flexGrow: Math.max(percent(s.ratio), 0.5) }} />
+        ))}
+      </div>
+      {swatches.map((s, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <label className="relative h-7 w-7 shrink-0 cursor-pointer overflow-hidden rounded-full ring-1 ring-inset ring-edge" style={{ background: s.hex }}>
+            <input
+              type="color"
+              aria-label={`Colour ${i + 1}`}
+              value={/^#[0-9a-f]{6}$/i.test(s.hex) ? s.hex : "#000000"}
+              onChange={(event) => update(i, { hex: event.target.value.toUpperCase() })}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+          </label>
+          <input
+            type="text"
+            value={s.hex}
+            maxLength={7}
+            spellCheck={false}
+            onChange={(event) => {
+              const hex = event.target.value.trim().toUpperCase();
+              update(i, { hex: hex.startsWith("#") ? hex : `#${hex}` });
+            }}
+            className={`${SMALL_INPUT} font-mono uppercase`}
+          />
+          <div className="relative w-[84px] shrink-0">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              aria-label={`Share of colour ${i + 1}`}
+              value={s.ratio === "" ? "" : percent(s.ratio)}
+              onChange={(event) => {
+                const n = Math.min(100, Math.max(0, Number(event.target.value) || 0));
+                update(i, { ratio: event.target.value === "" ? "" : `${n.toFixed(2)}%` });
+              }}
+              className={`${SMALL_INPUT} pr-6 font-mono tabular-nums`}
+            />
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[12px] text-t4">%</span>
+          </div>
+          <button
+            type="button"
+            aria-label={`Remove colour ${i + 1}`}
+            onClick={() => set(swatches.filter((_, j) => j !== i))}
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-t4 transition-colors hover:bg-t1/[0.08] hover:text-t1"
+          >
+            <Icon name="close" size={14} />
+          </button>
+        </div>
+      ))}
+      <div className="flex items-center justify-between text-[11.5px]">
+        <span className={swatches.length < 3 || Math.abs(total - 100) > 0.005 ? "text-accent" : "text-t4"}>
+          {swatches.length} colours · {total.toFixed(2)}%
+        </span>
+        <button type="button" onClick={() => set(evened(swatches))} className="text-t3 transition-colors hover:text-t1">
+          Even out
+        </button>
+      </div>
+      {swatches.length < max && (
+        <AddRow
+          label="Add colour"
+          onClick={() => set(evened([...swatches, { hex: MORE_COLOURS[Math.max(0, swatches.length - 3) % MORE_COLOURS.length], ratio: "" }]))}
+        />
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 export function Control(props: ControlProps) {
@@ -1214,6 +1306,8 @@ export function Control(props: ControlProps) {
       return <SoulControl {...props} />;
     case "boxes":
       return <BoxesControl {...props} />;
+    case "palette":
+      return <PaletteControl {...props} />;
     default:
       return <TextControl {...props} />;
   }
@@ -1227,7 +1321,7 @@ export function chipCaption(field: Field, value: unknown, values: Values): strin
     return element ? `@${element.name}` : field.label;
   }
   if (field.kind === "toggle") return field.label;
-  if (["images", "records", "list", "shots", "elements", "clips"].includes(field.kind)) {
+  if (["images", "records", "list", "shots", "elements", "clips", "palette"].includes(field.kind)) {
     const n = Array.isArray(value) ? value.length : 0;
     return n === 0 ? field.label : `${n} ${field.label.toLowerCase()}`;
   }
