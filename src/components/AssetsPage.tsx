@@ -50,7 +50,8 @@ export function AssetsPage() {
   const shown = useMemo(
     () =>
       [...working, ...assets]
-        .filter((a) => matches(a, filter) && (!project || a.projectId === project))
+        // A segment map is one tile, as on the Image page; its parts are in the enlarged view.
+        .filter((a) => !a.inGroup && matches(a, filter) && (!project || a.projectId === project))
         .sort((a, b) => b.createdAt - a.createdAt),
     [working, assets, filter, project],
   );

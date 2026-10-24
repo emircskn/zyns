@@ -178,6 +178,12 @@ function AssetTile({
         )}
         {/* A clip says so: on a still frame it reads as a picture otherwise. */}
         {asset.kind === "video" && <VideoMark tiny={square} />}
+        {asset.parts && (
+          <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] text-white">
+            <Icon name="layers" size={11} />
+            {asset.parts} parts
+          </span>
+        )}
       </button>
 
       {asset.kind === "audio" && !picking && (

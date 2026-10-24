@@ -2,6 +2,7 @@
 
 import { getModel, type Category } from "@/lib/registry";
 import { mediaKind } from "@/lib/upload";
+import { segmentsOf } from "@/lib/sources";
 import { useStudio, type Run, type Upload } from "@/store/studio";
 
 /** Anything the studio can show or reuse: a finished output, or an upload. */
@@ -26,12 +27,17 @@ export interface Asset {
   folderId?: string;
   /** The service that made it (runs only). */
   provider?: "kie" | "higgsfield";
+  /** A segment map's parts: how many on its first part, and `inGroup` on the rest, which Assets folds away. */
+  parts?: number;
+  inGroup?: boolean;
 }
 
 export function runAssets(run: Run): Asset[] {
   if (run.state !== "success") return [];
   const category = getModel(run.modelId)?.category;
+  const grouped = run.urls.length > 1 && !!segmentsOf(run);
   return run.urls.map((url, index) => ({
+    ...(grouped && (index === 0 ? { parts: run.urls.length } : { inGroup: true })),
     id: `${run.id}-${index}`,
     url,
     kind: mediaKind(url),
