@@ -136,6 +136,9 @@ const wanImageProblem = (v: Values) =>
 const WAN_IMAGE: Pick<Family, "fields" | "prepare" | "validate"> = {
   fields: {
     n: { max: 12, help: "Up to 4, or 12 as a sequential set." },
+    enable_sequential: {
+      help: "Makes a connected series (same character and style, up to 12 images). While on, Colour palette, Thinking mode and 4K (Pro) are off.",
+    },
     thinking_mode: { when: (v) => !v.enable_sequential && !wanHasInputs(v) },
     color_palette: { kind: "palette", when: (v) => !v.enable_sequential, minItems: 3, maxItems: 10, help: "3 to 10 colours, 8 works best. Shares are scaled to 100% when sent." },
     // Always listed, so the tool is findable before a reference is attached.
