@@ -666,14 +666,17 @@ export function MediaViewer({
   // A segment map is made to be edited part by part: that leads, in the
   // place Turn to video holds for a picture.
   const parts = run ? segmentsOf(run) : undefined;
+  // So does a draft's Finalize: rendering it in full is what a draft is for.
   const lead = parts
     ? follow.find((a) => a.model.id === run?.modelId && a.model.fields.some((f) => f.source?.of === "segment" && (!f.when || f.when({ __mode: a.mode.id }))))
-    : undefined;
+    : follow.find((a) => a.model.id === run?.modelId && a.mode.id === "finalize");
   const part = parts?.[run?.urls.indexOf(shown ?? "") ?? -1];
 
   function follow_(action: ResultAction) {
     if (!run) return;
     applyAction(action, run, shown ?? undefined);
+    // A draft is finished at full quality unless 720p is picked in the bar.
+    if (action.mode.id === "finalize") useStudio.getState().setValue("resolution", "1080p");
     onClose();
     readyToWrite();
   }
@@ -711,7 +714,7 @@ export function MediaViewer({
   const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
   const project = projects.find((p) => p.id === filedIn);
   const entries = ([
-    lead && { key: "lead", tile: <Action key="lead" icon="layers" label={lead.mode.label} primary onClick={() => follow_(lead)} /> },
+    lead && { key: "lead", tile: <Action key="lead" icon={lead.mode.id === "finalize" ? "spark" : "layers"} label={lead.mode.label} primary onClick={() => follow_(lead)} /> },
     !lead && (videoModel || (isImage && isStudioRun(run))) && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
     run && { key: "recreate", tile: <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} /> },
     (canReference || (isImage && isStudioRun(run))) && { key: "reference", tile: <Action key="reference" icon="layers" label="Reference" onClick={reference} /> },

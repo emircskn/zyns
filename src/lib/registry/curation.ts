@@ -664,10 +664,10 @@ export const FAMILIES: Family[] = [
     tagline: "Multimodal references, first/last-frame control and native audio.",
     modes: seedanceModes("bytedance/seedance-2-5").map((mode) => ({ ...mode, hide: [...(mode.hide ?? []), "draft"] })),
     fields: {
-      // 480p is the draft's resolution: picking it moves to the Draft model.
+      // 480p here is a full render of its own; drafting is the Draft model's job.
       resolution: {
         choices: [
-          { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality", switchTo: "seedance-2-5-draft" },
+          { value: "480p", label: "480p" },
           { value: "720p", label: "720p" },
           { value: "1080p", label: "1080p" },
         ],
@@ -688,19 +688,27 @@ export const FAMILIES: Family[] = [
       m("finalize", "Finalize draft", "bytedance/seedance-2-5-draft", { hint: "Render a finished draft in full quality" }),
     ],
     fields: {
-      // 480p is the draft; 720p and 1080p are the full render.
+      // A draft is made at 480p only; finishing it renders it at 720p or 1080p.
       resolution: {
         default: "480p",
+        choices: [{ value: "480p", label: "480p", info: "Draft your idea before generating in full quality" }],
+      },
+      "resolution@finalize": {
+        default: "1080p",
         choices: [
-          { value: "480p", label: "480p", badge: "Draft", info: "Draft your idea before generating in full quality" },
-          { value: "720p", label: "720p", switchTo: "seedance-2-5" },
-          { value: "1080p", label: "1080p", switchTo: "seedance-2-5" },
+          { value: "720p", label: "720p" },
+          { value: "1080p", label: "1080p" },
         ],
       },
-      draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5-draft"] } },
+      draft_task_id: { kind: "source", placement: "input", label: "Draft", source: { of: "task", models: ["seedance-2-5-draft"], notFrom: ["finalize"] } },
     },
-    send: (v, mode) => (mode !== "finalize" && (v.resolution ?? "480p") === "480p" ? { draft: true } : {}),
-    generateLabel: (v) => ((v.resolution ?? "480p") === "480p" ? "Generate draft" : "Generate"),
+    // Both modes share the resolution value: each sends only what it offers.
+    prepare: (v) =>
+      v.__mode === "finalize"
+        ? { ...v, resolution: v.resolution === "720p" ? "720p" : "1080p" }
+        : { ...v, resolution: "480p" },
+    send: (_v, mode) => (mode === "finalize" ? {} : { draft: true }),
+    generateLabel: (v) => (v.__mode === "finalize" ? "Finalize draft" : "Generate draft"),
   },
   {
     id: "seedance-2",
