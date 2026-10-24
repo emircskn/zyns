@@ -1,4 +1,5 @@
 import type { Field, Values } from "@/lib/registry";
+import type { Segment } from "@/lib/results";
 import { mediaKind } from "@/lib/upload";
 import type { Run } from "@/store/studio";
 
@@ -14,6 +15,17 @@ export interface SourceItem {
   thumb?: string;
   icon: "audio" | "mic" | "image";
   run: Run;
+}
+
+/**
+ * A segment map's parts, each shown by its kept copy: Grok's mask links are
+ * temporary, and the run's files are those masks in index order. A map made
+ * before its parts were recorded reads them off its files alone.
+ */
+export function segmentsOf(run: Run): Segment[] | undefined {
+  if (!run.segments && !run.mode?.startsWith("segment-map")) return undefined;
+  const parts: Segment[] = run.segments ?? run.urls.map((_, index) => ({ index }));
+  return parts.map((s, i) => ({ ...s, url: run.urls[i] ?? s.url }));
 }
 
 /** What a source field can pick from, newest first. */
@@ -42,7 +54,7 @@ export function sourceItems(field: Field, runs: Run[], modelId: string, values?:
     case "segment": {
       // The parts of the segment map picked in the same request's task field.
       const map = done.find((r) => r.taskId && r.taskId === values?.task_id);
-      return (map?.segments ?? []).map((s) => ({
+      return (map ? segmentsOf(map) ?? [] : []).map((s) => ({
         id: String(s.index),
         title: s.name || `Part ${s.index + 1}`,
         thumb: s.url,

@@ -728,8 +728,10 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
   return (
     <div className="min-w-0">
       <SlotHeader label={field.label} count={many ? `${picked.length}/${max}` : undefined} help={field.help}>
-        {/* An ID from outside this studio can't be picked from the runs, so it is pasted. */}
-        <UrlField
+        {/* An ID from outside this studio can't be picked from the runs, so it is
+            pasted (a run's own shows under Details in the viewer). Parts only
+            exist for a map picked here, so there is nothing to paste for them. */}
+        {spec.of !== "segment" && <UrlField
           placeholder="Paste an ID, then Enter"
           onCommit={(next) => {
             if (!next) return;
@@ -737,7 +739,7 @@ export function SourceControl({ field, value, values, onChange, roomy }: Control
               if (!picked.includes(next) && picked.length < max) onChange([...picked, next]);
             } else onChange(next);
           }}
-        />
+        />}
       </SlotHeader>
       {items.length === 0 && strays.length === 0 ? (
         <p className="max-w-[260px] text-[11.5px] leading-snug text-t4">{SOURCE_EMPTY[spec.of]}</p>

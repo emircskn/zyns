@@ -32,6 +32,7 @@ import { useStudio, type Run } from "@/store/studio";
 import { TileExtras } from "@/lib/tileExtras";
 import { useProjectDelete } from "@/lib/newProject";
 import { thumbSrc, videoFrame } from "@/lib/storage/client";
+import { segmentsOf } from "@/lib/sources";
 
 export { TileExtras, type TileExtrasValue } from "@/lib/tileExtras";
 
@@ -350,10 +351,10 @@ export function Tile({
           </span>
         )}
         {/* The rest of a run hides behind its first picture in a square: say how many there are. */}
-        {url && run.urls.length > 1 && (square || run.segments) && (
+        {url && run.urls.length > 1 && (square || segmentsOf(run)) && (
           <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] text-white">
             <Icon name="layers" size={11} />
-            {run.segments ? `${run.segments.length} parts` : run.urls.length}
+            {segmentsOf(run) ? `${run.urls.length} parts` : run.urls.length}
           </span>
         )}
         {loading && (

@@ -20,6 +20,7 @@ import { LikeHeart } from "@/components/LikeHeart";
 import { SaveGlyph } from "@/components/SaveGlyph";
 import { VendorBadge } from "@/components/VendorMark";
 import { getModel, type Field } from "@/lib/registry";
+import { segmentsOf } from "@/lib/sources";
 import {
   attachReference,
   firstFrameModel,
@@ -493,7 +494,7 @@ export function MediaViewer({
 }) {
   const { mounted, exiting } = usePresence(!!url, 220);
   const [shown, setShown] = useState(url);
-  const [copied, setCopied] = useState<"url" | "prompt" | null>(null);
+  const [copied, setCopied] = useState<"url" | "prompt" | "id" | null>(null);
   const [confirming, setConfirming] = useState(false);
   // Choosing the project this belongs to.
   const [filing, setFiling] = useState(false);
@@ -594,7 +595,7 @@ export function MediaViewer({
 
   if (!mounted || !shown || typeof document === "undefined") return null;
 
-  async function copy(text: string, what: "url" | "prompt") {
+  async function copy(text: string, what: "url" | "prompt" | "id") {
     await navigator.clipboard?.writeText(text);
     setCopied(what);
     window.setTimeout(() => setCopied(null), 1400);
@@ -662,6 +663,13 @@ export function MediaViewer({
     return all;
   }, []);
   groups.sort((a, b) => Number(b.model.id === run?.modelId) - Number(a.model.id === run?.modelId));
+  // A segment map is made to be edited part by part: that leads, in the
+  // place Turn to video holds for a picture.
+  const parts = run ? segmentsOf(run) : undefined;
+  const lead = parts
+    ? follow.find((a) => a.model.id === run?.modelId && a.model.fields.some((f) => f.source?.of === "segment" && (!f.when || f.when({ __mode: a.mode.id }))))
+    : undefined;
+  const part = parts?.[run?.urls.indexOf(shown ?? "") ?? -1];
 
   function follow_(action: ResultAction) {
     if (!run) return;
@@ -703,7 +711,8 @@ export function MediaViewer({
   const filedIn = run?.projectId ?? uploads.find((u) => u.id === upload?.id)?.projectId;
   const project = projects.find((p) => p.id === filedIn);
   const entries = ([
-    (videoModel || (isImage && isStudioRun(run))) && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
+    lead && { key: "lead", tile: <Action key="lead" icon="layers" label={lead.mode.label} primary onClick={() => follow_(lead)} /> },
+    !lead && (videoModel || (isImage && isStudioRun(run))) && { key: "video", tile: <Action key="video" icon="video" label="Turn to video" primary onClick={turnToVideo} /> },
     run && { key: "recreate", tile: <Action key="recreate" icon="refresh" label="Recreate" onClick={recreate} /> },
     (canReference || (isImage && isStudioRun(run))) && { key: "reference", tile: <Action key="reference" icon="layers" label="Reference" onClick={reference} /> },
     {
@@ -879,7 +888,7 @@ export function MediaViewer({
                 <Stage url={shown} />
               </div>
               {run && run.urls.length > 1 && (
-                <div className="no-bar relative z-10 flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
+                <div className="no-bar relative z-10 flex max-w-full shrink-0 gap-1.5 overflow-x-auto pb-0.5">
                   {run.urls.map((one) => (
                     <button
                       key={one}
@@ -900,6 +909,11 @@ export function MediaViewer({
                     </button>
                   ))}
                 </div>
+              )}
+              {part && (
+                <p className="relative z-10 text-[12px] text-t3">
+                  {part.name ? `${part.name} · ` : ""}Part {part.index + 1} of {parts!.length}
+                </p>
               )}
             </div>
           </div>
@@ -1018,7 +1032,7 @@ export function MediaViewer({
                 </MoreMenu>
               )}
 
-              {groups.length > 0 && (
+              {groups.some((g) => g.items.some((a) => a !== lead)) && (
                 <section aria-label="Continue with" className="flex flex-col gap-2 pt-1">
                   <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-t4">Continue with</p>
                   {groups.map((group) => (
@@ -1030,7 +1044,7 @@ export function MediaViewer({
                         </p>
                       )}
                       <div className="flex flex-wrap gap-1.5">
-                        {group.items.map((action) => (
+                        {group.items.filter((action) => action !== lead).map((action) => (
                           <button
                             key={`${action.model.id}:${action.mode.id}`}
                             type="button"
@@ -1132,6 +1146,24 @@ export function MediaViewer({
                         <dd className="truncate text-right text-[12.5px] capitalize text-t1/85">{row.value}</dd>
                       </div>
                     ))}
+                    {/* The ID a later run takes this one by, also from outside the studio. */}
+                    {run?.taskId && (
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="shrink-0 text-[12.5px] text-t3">ID</dt>
+                        <dd className="flex min-w-0 items-center gap-1.5">
+                          <span className="truncate font-mono text-[11.5px] text-t1/85">{run.taskId}</span>
+                          <button
+                            type="button"
+                            onClick={() => void copy(run.taskId!, "id")}
+                            aria-label="Copy ID"
+                            title="Copy ID"
+                            className="shrink-0 text-t3 hover:text-t1"
+                          >
+                            <Icon name={copied === "id" ? "check" : "copy"} size={13} />
+                          </button>
+                        </dd>
+                      </div>
+                    )}
                     {/* Which project it is filed under, and the way to change it. */}
                     {(run || upload) && (
                       <div className="flex items-baseline justify-between gap-3">
